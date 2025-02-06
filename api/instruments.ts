@@ -32,15 +32,17 @@ export function Publish(Instruments: IInstrument[]) {
     const symbol: string[] = instrument.instId.split("-");
 
     if (symbol[0]===instrument.baseCurrency&&symbol[1]===instrument.quoteCurrency)
-    { 
-      currency.Publish(instrument.baseCurrency);
-      currency.Publish(instrument.quoteCurrency);
+    {
+      currency.Publish(instrument.baseCurrency, instrument.state !== 'live');
+      currency.Publish(instrument.quoteCurrency, false);
     }
+
+
   });
 };
 
 export function Import() {
-  fetch(`https://openapi.blofin.com/api/v1/market/instruments?instId=BTC-USDT`)
+  fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then(response => response.json())
     .then((result: IResult) => Publish(result.data))
 

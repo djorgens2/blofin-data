@@ -16,14 +16,11 @@ export function byInstrument(Instrument: number) {
   return Select<IInstrument>(`SELECT * FROM instrument WHERE instrument = ${Instrument};`);
 }
 
-export function byCurrency(Instrument: string) {
-  const currency: string[] = Instrument.split('-');
-  return Select<IInstrument>(`SELECT * FROM instrument i, currency_type b, currency_type q WHERE i.base_currency = b.currency_type and i.quote_currency = q.currency_type and b.short_name = '${currency[0]}' and q.short_name = '${currency[1]}';`);
+export function bySymbol(Symbol: string) {
+  const source: string[] = Symbol.split('-');
+  if (source.length === 1) source.push('USDT');
+  return Select<IInstrument>(`SELECT * FROM instrument i, currency b, currency q WHERE i.base_currency = b.currency and i.quote_currency = q.currency and b.symbol = '${source[0]}' and q.symbol = '${source[1]}';`);
 }
-
-export function setSuspense(Instrument: number, Suspend: boolean) {
-  return Modify(`UPDATE instrument SET suspended=${Suspend} WHERE instrument = ${Instrument};`);
-}  
 
 export function add(Instrument: string) {
   const currency: string[] = Instrument.split('-');
