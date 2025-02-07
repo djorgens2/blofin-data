@@ -1,23 +1,26 @@
 import * as currency from "../db/interfaces/currency";
 
-export function Publish(Symbol: string, Suspense: boolean) {
+export async function Publish(Symbol: string, Suspense: boolean): Promise<number> {
   if (!Symbol || Symbol.length === 0) {
       console.log("Null currency symbols are not permitted; ")
   }
   else
   {
     currency.bySymbol(Symbol)
-        .then(response => {
+        .then(async response => {
             if (response.length === 0) {
-                currency.add(Symbol,'./Images/Currency/NoImage.png', Suspense)
-                    .then(response => response)
+                await currency.add(Symbol,'./public/images/NoImage.png', Suspense)
+                    .then(result => { return result.insertId })
             }
             else {
                 if (response[0].symbol === Symbol && Suspense) {
                     currency.setSuspense(response[0].currency, Suspense)
-                        .then(response => response)
+                        .then(result => result);
+                return response[0].currency;
             }}
           })
         .catch (error => console.log("Database error occured; ",error))
-  }};
+  }
+  return -1
+};
 

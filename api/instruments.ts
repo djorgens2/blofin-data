@@ -28,13 +28,16 @@ export interface IResult {
 export function Publish(Instruments: IInstrument[]) {
   if (Instruments.length === 0) return;
 
-  Instruments.forEach((instrument) => {
+  Instruments.forEach(async (instrument) => {
     const symbol: string[] = instrument.instId.split("-");
 
     if (symbol[0]===instrument.baseCurrency&&symbol[1]===instrument.quoteCurrency)
     {
-      currency.Publish(instrument.baseCurrency, instrument.state !== 'live');
-      currency.Publish(instrument.quoteCurrency, false);
+      const quote: number = await currency.Publish(instrument.quoteCurrency, false);
+      const base:  number = await currency.Publish(instrument.baseCurrency, instrument.state !== 'live');
+
+      console.log(quote);
+      console.log(base);
     }
 
 
@@ -45,6 +48,5 @@ export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then(response => response.json())
     .then((result: IResult) => Publish(result.data))
-
-  
+ 
 };

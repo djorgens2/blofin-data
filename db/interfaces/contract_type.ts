@@ -16,5 +16,5 @@ export function bySourceRef(SourceRef: string) {
 }
 
 export function add(Description: string, SourceRef: string) {
-    return Modify(`INSERT INTO contract_type (description, short_name) VALUES ('${Description}','${SourceRef}');`)
+    return Modify(`INSERT INTO contract_type (description, source_ref) VALUES ('${Description}','${SourceRef}');`)
 }
