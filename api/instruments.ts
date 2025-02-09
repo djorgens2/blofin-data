@@ -1,7 +1,8 @@
-import * as instrument from "../db/interfaces/instrument";
-import * as currency from './currency';
+import { SplitSymbol } from "@/components/std.util";
+import * as instrument from "@/db/interfaces/instrument";
+import * as currency from '@/db/interfaces/currency';
 
-export interface IInstrument {
+export interface IInstrumentAPI {
     instId: string;
     baseCurrency: string;
     quoteCurrency: string;
@@ -22,27 +23,18 @@ export interface IInstrument {
 export interface IResult {
     code: string;
     msg: string;
-    data: IInstrument[];
+    data: IInstrumentAPI[];
 };
 
-export function Publish(Instruments: IInstrument[]) {
-  if (Instruments.length === 0) return;
-
-  Instruments.forEach(async (instrument) => {
-    const symbol: string[] = instrument.instId.split("-");
-
-    if (symbol[0]===instrument.baseCurrency&&symbol[1]===instrument.quoteCurrency)
-    {
-      const quote: number = await currency.Publish(instrument.quoteCurrency, false);
-      const base:  number = await currency.Publish(instrument.baseCurrency, instrument.state !== 'live');
-
-      console.log(quote);
-      console.log(base);
-    }
-
-
-  });
-};
+export function Publish(Instruments: IInstrumentAPI[]) {
+  Instruments.forEach(async (item) => {
+      const symbol: string[] = SplitSymbol(item.instId);
+      const base  = await currency.Publish(symbol[0],item.state !== 'live');
+      const quote = await currency.Publish(symbol[1],false);
+      console.log("Published", [base, quote]);
+      const parent = await instrument.Publish(base,quote);
+  }
+)};
 
 export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)

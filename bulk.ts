@@ -1,63 +1,42 @@
-import { IInstrument, IResult } from "./api/instruments";
-import { RowDataPacket, ResultSetHeader } from "mysql2/promise";
-import db from "mysql2/promise";
+import { IInstrumentAPI, IResult } from "./api/instruments";
+import { Select, Modify, UniqueKey } from "./db/query.utils";
 import { ICurrency } from "./db/interfaces/currency";
+import { IInstrument } from "./db/interfaces/instrument";
+import { SplitSymbol } from "./components/std.util";
+import * as ContractType from './db/interfaces/contract_type';
+import * as InstrumentType from './db/interfaces/instrument_type';
+import * as InstrumentDetail from './db/interfaces/instrument_detail';
 
-const pool = db.createPool({
-    host: 'localhost',
-    user: 'blofin_user',
-    password: 'blofin123',
-    database: 'blofin',
-    connectionLimit: 30,
-    maxIdle: 10,
-  });
+async function PublishCurrency(Symbol: string, Suspense: boolean): Promise<number> {
+    const key = UniqueKey('');
+    const set = await Modify(`INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (UNHEX(?),?,'./public/images/currency/no-image.png',?) ON DUPLICATE KEY UPDATE suspense=?`,[key, Symbol, Suspense, Suspense]);
+    const get = await Select<ICurrency>('SELECT currency FROM currency WHERE symbol = ?', [Symbol]);
 
-  async function Select<T>(Query: string, Fields: Partial<Array<any>>): Promise<Partial<T>[]> {
-    const [results] = await pool.execute(Query, Fields);
-    return results as T[];
-  }
-  
-  async function Modify(Query: string, Fields: Partial<Array<any>>): Promise<ResultSetHeader> {
-    const [results] = await pool.execute(Query, Fields);
-    return results as ResultSetHeader;
-  }
-  
-  function SplitSymbol(Symbol: string): string[] {
-    const symbols: string[] = Symbol.split('-');
-    if (symbols.length === 1) {
-        symbols.push('USDT');
-    }
-    return symbols;
+    return (get.length === 0 ? set.insertId : get[0].currency);
 };
 
-async function PublishSymbol(Symbol: string, Suspense: boolean): Promise<number|void> {
-    Select<ICurrency>('SELECT * FROM currency WHERE symbol = ?', [Symbol])
-        .then((get) => {
-            console.log('@get:',get);
-            if (get.length === 0) {
-                Modify(`INSERT INTO currency (symbol, image_url, suspense) VALUES (?,'./public/images/no-image.png',?)`,[Symbol, Suspense])
-                    .then((add) => {
-                        console.log('@add',add);
-                        return add.insertId;
-                    })
-                    .catch((error) => {console.log("@Insert",error)})
-            }
-            else {
-                console.log("@getCurrency",get[0].currrency);
-                return get[0].currency;
-            }})
-        .catch ((error) => { console.log('@select',error)});
-};
+async function PublishInstrument(Base: number, Quote: number): Promise<number> {
 
-function Publish(Instruments: IInstrument[]) {
-    Instruments.forEach(async (instrument) => {
-        const symbol: string[] = SplitSymbol(instrument.instId);
+    const key = UniqueKey('');
 
-        if (instrument.baseCurrency === symbol[0] && instrument.quoteCurrency === symbol[1]) {
-            const quote:number|void = await PublishSymbol(instrument.quoteCurrency, false);
-            const base:number|void  = await PublishSymbol(instrument.baseCurrency, instrument.state !== 'live');
-            console.log("Published", [base, quote]);
-        }
+    const set = await Modify(`INSERT IGNORE INTO instrument VALUES (UNHEX(?),?,?)`,[key, Base, Quote]);
+    const get = await Select<IInstrument>('SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?', [Base, Quote]);
+
+    /*@ts-ignore*/
+    return get.length === 0 ? set.insertId : get[0].instrument;
+  };
+  
+function Publish(Instruments: IInstrumentAPI[]) {
+    Instruments.forEach(async (item) => {
+        const symbol: string[] = SplitSymbol(item.instId);
+        const base  = await PublishCurrency(symbol[0],item.state !== 'live');
+        const quote = await PublishCurrency(symbol[1],false);
+        const contract = await ContractType.Publish(item.contractType);
+        const inst_type = await InstrumentType.Publish(item.instType);
+        const inst = await PublishInstrument(base, quote);
+        console.log(symbol, item.listTime, item.expireTime);
+        const detail = await InstrumentDetail.Publish(inst,inst_type,contract,item.contractValue,item.maxLeverage,item.minSize,item.lotSize,item.tickSize,item.maxLimitSize,item.maxMarketSize,item.listTime,item.expireTime);
+        console.log("Published", symbol);
     }
 )};
 

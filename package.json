@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node db.ts"
+    "dev": "ts-node bulk.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +12,7 @@
   "description": "",
   "dependencies": {
     "mysql2": "^3.12.0",
-    "ts-dotenv": "^0.9.1"
+    "nanoid": "^3.3.8"
   },
   "devDependencies": {
     "@types/node": "^22.13.1",

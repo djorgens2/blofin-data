@@ -1,16 +1,17 @@
-import { Select } from "../query.utils";
-import type { RowDataPacket } from "mysql2";
+import { Select, Modify, UniqueKey } from "../query.utils";
+import { RowDataPacket } from "mysql2";
 
-export interface IPeriod extends RowDataPacket {
+export interface IPeriodType extends RowDataPacket {
   period_type: number;
+  period: string;
   description: string;
-  short_name: string;
-}
+};
 
-export function all() {
-  return Select<IPeriod>("SELECT * FROM period_type;");
-}
+export async function Publish(Period: string): Promise<number> {
+  const key = UniqueKey('');
+  const set = await Modify(`INSERT IGNORE INTO period_type VALUES (UNHEX(?), ?, 'Desription Pending')`, [key, Period]);
+  const get = await Select<IPeriodType>('SELECT period_type FROM period_type WHERE period = ?', [Period]);
 
-export function byPeriod(period_type: string) {
-  return Select<IPeriod>(`SELECT * FROM period_type WHERE short_name = '${period_type}';`);
-}
+  /*@ts-ignore*/
+  return (get.length === 0 ? set.insertId : get[0].period_type);
+};

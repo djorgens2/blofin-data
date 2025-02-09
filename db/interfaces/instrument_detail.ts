@@ -1,28 +1,25 @@
 import { Select, Modify } from "../query.utils";
-import type { RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export interface IInstrumentDetail extends RowDataPacket {
     instrument: number;
-    period_type: number;
-    bar_time: number;
-    open: number;
-    high: number;
-    low: number;
-    close: number;
-    volume: number;
-    currency: number,
-    currency_quote : number,
-    completed: boolean
-}
+    instrument_type: number;
+    contract_type: number;
+    contract_value: number;
+    max_leverage: number;
+    min_size: number;
+    lot_size: number;
+    tick_size: number;
+    max_limit_size: number;
+    max_market_size : number;
+    list_time: number;
+    expiry_time: number;
+};
 
-export function all() {
-  return Select< IInstrumentDetail>(`SELECT * FROM instrument_detail;`);
-}
-
-export function byInstrument(Instrument: string, Period: string) {
-  return Select< IInstrumentDetail>(`SELECT * FROM candle WHERE instrument_detail = '${Instrument}' AND period_type='${Period}';`);
-}
-
-export function merge(Instrument: string, Period: string, candle: string[]) {
-  return Modify(`INSERT INTO candle values (${candle[0]}, ${candle[0]});`)
-}
+export async function Publish(Instrument: number, Type: number, Contract: number, Value: number, MaxLeverage:number, MinSize: number, LotSize: number, TickSize: number, MaxLimitSize: number, MaxMarketSize: number, ListTime: number, Expiry: number): Promise<number> {
+  console.log(Instrument);
+  const set: ResultSetHeader = await Modify(`REPLACE INTO instrument_detail SET instrument = ?, instrument_type = ?, contract_type = ?, contract_value = ?, max_leverage = ?, min_size = ?, lot_size = ?, tick_size = ?, max_limit_size = ?, max_market_size = ?, list_time = FROM_UNIXTIME(?/1000), expiry_time = FROM_UNIXTIME(?/1000)`,
+                              [Instrument, Type, Contract, Value, MaxLeverage, MinSize, LotSize, TickSize, MaxLimitSize, MaxMarketSize, ListTime, Expiry]);
+                          
+  return set.insertId;
+};

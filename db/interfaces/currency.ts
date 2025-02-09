@@ -1,28 +1,19 @@
-import { Select, Modify } from "../query.utils";
-import type { RowDataPacket } from "mysql2";
+import { Select, Modify, UniqueKey } from "../query.utils";
+import { RowDataPacket } from "mysql2";
 
 export interface ICurrency extends RowDataPacket {
-  currrency: number;
-  symbol: string;
-  image_url: string;
-}
+    currrency: number;
+    symbol: string;
+    image_url: string;
+    suspense: boolean;
+};
 
-export function all() {
-  return Select<ICurrency>("SELECT * FROM currency;");
-}
+export async function Publish(Symbol: string, Suspense: boolean): Promise<number> {
+  const key = UniqueKey('');
+  const set = await Modify(`INSERT INTO currency (currency, symbol, image_url, suspense) 
+                               VALUES (UNHEX(?), ?,'./public/images/currency/no-image.png', ?)
+                               ON DUPLICATE KEY UPDATE suspense = ?`,[key, Symbol, Suspense, Suspense]);
+  const get = await Select<ICurrency>('SELECT currency FROM currency WHERE symbol = ?', [Symbol]);
 
-export function bySymbol(Symbol: string) {
-  return Select<ICurrency>(`SELECT * FROM currency WHERE symbol = '${Symbol}';`);
-}
-
-export function add(Symbol: string, ImageURL: string, Suspense: boolean) {
-  return Modify(`INSERT INTO currency (symbol, image_url, suspense) VALUES ('${Symbol}','${ImageURL}', ${Suspense});`);
-}
-
-export function setSuspense(Currency: number,  Suspense: boolean) {
-  return Modify(`UPDATE currency SET (suspense) VALUES (${Suspense}) WHERE currency = ${Currency};`);
-}
-
-export function setImageURL(Currency: number,  ImageURL: string) {
-  return Modify(`UPDATE currency SET (image_url) VALUES ('${ImageURL}') WHERE currency = ${Currency};`);
-}
+  return (get.length === 0 ? set.insertId : get[0].currency);
+};
