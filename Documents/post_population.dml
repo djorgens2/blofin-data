@@ -1,0 +1,14 @@
+INSERT INTO instrument_period SELECT i.instrument, pt.period_type, false FROM instrument i, period_type pt;
+
+UPDATE instrument_period ip
+   SET trading_period = true 
+ WHERE instrument IN (
+     SELECT ip.instrument 
+       FROM period_type pt,
+            instrument i,
+            currency b 
+      WHERE ip.instrument=i.instrument
+        AND ip.period_type=pt.period_type
+        AND pt.period='15m'
+        AND b.currency = i.base_currency
+        AND b.symbol in ('BTC','XRP', 'ENA', 'ARC'));
