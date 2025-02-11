@@ -1,125 +1,673 @@
 [
   {
-    ts: 1739222100000,
-    open: 0.22585,
-    high: 0.22767,
-    low: 0.22345,
-    close: 0.22767,
-    vol: 4135,
-    volCurrency: 41350,
-    volCurrencyQuote: 9327,
+    ts: 1739276100000,
+    open: 2.4769,
+    high: 2.4798,
+    low: 2.4664,
+    close: 2.4733,
+    vol: 4662,
+    volCurrency: 466283,
+    volCurrencyQuote: 1153202,
     confirm: true
   },
   {
-    ts: 1739221200000,
-    open: 0.22749,
-    high: 0.22832,
-    low: 0.22334,
-    close: 0.22584,
-    vol: 16538,
-    volCurrency: 165380,
-    volCurrencyQuote: 37305,
+    ts: 1739275200000,
+    open: 2.4936,
+    high: 2.4963,
+    low: 2.4762,
+    close: 2.4769,
+    vol: 2131,
+    volCurrency: 213129,
+    volCurrencyQuote: 529795,
     confirm: true
   },
   {
-    ts: 1739220300000,
-    open: 0.21994,
-    high: 0.22899,
-    low: 0.21939,
-    close: 0.22749,
-    vol: 23721,
-    volCurrency: 237210,
-    volCurrencyQuote: 53314,
+    ts: 1739274300000,
+    open: 2.4839,
+    high: 2.4965,
+    low: 2.4837,
+    close: 2.4935,
+    vol: 2108,
+    volCurrency: 210860,
+    volCurrencyQuote: 525546,
     confirm: true
   },
   {
-    ts: 1739219400000,
-    open: 0.22687,
-    high: 0.2269,
-    low: 0.21773,
-    close: 0.21994,
-    vol: 28030,
-    volCurrency: 280300,
-    volCurrencyQuote: 61945,
+    ts: 1739273400000,
+    open: 2.4872,
+    high: 2.4908,
+    low: 2.478,
+    close: 2.4839,
+    vol: 1674,
+    volCurrency: 167441,
+    volCurrencyQuote: 416362,
     confirm: true
   },
   {
-    ts: 1739218500000,
-    open: 0.22742,
-    high: 0.23012,
-    low: 0.22485,
-    close: 0.22687,
-    vol: 15433,
-    volCurrency: 154330,
-    volCurrencyQuote: 35100,
+    ts: 1739272500000,
+    open: 2.4804,
+    high: 2.4889,
+    low: 2.4766,
+    close: 2.4873,
+    vol: 1014,
+    volCurrency: 101453,
+    volCurrencyQuote: 251914,
     confirm: true
   },
   {
-    ts: 1739217600000,
-    open: 0.2231,
-    high: 0.22808,
-    low: 0.22173,
-    close: 0.22743,
-    vol: 13505,
-    volCurrency: 135050,
-    volCurrencyQuote: 30340,
+    ts: 1739271600000,
+    open: 2.4826,
+    high: 2.4857,
+    low: 2.4753,
+    close: 2.4803,
+    vol: 1677,
+    volCurrency: 167730,
+    volCurrencyQuote: 416253,
     confirm: true
   },
   {
-    ts: 1739216700000,
-    open: 0.22602,
-    high: 0.22603,
-    low: 0.22193,
-    close: 0.22313,
-    vol: 9265,
-    volCurrency: 92650,
-    volCurrencyQuote: 20730,
+    ts: 1739270700000,
+    open: 2.4799,
+    high: 2.4872,
+    low: 2.4799,
+    close: 2.4822,
+    vol: 629,
+    volCurrency: 62907,
+    volCurrencyQuote: 156270,
     confirm: true
   },
   {
-    ts: 1739215800000,
-    open: 0.22832,
-    high: 0.23007,
-    low: 0.22434,
-    close: 0.22598,
-    vol: 4911,
-    volCurrency: 49110,
-    volCurrencyQuote: 11137,
+    ts: 1739269800000,
+    open: 2.4782,
+    high: 2.4841,
+    low: 2.4776,
+    close: 2.4798,
+    vol: 1001,
+    volCurrency: 100178,
+    volCurrencyQuote: 248540,
     confirm: true
   },
   {
-    ts: 1739214900000,
-    open: 0.22751,
-    high: 0.22992,
-    low: 0.225,
-    close: 0.22833,
-    vol: 36629,
-    volCurrency: 366290,
-    volCurrencyQuote: 83001,
+    ts: 1739268900000,
+    open: 2.489,
+    high: 2.4935,
+    low: 2.4727,
+    close: 2.4782,
+    vol: 966,
+    volCurrency: 96659,
+    volCurrencyQuote: 240165,
     confirm: true
   },
   {
-    ts: 1739214000000,
-    open: 0.22417,
-    high: 0.23014,
-    low: 0.22253,
-    close: 0.2274,
-    vol: 54973,
-    volCurrency: 549730,
-    volCurrencyQuote: 124627,
+    ts: 1739268000000,
+    open: 2.4832,
+    high: 2.4916,
+    low: 2.473,
+    close: 2.4885,
+    vol: 3362,
+    volCurrency: 336238,
+    volCurrencyQuote: 834254,
     confirm: true
-  }
-]
-[
+  },
+  {
+    ts: 1739267100000,
+    open: 2.4834,
+    high: 2.4922,
+    low: 2.4784,
+    close: 2.4847,
+    vol: 2156,
+    volCurrency: 215684,
+    volCurrencyQuote: 536052,
+    confirm: true
+  },
+  {
+    ts: 1739266200000,
+    open: 2.5056,
+    high: 2.5091,
+    low: 2.479,
+    close: 2.4828,
+    vol: 3026,
+    volCurrency: 302668,
+    volCurrencyQuote: 753839,
+    confirm: true
+  },
+  {
+    ts: 1739265300000,
+    open: 2.5017,
+    high: 2.5097,
+    low: 2.4963,
+    close: 2.5058,
+    vol: 2754,
+    volCurrency: 275431,
+    volCurrencyQuote: 689562,
+    confirm: true
+  },
+  {
+    ts: 1739264400000,
+    open: 2.5007,
+    high: 2.5055,
+    low: 2.4983,
+    close: 2.5015,
+    vol: 1120,
+    volCurrency: 112092,
+    volCurrencyQuote: 280426,
+    confirm: true
+  },
+  {
+    ts: 1739263500000,
+    open: 2.5071,
+    high: 2.5079,
+    low: 2.4976,
+    close: 2.5008,
+    vol: 3010,
+    volCurrency: 301021,
+    volCurrencyQuote: 752857,
+    confirm: true
+  },
+  {
+    ts: 1739262600000,
+    open: 2.4968,
+    high: 2.5102,
+    low: 2.4967,
+    close: 2.5069,
+    vol: 3706,
+    volCurrency: 370645,
+    volCurrencyQuote: 928574,
+    confirm: true
+  },
+  {
+    ts: 1739261700000,
+    open: 2.4962,
+    high: 2.5053,
+    low: 2.4929,
+    close: 2.4965,
+    vol: 1851,
+    volCurrency: 185138,
+    volCurrencyQuote: 462783,
+    confirm: true
+  },
+  {
+    ts: 1739260800000,
+    open: 2.4976,
+    high: 2.5061,
+    low: 2.491,
+    close: 2.4959,
+    vol: 1356,
+    volCurrency: 135638,
+    volCurrencyQuote: 338756,
+    confirm: true
+  },
+  {
+    ts: 1739259900000,
+    open: 2.5094,
+    high: 2.5096,
+    low: 2.4958,
+    close: 2.498,
+    vol: 4308,
+    volCurrency: 430839,
+    volCurrencyQuote: 1078123,
+    confirm: true
+  },
+  {
+    ts: 1739259000000,
+    open: 2.5079,
+    high: 2.5129,
+    low: 2.5044,
+    close: 2.5098,
+    vol: 2385,
+    volCurrency: 238587,
+    volCurrencyQuote: 598585,
+    confirm: true
+  },
+  {
+    ts: 1739258100000,
+    open: 2.5127,
+    high: 2.5205,
+    low: 2.5077,
+    close: 2.5077,
+    vol: 2537,
+    volCurrency: 253745,
+    volCurrencyQuote: 637306,
+    confirm: true
+  },
+  {
+    ts: 1739257200000,
+    open: 2.52,
+    high: 2.5216,
+    low: 2.508,
+    close: 2.5124,
+    vol: 3328,
+    volCurrency: 332819,
+    volCurrencyQuote: 836978,
+    confirm: true
+  },
+  {
+    ts: 1739256300000,
+    open: 2.51,
+    high: 2.5268,
+    low: 2.5089,
+    close: 2.5197,
+    vol: 5361,
+    volCurrency: 536116,
+    volCurrencyQuote: 1350550,
+    confirm: true
+  },
+  {
+    ts: 1739255400000,
+    open: 2.5021,
+    high: 2.5099,
+    low: 2.4971,
+    close: 2.5099,
+    vol: 2129,
+    volCurrency: 212958,
+    volCurrencyQuote: 532899,
+    confirm: true
+  },
+  {
+    ts: 1739254500000,
+    open: 2.4955,
+    high: 2.5091,
+    low: 2.4889,
+    close: 2.5024,
+    vol: 7298,
+    volCurrency: 729879,
+    volCurrencyQuote: 1819776,
+    confirm: true
+  },
+  {
+    ts: 1739253600000,
+    open: 2.5138,
+    high: 2.5167,
+    low: 2.4926,
+    close: 2.4954,
+    vol: 2952,
+    volCurrency: 295289,
+    volCurrencyQuote: 738314,
+    confirm: true
+  },
+  {
+    ts: 1739252700000,
+    open: 2.4936,
+    high: 2.5172,
+    low: 2.4913,
+    close: 2.5134,
+    vol: 6749,
+    volCurrency: 674976,
+    volCurrencyQuote: 1691590,
+    confirm: true
+  },
+  {
+    ts: 1739251800000,
+    open: 2.4935,
+    high: 2.496,
+    low: 2.4862,
+    close: 2.4936,
+    vol: 5406,
+    volCurrency: 540665,
+    volCurrencyQuote: 1346666,
+    confirm: true
+  },
+  {
+    ts: 1739250900000,
+    open: 2.4795,
+    high: 2.4932,
+    low: 2.4717,
+    close: 2.4928,
+    vol: 3357,
+    volCurrency: 335714,
+    volCurrencyQuote: 833142,
+    confirm: true
+  },
+  {
+    ts: 1739250000000,
+    open: 2.4754,
+    high: 2.4968,
+    low: 2.4665,
+    close: 2.4793,
+    vol: 7694,
+    volCurrency: 769437,
+    volCurrencyQuote: 1912724,
+    confirm: true
+  },
+  {
+    ts: 1739249100000,
+    open: 2.4607,
+    high: 2.4788,
+    low: 2.4599,
+    close: 2.4747,
+    vol: 4898,
+    volCurrency: 489865,
+    volCurrencyQuote: 1209873,
+    confirm: true
+  },
+  {
+    ts: 1739248200000,
+    open: 2.4514,
+    high: 2.4634,
+    low: 2.4509,
+    close: 2.4609,
+    vol: 4545,
+    volCurrency: 454565,
+    volCurrencyQuote: 1117720,
+    confirm: true
+  },
+  {
+    ts: 1739247300000,
+    open: 2.4402,
+    high: 2.4514,
+    low: 2.439,
+    close: 2.4514,
+    vol: 2336,
+    volCurrency: 233624,
+    volCurrencyQuote: 571483,
+    confirm: true
+  },
+  {
+    ts: 1739246400000,
+    open: 2.4395,
+    high: 2.4452,
+    low: 2.4389,
+    close: 2.4406,
+    vol: 3103,
+    volCurrency: 310369,
+    volCurrencyQuote: 757987,
+    confirm: true
+  },
+  {
+    ts: 1739245500000,
+    open: 2.4345,
+    high: 2.4413,
+    low: 2.4333,
+    close: 2.4395,
+    vol: 1543,
+    volCurrency: 154305,
+    volCurrencyQuote: 376321,
+    confirm: true
+  },
+  {
+    ts: 1739244600000,
+    open: 2.4356,
+    high: 2.4381,
+    low: 2.4315,
+    close: 2.4347,
+    vol: 1414,
+    volCurrency: 141450,
+    volCurrencyQuote: 344308,
+    confirm: true
+  },
+  {
+    ts: 1739243700000,
+    open: 2.4364,
+    high: 2.4377,
+    low: 2.431,
+    close: 2.4351,
+    vol: 1640,
+    volCurrency: 164045,
+    volCurrencyQuote: 399486,
+    confirm: true
+  },
+  {
+    ts: 1739242800000,
+    open: 2.4407,
+    high: 2.4407,
+    low: 2.433,
+    close: 2.4363,
+    vol: 2435,
+    volCurrency: 243531,
+    volCurrencyQuote: 593171,
+    confirm: true
+  },
+  {
+    ts: 1739241900000,
+    open: 2.4371,
+    high: 2.4449,
+    low: 2.4362,
+    close: 2.4408,
+    vol: 2067,
+    volCurrency: 206702,
+    volCurrencyQuote: 504742,
+    confirm: true
+  },
+  {
+    ts: 1739241000000,
+    open: 2.4349,
+    high: 2.4384,
+    low: 2.4293,
+    close: 2.4373,
+    vol: 3771,
+    volCurrency: 377179,
+    volCurrencyQuote: 918223,
+    confirm: true
+  },
+  {
+    ts: 1739240100000,
+    open: 2.4456,
+    high: 2.4491,
+    low: 2.4345,
+    close: 2.4345,
+    vol: 3382,
+    volCurrency: 338207,
+    volCurrencyQuote: 825284,
+    confirm: true
+  },
+  {
+    ts: 1739239200000,
+    open: 2.4537,
+    high: 2.457,
+    low: 2.443,
+    close: 2.4453,
+    vol: 3154,
+    volCurrency: 315494,
+    volCurrencyQuote: 773221,
+    confirm: true
+  },
+  {
+    ts: 1739238300000,
+    open: 2.4616,
+    high: 2.4648,
+    low: 2.4538,
+    close: 2.4538,
+    vol: 2361,
+    volCurrency: 236106,
+    volCurrencyQuote: 580685,
+    confirm: true
+  },
+  {
+    ts: 1739237400000,
+    open: 2.4493,
+    high: 2.4656,
+    low: 2.4464,
+    close: 2.4615,
+    vol: 3947,
+    volCurrency: 394774,
+    volCurrencyQuote: 970050,
+    confirm: true
+  },
+  {
+    ts: 1739236500000,
+    open: 2.4449,
+    high: 2.4527,
+    low: 2.4394,
+    close: 2.4496,
+    vol: 2148,
+    volCurrency: 214851,
+    volCurrencyQuote: 525729,
+    confirm: true
+  },
+  {
+    ts: 1739235600000,
+    open: 2.4463,
+    high: 2.4573,
+    low: 2.4415,
+    close: 2.4451,
+    vol: 3595,
+    volCurrency: 359541,
+    volCurrencyQuote: 880479,
+    confirm: true
+  },
+  {
+    ts: 1739234700000,
+    open: 2.4511,
+    high: 2.4514,
+    low: 2.4395,
+    close: 2.4463,
+    vol: 2833,
+    volCurrency: 283375,
+    volCurrencyQuote: 692607,
+    confirm: true
+  },
+  {
+    ts: 1739233800000,
+    open: 2.4353,
+    high: 2.4573,
+    low: 2.4329,
+    close: 2.451,
+    vol: 5066,
+    volCurrency: 506690,
+    volCurrencyQuote: 1239116,
+    confirm: true
+  },
+  {
+    ts: 1739232900000,
+    open: 2.4276,
+    high: 2.4392,
+    low: 2.4231,
+    close: 2.4353,
+    vol: 2080,
+    volCurrency: 208025,
+    volCurrencyQuote: 505761,
+    confirm: true
+  },
+  {
+    ts: 1739232000000,
+    open: 2.421,
+    high: 2.4303,
+    low: 2.4176,
+    close: 2.4272,
+    vol: 2248,
+    volCurrency: 224871,
+    volCurrencyQuote: 544881,
+    confirm: true
+  },
+  {
+    ts: 1739231100000,
+    open: 2.4148,
+    high: 2.4226,
+    low: 2.4142,
+    close: 2.4211,
+    vol: 1342,
+    volCurrency: 134216,
+    volCurrencyQuote: 324482,
+    confirm: true
+  },
+  {
+    ts: 1739230200000,
+    open: 2.4118,
+    high: 2.4147,
+    low: 2.4086,
+    close: 2.4144,
+    vol: 1020,
+    volCurrency: 102040,
+    volCurrencyQuote: 246054,
+    confirm: true
+  },
+  {
+    ts: 1739229300000,
+    open: 2.4137,
+    high: 2.4203,
+    low: 2.4094,
+    close: 2.4116,
+    vol: 2977,
+    volCurrency: 297752,
+    volCurrencyQuote: 719307,
+    confirm: true
+  },
+  {
+    ts: 1739228400000,
+    open: 2.4125,
+    high: 2.4156,
+    low: 2.406,
+    close: 2.4135,
+    vol: 2609,
+    volCurrency: 260998,
+    volCurrencyQuote: 629246,
+    confirm: true
+  },
+  {
+    ts: 1739227500000,
+    open: 2.4183,
+    high: 2.4189,
+    low: 2.4061,
+    close: 2.4127,
+    vol: 1680,
+    volCurrency: 168060,
+    volCurrencyQuote: 405188,
+    confirm: true
+  },
+  {
+    ts: 1739226600000,
+    open: 2.4267,
+    high: 2.4285,
+    low: 2.4149,
+    close: 2.4179,
+    vol: 2159,
+    volCurrency: 215973,
+    volCurrencyQuote: 523034,
+    confirm: true
+  },
+  {
+    ts: 1739225700000,
+    open: 2.419,
+    high: 2.4266,
+    low: 2.4122,
+    close: 2.4263,
+    vol: 2547,
+    volCurrency: 254796,
+    volCurrencyQuote: 617317,
+    confirm: true
+  },
+  {
+    ts: 1739224800000,
+    open: 2.4244,
+    high: 2.4253,
+    low: 2.4148,
+    close: 2.4191,
+    vol: 1851,
+    volCurrency: 185167,
+    volCurrencyQuote: 447779,
+    confirm: true
+  },
+  {
+    ts: 1739223900000,
+    open: 2.4265,
+    high: 2.4284,
+    low: 2.4176,
+    close: 2.4247,
+    vol: 1364,
+    volCurrency: 136489,
+    volCurrencyQuote: 330923,
+    confirm: true
+  },
+  {
+    ts: 1739223000000,
+    open: 2.4288,
+    high: 2.4314,
+    low: 2.4214,
+    close: 2.4266,
+    vol: 1172,
+    volCurrency: 117203,
+    volCurrencyQuote: 284451,
+    confirm: true
+  },
   {
     ts: 1739222100000,
     open: 2.4255,
-    high: 2.4257,
+    high: 2.4294,
     low: 2.4163,
-    close: 2.4257,
-    vol: 2621,
-    volCurrency: 262133,
-    volCurrencyQuote: 634575,
+    close: 2.4291,
+    vol: 2888,
+    volCurrency: 288810,
+    volCurrencyQuote: 699342,
     confirm: true
   },
   {
@@ -220,130 +768,2112 @@
     volCurrency: 317118,
     volCurrencyQuote: 772689,
     confirm: true
-  }
+  },
+  {
+    ts: 1739213100000,
+    open: 2.4256,
+    high: 2.4373,
+    low: 2.424,
+    close: 2.436,
+    vol: 1637,
+    volCurrency: 163773,
+    volCurrencyQuote: 398351,
+    confirm: true
+  },
+  {
+    ts: 1739212200000,
+    open: 2.4326,
+    high: 2.4355,
+    low: 2.4245,
+    close: 2.4255,
+    vol: 1374,
+    volCurrency: 137467,
+    volCurrencyQuote: 334129,
+    confirm: true
+  },
+  {
+    ts: 1739211300000,
+    open: 2.4322,
+    high: 2.4334,
+    low: 2.4213,
+    close: 2.433,
+    vol: 2294,
+    volCurrency: 229407,
+    volCurrencyQuote: 556655,
+    confirm: true
+  },
+  {
+    ts: 1739210400000,
+    open: 2.4349,
+    high: 2.4377,
+    low: 2.4303,
+    close: 2.4319,
+    vol: 1752,
+    volCurrency: 175285,
+    volCurrencyQuote: 426570,
+    confirm: true
+  },
+  {
+    ts: 1739209500000,
+    open: 2.4277,
+    high: 2.4395,
+    low: 2.4231,
+    close: 2.4354,
+    vol: 2407,
+    volCurrency: 240767,
+    volCurrencyQuote: 585826,
+    confirm: true
+  },
+  {
+    ts: 1739208600000,
+    open: 2.4342,
+    high: 2.4398,
+    low: 2.4214,
+    close: 2.4277,
+    vol: 1825,
+    volCurrency: 182507,
+    volCurrencyQuote: 443679,
+    confirm: true
+  },
+  {
+    ts: 1739207700000,
+    open: 2.4193,
+    high: 2.4404,
+    low: 2.4148,
+    close: 2.4346,
+    vol: 1677,
+    volCurrency: 167766,
+    volCurrencyQuote: 407598,
+    confirm: true
+  },
+  {
+    ts: 1739206800000,
+    open: 2.4223,
+    high: 2.4315,
+    low: 2.4153,
+    close: 2.4194,
+    vol: 1713,
+    volCurrency: 171370,
+    volCurrencyQuote: 415265,
+    confirm: true
+  },
+  {
+    ts: 1739205900000,
+    open: 2.4192,
+    high: 2.4282,
+    low: 2.4164,
+    close: 2.4224,
+    vol: 1568,
+    volCurrency: 156885,
+    volCurrencyQuote: 380142,
+    confirm: true
+  },
+  {
+    ts: 1739205000000,
+    open: 2.4196,
+    high: 2.4197,
+    low: 2.4068,
+    close: 2.4188,
+    vol: 3878,
+    volCurrency: 387806,
+    volCurrencyQuote: 935800,
+    confirm: true
+  },
+  {
+    ts: 1739204100000,
+    open: 2.4258,
+    high: 2.4275,
+    low: 2.4183,
+    close: 2.4201,
+    vol: 1463,
+    volCurrency: 146368,
+    volCurrencyQuote: 354553,
+    confirm: true
+  },
+  {
+    ts: 1739203200000,
+    open: 2.4197,
+    high: 2.4333,
+    low: 2.4147,
+    close: 2.4255,
+    vol: 2205,
+    volCurrency: 220574,
+    volCurrencyQuote: 534958,
+    confirm: true
+  },
+  {
+    ts: 1739202300000,
+    open: 2.4123,
+    high: 2.4236,
+    low: 2.4072,
+    close: 2.4191,
+    vol: 1935,
+    volCurrency: 193538,
+    volCurrencyQuote: 467318,
+    confirm: true
+  },
+  {
+    ts: 1739201400000,
+    open: 2.4166,
+    high: 2.4218,
+    low: 2.4031,
+    close: 2.4125,
+    vol: 3081,
+    volCurrency: 308151,
+    volCurrencyQuote: 742946,
+    confirm: true
+  },
+  {
+    ts: 1739200500000,
+    open: 2.4335,
+    high: 2.4345,
+    low: 2.412,
+    close: 2.4171,
+    vol: 3561,
+    volCurrency: 356191,
+    volCurrencyQuote: 863041,
+    confirm: true
+  },
+  {
+    ts: 1739199600000,
+    open: 2.4228,
+    high: 2.4359,
+    low: 2.4196,
+    close: 2.4333,
+    vol: 1968,
+    volCurrency: 196839,
+    volCurrencyQuote: 477810,
+    confirm: true
+  },
+  {
+    ts: 1739198700000,
+    open: 2.431,
+    high: 2.4347,
+    low: 2.4148,
+    close: 2.4226,
+    vol: 3869,
+    volCurrency: 386909,
+    volCurrencyQuote: 937253,
+    confirm: true
+  },
+  {
+    ts: 1739197800000,
+    open: 2.439,
+    high: 2.4522,
+    low: 2.4216,
+    close: 2.431,
+    vol: 7524,
+    volCurrency: 752491,
+    volCurrencyQuote: 1831821,
+    confirm: true
+  },
+  {
+    ts: 1739196900000,
+    open: 2.4345,
+    high: 2.4456,
+    low: 2.4308,
+    close: 2.4381,
+    vol: 3082,
+    volCurrency: 308229,
+    volCurrencyQuote: 751800,
+    confirm: true
+  },
+  {
+    ts: 1739196000000,
+    open: 2.46,
+    high: 2.4665,
+    low: 2.4299,
+    close: 2.4349,
+    vol: 4320,
+    volCurrency: 432070,
+    volCurrencyQuote: 1056802,
+    confirm: true
+  },
+  {
+    ts: 1739195100000,
+    open: 2.4261,
+    high: 2.4705,
+    low: 2.4259,
+    close: 2.4601,
+    vol: 8535,
+    volCurrency: 853515,
+    volCurrencyQuote: 2094243,
+    confirm: true
+  },
+  {
+    ts: 1739194200000,
+    open: 2.418,
+    high: 2.4298,
+    low: 2.413,
+    close: 2.4266,
+    vol: 1567,
+    volCurrency: 156749,
+    volCurrencyQuote: 379298,
+    confirm: true
+  },
+  {
+    ts: 1739193300000,
+    open: 2.4197,
+    high: 2.4256,
+    low: 2.4125,
+    close: 2.4182,
+    vol: 2019,
+    volCurrency: 201997,
+    volCurrencyQuote: 488069,
+    confirm: true
+  },
+  {
+    ts: 1739192400000,
+    open: 2.4114,
+    high: 2.4232,
+    low: 2.4086,
+    close: 2.4199,
+    vol: 1625,
+    volCurrency: 162513,
+    volCurrencyQuote: 392895,
+    confirm: true
+  },
+  {
+    ts: 1739191500000,
+    open: 2.4163,
+    high: 2.4172,
+    low: 2.4025,
+    close: 2.4113,
+    vol: 1131,
+    volCurrency: 113116,
+    volCurrencyQuote: 272617,
+    confirm: true
+  },
+  {
+    ts: 1739190600000,
+    open: 2.421,
+    high: 2.4216,
+    low: 2.4101,
+    close: 2.4163,
+    vol: 1431,
+    volCurrency: 143166,
+    volCurrencyQuote: 345675,
+    confirm: true
+  },
+  {
+    ts: 1739189700000,
+    open: 2.4214,
+    high: 2.4274,
+    low: 2.4153,
+    close: 2.4212,
+    vol: 1517,
+    volCurrency: 151706,
+    volCurrencyQuote: 367406,
+    confirm: true
+  },
+  {
+    ts: 1739188800000,
+    open: 2.4254,
+    high: 2.4346,
+    low: 2.4192,
+    close: 2.4214,
+    vol: 1342,
+    volCurrency: 134216,
+    volCurrencyQuote: 325673,
+    confirm: true
+  },
+  {
+    ts: 1739187900000,
+    open: 2.4312,
+    high: 2.4331,
+    low: 2.4251,
+    close: 2.4259,
+    vol: 1311,
+    volCurrency: 131118,
+    volCurrencyQuote: 318491,
+    confirm: true
+  },
+  {
+    ts: 1739187000000,
+    open: 2.4239,
+    high: 2.4343,
+    low: 2.4211,
+    close: 2.4312,
+    vol: 2808,
+    volCurrency: 280836,
+    volCurrencyQuote: 681844,
+    confirm: true
+  },
+  ... 1340 more items
 ]
 [
   {
+    ts: 1739276100000,
+    open: 0.30887,
+    high: 0.31032,
+    low: 0.30526,
+    close: 0.30731,
+    vol: 22564,
+    volCurrency: 225640,
+    volCurrencyQuote: 69265,
+    confirm: true
+  },
+  {
+    ts: 1739275200000,
+    open: 0.31543,
+    high: 0.32011,
+    low: 0.30858,
+    close: 0.30869,
+    vol: 14021,
+    volCurrency: 140210,
+    volCurrencyQuote: 44109,
+    confirm: true
+  },
+  {
+    ts: 1739274300000,
+    open: 0.31427,
+    high: 0.31587,
+    low: 0.3119,
+    close: 0.31542,
+    vol: 12896,
+    volCurrency: 128960,
+    volCurrencyQuote: 40456,
+    confirm: true
+  },
+  {
+    ts: 1739273400000,
+    open: 0.31441,
+    high: 0.31883,
+    low: 0.31189,
+    close: 0.31422,
+    vol: 10012,
+    volCurrency: 100120,
+    volCurrencyQuote: 31599,
+    confirm: true
+  },
+  {
+    ts: 1739272500000,
+    open: 0.31004,
+    high: 0.31687,
+    low: 0.30947,
+    close: 0.31439,
+    vol: 11280,
+    volCurrency: 112800,
+    volCurrencyQuote: 35476,
+    confirm: true
+  },
+  {
+    ts: 1739271600000,
+    open: 0.31075,
+    high: 0.31262,
+    low: 0.30526,
+    close: 0.30999,
+    vol: 12980,
+    volCurrency: 129800,
+    volCurrencyQuote: 40019,
+    confirm: true
+  },
+  {
+    ts: 1739270700000,
+    open: 0.31023,
+    high: 0.31568,
+    low: 0.3089,
+    close: 0.31076,
+    vol: 5485,
+    volCurrency: 54850,
+    volCurrencyQuote: 17083,
+    confirm: true
+  },
+  {
+    ts: 1739269800000,
+    open: 0.30157,
+    high: 0.31854,
+    low: 0.30154,
+    close: 0.31024,
+    vol: 32597,
+    volCurrency: 325970,
+    volCurrencyQuote: 101731,
+    confirm: true
+  },
+  {
+    ts: 1739268900000,
+    open: 0.30345,
+    high: 0.30814,
+    low: 0.30141,
+    close: 0.30158,
+    vol: 10807,
+    volCurrency: 108070,
+    volCurrencyQuote: 32972,
+    confirm: true
+  },
+  {
+    ts: 1739268000000,
+    open: 0.3106,
+    high: 0.31303,
+    low: 0.29733,
+    close: 0.30347,
+    vol: 37441,
+    volCurrency: 374410,
+    volCurrencyQuote: 113538,
+    confirm: true
+  },
+  {
+    ts: 1739267100000,
+    open: 0.31844,
+    high: 0.31892,
+    low: 0.30643,
+    close: 0.31071,
+    vol: 20311,
+    volCurrency: 203110,
+    volCurrencyQuote: 63124,
+    confirm: true
+  },
+  {
+    ts: 1739266200000,
+    open: 0.32271,
+    high: 0.32503,
+    low: 0.3166,
+    close: 0.31839,
+    vol: 14040,
+    volCurrency: 140400,
+    volCurrencyQuote: 44972,
+    confirm: true
+  },
+  {
+    ts: 1739265300000,
+    open: 0.33133,
+    high: 0.33395,
+    low: 0.32214,
+    close: 0.32271,
+    vol: 21742,
+    volCurrency: 217420,
+    volCurrencyQuote: 71163,
+    confirm: true
+  },
+  {
+    ts: 1739264400000,
+    open: 0.32574,
+    high: 0.33953,
+    low: 0.32491,
+    close: 0.33137,
+    vol: 48918,
+    volCurrency: 489180,
+    volCurrencyQuote: 161679,
+    confirm: true
+  },
+  {
+    ts: 1739263500000,
+    open: 0.31563,
+    high: 0.33113,
+    low: 0.31211,
+    close: 0.32568,
+    vol: 38651,
+    volCurrency: 386510,
+    volCurrencyQuote: 124101,
+    confirm: true
+  },
+  {
+    ts: 1739262600000,
+    open: 0.31165,
+    high: 0.31996,
+    low: 0.3111,
+    close: 0.31573,
+    vol: 15624,
+    volCurrency: 156240,
+    volCurrencyQuote: 49467,
+    confirm: true
+  },
+  {
+    ts: 1739261700000,
+    open: 0.31409,
+    high: 0.31437,
+    low: 0.30779,
+    close: 0.31174,
+    vol: 12888,
+    volCurrency: 128880,
+    volCurrencyQuote: 40132,
+    confirm: true
+  },
+  {
+    ts: 1739260800000,
+    open: 0.31476,
+    high: 0.31613,
+    low: 0.30935,
+    close: 0.31403,
+    vol: 46720,
+    volCurrency: 467200,
+    volCurrencyQuote: 146129,
+    confirm: true
+  },
+  {
+    ts: 1739259900000,
+    open: 0.32015,
+    high: 0.32076,
+    low: 0.31327,
+    close: 0.31471,
+    vol: 11787,
+    volCurrency: 117870,
+    volCurrencyQuote: 37252,
+    confirm: true
+  },
+  {
+    ts: 1739259000000,
+    open: 0.32003,
+    high: 0.32366,
+    low: 0.31585,
+    close: 0.32018,
+    vol: 28472,
+    volCurrency: 284720,
+    volCurrencyQuote: 90938,
+    confirm: true
+  },
+  {
+    ts: 1739258100000,
+    open: 0.31293,
+    high: 0.32446,
+    low: 0.31218,
+    close: 0.31982,
+    vol: 26901,
+    volCurrency: 269010,
+    volCurrencyQuote: 85961,
+    confirm: true
+  },
+  {
+    ts: 1739257200000,
+    open: 0.32022,
+    high: 0.32231,
+    low: 0.31062,
+    close: 0.31295,
+    vol: 27282,
+    volCurrency: 272820,
+    volCurrencyQuote: 86207,
+    confirm: true
+  },
+  {
+    ts: 1739256300000,
+    open: 0.31973,
+    high: 0.32467,
+    low: 0.31466,
+    close: 0.32007,
+    vol: 15777,
+    volCurrency: 157770,
+    volCurrencyQuote: 50429,
+    confirm: true
+  },
+  {
+    ts: 1739255400000,
+    open: 0.31116,
+    high: 0.3239,
+    low: 0.30942,
+    close: 0.31967,
+    vol: 33462,
+    volCurrency: 334620,
+    volCurrencyQuote: 106458,
+    confirm: true
+  },
+  {
+    ts: 1739254500000,
+    open: 0.32587,
+    high: 0.32737,
+    low: 0.30546,
+    close: 0.31134,
+    vol: 35625,
+    volCurrency: 356250,
+    volCurrencyQuote: 111997,
+    confirm: true
+  },
+  {
+    ts: 1739253600000,
+    open: 0.31768,
+    high: 0.32954,
+    low: 0.31392,
+    close: 0.32592,
+    vol: 21692,
+    volCurrency: 216920,
+    volCurrencyQuote: 70236,
+    confirm: true
+  },
+  {
+    ts: 1739252700000,
+    open: 0.32123,
+    high: 0.32225,
+    low: 0.3136,
+    close: 0.31775,
+    vol: 26627,
+    volCurrency: 266270,
+    volCurrencyQuote: 84443,
+    confirm: true
+  },
+  {
+    ts: 1739251800000,
+    open: 0.30465,
+    high: 0.32361,
+    low: 0.29912,
+    close: 0.32131,
+    vol: 69043,
+    volCurrency: 690430,
+    volCurrencyQuote: 214488,
+    confirm: true
+  },
+  {
+    ts: 1739250900000,
+    open: 0.29133,
+    high: 0.30665,
+    low: 0.28802,
+    close: 0.3048,
+    vol: 35846,
+    volCurrency: 358460,
+    volCurrencyQuote: 106513,
+    confirm: true
+  },
+  {
+    ts: 1739250000000,
+    open: 0.29028,
+    high: 0.29667,
+    low: 0.28934,
+    close: 0.29126,
+    vol: 37979,
+    volCurrency: 379790,
+    volCurrencyQuote: 111036,
+    confirm: true
+  },
+  {
+    ts: 1739249100000,
+    open: 0.28303,
+    high: 0.29335,
+    low: 0.28154,
+    close: 0.29015,
+    vol: 70240,
+    volCurrency: 702400,
+    volCurrencyQuote: 202130,
+    confirm: true
+  },
+  {
+    ts: 1739248200000,
+    open: 0.27209,
+    high: 0.28351,
+    low: 0.26893,
+    close: 0.28277,
+    vol: 35514,
+    volCurrency: 355140,
+    volCurrencyQuote: 99050,
+    confirm: true
+  },
+  {
+    ts: 1739247300000,
+    open: 0.27353,
+    high: 0.2779,
+    low: 0.27126,
+    close: 0.27205,
+    vol: 33575,
+    volCurrency: 335750,
+    volCurrencyQuote: 92317,
+    confirm: true
+  },
+  {
+    ts: 1739246400000,
+    open: 0.27462,
+    high: 0.27462,
+    low: 0.26873,
+    close: 0.27351,
+    vol: 44764,
+    volCurrency: 447640,
+    volCurrencyQuote: 121352,
+    confirm: true
+  },
+  {
+    ts: 1739245500000,
+    open: 0.27581,
+    high: 0.28252,
+    low: 0.27449,
+    close: 0.27461,
+    vol: 31781,
+    volCurrency: 317810,
+    volCurrencyQuote: 88812,
+    confirm: true
+  },
+  {
+    ts: 1739244600000,
+    open: 0.28028,
+    high: 0.28196,
+    low: 0.2744,
+    close: 0.27574,
+    vol: 78062,
+    volCurrency: 780620,
+    volCurrencyQuote: 217120,
+    confirm: true
+  },
+  {
+    ts: 1739243700000,
+    open: 0.26766,
+    high: 0.2848,
+    low: 0.266,
+    close: 0.2801,
+    vol: 162682,
+    volCurrency: 1626820,
+    volCurrencyQuote: 454295,
+    confirm: true
+  },
+  {
+    ts: 1739242800000,
+    open: 0.26647,
+    high: 0.26941,
+    low: 0.26201,
+    close: 0.26761,
+    vol: 27851,
+    volCurrency: 278510,
+    volCurrencyQuote: 73726,
+    confirm: true
+  },
+  {
+    ts: 1739241900000,
+    open: 0.25737,
+    high: 0.26753,
+    low: 0.25699,
+    close: 0.26647,
+    vol: 70308,
+    volCurrency: 703080,
+    volCurrencyQuote: 185726,
+    confirm: true
+  },
+  {
+    ts: 1739241000000,
+    open: 0.25317,
+    high: 0.25934,
+    low: 0.25262,
+    close: 0.25735,
+    vol: 25183,
+    volCurrency: 251830,
+    volCurrencyQuote: 64688,
+    confirm: true
+  },
+  {
+    ts: 1739240100000,
+    open: 0.25319,
+    high: 0.25748,
+    low: 0.24892,
+    close: 0.2532,
+    vol: 17608,
+    volCurrency: 176080,
+    volCurrencyQuote: 44861,
+    confirm: true
+  },
+  {
+    ts: 1739239200000,
+    open: 0.24478,
+    high: 0.25372,
+    low: 0.24417,
+    close: 0.25315,
+    vol: 20850,
+    volCurrency: 208500,
+    volCurrencyQuote: 52141,
+    confirm: true
+  },
+  {
+    ts: 1739238300000,
+    open: 0.25209,
+    high: 0.25273,
+    low: 0.24388,
+    close: 0.24482,
+    vol: 35554,
+    volCurrency: 355540,
+    volCurrencyQuote: 87905,
+    confirm: true
+  },
+  {
+    ts: 1739237400000,
+    open: 0.24682,
+    high: 0.26054,
+    low: 0.24517,
+    close: 0.25214,
+    vol: 82365,
+    volCurrency: 823650,
+    volCurrencyQuote: 209547,
+    confirm: true
+  },
+  {
+    ts: 1739236500000,
+    open: 0.23909,
+    high: 0.248,
+    low: 0.23839,
+    close: 0.24679,
+    vol: 9195,
+    volCurrency: 91950,
+    volCurrencyQuote: 22410,
+    confirm: true
+  },
+  {
+    ts: 1739235600000,
+    open: 0.24286,
+    high: 0.24726,
+    low: 0.23745,
+    close: 0.23918,
+    vol: 40904,
+    volCurrency: 409040,
+    volCurrencyQuote: 98549,
+    confirm: true
+  },
+  {
+    ts: 1739234700000,
+    open: 0.24088,
+    high: 0.24348,
+    low: 0.2352,
+    close: 0.24287,
+    vol: 107264,
+    volCurrency: 1072640,
+    volCurrencyQuote: 256103,
+    confirm: true
+  },
+  {
+    ts: 1739233800000,
+    open: 0.23555,
+    high: 0.24219,
+    low: 0.2346,
+    close: 0.2409,
+    vol: 21450,
+    volCurrency: 214500,
+    volCurrencyQuote: 51218,
+    confirm: true
+  },
+  {
+    ts: 1739232900000,
+    open: 0.22906,
+    high: 0.23631,
+    low: 0.22761,
+    close: 0.23553,
+    vol: 16973,
+    volCurrency: 169730,
+    volCurrencyQuote: 39291,
+    confirm: true
+  },
+  {
+    ts: 1739232000000,
+    open: 0.22695,
+    high: 0.22926,
+    low: 0.22319,
+    close: 0.22908,
+    vol: 34303,
+    volCurrency: 343030,
+    volCurrencyQuote: 77177,
+    confirm: true
+  },
+  {
+    ts: 1739231100000,
+    open: 0.22625,
+    high: 0.22968,
+    low: 0.22448,
+    close: 0.22696,
+    vol: 14443,
+    volCurrency: 144430,
+    volCurrencyQuote: 32806,
+    confirm: true
+  },
+  {
+    ts: 1739230200000,
+    open: 0.23856,
+    high: 0.23958,
+    low: 0.22459,
+    close: 0.22622,
+    vol: 43104,
+    volCurrency: 431040,
+    volCurrencyQuote: 99012,
+    confirm: true
+  },
+  {
+    ts: 1739229300000,
+    open: 0.23425,
+    high: 0.23918,
+    low: 0.23307,
+    close: 0.23859,
+    vol: 32322,
+    volCurrency: 323220,
+    volCurrencyQuote: 76621,
+    confirm: true
+  },
+  {
+    ts: 1739228400000,
+    open: 0.23108,
+    high: 0.23488,
+    low: 0.22994,
+    close: 0.23424,
+    vol: 32991,
+    volCurrency: 329910,
+    volCurrencyQuote: 76806,
+    confirm: true
+  },
+  {
+    ts: 1739227500000,
+    open: 0.23693,
+    high: 0.23693,
+    low: 0.22846,
+    close: 0.23118,
+    vol: 62510,
+    volCurrency: 625100,
+    volCurrencyQuote: 145096,
+    confirm: true
+  },
+  {
+    ts: 1739226600000,
+    open: 0.24433,
+    high: 0.24966,
+    low: 0.23644,
+    close: 0.23693,
+    vol: 46060,
+    volCurrency: 460600,
+    volCurrencyQuote: 111659,
+    confirm: true
+  },
+  {
+    ts: 1739225700000,
+    open: 0.23906,
+    high: 0.24657,
+    low: 0.23809,
+    close: 0.24451,
+    vol: 82488,
+    volCurrency: 824880,
+    volCurrencyQuote: 199000,
+    confirm: true
+  },
+  {
+    ts: 1739224800000,
+    open: 0.23554,
+    high: 0.24202,
+    low: 0.23487,
+    close: 0.23904,
+    vol: 44774,
+    volCurrency: 447740,
+    volCurrencyQuote: 106897,
+    confirm: true
+  },
+  {
+    ts: 1739223900000,
+    open: 0.23513,
+    high: 0.23838,
+    low: 0.23066,
+    close: 0.2355,
+    vol: 22762,
+    volCurrency: 227620,
+    volCurrencyQuote: 53167,
+    confirm: true
+  },
+  {
+    ts: 1739223000000,
+    open: 0.2289,
+    high: 0.23672,
+    low: 0.22774,
+    close: 0.2351,
+    vol: 36427,
+    volCurrency: 364270,
+    volCurrencyQuote: 84642,
+    confirm: true
+  },
+  {
     ts: 1739222100000,
-    open: 97243.2,
-    high: 97258.5,
-    low: 97110,
-    close: 97233.2,
-    vol: 81455,
-    volCurrency: 81,
-    volCurrencyQuote: 7917126,
+    open: 0.22585,
+    high: 0.23061,
+    low: 0.22345,
+    close: 0.22891,
+    vol: 12795,
+    volCurrency: 127950,
+    volCurrencyQuote: 29120,
     confirm: true
   },
   {
     ts: 1739221200000,
-    open: 97336.9,
-    high: 97341.9,
-    low: 97233.8,
-    close: 97243.2,
-    vol: 8157,
-    volCurrency: 8,
-    volCurrencyQuote: 793615,
+    open: 0.22749,
+    high: 0.22832,
+    low: 0.22334,
+    close: 0.22584,
+    vol: 16538,
+    volCurrency: 165380,
+    volCurrencyQuote: 37305,
     confirm: true
   },
   {
     ts: 1739220300000,
-    open: 97456.9,
-    high: 97493,
-    low: 97286.2,
-    close: 97325.3,
-    vol: 40399,
-    volCurrency: 40,
-    volCurrencyQuote: 3937629,
+    open: 0.21994,
+    high: 0.22899,
+    low: 0.21939,
+    close: 0.22749,
+    vol: 23721,
+    volCurrency: 237210,
+    volCurrencyQuote: 53314,
     confirm: true
   },
   {
     ts: 1739219400000,
-    open: 97264.9,
-    high: 97450,
-    low: 97241.1,
-    close: 97450,
-    vol: 65273,
-    volCurrency: 65,
-    volCurrencyQuote: 6358323,
+    open: 0.22687,
+    high: 0.2269,
+    low: 0.21773,
+    close: 0.21994,
+    vol: 28030,
+    volCurrency: 280300,
+    volCurrencyQuote: 61945,
     confirm: true
   },
   {
     ts: 1739218500000,
-    open: 97409.3,
-    high: 97440.1,
-    low: 97209.1,
-    close: 97262.1,
-    vol: 20197,
-    volCurrency: 20,
-    volCurrencyQuote: 1964976,
+    open: 0.22742,
+    high: 0.23012,
+    low: 0.22485,
+    close: 0.22687,
+    vol: 15433,
+    volCurrency: 154330,
+    volCurrencyQuote: 35100,
     confirm: true
   },
   {
     ts: 1739217600000,
-    open: 97357.7,
-    high: 97425,
-    low: 97263.1,
-    close: 97409.1,
-    vol: 14666,
-    volCurrency: 14,
-    volCurrencyQuote: 1427462,
+    open: 0.2231,
+    high: 0.22808,
+    low: 0.22173,
+    close: 0.22743,
+    vol: 13505,
+    volCurrency: 135050,
+    volCurrencyQuote: 30340,
     confirm: true
   },
   {
     ts: 1739216700000,
-    open: 97375.6,
-    high: 97407.1,
-    low: 97241.1,
-    close: 97366.8,
-    vol: 15958,
-    volCurrency: 15,
-    volCurrencyQuote: 1553217,
+    open: 0.22602,
+    high: 0.22603,
+    low: 0.22193,
+    close: 0.22313,
+    vol: 9265,
+    volCurrency: 92650,
+    volCurrencyQuote: 20730,
     confirm: true
   },
   {
     ts: 1739215800000,
-    open: 97561.3,
-    high: 97626.1,
-    low: 97376,
-    close: 97376,
-    vol: 11389,
-    volCurrency: 11,
-    volCurrencyQuote: 1110166,
+    open: 0.22832,
+    high: 0.23007,
+    low: 0.22434,
+    close: 0.22598,
+    vol: 4911,
+    volCurrency: 49110,
+    volCurrencyQuote: 11137,
     confirm: true
   },
   {
     ts: 1739214900000,
-    open: 97600.8,
-    high: 97625.5,
-    low: 97514.1,
-    close: 97568,
-    vol: 9019,
-    volCurrency: 9,
-    volCurrencyQuote: 879798,
+    open: 0.22751,
+    high: 0.22992,
+    low: 0.225,
+    close: 0.22833,
+    vol: 36629,
+    volCurrency: 366290,
+    volCurrencyQuote: 83001,
     confirm: true
   },
   {
     ts: 1739214000000,
-    open: 97534.4,
-    high: 97628.8,
-    low: 97450.1,
-    close: 97600.8,
-    vol: 43953,
-    volCurrency: 43,
-    volCurrencyQuote: 4286395,
+    open: 0.22417,
+    high: 0.23014,
+    low: 0.22253,
+    close: 0.2274,
+    vol: 54973,
+    volCurrency: 549730,
+    volCurrencyQuote: 124627,
     confirm: true
-  }
+  },
+  {
+    ts: 1739213100000,
+    open: 0.21968,
+    high: 0.22485,
+    low: 0.21879,
+    close: 0.2242,
+    vol: 12064,
+    volCurrency: 120640,
+    volCurrencyQuote: 26790,
+    confirm: true
+  },
+  {
+    ts: 1739212200000,
+    open: 0.21791,
+    high: 0.22105,
+    low: 0.21614,
+    close: 0.21958,
+    vol: 6492,
+    volCurrency: 64920,
+    volCurrencyQuote: 14224,
+    confirm: true
+  },
+  {
+    ts: 1739211300000,
+    open: 0.21825,
+    high: 0.21864,
+    low: 0.21182,
+    close: 0.21799,
+    vol: 37498,
+    volCurrency: 374980,
+    volCurrencyQuote: 80687,
+    confirm: true
+  },
+  {
+    ts: 1739210400000,
+    open: 0.21864,
+    high: 0.22074,
+    low: 0.21719,
+    close: 0.21824,
+    vol: 16891,
+    volCurrency: 168910,
+    volCurrencyQuote: 36970,
+    confirm: true
+  },
+  {
+    ts: 1739209500000,
+    open: 0.21536,
+    high: 0.2191,
+    low: 0.21389,
+    close: 0.21867,
+    vol: 20235,
+    volCurrency: 202350,
+    volCurrencyQuote: 43886,
+    confirm: true
+  },
+  {
+    ts: 1739208600000,
+    open: 0.21992,
+    high: 0.22124,
+    low: 0.2143,
+    close: 0.21534,
+    vol: 7732,
+    volCurrency: 77320,
+    volCurrencyQuote: 16689,
+    confirm: true
+  },
+  {
+    ts: 1739207700000,
+    open: 0.22027,
+    high: 0.22396,
+    low: 0.21794,
+    close: 0.22003,
+    vol: 15542,
+    volCurrency: 155420,
+    volCurrencyQuote: 34235,
+    confirm: true
+  },
+  {
+    ts: 1739206800000,
+    open: 0.22115,
+    high: 0.22373,
+    low: 0.21846,
+    close: 0.22041,
+    vol: 53961,
+    volCurrency: 539610,
+    volCurrencyQuote: 118964,
+    confirm: true
+  },
+  {
+    ts: 1739205900000,
+    open: 0.22801,
+    high: 0.22944,
+    low: 0.22089,
+    close: 0.22116,
+    vol: 72205,
+    volCurrency: 722050,
+    volCurrencyQuote: 161381,
+    confirm: true
+  },
+  {
+    ts: 1739205000000,
+    open: 0.2313,
+    high: 0.23223,
+    low: 0.2269,
+    close: 0.22809,
+    vol: 39169,
+    volCurrency: 391690,
+    volCurrencyQuote: 89649,
+    confirm: true
+  },
+  {
+    ts: 1739204100000,
+    open: 0.23224,
+    high: 0.23634,
+    low: 0.2259,
+    close: 0.2313,
+    vol: 100161,
+    volCurrency: 1001610,
+    volCurrencyQuote: 230438,
+    confirm: true
+  },
+  {
+    ts: 1739203200000,
+    open: 0.22413,
+    high: 0.2353,
+    low: 0.22293,
+    close: 0.23234,
+    vol: 67077,
+    volCurrency: 670770,
+    volCurrencyQuote: 154626,
+    confirm: true
+  },
+  {
+    ts: 1739202300000,
+    open: 0.21647,
+    high: 0.22446,
+    low: 0.21637,
+    close: 0.22418,
+    vol: 44732,
+    volCurrency: 447320,
+    volCurrencyQuote: 98019,
+    confirm: true
+  },
+  {
+    ts: 1739201400000,
+    open: 0.22112,
+    high: 0.22307,
+    low: 0.21423,
+    close: 0.21653,
+    vol: 31509,
+    volCurrency: 315090,
+    volCurrencyQuote: 68002,
+    confirm: true
+  },
+  {
+    ts: 1739200500000,
+    open: 0.22464,
+    high: 0.22565,
+    low: 0.21881,
+    close: 0.2211,
+    vol: 92738,
+    volCurrency: 927380,
+    volCurrencyQuote: 205995,
+    confirm: true
+  },
+  {
+    ts: 1739199600000,
+    open: 0.21735,
+    high: 0.2253,
+    low: 0.21725,
+    close: 0.22455,
+    vol: 111890,
+    volCurrency: 1118900,
+    volCurrencyQuote: 246315,
+    confirm: true
+  },
+  {
+    ts: 1739198700000,
+    open: 0.22128,
+    high: 0.22319,
+    low: 0.21687,
+    close: 0.21741,
+    vol: 27426,
+    volCurrency: 274260,
+    volCurrencyQuote: 60122,
+    confirm: true
+  },
+  {
+    ts: 1739197800000,
+    open: 0.2218,
+    high: 0.23557,
+    low: 0.21836,
+    close: 0.22122,
+    vol: 168579,
+    volCurrency: 1685790,
+    volCurrencyQuote: 381470,
+    confirm: true
+  },
+  {
+    ts: 1739196900000,
+    open: 0.22038,
+    high: 0.22418,
+    low: 0.21744,
+    close: 0.22179,
+    vol: 73323,
+    volCurrency: 733230,
+    volCurrencyQuote: 161478,
+    confirm: true
+  },
+  {
+    ts: 1739196000000,
+    open: 0.22608,
+    high: 0.2303,
+    low: 0.22021,
+    close: 0.22051,
+    vol: 59226,
+    volCurrency: 592260,
+    volCurrencyQuote: 133126,
+    confirm: true
+  },
+  {
+    ts: 1739195100000,
+    open: 0.21284,
+    high: 0.23043,
+    low: 0.21228,
+    close: 0.22608,
+    vol: 204486,
+    volCurrency: 2044860,
+    volCurrencyQuote: 455764,
+    confirm: true
+  },
+  {
+    ts: 1739194200000,
+    open: 0.20307,
+    high: 0.21386,
+    low: 0.20281,
+    close: 0.21287,
+    vol: 63840,
+    volCurrency: 638400,
+    volCurrencyQuote: 132529,
+    confirm: true
+  },
+  {
+    ts: 1739193300000,
+    open: 0.19546,
+    high: 0.20417,
+    low: 0.19535,
+    close: 0.20314,
+    vol: 44489,
+    volCurrency: 444890,
+    volCurrencyQuote: 88486,
+    confirm: true
+  },
+  {
+    ts: 1739192400000,
+    open: 0.19243,
+    high: 0.19696,
+    low: 0.19144,
+    close: 0.1955,
+    vol: 4050,
+    volCurrency: 40500,
+    volCurrencyQuote: 7837,
+    confirm: true
+  },
+  {
+    ts: 1739191500000,
+    open: 0.19685,
+    high: 0.19739,
+    low: 0.19213,
+    close: 0.19244,
+    vol: 49842,
+    volCurrency: 498420,
+    volCurrencyQuote: 96906,
+    confirm: true
+  },
+  {
+    ts: 1739190600000,
+    open: 0.19927,
+    high: 0.20106,
+    low: 0.19554,
+    close: 0.19684,
+    vol: 12721,
+    volCurrency: 127210,
+    volCurrencyQuote: 25234,
+    confirm: true
+  },
+  {
+    ts: 1739189700000,
+    open: 0.20295,
+    high: 0.20576,
+    low: 0.19884,
+    close: 0.19925,
+    vol: 21757,
+    volCurrency: 217570,
+    volCurrencyQuote: 43846,
+    confirm: true
+  },
+  {
+    ts: 1739188800000,
+    open: 0.20222,
+    high: 0.20379,
+    low: 0.1955,
+    close: 0.20295,
+    vol: 80623,
+    volCurrency: 806230,
+    volCurrencyQuote: 161646,
+    confirm: true
+  },
+  {
+    ts: 1739187900000,
+    open: 0.20059,
+    high: 0.20752,
+    low: 0.19955,
+    close: 0.20223,
+    vol: 38331,
+    volCurrency: 383310,
+    volCurrencyQuote: 78838,
+    confirm: true
+  },
+  {
+    ts: 1739187000000,
+    open: 0.20032,
+    high: 0.20385,
+    low: 0.19782,
+    close: 0.20072,
+    vol: 25521,
+    volCurrency: 255210,
+    volCurrencyQuote: 50961,
+    confirm: true
+  },
+  ... 1340 more items
 ]
 [
   {
+    ts: 1739276100000,
+    open: 0.477,
+    high: 0.4774,
+    low: 0.4721,
+    close: 0.4723,
+    vol: 14254,
+    volCurrency: 142543,
+    volCurrencyQuote: 67649,
+    confirm: true
+  },
+  {
+    ts: 1739275200000,
+    open: 0.485,
+    high: 0.4859,
+    low: 0.4762,
+    close: 0.4771,
+    vol: 9909,
+    volCurrency: 99097,
+    volCurrencyQuote: 47547,
+    confirm: true
+  },
+  {
+    ts: 1739274300000,
+    open: 0.4802,
+    high: 0.4853,
+    low: 0.4798,
+    close: 0.485,
+    vol: 673,
+    volCurrency: 6737,
+    volCurrencyQuote: 3254,
+    confirm: true
+  },
+  {
+    ts: 1739273400000,
+    open: 0.4841,
+    high: 0.4845,
+    low: 0.4785,
+    close: 0.4801,
+    vol: 1379,
+    volCurrency: 13791,
+    volCurrencyQuote: 6636,
+    confirm: true
+  },
+  {
+    ts: 1739272500000,
+    open: 0.4802,
+    high: 0.4846,
+    low: 0.4791,
+    close: 0.4841,
+    vol: 927,
+    volCurrency: 9272,
+    volCurrencyQuote: 4463,
+    confirm: true
+  },
+  {
+    ts: 1739271600000,
+    open: 0.4811,
+    high: 0.483,
+    low: 0.4785,
+    close: 0.4802,
+    vol: 5644,
+    volCurrency: 56441,
+    volCurrencyQuote: 27083,
+    confirm: true
+  },
+  {
+    ts: 1739270700000,
+    open: 0.4796,
+    high: 0.4828,
+    low: 0.4795,
+    close: 0.4813,
+    vol: 11207,
+    volCurrency: 112072,
+    volCurrencyQuote: 54020,
+    confirm: true
+  },
+  {
+    ts: 1739269800000,
+    open: 0.4798,
+    high: 0.4826,
+    low: 0.4777,
+    close: 0.4796,
+    vol: 2825,
+    volCurrency: 28250,
+    volCurrencyQuote: 13554,
+    confirm: true
+  },
+  {
+    ts: 1739268900000,
+    open: 0.4833,
+    high: 0.4858,
+    low: 0.4797,
+    close: 0.4798,
+    vol: 4634,
+    volCurrency: 46345,
+    volCurrencyQuote: 22286,
+    confirm: true
+  },
+  {
+    ts: 1739268000000,
+    open: 0.4867,
+    high: 0.4875,
+    low: 0.4816,
+    close: 0.4834,
+    vol: 3994,
+    volCurrency: 39942,
+    volCurrencyQuote: 19348,
+    confirm: true
+  },
+  {
+    ts: 1739267100000,
+    open: 0.4892,
+    high: 0.4941,
+    low: 0.4862,
+    close: 0.4867,
+    vol: 1363,
+    volCurrency: 13637,
+    volCurrencyQuote: 6679,
+    confirm: true
+  },
+  {
+    ts: 1739266200000,
+    open: 0.4917,
+    high: 0.4939,
+    low: 0.4876,
+    close: 0.4891,
+    vol: 22191,
+    volCurrency: 221910,
+    volCurrencyQuote: 109085,
+    confirm: true
+  },
+  {
+    ts: 1739265300000,
+    open: 0.4944,
+    high: 0.4957,
+    low: 0.4911,
+    close: 0.4918,
+    vol: 5196,
+    volCurrency: 51968,
+    volCurrencyQuote: 25596,
+    confirm: true
+  },
+  {
+    ts: 1739264400000,
+    open: 0.4977,
+    high: 0.4991,
+    low: 0.4937,
+    close: 0.4942,
+    vol: 1652,
+    volCurrency: 16523,
+    volCurrencyQuote: 8203,
+    confirm: true
+  },
+  {
+    ts: 1739263500000,
+    open: 0.4978,
+    high: 0.499,
+    low: 0.4955,
+    close: 0.4977,
+    vol: 1452,
+    volCurrency: 14525,
+    volCurrencyQuote: 7222,
+    confirm: true
+  },
+  {
+    ts: 1739262600000,
+    open: 0.4942,
+    high: 0.4998,
+    low: 0.4942,
+    close: 0.498,
+    vol: 1717,
+    volCurrency: 17179,
+    volCurrencyQuote: 8546,
+    confirm: true
+  },
+  {
+    ts: 1739261700000,
+    open: 0.4933,
+    high: 0.4965,
+    low: 0.4923,
+    close: 0.4942,
+    vol: 4336,
+    volCurrency: 43360,
+    volCurrencyQuote: 21425,
+    confirm: true
+  },
+  {
+    ts: 1739260800000,
+    open: 0.4931,
+    high: 0.4954,
+    low: 0.4905,
+    close: 0.493,
+    vol: 3233,
+    volCurrency: 32330,
+    volCurrencyQuote: 15970,
+    confirm: true
+  },
+  {
+    ts: 1739259900000,
+    open: 0.4971,
+    high: 0.4975,
+    low: 0.4922,
+    close: 0.4929,
+    vol: 2963,
+    volCurrency: 29637,
+    volCurrencyQuote: 14631,
+    confirm: true
+  },
+  {
+    ts: 1739259000000,
+    open: 0.4966,
+    high: 0.4997,
+    low: 0.496,
+    close: 0.4971,
+    vol: 7014,
+    volCurrency: 70141,
+    volCurrencyQuote: 34911,
+    confirm: true
+  },
+  {
+    ts: 1739258100000,
+    open: 0.4957,
+    high: 0.5001,
+    low: 0.4955,
+    close: 0.4965,
+    vol: 2728,
+    volCurrency: 27281,
+    volCurrencyQuote: 13591,
+    confirm: true
+  },
+  {
+    ts: 1739257200000,
+    open: 0.5043,
+    high: 0.505,
+    low: 0.4955,
+    close: 0.4957,
+    vol: 6987,
+    volCurrency: 69879,
+    volCurrencyQuote: 34943,
+    confirm: true
+  },
+  {
+    ts: 1739256300000,
+    open: 0.5026,
+    high: 0.5068,
+    low: 0.4993,
+    close: 0.5043,
+    vol: 5894,
+    volCurrency: 58942,
+    volCurrencyQuote: 29686,
+    confirm: true
+  },
+  {
+    ts: 1739255400000,
+    open: 0.4987,
+    high: 0.5035,
+    low: 0.4962,
+    close: 0.5026,
+    vol: 2090,
+    volCurrency: 20904,
+    volCurrencyQuote: 10435,
+    confirm: true
+  },
+  {
+    ts: 1739254500000,
+    open: 0.4958,
+    high: 0.5016,
+    low: 0.4948,
+    close: 0.4987,
+    vol: 5137,
+    volCurrency: 51375,
+    volCurrencyQuote: 25639,
+    confirm: true
+  },
+  {
+    ts: 1739253600000,
+    open: 0.498,
+    high: 0.4988,
+    low: 0.4905,
+    close: 0.4958,
+    vol: 7453,
+    volCurrency: 74534,
+    volCurrencyQuote: 36892,
+    confirm: true
+  },
+  {
+    ts: 1739252700000,
+    open: 0.4923,
+    high: 0.5009,
+    low: 0.4891,
+    close: 0.4983,
+    vol: 9855,
+    volCurrency: 98552,
+    volCurrencyQuote: 48807,
+    confirm: true
+  },
+  {
+    ts: 1739251800000,
+    open: 0.4938,
+    high: 0.4945,
+    low: 0.49,
+    close: 0.492,
+    vol: 7438,
+    volCurrency: 74388,
+    volCurrencyQuote: 36644,
+    confirm: true
+  },
+  {
+    ts: 1739250900000,
+    open: 0.4897,
+    high: 0.4941,
+    low: 0.4869,
+    close: 0.4935,
+    vol: 16162,
+    volCurrency: 161624,
+    volCurrencyQuote: 79340,
+    confirm: true
+  },
+  {
+    ts: 1739250000000,
+    open: 0.4878,
+    high: 0.4925,
+    low: 0.4821,
+    close: 0.4897,
+    vol: 6637,
+    volCurrency: 66373,
+    volCurrencyQuote: 32530,
+    confirm: true
+  },
+  {
+    ts: 1739249100000,
+    open: 0.4763,
+    high: 0.4886,
+    low: 0.476,
+    close: 0.488,
+    vol: 12316,
+    volCurrency: 123161,
+    volCurrencyQuote: 59272,
+    confirm: true
+  },
+  {
+    ts: 1739248200000,
+    open: 0.4728,
+    high: 0.4796,
+    low: 0.4718,
+    close: 0.4763,
+    vol: 6577,
+    volCurrency: 65775,
+    volCurrencyQuote: 31279,
+    confirm: true
+  },
+  {
+    ts: 1739247300000,
+    open: 0.4747,
+    high: 0.4773,
+    low: 0.4718,
+    close: 0.4728,
+    vol: 9475,
+    volCurrency: 94752,
+    volCurrencyQuote: 44823,
+    confirm: true
+  },
+  {
+    ts: 1739246400000,
+    open: 0.4751,
+    high: 0.4781,
+    low: 0.4741,
+    close: 0.4744,
+    vol: 4949,
+    volCurrency: 49492,
+    volCurrencyQuote: 23537,
+    confirm: true
+  },
+  {
+    ts: 1739245500000,
+    open: 0.4742,
+    high: 0.4758,
+    low: 0.4733,
+    close: 0.475,
+    vol: 5481,
+    volCurrency: 54818,
+    volCurrencyQuote: 26000,
+    confirm: true
+  },
+  {
+    ts: 1739244600000,
+    open: 0.4759,
+    high: 0.4773,
+    low: 0.4732,
+    close: 0.474,
+    vol: 691,
+    volCurrency: 6914,
+    volCurrencyQuote: 3284,
+    confirm: true
+  },
+  {
+    ts: 1739243700000,
+    open: 0.4771,
+    high: 0.4791,
+    low: 0.4752,
+    close: 0.4758,
+    vol: 51729,
+    volCurrency: 517294,
+    volCurrencyQuote: 246661,
+    confirm: true
+  },
+  {
+    ts: 1739242800000,
+    open: 0.4792,
+    high: 0.4795,
+    low: 0.475,
+    close: 0.4771,
+    vol: 1275,
+    volCurrency: 12753,
+    volCurrencyQuote: 6075,
+    confirm: true
+  },
+  {
+    ts: 1739241900000,
+    open: 0.4772,
+    high: 0.481,
+    low: 0.477,
+    close: 0.4793,
+    vol: 2603,
+    volCurrency: 26036,
+    volCurrencyQuote: 12479,
+    confirm: true
+  },
+  {
+    ts: 1739241000000,
+    open: 0.4801,
+    high: 0.4805,
+    low: 0.4743,
+    close: 0.4771,
+    vol: 11836,
+    volCurrency: 118369,
+    volCurrencyQuote: 56399,
+    confirm: true
+  },
+  {
+    ts: 1739240100000,
+    open: 0.4854,
+    high: 0.4861,
+    low: 0.48,
+    close: 0.4801,
+    vol: 2650,
+    volCurrency: 26502,
+    volCurrencyQuote: 12799,
+    confirm: true
+  },
+  {
+    ts: 1739239200000,
+    open: 0.4871,
+    high: 0.4893,
+    low: 0.4834,
+    close: 0.4853,
+    vol: 1231,
+    volCurrency: 12313,
+    volCurrencyQuote: 5985,
+    confirm: true
+  },
+  {
+    ts: 1739238300000,
+    open: 0.4894,
+    high: 0.4901,
+    low: 0.4851,
+    close: 0.4869,
+    vol: 7270,
+    volCurrency: 72706,
+    volCurrencyQuote: 35414,
+    confirm: true
+  },
+  {
+    ts: 1739237400000,
+    open: 0.4896,
+    high: 0.4941,
+    low: 0.4885,
+    close: 0.4894,
+    vol: 2196,
+    volCurrency: 21960,
+    volCurrencyQuote: 10808,
+    confirm: true
+  },
+  {
+    ts: 1739236500000,
+    open: 0.4899,
+    high: 0.493,
+    low: 0.4875,
+    close: 0.4895,
+    vol: 1653,
+    volCurrency: 16533,
+    volCurrencyQuote: 8110,
+    confirm: true
+  },
+  {
+    ts: 1739235600000,
+    open: 0.49,
+    high: 0.4936,
+    low: 0.4868,
+    close: 0.4899,
+    vol: 2211,
+    volCurrency: 22114,
+    volCurrencyQuote: 10842,
+    confirm: true
+  },
+  {
+    ts: 1739234700000,
+    open: 0.4911,
+    high: 0.4913,
+    low: 0.4856,
+    close: 0.49,
+    vol: 1433,
+    volCurrency: 14337,
+    volCurrencyQuote: 7000,
+    confirm: true
+  },
+  {
+    ts: 1739233800000,
+    open: 0.4856,
+    high: 0.4948,
+    low: 0.4819,
+    close: 0.491,
+    vol: 4204,
+    volCurrency: 42046,
+    volCurrencyQuote: 20572,
+    confirm: true
+  },
+  {
+    ts: 1739232900000,
+    open: 0.481,
+    high: 0.4868,
+    low: 0.4786,
+    close: 0.4858,
+    vol: 2266,
+    volCurrency: 22660,
+    volCurrencyQuote: 10933,
+    confirm: true
+  },
+  {
+    ts: 1739232000000,
+    open: 0.4766,
+    high: 0.483,
+    low: 0.4754,
+    close: 0.4814,
+    vol: 3403,
+    volCurrency: 34032,
+    volCurrencyQuote: 16372,
+    confirm: true
+  },
+  {
+    ts: 1739231100000,
+    open: 0.4716,
+    high: 0.477,
+    low: 0.4712,
+    close: 0.4767,
+    vol: 492,
+    volCurrency: 4925,
+    volCurrencyQuote: 2335,
+    confirm: true
+  },
+  {
+    ts: 1739230200000,
+    open: 0.4703,
+    high: 0.4725,
+    low: 0.4696,
+    close: 0.4718,
+    vol: 662,
+    volCurrency: 6628,
+    volCurrencyQuote: 3120,
+    confirm: true
+  },
+  {
+    ts: 1739229300000,
+    open: 0.4718,
+    high: 0.4745,
+    low: 0.4692,
+    close: 0.4704,
+    vol: 709,
+    volCurrency: 7097,
+    volCurrencyQuote: 3351,
+    confirm: true
+  },
+  {
+    ts: 1739228400000,
+    open: 0.4719,
+    high: 0.4724,
+    low: 0.4673,
+    close: 0.4715,
+    vol: 3530,
+    volCurrency: 35305,
+    volCurrencyQuote: 16595,
+    confirm: true
+  },
+  {
+    ts: 1739227500000,
+    open: 0.4773,
+    high: 0.4788,
+    low: 0.4688,
+    close: 0.472,
+    vol: 4696,
+    volCurrency: 46960,
+    volCurrencyQuote: 22296,
+    confirm: true
+  },
+  {
+    ts: 1739226600000,
+    open: 0.4759,
+    high: 0.4801,
+    low: 0.4748,
+    close: 0.4772,
+    vol: 1758,
+    volCurrency: 17581,
+    volCurrencyQuote: 8402,
+    confirm: true
+  },
+  {
+    ts: 1739225700000,
+    open: 0.4665,
+    high: 0.4778,
+    low: 0.4658,
+    close: 0.4763,
+    vol: 4573,
+    volCurrency: 45735,
+    volCurrencyQuote: 21586,
+    confirm: true
+  },
+  {
+    ts: 1739224800000,
+    open: 0.4663,
+    high: 0.4668,
+    low: 0.4626,
+    close: 0.4665,
+    vol: 3308,
+    volCurrency: 33082,
+    volCurrencyQuote: 15388,
+    confirm: true
+  },
+  {
+    ts: 1739223900000,
+    open: 0.4729,
+    high: 0.473,
+    low: 0.4661,
+    close: 0.4663,
+    vol: 4747,
+    volCurrency: 47479,
+    volCurrencyQuote: 22297,
+    confirm: true
+  },
+  {
+    ts: 1739223000000,
+    open: 0.476,
+    high: 0.476,
+    low: 0.4718,
+    close: 0.473,
+    vol: 5534,
+    volCurrency: 55348,
+    volCurrencyQuote: 26256,
+    confirm: true
+  },
+  {
     ts: 1739222100000,
     open: 0.4761,
-    high: 0.4766,
+    high: 0.4771,
     low: 0.4736,
-    close: 0.4749,
-    vol: 2476,
-    volCurrency: 24768,
-    volCurrencyQuote: 11775,
+    close: 0.476,
+    vol: 4425,
+    volCurrency: 44254,
+    volCurrencyQuote: 21048,
     confirm: true
   },
   {
@@ -444,446 +2974,1880 @@
     volCurrency: 400632,
     volCurrencyQuote: 197970,
     confirm: true
-  }
+  },
+  {
+    ts: 1739213100000,
+    open: 0.4884,
+    high: 0.493,
+    low: 0.4869,
+    close: 0.4923,
+    vol: 4833,
+    volCurrency: 48336,
+    volCurrencyQuote: 23664,
+    confirm: true
+  },
+  {
+    ts: 1739212200000,
+    open: 0.4924,
+    high: 0.4965,
+    low: 0.4874,
+    close: 0.4883,
+    vol: 69701,
+    volCurrency: 697013,
+    volCurrencyQuote: 343620,
+    confirm: true
+  },
+  {
+    ts: 1739211300000,
+    open: 0.4942,
+    high: 0.4943,
+    low: 0.4874,
+    close: 0.4926,
+    vol: 11844,
+    volCurrency: 118441,
+    volCurrencyQuote: 58013,
+    confirm: true
+  },
+  {
+    ts: 1739210400000,
+    open: 0.4952,
+    high: 0.4981,
+    low: 0.4939,
+    close: 0.4939,
+    vol: 12344,
+    volCurrency: 123447,
+    volCurrencyQuote: 61286,
+    confirm: true
+  },
+  {
+    ts: 1739209500000,
+    open: 0.4906,
+    high: 0.497,
+    low: 0.4888,
+    close: 0.4953,
+    vol: 4204,
+    volCurrency: 42046,
+    volCurrencyQuote: 20825,
+    confirm: true
+  },
+  {
+    ts: 1739208600000,
+    open: 0.4936,
+    high: 0.4966,
+    low: 0.4886,
+    close: 0.4907,
+    vol: 1977,
+    volCurrency: 19778,
+    volCurrencyQuote: 9756,
+    confirm: true
+  },
+  {
+    ts: 1739207700000,
+    open: 0.4874,
+    high: 0.4974,
+    low: 0.4851,
+    close: 0.4937,
+    vol: 45045,
+    volCurrency: 450456,
+    volCurrencyQuote: 220604,
+    confirm: true
+  },
+  {
+    ts: 1739206800000,
+    open: 0.4882,
+    high: 0.492,
+    low: 0.4851,
+    close: 0.4875,
+    vol: 2818,
+    volCurrency: 28186,
+    volCurrencyQuote: 13746,
+    confirm: true
+  },
+  {
+    ts: 1739205900000,
+    open: 0.486,
+    high: 0.491,
+    low: 0.4836,
+    close: 0.4881,
+    vol: 15594,
+    volCurrency: 155942,
+    volCurrencyQuote: 76121,
+    confirm: true
+  },
+  {
+    ts: 1739205000000,
+    open: 0.4876,
+    high: 0.4876,
+    low: 0.4796,
+    close: 0.4859,
+    vol: 58607,
+    volCurrency: 586079,
+    volCurrencyQuote: 283607,
+    confirm: true
+  },
+  {
+    ts: 1739204100000,
+    open: 0.4922,
+    high: 0.4922,
+    low: 0.4869,
+    close: 0.4875,
+    vol: 31934,
+    volCurrency: 319340,
+    volCurrencyQuote: 156403,
+    confirm: true
+  },
+  {
+    ts: 1739203200000,
+    open: 0.4839,
+    high: 0.4954,
+    low: 0.4823,
+    close: 0.4921,
+    vol: 8255,
+    volCurrency: 82552,
+    volCurrencyQuote: 40472,
+    confirm: true
+  },
+  {
+    ts: 1739202300000,
+    open: 0.4794,
+    high: 0.4855,
+    low: 0.4775,
+    close: 0.4837,
+    vol: 89743,
+    volCurrency: 897433,
+    volCurrencyQuote: 431806,
+    confirm: true
+  },
+  {
+    ts: 1739201400000,
+    open: 0.4811,
+    high: 0.4863,
+    low: 0.4782,
+    close: 0.4792,
+    vol: 51790,
+    volCurrency: 517904,
+    volCurrencyQuote: 248349,
+    confirm: true
+  },
+  {
+    ts: 1739200500000,
+    open: 0.4887,
+    high: 0.4898,
+    low: 0.4802,
+    close: 0.4807,
+    vol: 24344,
+    volCurrency: 243447,
+    volCurrencyQuote: 117893,
+    confirm: true
+  },
+  {
+    ts: 1739199600000,
+    open: 0.4882,
+    high: 0.4915,
+    low: 0.4861,
+    close: 0.4887,
+    vol: 13925,
+    volCurrency: 139253,
+    volCurrencyQuote: 68078,
+    confirm: true
+  },
+  {
+    ts: 1739198700000,
+    open: 0.4892,
+    high: 0.4909,
+    low: 0.4844,
+    close: 0.4882,
+    vol: 33628,
+    volCurrency: 336284,
+    volCurrencyQuote: 163790,
+    confirm: true
+  },
+  {
+    ts: 1739197800000,
+    open: 0.497,
+    high: 0.5024,
+    low: 0.4873,
+    close: 0.489,
+    vol: 35251,
+    volCurrency: 352510,
+    volCurrencyQuote: 175079,
+    confirm: true
+  },
+  {
+    ts: 1739196900000,
+    open: 0.4926,
+    high: 0.4988,
+    low: 0.4901,
+    close: 0.4967,
+    vol: 26396,
+    volCurrency: 263967,
+    volCurrencyQuote: 130755,
+    confirm: true
+  },
+  {
+    ts: 1739196000000,
+    open: 0.4975,
+    high: 0.5008,
+    low: 0.4917,
+    close: 0.4925,
+    vol: 23299,
+    volCurrency: 232993,
+    volCurrencyQuote: 115472,
+    confirm: true
+  },
+  {
+    ts: 1739195100000,
+    open: 0.4826,
+    high: 0.5013,
+    low: 0.4824,
+    close: 0.4974,
+    vol: 28372,
+    volCurrency: 283720,
+    volCurrencyQuote: 139125,
+    confirm: true
+  },
+  {
+    ts: 1739194200000,
+    open: 0.4775,
+    high: 0.4839,
+    low: 0.4744,
+    close: 0.4829,
+    vol: 6268,
+    volCurrency: 62689,
+    volCurrencyQuote: 30092,
+    confirm: true
+  },
+  {
+    ts: 1739193300000,
+    open: 0.4761,
+    high: 0.4794,
+    low: 0.4744,
+    close: 0.4774,
+    vol: 1843,
+    volCurrency: 18439,
+    volCurrencyQuote: 8787,
+    confirm: true
+  },
+  {
+    ts: 1739192400000,
+    open: 0.4726,
+    high: 0.4768,
+    low: 0.4696,
+    close: 0.4762,
+    vol: 5174,
+    volCurrency: 51742,
+    volCurrencyQuote: 24455,
+    confirm: true
+  },
+  {
+    ts: 1739191500000,
+    open: 0.476,
+    high: 0.477,
+    low: 0.4714,
+    close: 0.4725,
+    vol: 3330,
+    volCurrency: 33304,
+    volCurrencyQuote: 15807,
+    confirm: true
+  },
+  {
+    ts: 1739190600000,
+    open: 0.4792,
+    high: 0.4802,
+    low: 0.4756,
+    close: 0.4761,
+    vol: 1452,
+    volCurrency: 14522,
+    volCurrencyQuote: 6934,
+    confirm: true
+  },
+  {
+    ts: 1739189700000,
+    open: 0.4811,
+    high: 0.4831,
+    low: 0.478,
+    close: 0.4793,
+    vol: 2760,
+    volCurrency: 27608,
+    volCurrencyQuote: 13256,
+    confirm: true
+  },
+  {
+    ts: 1739188800000,
+    open: 0.483,
+    high: 0.4861,
+    low: 0.4808,
+    close: 0.4813,
+    vol: 1774,
+    volCurrency: 17743,
+    volCurrencyQuote: 8569,
+    confirm: true
+  },
+  {
+    ts: 1739187900000,
+    open: 0.4821,
+    high: 0.4861,
+    low: 0.4815,
+    close: 0.4829,
+    vol: 3077,
+    volCurrency: 30770,
+    volCurrencyQuote: 14872,
+    confirm: true
+  },
+  {
+    ts: 1739187000000,
+    open: 0.4807,
+    high: 0.4845,
+    low: 0.4786,
+    close: 0.482,
+    vol: 1506,
+    volCurrency: 15060,
+    volCurrencyQuote: 7246,
+    confirm: true
+  },
+  ... 1340 more items
 ]
-Published [ 'J', 'USDT' ]
-Published [ 'ETH', 'USDT' ]
-Published [ 'VVV', 'USDT' ]
-Published [ 'JELLYJELLY', 'USDT' ]
-Published [ 'BTC', 'USDT' ]
-Published [ 'BUZZ', 'USDT' ]
-Published [ 'PLUME', 'USDT' ]
-Published [ 'AVAAI', 'USDT' ]
-Published [ 'TST', 'USDT' ]
-Published [ 'VINE', 'USDT' ]
-Published [ 'ANIME', 'USDT' ]
+[
+  {
+    ts: 1739276100000,
+    open: 97802,
+    high: 97885.9,
+    low: 97667.1,
+    close: 97693.5,
+    vol: 19607,
+    volCurrency: 19,
+    volCurrencyQuote: 1917015,
+    confirm: true
+  },
+  {
+    ts: 1739275200000,
+    open: 98137.9,
+    high: 98141.2,
+    low: 97800.3,
+    close: 97800.9,
+    vol: 39639,
+    volCurrency: 39,
+    volCurrencyQuote: 3878573,
+    confirm: true
+  },
+  {
+    ts: 1739274300000,
+    open: 98030.1,
+    high: 98224.3,
+    low: 98030.1,
+    close: 98125.3,
+    vol: 5847,
+    volCurrency: 5,
+    volCurrencyQuote: 573871,
+    confirm: true
+  },
+  {
+    ts: 1739273400000,
+    open: 98077.9,
+    high: 98100.3,
+    low: 97953.3,
+    close: 98030.1,
+    vol: 4002,
+    volCurrency: 4,
+    volCurrencyQuote: 392349,
+    confirm: true
+  },
+  {
+    ts: 1739272500000,
+    open: 97948.4,
+    high: 98095.5,
+    low: 97925.7,
+    close: 98077.9,
+    vol: 8997,
+    volCurrency: 8,
+    volCurrencyQuote: 882360,
+    confirm: true
+  },
+  {
+    ts: 1739271600000,
+    open: 97952.2,
+    high: 98039.5,
+    low: 97875.8,
+    close: 97948.4,
+    vol: 3641,
+    volCurrency: 3,
+    volCurrencyQuote: 356795,
+    confirm: true
+  },
+  {
+    ts: 1739270700000,
+    open: 97969.3,
+    high: 98043.5,
+    low: 97939.6,
+    close: 97952.2,
+    vol: 2362,
+    volCurrency: 2,
+    volCurrencyQuote: 231514,
+    confirm: true
+  },
+  {
+    ts: 1739269800000,
+    open: 97893.9,
+    high: 98009.4,
+    low: 97893.9,
+    close: 97964.8,
+    vol: 2182,
+    volCurrency: 2,
+    volCurrencyQuote: 213788,
+    confirm: true
+  },
+  {
+    ts: 1739268900000,
+    open: 98074.7,
+    high: 98117.5,
+    low: 97870.7,
+    close: 97893.9,
+    vol: 9831,
+    volCurrency: 9,
+    volCurrencyQuote: 963507,
+    confirm: true
+  },
+  {
+    ts: 1739268000000,
+    open: 97960.5,
+    high: 98117.1,
+    low: 97939.5,
+    close: 98078.9,
+    vol: 4869,
+    volCurrency: 4,
+    volCurrencyQuote: 477462,
+    confirm: true
+  },
+  {
+    ts: 1739267100000,
+    open: 97965.5,
+    high: 98089.6,
+    low: 97913.4,
+    close: 97980.2,
+    vol: 12377,
+    volCurrency: 12,
+    volCurrencyQuote: 1213403,
+    confirm: true
+  },
+  {
+    ts: 1739266200000,
+    open: 98188.1,
+    high: 98215.8,
+    low: 97900.2,
+    close: 97960,
+    vol: 21244,
+    volCurrency: 21,
+    volCurrencyQuote: 2081513,
+    confirm: true
+  },
+  {
+    ts: 1739265300000,
+    open: 98229.3,
+    high: 98256.7,
+    low: 98082,
+    close: 98180.4,
+    vol: 4067,
+    volCurrency: 4,
+    volCurrencyQuote: 399255,
+    confirm: true
+  },
+  {
+    ts: 1739264400000,
+    open: 98226.2,
+    high: 98308.3,
+    low: 98226.2,
+    close: 98228,
+    vol: 2970,
+    volCurrency: 2,
+    volCurrencyQuote: 291830,
+    confirm: true
+  },
+  {
+    ts: 1739263500000,
+    open: 98259.8,
+    high: 98262.7,
+    low: 98166.6,
+    close: 98226.2,
+    vol: 3640,
+    volCurrency: 3,
+    volCurrencyQuote: 357478,
+    confirm: true
+  },
+  {
+    ts: 1739262600000,
+    open: 98116.4,
+    high: 98331.7,
+    low: 98116.4,
+    close: 98262.7,
+    vol: 6713,
+    volCurrency: 6,
+    volCurrencyQuote: 659468,
+    confirm: true
+  },
+  {
+    ts: 1739261700000,
+    open: 98208.6,
+    high: 98215.9,
+    low: 98116.4,
+    close: 98116.4,
+    vol: 5009,
+    volCurrency: 5,
+    volCurrencyQuote: 491662,
+    confirm: true
+  },
+  {
+    ts: 1739260800000,
+    open: 98268.3,
+    high: 98337.1,
+    low: 98143.2,
+    close: 98208.4,
+    vol: 10777,
+    volCurrency: 10,
+    volCurrencyQuote: 1058490,
+    confirm: true
+  },
+  {
+    ts: 1739259900000,
+    open: 98438.1,
+    high: 98438.1,
+    low: 98251.4,
+    close: 98265.4,
+    vol: 4889,
+    volCurrency: 4,
+    volCurrencyQuote: 480826,
+    confirm: true
+  },
+  {
+    ts: 1739259000000,
+    open: 98415.6,
+    high: 98474.1,
+    low: 98339.3,
+    close: 98438.3,
+    vol: 6097,
+    volCurrency: 6,
+    volCurrencyQuote: 600033,
+    confirm: true
+  },
+  {
+    ts: 1739258100000,
+    open: 98358.4,
+    high: 98426.8,
+    low: 98301,
+    close: 98415.8,
+    vol: 5683,
+    volCurrency: 5,
+    volCurrencyQuote: 558849,
+    confirm: true
+  },
+  {
+    ts: 1739257200000,
+    open: 98422.3,
+    high: 98426.5,
+    low: 98314,
+    close: 98356.2,
+    vol: 38024,
+    volCurrency: 38,
+    volCurrencyQuote: 3740594,
+    confirm: true
+  },
+  {
+    ts: 1739256300000,
+    open: 98337,
+    high: 98476.5,
+    low: 98267.3,
+    close: 98422.3,
+    vol: 30372,
+    volCurrency: 30,
+    volCurrencyQuote: 2988940,
+    confirm: true
+  },
+  {
+    ts: 1739255400000,
+    open: 98296,
+    high: 98345.9,
+    low: 98230.9,
+    close: 98337.2,
+    vol: 37778,
+    volCurrency: 37,
+    volCurrencyQuote: 3714805,
+    confirm: true
+  },
+  {
+    ts: 1739254500000,
+    open: 98186,
+    high: 98325.5,
+    low: 98129.5,
+    close: 98285.7,
+    vol: 21595,
+    volCurrency: 21,
+    volCurrencyQuote: 2121513,
+    confirm: true
+  },
+  {
+    ts: 1739253600000,
+    open: 98422,
+    high: 98443.8,
+    low: 98169.3,
+    close: 98195.8,
+    vol: 36058,
+    volCurrency: 36,
+    volCurrencyQuote: 3542751,
+    confirm: true
+  },
+  {
+    ts: 1739252700000,
+    open: 98284.6,
+    high: 98500.9,
+    low: 98136.5,
+    close: 98414.6,
+    vol: 31138,
+    volCurrency: 31,
+    volCurrencyQuote: 3063101,
+    confirm: true
+  },
+  {
+    ts: 1739251800000,
+    open: 98235.6,
+    high: 98291.8,
+    low: 98108.6,
+    close: 98284.7,
+    vol: 14429,
+    volCurrency: 14,
+    volCurrencyQuote: 1417361,
+    confirm: true
+  },
+  {
+    ts: 1739250900000,
+    open: 98170.9,
+    high: 98272.1,
+    low: 98037.8,
+    close: 98231.6,
+    vol: 29649,
+    volCurrency: 29,
+    volCurrencyQuote: 2912225,
+    confirm: true
+  },
+  {
+    ts: 1739250000000,
+    open: 98062.6,
+    high: 98330.1,
+    low: 98000.5,
+    close: 98162.4,
+    vol: 186134,
+    volCurrency: 186,
+    volCurrencyQuote: 18289505,
+    confirm: true
+  },
+  {
+    ts: 1739249100000,
+    open: 97975.7,
+    high: 98192.7,
+    low: 97949.2,
+    close: 98062.6,
+    vol: 33216,
+    volCurrency: 33,
+    volCurrencyQuote: 3258236,
+    confirm: true
+  },
+  {
+    ts: 1739248200000,
+    open: 97622.9,
+    high: 98017.2,
+    low: 97621.5,
+    close: 97975.7,
+    vol: 78020,
+    volCurrency: 78,
+    volCurrencyQuote: 7627290,
+    confirm: true
+  },
+  {
+    ts: 1739247300000,
+    open: 97562.5,
+    high: 97640.4,
+    low: 97552.8,
+    close: 97625.6,
+    vol: 34148,
+    volCurrency: 34,
+    volCurrencyQuote: 3334155,
+    confirm: true
+  },
+  {
+    ts: 1739246400000,
+    open: 97603.3,
+    high: 97660.1,
+    low: 97553,
+    close: 97560.8,
+    vol: 2160,
+    volCurrency: 2,
+    volCurrencyQuote: 210853,
+    confirm: true
+  },
+  {
+    ts: 1739245500000,
+    open: 97529.6,
+    high: 97635.6,
+    low: 97499.8,
+    close: 97603.3,
+    vol: 2648,
+    volCurrency: 2,
+    volCurrencyQuote: 258366,
+    confirm: true
+  },
+  {
+    ts: 1739244600000,
+    open: 97566.3,
+    high: 97613.3,
+    low: 97468,
+    close: 97530.7,
+    vol: 8912,
+    volCurrency: 8,
+    volCurrencyQuote: 869235,
+    confirm: true
+  },
+  {
+    ts: 1739243700000,
+    open: 97627.7,
+    high: 97698.4,
+    low: 97542.6,
+    close: 97564.6,
+    vol: 6686,
+    volCurrency: 6,
+    volCurrencyQuote: 652811,
+    confirm: true
+  },
+  {
+    ts: 1739242800000,
+    open: 97761.8,
+    high: 97762,
+    low: 97504.3,
+    close: 97627.4,
+    vol: 90468,
+    volCurrency: 90,
+    volCurrencyQuote: 8829993,
+    confirm: true
+  },
+  {
+    ts: 1739241900000,
+    open: 97652.8,
+    high: 97877.9,
+    low: 97652.8,
+    close: 97761.7,
+    vol: 28099,
+    volCurrency: 28,
+    volCurrencyQuote: 2747534,
+    confirm: true
+  },
+  {
+    ts: 1739241000000,
+    open: 97631.7,
+    high: 97688.9,
+    low: 97461.3,
+    close: 97652.8,
+    vol: 26113,
+    volCurrency: 26,
+    volCurrencyQuote: 2547863,
+    confirm: true
+  },
+  {
+    ts: 1739240100000,
+    open: 97871.3,
+    high: 97909.8,
+    low: 97608.8,
+    close: 97631.5,
+    vol: 25253,
+    volCurrency: 25,
+    volCurrencyQuote: 2467644,
+    confirm: true
+  },
+  {
+    ts: 1739239200000,
+    open: 97993.7,
+    high: 98100,
+    low: 97841,
+    close: 97871.3,
+    vol: 14138,
+    volCurrency: 14,
+    volCurrencyQuote: 1385311,
+    confirm: true
+  },
+  {
+    ts: 1739238300000,
+    open: 97984.4,
+    high: 98090.2,
+    low: 97892.8,
+    close: 97992,
+    vol: 5650,
+    volCurrency: 5,
+    volCurrencyQuote: 553735,
+    confirm: true
+  },
+  {
+    ts: 1739237400000,
+    open: 97950.2,
+    high: 98095,
+    low: 97892.8,
+    close: 97984.3,
+    vol: 11670,
+    volCurrency: 11,
+    volCurrencyQuote: 1143961,
+    confirm: true
+  },
+  {
+    ts: 1739236500000,
+    open: 97877.2,
+    high: 98095.9,
+    low: 97834,
+    close: 97950,
+    vol: 12168,
+    volCurrency: 12,
+    volCurrencyQuote: 1192070,
+    confirm: true
+  },
+  {
+    ts: 1739235600000,
+    open: 97773,
+    high: 98038.2,
+    low: 97762.1,
+    close: 97880.8,
+    vol: 13050,
+    volCurrency: 13,
+    volCurrencyQuote: 1277777,
+    confirm: true
+  },
+  {
+    ts: 1739234700000,
+    open: 98010,
+    high: 98057.1,
+    low: 97759.9,
+    close: 97773.9,
+    vol: 15941,
+    volCurrency: 15,
+    volCurrencyQuote: 1560335,
+    confirm: true
+  },
+  {
+    ts: 1739233800000,
+    open: 97772.4,
+    high: 98134.6,
+    low: 97725.3,
+    close: 98009.8,
+    vol: 21376,
+    volCurrency: 21,
+    volCurrencyQuote: 2093271,
+    confirm: true
+  },
+  {
+    ts: 1739232900000,
+    open: 97727,
+    high: 97858.4,
+    low: 97616.8,
+    close: 97757.7,
+    vol: 10155,
+    volCurrency: 10,
+    volCurrencyQuote: 992396,
+    confirm: true
+  },
+  {
+    ts: 1739232000000,
+    open: 97410.7,
+    high: 97848.7,
+    low: 97410.5,
+    close: 97723.8,
+    vol: 283477,
+    volCurrency: 283,
+    volCurrencyQuote: 27671144,
+    confirm: true
+  },
+  {
+    ts: 1739231100000,
+    open: 97296.4,
+    high: 97432.9,
+    low: 97296.4,
+    close: 97410.5,
+    vol: 5799,
+    volCurrency: 5,
+    volCurrencyQuote: 564630,
+    confirm: true
+  },
+  {
+    ts: 1739230200000,
+    open: 97243.7,
+    high: 97334.9,
+    low: 97243.7,
+    close: 97307.1,
+    vol: 3188,
+    volCurrency: 3,
+    volCurrencyQuote: 310174,
+    confirm: true
+  },
+  {
+    ts: 1739229300000,
+    open: 97300,
+    high: 97431,
+    low: 97243.7,
+    close: 97243.7,
+    vol: 11932,
+    volCurrency: 11,
+    volCurrencyQuote: 1161950,
+    confirm: true
+  },
+  {
+    ts: 1739228400000,
+    open: 97389.3,
+    high: 97390.5,
+    low: 97216.9,
+    close: 97293,
+    vol: 5355,
+    volCurrency: 5,
+    volCurrencyQuote: 520957,
+    confirm: true
+  },
+  {
+    ts: 1739227500000,
+    open: 97425.2,
+    high: 97437.8,
+    low: 97281.2,
+    close: 97397.3,
+    vol: 5602,
+    volCurrency: 5,
+    volCurrencyQuote: 545501,
+    confirm: true
+  },
+  {
+    ts: 1739226600000,
+    open: 97490.8,
+    high: 97490.8,
+    low: 97300.5,
+    close: 97418.6,
+    vol: 62200,
+    volCurrency: 62,
+    volCurrencyQuote: 6059696,
+    confirm: true
+  },
+  {
+    ts: 1739225700000,
+    open: 97297,
+    high: 97491,
+    low: 97264.6,
+    close: 97490.9,
+    vol: 15758,
+    volCurrency: 15,
+    volCurrencyQuote: 1534484,
+    confirm: true
+  },
+  {
+    ts: 1739224800000,
+    open: 97367,
+    high: 97377.6,
+    low: 97264.6,
+    close: 97296.4,
+    vol: 11130,
+    volCurrency: 11,
+    volCurrencyQuote: 1083214,
+    confirm: true
+  },
+  {
+    ts: 1739223900000,
+    open: 97263.4,
+    high: 97380.5,
+    low: 97125.8,
+    close: 97372.9,
+    vol: 12034,
+    volCurrency: 12,
+    volCurrencyQuote: 1170340,
+    confirm: true
+  },
+  {
+    ts: 1739223000000,
+    open: 97298.3,
+    high: 97320.2,
+    low: 97205.3,
+    close: 97268.6,
+    vol: 35964,
+    volCurrency: 35,
+    volCurrencyQuote: 3498243,
+    confirm: true
+  },
+  {
+    ts: 1739222100000,
+    open: 97243.2,
+    high: 97309.4,
+    low: 97110,
+    close: 97298.5,
+    vol: 88194,
+    volCurrency: 88,
+    volCurrencyQuote: 8572662,
+    confirm: true
+  },
+  {
+    ts: 1739221200000,
+    open: 97336.9,
+    high: 97341.9,
+    low: 97233.8,
+    close: 97243.2,
+    vol: 8157,
+    volCurrency: 8,
+    volCurrencyQuote: 793615,
+    confirm: true
+  },
+  {
+    ts: 1739220300000,
+    open: 97456.9,
+    high: 97493,
+    low: 97286.2,
+    close: 97325.3,
+    vol: 40399,
+    volCurrency: 40,
+    volCurrencyQuote: 3937629,
+    confirm: true
+  },
+  {
+    ts: 1739219400000,
+    open: 97264.9,
+    high: 97450,
+    low: 97241.1,
+    close: 97450,
+    vol: 65273,
+    volCurrency: 65,
+    volCurrencyQuote: 6358323,
+    confirm: true
+  },
+  {
+    ts: 1739218500000,
+    open: 97409.3,
+    high: 97440.1,
+    low: 97209.1,
+    close: 97262.1,
+    vol: 20197,
+    volCurrency: 20,
+    volCurrencyQuote: 1964976,
+    confirm: true
+  },
+  {
+    ts: 1739217600000,
+    open: 97357.7,
+    high: 97425,
+    low: 97263.1,
+    close: 97409.1,
+    vol: 14666,
+    volCurrency: 14,
+    volCurrencyQuote: 1427462,
+    confirm: true
+  },
+  {
+    ts: 1739216700000,
+    open: 97375.6,
+    high: 97407.1,
+    low: 97241.1,
+    close: 97366.8,
+    vol: 15958,
+    volCurrency: 15,
+    volCurrencyQuote: 1553217,
+    confirm: true
+  },
+  {
+    ts: 1739215800000,
+    open: 97561.3,
+    high: 97626.1,
+    low: 97376,
+    close: 97376,
+    vol: 11389,
+    volCurrency: 11,
+    volCurrencyQuote: 1110166,
+    confirm: true
+  },
+  {
+    ts: 1739214900000,
+    open: 97600.8,
+    high: 97625.5,
+    low: 97514.1,
+    close: 97568,
+    vol: 9019,
+    volCurrency: 9,
+    volCurrencyQuote: 879798,
+    confirm: true
+  },
+  {
+    ts: 1739214000000,
+    open: 97534.4,
+    high: 97628.8,
+    low: 97450.1,
+    close: 97600.8,
+    vol: 43953,
+    volCurrency: 43,
+    volCurrencyQuote: 4286395,
+    confirm: true
+  },
+  {
+    ts: 1739213100000,
+    open: 97269.6,
+    high: 97550,
+    low: 97250.5,
+    close: 97549.9,
+    vol: 33738,
+    volCurrency: 33,
+    volCurrencyQuote: 3285093,
+    confirm: true
+  },
+  {
+    ts: 1739212200000,
+    open: 97460.5,
+    high: 97500,
+    low: 97237,
+    close: 97263.7,
+    vol: 66027,
+    volCurrency: 66,
+    volCurrencyQuote: 6423851,
+    confirm: true
+  },
+  {
+    ts: 1739211300000,
+    open: 97289,
+    high: 97481.7,
+    low: 97166.4,
+    close: 97459.8,
+    vol: 12595,
+    volCurrency: 12,
+    volCurrencyQuote: 1225523,
+    confirm: true
+  },
+  {
+    ts: 1739210400000,
+    open: 97478.2,
+    high: 97551.1,
+    low: 97289,
+    close: 97289.4,
+    vol: 22491,
+    volCurrency: 22,
+    volCurrencyQuote: 2191550,
+    confirm: true
+  },
+  {
+    ts: 1739209500000,
+    open: 97240,
+    high: 97521.2,
+    low: 97188.2,
+    close: 97487,
+    vol: 23674,
+    volCurrency: 23,
+    volCurrencyQuote: 2306097,
+    confirm: true
+  },
+  {
+    ts: 1739208600000,
+    open: 97292.2,
+    high: 97347.2,
+    low: 97176.1,
+    close: 97235.1,
+    vol: 12356,
+    volCurrency: 12,
+    volCurrencyQuote: 1201963,
+    confirm: true
+  },
+  {
+    ts: 1739207700000,
+    open: 96970.8,
+    high: 97304.1,
+    low: 96878.3,
+    close: 97288.2,
+    vol: 26346,
+    volCurrency: 26,
+    volCurrencyQuote: 2557625,
+    confirm: true
+  },
+  {
+    ts: 1739206800000,
+    open: 97293.2,
+    high: 97350.7,
+    low: 96888.3,
+    close: 96976.1,
+    vol: 25687,
+    volCurrency: 25,
+    volCurrencyQuote: 2494927,
+    confirm: true
+  },
+  {
+    ts: 1739205900000,
+    open: 97132.8,
+    high: 97372.5,
+    low: 97066,
+    close: 97289.8,
+    vol: 28402,
+    volCurrency: 28,
+    volCurrencyQuote: 2761789,
+    confirm: true
+  },
+  {
+    ts: 1739205000000,
+    open: 97039.7,
+    high: 97128.7,
+    low: 96866.8,
+    close: 97128.7,
+    vol: 28386,
+    volCurrency: 28,
+    volCurrencyQuote: 2752953,
+    confirm: true
+  },
+  {
+    ts: 1739204100000,
+    open: 97188.7,
+    high: 97193.3,
+    low: 96992.9,
+    close: 97032.3,
+    vol: 15173,
+    volCurrency: 15,
+    volCurrencyQuote: 1473022,
+    confirm: true
+  },
+  {
+    ts: 1739203200000,
+    open: 97236.6,
+    high: 97413.7,
+    low: 97132.3,
+    close: 97188.7,
+    vol: 24572,
+    volCurrency: 24,
+    volCurrencyQuote: 2390869,
+    confirm: true
+  },
+  {
+    ts: 1739202300000,
+    open: 97088,
+    high: 97287.4,
+    low: 96939.7,
+    close: 97223.6,
+    vol: 34935,
+    volCurrency: 34,
+    volCurrencyQuote: 3393899,
+    confirm: true
+  },
+  {
+    ts: 1739201400000,
+    open: 97067.3,
+    high: 97194.7,
+    low: 96859.3,
+    close: 97083.4,
+    vol: 16208,
+    volCurrency: 16,
+    volCurrencyQuote: 1572106,
+    confirm: true
+  },
+  {
+    ts: 1739200500000,
+    open: 97488.8,
+    high: 97522.5,
+    low: 96923.7,
+    close: 97065.2,
+    vol: 36532,
+    volCurrency: 36,
+    volCurrencyQuote: 3546646,
+    confirm: true
+  },
+  {
+    ts: 1739199600000,
+    open: 97283,
+    high: 97568.8,
+    low: 97245.3,
+    close: 97479.2,
+    vol: 20369,
+    volCurrency: 20,
+    volCurrencyQuote: 1984208,
+    confirm: true
+  },
+  {
+    ts: 1739198700000,
+    open: 97501.5,
+    high: 97633,
+    low: 97064,
+    close: 97275.1,
+    vol: 33065,
+    volCurrency: 33,
+    volCurrencyQuote: 3217512,
+    confirm: true
+  },
+  {
+    ts: 1739197800000,
+    open: 97728,
+    high: 97998.2,
+    low: 97233.3,
+    close: 97498.6,
+    vol: 76807,
+    volCurrency: 76,
+    volCurrencyQuote: 7485584,
+    confirm: true
+  },
+  {
+    ts: 1739196900000,
+    open: 97718.4,
+    high: 97826.1,
+    low: 97531.4,
+    close: 97719,
+    vol: 36750,
+    volCurrency: 36,
+    volCurrencyQuote: 3590237,
+    confirm: true
+  },
+  {
+    ts: 1739196000000,
+    open: 98208.3,
+    high: 98319.9,
+    low: 97713.1,
+    close: 97718.8,
+    vol: 29867,
+    volCurrency: 29,
+    volCurrencyQuote: 2927420,
+    confirm: true
+  },
+  {
+    ts: 1739195100000,
+    open: 97754.3,
+    high: 98340.7,
+    low: 97750,
+    close: 98211.2,
+    vol: 96590,
+    volCurrency: 96,
+    volCurrencyQuote: 9478567,
+    confirm: true
+  },
+  {
+    ts: 1739194200000,
+    open: 97489.2,
+    high: 97826.8,
+    low: 97411.3,
+    close: 97756.2,
+    vol: 19681,
+    volCurrency: 19,
+    volCurrencyQuote: 1920411,
+    confirm: true
+  },
+  {
+    ts: 1739193300000,
+    open: 97584.8,
+    high: 97670,
+    low: 97439,
+    close: 97497.1,
+    vol: 18873,
+    volCurrency: 18,
+    volCurrencyQuote: 1840763,
+    confirm: true
+  },
+  {
+    ts: 1739192400000,
+    open: 97365.2,
+    high: 97606.5,
+    low: 97356.8,
+    close: 97574.4,
+    vol: 12212,
+    volCurrency: 12,
+    volCurrencyQuote: 1190219,
+    confirm: true
+  },
+  {
+    ts: 1739191500000,
+    open: 97338.5,
+    high: 97410.9,
+    low: 97170.9,
+    close: 97364,
+    vol: 14974,
+    volCurrency: 14,
+    volCurrencyQuote: 1457598,
+    confirm: true
+  },
+  {
+    ts: 1739190600000,
+    open: 97550.1,
+    high: 97570.9,
+    low: 97251,
+    close: 97328.9,
+    vol: 20222,
+    volCurrency: 20,
+    volCurrencyQuote: 1969266,
+    confirm: true
+  },
+  {
+    ts: 1739189700000,
+    open: 97588.7,
+    high: 97640,
+    low: 97481.5,
+    close: 97570.7,
+    vol: 4105,
+    volCurrency: 4,
+    volCurrencyQuote: 400559,
+    confirm: true
+  },
+  {
+    ts: 1739188800000,
+    open: 97655.3,
+    high: 97792.8,
+    low: 97588.6,
+    close: 97588.8,
+    vol: 6638,
+    volCurrency: 6,
+    volCurrencyQuote: 648495,
+    confirm: true
+  },
+  {
+    ts: 1739187900000,
+    open: 97803.3,
+    high: 97874.5,
+    low: 97638.7,
+    close: 97655.3,
+    vol: 6233,
+    volCurrency: 6,
+    volCurrencyQuote: 609076,
+    confirm: true
+  },
+  {
+    ts: 1739187000000,
+    open: 97839.9,
+    high: 97901,
+    low: 97788.5,
+    close: 97803.3,
+    vol: 3711,
+    volCurrency: 3,
+    volCurrencyQuote: 363090,
+    confirm: true
+  },
+  ... 1340 more items
+]
 Published [ 'VTHO', 'USDT' ]
-Published [ 'ALU', 'USDT' ]
-Published [ 'TRUMP', 'USDT' ]
-Published [ 'DUCK', 'USDT' ]
-Published [ 'SOLV', 'USDT' ]
-Published [ 'ARC', 'USDT' ]
+Published [ 'ETH', 'USDT' ]
+Published [ 'VINE', 'USDT' ]
+Published [ 'JELLYJELLY', 'USDT' ]
+Published [ 'ANIME', 'USDT' ]
 Published [ 'REX', 'USDT' ]
-Published [ 'PIPPIN', 'USDT' ]
-Published [ 'HIVE', 'USDT' ]
-Published [ 'BERA', 'USDT' ]
-Published [ 'ALCH', 'USDT' ]
-Published [ 'FLOCK', 'USDT' ]
-Published [ 'S', 'USDT' ]
-Published [ 'BIO', 'USDT' ]
 Published [ 'MELANIA', 'USDT' ]
-Published [ 'FUEL', 'USDT' ]
-Published [ 'DEXE', 'USDT' ]
-Published [ 'COOKIE', 'USDT' ]
+Published [ 'BERA', 'USDT' ]
+Published [ 'FLOCK', 'USDT' ]
+Published [ 'DUCK', 'USDT' ]
+Published [ 'BUZZ', 'USDT' ]
+Published [ 'J', 'USDT' ]
+Published [ 'VVV', 'USDT' ]
+Published [ 'ALU', 'USDT' ]
+Published [ 'TST', 'USDT' ]
+Published [ 'PIPPIN', 'USDT' ]
+Published [ 'PLUME', 'USDT' ]
+Published [ 'TRUMP', 'USDT' ]
+Published [ 'BIO', 'USDT' ]
+Published [ 'BTC', 'USDT' ]
+Published [ 'PHA', 'USDT' ]
+Published [ 'SOLV', 'USDT' ]
 Published [ 'DF', 'USDT' ]
-Published [ 'KMNO', 'USDT' ]
+Published [ 'COOKIE', 'USDT' ]
+Published [ 'ALCH', 'USDT' ]
+Published [ 'SWARMS', 'USDT' ]
+Published [ 'AVAAI', 'USDT' ]
 Published [ 'D', 'USDT' ]
+Published [ 'CGPT', 'USDT' ]
+Published [ 'HIVE', 'USDT' ]
+Published [ 'S', 'USDT' ]
+Published [ 'AI16Z', 'USDT' ]
+Published [ 'AIXBT', 'USDT' ]
+Published [ 'SONIC', 'USDT' ]
+Published [ 'GRIFFAIN', 'USDT' ]
+Published [ 'ZEREBRO', 'USDT' ]
+Published [ 'DEXE', 'USDT' ]
+Published [ 'ARC', 'USDT' ]
+Published [ 'VELODROME', 'USDT' ]
+Published [ 'KMNO', 'USDT' ]
+Published [ 'SEND', 'USDT' ]
+Published [ 'FUEL', 'USDT' ]
+Published [ 'USUAL', 'USDT' ]
+Published [ 'DEGO', 'USDT' ]
 Published [ 'FARTCOIN', 'USDT' ]
 Published [ 'AVA', 'USDT' ]
-Published [ 'SONIC', 'USDT' ]
-Published [ 'AI16Z', 'USDT' ]
-Published [ 'CGPT', 'USDT' ]
-Published [ 'ZEREBRO', 'USDT' ]
-Published [ 'PHA', 'USDT' ]
-Published [ 'GRIFFAIN', 'USDT' ]
-Published [ 'HYPE', 'USDT' ]
-Published [ 'SEND', 'USDT' ]
-Published [ 'ME', 'USDT' ]
-Published [ 'DEGO', 'USDT' ]
-Published [ 'USUAL', 'USDT' ]
-Published [ 'VANA', 'USDT' ]
-Published [ 'SWARMS', 'USDT' ]
 Published [ 'GIGA', 'USDT' ]
-Published [ 'AIXBT', 'USDT' ]
-Published [ 'XION', 'USDT' ]
-Published [ 'VELODROME', 'USDT' ]
-Published [ 'BAN', 'USDT' ]
-Published [ 'ACX', 'USDT' ]
-Published [ 'LUCE', 'USDT' ]
-Published [ 'PENGU', 'USDT' ]
-Published [ 'PNUT', 'USDT' ]
-Published [ '1000WHY', 'USDT' ]
-Published [ 'URO', 'USDT' ]
-Published [ 'SNT', 'USDT' ]
-Published [ 'THE', 'USDT' ]
 Published [ 'KOMA', 'USDT' ]
-Published [ 'MOVE', 'USDT' ]
+Published [ 'URO', 'USDT' ]
 Published [ 'OL', 'USDT' ]
 Published [ 'MEMEFI', 'USDT' ]
+Published [ 'SNT', 'USDT' ]
+Published [ 'PENGU', 'USDT' ]
+Published [ 'XION', 'USDT' ]
+Published [ 'HYPE', 'USDT' ]
+Published [ 'ME', 'USDT' ]
+Published [ 'MOVE', 'USDT' ]
+Published [ 'ACX', 'USDT' ]
 Published [ 'AIOZ', 'USDT' ]
-Published [ '1000CHEEMS', 'USDT' ]
-Published [ 'SCRT', 'USDT' ]
-Published [ 'MVL', 'USDT' ]
-Published [ 'VIRTUAL', 'USDT' ]
-Published [ 'KAIA', 'USDT' ]
 Published [ 'CHILLGUY', 'USDT' ]
-Published [ 'X', 'USDT' ]
+Published [ 'VIRTUAL', 'USDT' ]
+Published [ 'THE', 'USDT' ]
 Published [ 'MORPHO', 'USDT' ]
-Published [ 'LUMIA', 'USDT' ]
-Published [ 'TROY', 'USDT' ]
-Published [ 'FWOG', 'USDT' ]
-Published [ 'SCR', 'USDT' ]
-Published [ 'SANTOS', 'USDT' ]
-Published [ 'SPX', 'USDT' ]
-Published [ 'COW', 'USDT' ]
-Published [ 'PROS', 'USDT' ]
+Published [ '1000WHY', 'USDT' ]
+Published [ 'VANA', 'USDT' ]
 Published [ 'HIPPO', 'USDT' ]
+Published [ 'BAN', 'USDT' ]
+Published [ 'SCRT', 'USDT' ]
+Published [ 'LUCE', 'USDT' ]
 Published [ 'ACT', 'USDT' ]
+Published [ 'GRASS', 'USDT' ]
+Published [ 'COW', 'USDT' ]
 Published [ 'SWELL', 'USDT' ]
-Published [ 'DBR', 'USDT' ]
-Published [ 'CAT', 'USDT' ]
-Published [ '1000CATS', 'USDT' ]
-Published [ 'NEIRO', 'USDT' ]
+Published [ 'PROS', 'USDT' ]
+Published [ 'FWOG', 'USDT' ]
+Published [ 'MVL', 'USDT' ]
+Published [ '1000CHEEMS', 'USDT' ]
 Published [ 'TAI', 'USDT' ]
-Published [ 'HPOS10I', 'USDT' ]
-Published [ 'PUFFER', 'USDT' ]
+Published [ 'DBR', 'USDT' ]
 Published [ 'GOAT', 'USDT' ]
 Published [ 'DEEP', 'USDT' ]
-Published [ 'DIA', 'USDT' ]
-Published [ 'FIDA', 'USDT' ]
-Published [ 'XNO', 'USDT' ]
-Published [ 'GRASS', 'USDT' ]
+Published [ 'SANTOS', 'USDT' ]
+Published [ 'PNUT', 'USDT' ]
+Published [ 'LUMIA', 'USDT' ]
+Published [ '1000CATS', 'USDT' ]
+Published [ 'X', 'USDT' ]
 Published [ 'HMSTR', 'USDT' ]
-Published [ 'EIGEN', 'USDT' ]
-Published [ 'RPL', 'USDT' ]
+Published [ 'XNO', 'USDT' ]
+Published [ 'HPOS10I', 'USDT' ]
+Published [ 'KAIA', 'USDT' ]
+Published [ 'SPX', 'USDT' ]
+Published [ 'PUFFER', 'USDT' ]
 Published [ 'PRIME', 'USDT' ]
+Published [ 'NEIRO', 'USDT' ]
+Published [ 'EIGEN', 'USDT' ]
 Published [ 'ULTI', 'USDT' ]
-Published [ 'GHST', 'USDT' ]
-Published [ 'ALEO', 'USDT' ]
-Published [ 'CATI', 'USDT' ]
-Published [ 'KDA', 'USDT' ]
 Published [ 'MOODENG', 'USDT' ]
-Published [ 'FIO', 'USDT' ]
-Published [ 'REI', 'USDT' ]
-Published [ 'SYS', 'USDT' ]
-Published [ 'NEIROETH', 'USDT' ]
+Published [ 'KDA', 'USDT' ]
+Published [ 'CATI', 'USDT' ]
+Published [ 'DIA', 'USDT' ]
+Published [ 'SCR', 'USDT' ]
 Published [ 'LOKA', 'USDT' ]
-Published [ 'ALPACA', 'USDT' ]
-Published [ 'DOGS', 'USDT' ]
+Published [ '1000MUMU', 'USDT' ]
+Published [ 'TROY', 'USDT' ]
+Published [ 'GHST', 'USDT' ]
+Published [ 'REI', 'USDT' ]
+Published [ 'ALEO', 'USDT' ]
+Published [ 'POL', 'USDT' ]
+Published [ 'RPL', 'USDT' ]
 Published [ 'FLUX', 'USDT' ]
 Published [ 'SUNDOG', 'USDT' ]
-Published [ 'SUN', 'USDT' ]
-Published [ 'POL', 'USDT' ]
-Published [ '1000MUMU', 'USDT' ]
-Published [ 'RENDER', 'USDT' ]
 Published [ 'NULS', 'USDT' ]
-Published [ 'VOXEL', 'USDT' ]
+Published [ 'FIO', 'USDT' ]
 Published [ 'QUICK', 'USDT' ]
-Published [ 'ORDER', 'USDT' ]
-Published [ 'MANEKI', 'USDT' ]
-Published [ 'VIDT', 'USDT' ]
-Published [ 'SYN', 'USDT' ]
+Published [ 'FIDA', 'USDT' ]
+Published [ 'SUN', 'USDT' ]
+Published [ 'CAT', 'USDT' ]
 Published [ 'SLF', 'USDT' ]
-Published [ 'CHESS', 'USDT' ]
-Published [ 'MOTHER', 'USDT' ]
-Published [ 'PIRATE', 'USDT' ]
-Published [ 'AERO', 'USDT' ]
-Published [ 'UXLINK', 'USDT' ]
 Published [ 'MAX', 'USDT' ]
-Published [ 'LISTA', 'USDT' ]
-Published [ 'AVAIL', 'USDT' ]
+Published [ 'ORDER', 'USDT' ]
+Published [ 'VOXEL', 'USDT' ]
+Published [ 'CHESS', 'USDT' ]
+Published [ 'ALPACA', 'USDT' ]
+Published [ 'DOGS', 'USDT' ]
 Published [ 'G', 'USDT' ]
-Published [ '1000000PEIPEI', 'USDT' ]
-Published [ 'L3', 'USDT' ]
-Published [ 'AKT', 'USDT' ]
-Published [ 'BLAST', 'USDT' ]
-Published [ 'MOCA', 'USDT' ]
-Published [ 'PONKE', 'USDT' ]
-Published [ 'CLOUD', 'USDT' ]
-Published [ 'ZRO', 'USDT' ]
-Published [ '1000APU', 'USDT' ]
-Published [ 'IO', 'USDT' ]
-Published [ 'ZK', 'USDT' ]
-Published [ 'ATH', 'USDT' ]
-Published [ 'DOG', 'USDT' ]
-Published [ 'TAIKO', 'USDT' ]
-Published [ 'REZ', 'USDT' ]
-Published [ 'COS', 'USDT' ]
-Published [ '1000000BABYDOGE', 'USDT' ]
+Published [ 'VIDT', 'USDT' ]
+Published [ 'MOTHER', 'USDT' ]
+Published [ 'UXLINK', 'USDT' ]
+Published [ 'AERO', 'USDT' ]
 Published [ 'BANANA', 'USDT' ]
-Published [ 'OSMO', 'USDT' ]
-Published [ 'MON', 'USDT' ]
+Published [ 'L3', 'USDT' ]
+Published [ 'AVAIL', 'USDT' ]
+Published [ 'ZK', 'USDT' ]
+Published [ 'PIRATE', 'USDT' ]
+Published [ 'RENDER', 'USDT' ]
+Published [ 'MOCA', 'USDT' ]
+Published [ 'SYS', 'USDT' ]
+Published [ 'NEIROETH', 'USDT' ]
+Published [ 'SYN', 'USDT' ]
+Published [ 'CLOUD', 'USDT' ]
+Published [ '1000000PEIPEI', 'USDT' ]
 Published [ 'GME', 'USDT' ]
-Published [ '1000000MOG', 'USDT' ]
-Published [ 'NOT', 'USDT' ]
-Published [ 'PRCL', 'USDT' ]
-Published [ 'NYAN', 'USDT' ]
+Published [ '1000APU', 'USDT' ]
+Published [ 'PONKE', 'USDT' ]
+Published [ 'OSMO', 'USDT' ]
+Published [ 'MANEKI', 'USDT' ]
+Published [ 'ATH', 'USDT' ]
+Published [ 'ZRO', 'USDT' ]
+Published [ 'MON', 'USDT' ]
+Published [ 'BLAST', 'USDT' ]
+Published [ 'DOG', 'USDT' ]
 Published [ 'SPEC', 'USDT' ]
-Published [ 'BB', 'USDT' ]
-Published [ 'FIRE', 'USDT' ]
-Published [ 'OMNI', 'USDT' ]
-Published [ 'MEW', 'USDT' ]
+Published [ 'AKT', 'USDT' ]
+Published [ 'LISTA', 'USDT' ]
+Published [ 'IO', 'USDT' ]
+Published [ '1000000BABYDOGE', 'USDT' ]
+Published [ '1000000MOG', 'USDT' ]
 Published [ 'DRIFT', 'USDT' ]
-Published [ 'ORCA', 'USDT' ]
-Published [ 'MASA', 'USDT' ]
-Published [ 'FOXY', 'USDT' ]
-Published [ 'SCA', 'USDT' ]
-Published [ 'VELO', 'USDT' ]
+Published [ 'TAIKO', 'USDT' ]
+Published [ 'NYAN', 'USDT' ]
 Published [ 'SAFE', 'USDT' ]
-Published [ 'TNSR', 'USDT' ]
-Published [ 'ZBCN', 'USDT' ]
-Published [ 'BOME', 'USDT' ]
+Published [ 'ORCA', 'USDT' ]
 Published [ 'BRETT', 'USDT' ]
+Published [ 'OMNI', 'USDT' ]
+Published [ 'NOT', 'USDT' ]
+Published [ 'ZBCN', 'USDT' ]
+Published [ 'COS', 'USDT' ]
+Published [ 'MASA', 'USDT' ]
+Published [ 'TNSR', 'USDT' ]
 Published [ 'DEGEN', 'USDT' ]
+Published [ 'BB', 'USDT' ]
+Published [ 'PRCL', 'USDT' ]
+Published [ 'MEW', 'USDT' ]
+Published [ 'REZ', 'USDT' ]
 Published [ 'SAGA', 'USDT' ]
 Published [ 'W', 'USDT' ]
-Published [ 'POPCAT', 'USDT' ]
-Published [ 'ETHFI', 'USDT' ]
-Published [ 'AEVO', 'USDT' ]
-Published [ 'PORTAL', 'USDT' ]
-Published [ 'GLM', 'USDT' ]
+Published [ 'FOXY', 'USDT' ]
+Published [ 'VANRY', 'USDT' ]
+Published [ 'FIRE', 'USDT' ]
 Published [ 'ZKJ', 'USDT' ]
-Published [ 'PIXEL', 'USDT' ]
-Published [ 'ENA', 'USDT' ]
-Published [ 'AGI', 'USDT' ]
-Published [ 'STRK', 'USDT' ]
-Published [ 'RAY', 'USDT' ]
-Published [ 'MYRO', 'USDT' ]
-Published [ 'PROM', 'USDT' ]
 Published [ 'SLERF', 'USDT' ]
 Published [ '10000COQ', 'USDT' ]
-Published [ 'ALT', 'USDT' ]
-Published [ 'OM', 'USDT' ]
-Published [ 'VANRY', 'USDT' ]
-Published [ 'ZETA', 'USDT' ]
-Published [ 'DYM', 'USDT' ]
-Published [ 'WIF', 'USDT' ]
-Published [ 'RARE', 'USDT' ]
-Published [ 'METIS', 'USDT' ]
-Published [ 'XAI', 'USDT' ]
-Published [ 'JUP', 'USDT' ]
-Published [ 'DATA', 'USDT' ]
-Published [ 'ONDO', 'USDT' ]
-Published [ 'MBOX', 'USDT' ]
-Published [ 'RON', 'USDT' ]
-Published [ 'TURBO', 'USDT' ]
-Published [ 'MANTA', 'USDT' ]
-Published [ 'ACE', 'USDT' ]
-Published [ 'AI', 'USDT' ]
-Published [ 'AUCTION', 'USDT' ]
-Published [ 'MYRIA', 'USDT' ]
-Published [ 'TAO', 'USDT' ]
+Published [ 'SCA', 'USDT' ]
+Published [ 'ENA', 'USDT' ]
+Published [ 'RAY', 'USDT' ]
+Published [ 'VELO', 'USDT' ]
+Published [ 'BOME', 'USDT' ]
 Published [ 'MOBILE', 'USDT' ]
-Published [ 'LSK', 'USDT' ]
-Published [ 'SUPER', 'USDT' ]
+Published [ 'GLM', 'USDT' ]
+Published [ 'AEVO', 'USDT' ]
+Published [ 'ETHFI', 'USDT' ]
+Published [ 'POPCAT', 'USDT' ]
+Published [ 'STRK', 'USDT' ]
+Published [ 'OM', 'USDT' ]
+Published [ 'PIXEL', 'USDT' ]
+Published [ 'AGI', 'USDT' ]
+Published [ 'ZETA', 'USDT' ]
+Published [ 'PORTAL', 'USDT' ]
+Published [ 'MYRIA', 'USDT' ]
+Published [ 'DYM', 'USDT' ]
+Published [ 'MBOX', 'USDT' ]
+Published [ 'JUP', 'USDT' ]
+Published [ 'TURBO', 'USDT' ]
+Published [ 'XAI', 'USDT' ]
+Published [ 'PROM', 'USDT' ]
+Published [ 'WIF', 'USDT' ]
+Published [ 'TAO', 'USDT' ]
+Published [ 'ONDO', 'USDT' ]
+Published [ 'METIS', 'USDT' ]
+Published [ 'AI', 'USDT' ]
+Published [ 'ALT', 'USDT' ]
 Published [ 'NFP', 'USDT' ]
-Published [ 'CORE', 'USDT' ]
+Published [ 'MYRO', 'USDT' ]
+Published [ 'RON', 'USDT' ]
+Published [ 'DATA', 'USDT' ]
+Published [ 'MANTA', 'USDT' ]
+Published [ 'LSK', 'USDT' ]
+Published [ 'AUCTION', 'USDT' ]
+Published [ 'RARE', 'USDT' ]
+Published [ 'XCH', 'USDT' ]
+Published [ 'JTO', 'USDT' ]
+Published [ 'UMA', 'USDT' ]
+Published [ 'GODS', 'USDT' ]
+Published [ 'USTC', 'USDT' ]
+Published [ 'MOVR', 'USDT' ]
+Published [ 'MNT', 'USDT' ]
+Published [ 'SUPER', 'USDT' ]
+Published [ '10000SATS', 'USDT' ]
+Published [ 'PYTH', 'USDT' ]
+Published [ 'BSW', 'USDT' ]
+Published [ 'ETHW', 'USDT' ]
 Published [ 'CETUS', 'USDT' ]
-Published [ 'CKB', 'USDT' ]
+Published [ 'CVC', 'USDT' ]
+Published [ 'BOBA', 'USDT' ]
+Published [ 'AERGO', 'USDT' ]
 Published [ 'AXL', 'USDT' ]
 Published [ 'ONG', 'USDT' ]
 Published [ '1000RATS', 'USDT' ]
-Published [ 'BOBA', 'USDT' ]
-Published [ 'MOVR', 'USDT' ]
-Published [ 'JTO', 'USDT' ]
-Published [ 'UMA', 'USDT' ]
-Published [ 'USTC', 'USDT' ]
-Published [ 'GODS', 'USDT' ]
-Published [ 'JST', 'USDT' ]
-Published [ 'ETHW', 'USDT' ]
-Published [ 'CVC', 'USDT' ]
-Published [ '1000BTT', 'USDT' ]
-Published [ 'XCH', 'USDT' ]
-Published [ 'PYTH', 'USDT' ]
-Published [ 'STEEM', 'USDT' ]
-Published [ 'NTRN', 'USDT' ]
-Published [ 'RVN', 'USDT' ]
-Published [ 'KAS', 'USDT' ]
-Published [ 'CRO', 'USDT' ]
-Published [ 'ILV', 'USDT' ]
-Published [ 'COMBO', 'USDT' ]
-Published [ '1000BONK', 'USDT' ]
-Published [ 'BSW', 'USDT' ]
-Published [ 'AERGO', 'USDT' ]
-Published [ 'VRA', 'USDT' ]
-Published [ 'MNT', 'USDT' ]
-Published [ '10000SATS', 'USDT' ]
+Published [ 'ACE', 'USDT' ]
 Published [ 'BADGER', 'USDT' ]
-Published [ 'LOOKS', 'USDT' ]
-Published [ 'BAND', 'USDT' ]
-Published [ 'SC', 'USDT' ]
-Published [ 'POLYX', 'USDT' ]
-Published [ 'SKL', 'USDT' ]
-Published [ 'TWT', 'USDT' ]
-Published [ 'XTZ', 'USDT' ]
-Published [ 'TOKEN', 'USDT' ]
-Published [ 'CAKE', 'USDT' ]
+Published [ 'COMBO', 'USDT' ]
+Published [ 'CRO', 'USDT' ]
+Published [ 'CKB', 'USDT' ]
+Published [ 'KAS', 'USDT' ]
+Published [ 'NTRN', 'USDT' ]
 Published [ 'BEAM', 'USDT' ]
-Published [ 'WAXP', 'USDT' ]
-Published [ 'SLP', 'USDT' ]
-Published [ 'XVG', 'USDT' ]
-Published [ 'POWR', 'USDT' ]
-Published [ 'TRU', 'USDT' ]
+Published [ 'CORE', 'USDT' ]
+Published [ 'ILV', 'USDT' ]
+Published [ 'TWT', 'USDT' ]
+Published [ '1000BTT', 'USDT' ]
+Published [ 'RVN', 'USDT' ]
+Published [ 'XTZ', 'USDT' ]
 Published [ 'LAI', 'USDT' ]
+Published [ 'POWR', 'USDT' ]
+Published [ 'SKL', 'USDT' ]
+Published [ 'SC', 'USDT' ]
+Published [ 'LOOKS', 'USDT' ]
+Published [ 'VRA', 'USDT' ]
+Published [ 'JST', 'USDT' ]
 Published [ 'MEME', 'USDT' ]
-Published [ 'GAS', 'USDT' ]
-Published [ 'BICO', 'USDT' ]
-Published [ 'RIF', 'USDT' ]
-Published [ 'DENT', 'USDT' ]
-Published [ 'NKN', 'USDT' ]
+Published [ 'SLP', 'USDT' ]
+Published [ '1000BONK', 'USDT' ]
+Published [ 'TOKEN', 'USDT' ]
 Published [ 'TON', 'USDT' ]
-Published [ 'CHR', 'USDT' ]
-Published [ 'TIA', 'USDT' ]
-Published [ 'BAL', 'USDT' ]
-Published [ 'DUSK', 'USDT' ]
-Published [ 'HFT', 'USDT' ]
-Published [ 'OXT', 'USDT' ]
-Published [ 'RLC', 'USDT' ]
-Published [ 'RSR', 'USDT' ]
-Published [ 'ONE', 'USDT' ]
-Published [ 'LRC', 'USDT' ]
-Published [ 'ALPHA', 'USDT' ]
-Published [ 'ZEC', 'USDT' ]
+Published [ 'TRU', 'USDT' ]
+Published [ 'POLYX', 'USDT' ]
 Published [ '1000FLOKI', 'USDT' ]
-Published [ 'CELR', 'USDT' ]
-Published [ 'IOTA', 'USDT' ]
-Published [ 'NMR', 'USDT' ]
-Published [ '1000XEC', 'USDT' ]
-Published [ 'JASMY', 'USDT' ]
-Published [ 'ALICE', 'USDT' ]
-Published [ 'BAT', 'USDT' ]
-Published [ 'DODOX', 'USDT' ]
+Published [ 'BICO', 'USDT' ]
+Published [ 'BAL', 'USDT' ]
+Published [ 'DENT', 'USDT' ]
+Published [ 'CAKE', 'USDT' ]
+Published [ 'LRC', 'USDT' ]
+Published [ 'GAS', 'USDT' ]
+Published [ 'TIA', 'USDT' ]
+Published [ 'OXT', 'USDT' ]
+Published [ 'WAXP', 'USDT' ]
+Published [ 'STEEM', 'USDT' ]
+Published [ 'NKN', 'USDT' ]
+Published [ 'DUSK', 'USDT' ]
 Published [ 'PHB', 'USDT' ]
+Published [ 'RIF', 'USDT' ]
+Published [ 'BAT', 'USDT' ]
+Published [ 'ZEC', 'USDT' ]
+Published [ 'XVG', 'USDT' ]
+Published [ 'HFT', 'USDT' ]
+Published [ 'CELR', 'USDT' ]
 Published [ 'ICX', 'USDT' ]
-Published [ 'HOOK', 'USDT' ]
-Published [ 'RDNT', 'USDT' ]
-Published [ 'C98', 'USDT' ]
-Published [ 'HOT', 'USDT' ]
-Published [ 'SFP', 'USDT' ]
-Published [ 'MTL', 'USDT' ]
+Published [ 'RLC', 'USDT' ]
+Published [ '1000XEC', 'USDT' ]
 Published [ 'MAV', 'USDT' ]
-Published [ 'JOE', 'USDT' ]
-Published [ 'LUNA2', 'USDT' ]
+Published [ 'ONE', 'USDT' ]
+Published [ 'HOT', 'USDT' ]
+Published [ 'BAND', 'USDT' ]
+Published [ 'CHR', 'USDT' ]
 Published [ 'ROSE', 'USDT' ]
-Published [ 'BEL', 'USDT' ]
-Published [ 'AR', 'USDT' ]
-Published [ 'VET', 'USDT' ]
-Published [ 'STMX', 'USDT' ]
+Published [ 'JASMY', 'USDT' ]
+Published [ 'HOOK', 'USDT' ]
+Published [ 'SFP', 'USDT' ]
+Published [ 'RDNT', 'USDT' ]
+Published [ 'NMR', 'USDT' ]
+Published [ 'RSR', 'USDT' ]
+Published [ 'IOTA', 'USDT' ]
 Published [ 'ONT', 'USDT' ]
-Published [ 'ARKM', 'USDT' ]
+Published [ 'ALPHA', 'USDT' ]
+Published [ 'DODOX', 'USDT' ]
+Published [ 'BEL', 'USDT' ]
+Published [ 'ALICE', 'USDT' ]
+Published [ 'T', 'USDT' ]
+Published [ 'C98', 'USDT' ]
+Published [ 'AR', 'USDT' ]
+Published [ 'LUNA2', 'USDT' ]
+Published [ 'SPELL', 'USDT' ]
+Published [ 'HBAR', 'USDT' ]
 Published [ 'XMR', 'USDT' ]
 Published [ 'AMB', 'USDT' ]
-Published [ 'HBAR', 'USDT' ]
-Published [ 'T', 'USDT' ]
-Published [ 'SPELL', 'USDT' ]
-Published [ 'TLM', 'USDT' ]
-Published [ 'BAKE', 'USDT' ]
-Published [ 'RUNE', 'USDT' ]
+Published [ 'MTL', 'USDT' ]
+Published [ 'JOE', 'USDT' ]
 Published [ 'BNX', 'USDT' ]
-Published [ 'LEVER', 'USDT' ]
-Published [ 'IOTX', 'USDT' ]
-Published [ 'FLM', 'USDT' ]
-Published [ 'BNT', 'USDT' ]
+Published [ 'BAKE', 'USDT' ]
 Published [ 'HIFI', 'USDT' ]
+Published [ 'VET', 'USDT' ]
+Published [ 'RUNE', 'USDT' ]
+Published [ 'IOTX', 'USDT' ]
+Published [ 'ARKM', 'USDT' ]
+Published [ 'XVS', 'USDT' ]
+Published [ 'GTC', 'USDT' ]
+Published [ 'STMX', 'USDT' ]
+Published [ 'LQTY', 'USDT' ]
+Published [ 'FLM', 'USDT' ]
+Published [ 'CSPR', 'USDT' ]
+Published [ 'TLM', 'USDT' ]
+Published [ 'LEVER', 'USDT' ]
 Published [ 'API3', 'USDT' ]
-Published [ 'BIGTIME', 'USDT' ]
+Published [ 'QNT', 'USDT' ]
 Published [ 'PERP', 'USDT' ]
 Published [ 'ARK', 'USDT' ]
-Published [ 'QNT', 'USDT' ]
-Published [ 'CSPR', 'USDT' ]
-Published [ 'GTC', 'USDT' ]
-Published [ 'LQTY', 'USDT' ]
-Published [ 'OGN', 'USDT' ]
-Published [ 'PEOPLE', 'USDT' ]
-Published [ 'LPT', 'USDT' ]
-Published [ 'XVS', 'USDT' ]
-Published [ 'ATA', 'USDT' ]
+Published [ 'BIGTIME', 'USDT' ]
 Published [ 'MINA', 'USDT' ]
-Published [ 'BSV', 'USDT' ]
-Published [ 'CYBER', 'USDT' ]
-Published [ 'ID', 'USDT' ]
-Published [ 'ARPA', 'USDT' ]
-Published [ 'HNT', 'USDT' ]
-Published [ 'CTSI', 'USDT' ]
-Published [ 'YGG', 'USDT' ]
-Published [ 'PENDLE', 'USDT' ]
-Published [ 'SEI', 'USDT' ]
-Published [ 'MAGIC', 'USDT' ]
-Published [ 'LUNC', 'USDT' ]
-Published [ 'GRT', 'USDT' ]
-Published [ 'SHIB', 'USDT' ]
+Published [ 'PEOPLE', 'USDT' ]
 Published [ 'AIDOGE', 'USDT' ]
-Published [ 'WOO', 'USDT' ]
-Published [ 'ZRX', 'USDT' ]
-Published [ 'ZEN', 'USDT' ]
+Published [ 'ARPA', 'USDT' ]
+Published [ 'ATA', 'USDT' ]
+Published [ 'LPT', 'USDT' ]
+Published [ 'OGN', 'USDT' ]
+Published [ 'CYBER', 'USDT' ]
+Published [ 'SEI', 'USDT' ]
+Published [ 'STG', 'USDT' ]
+Published [ 'BNT', 'USDT' ]
+Published [ 'HNT', 'USDT' ]
+Published [ 'ID', 'USDT' ]
+Published [ 'SHIB', 'USDT' ]
+Published [ 'BSV', 'USDT' ]
 Published [ 'ANKR', 'USDT' ]
 Published [ 'AGLD', 'USDT' ]
-Published [ 'STORJ', 'USDT' ]
-Published [ 'FXS', 'USDT' ]
-Published [ 'ICP', 'USDT' ]
-Published [ 'HIGH', 'USDT' ]
-Published [ 'STG', 'USDT' ]
-Published [ 'FLOW', 'USDT' ]
-Published [ 'ASTR', 'USDT' ]
+Published [ 'YGG', 'USDT' ]
+Published [ 'PENDLE', 'USDT' ]
+Published [ 'WOO', 'USDT' ]
+Published [ 'ZEN', 'USDT' ]
+Published [ 'CTSI', 'USDT' ]
 Published [ 'TRB', 'USDT' ]
-Published [ 'COTI', 'USDT' ]
-Published [ 'KAVA', 'USDT' ]
+Published [ 'GMX', 'USDT' ]
+Published [ 'IMX', 'USDT' ]
+Published [ 'FLOW', 'USDT' ]
+Published [ 'ICP', 'USDT' ]
+Published [ 'ASTR', 'USDT' ]
+Published [ 'LUNC', 'USDT' ]
+Published [ 'MAGIC', 'USDT' ]
+Published [ 'GRT', 'USDT' ]
+Published [ 'ADA', 'USDT' ]
+Published [ '1INCH', 'USDT' ]
+Published [ 'INJ', 'USDT' ]
+Published [ 'FET', 'USDT' ]
+Published [ 'XLM', 'USDT' ]
 Published [ 'CFX', 'USDT' ]
 Published [ 'CELO', 'USDT' ]
-Published [ 'LINK', 'USDT' ]
-Published [ 'XLM', 'USDT' ]
 Published [ 'LINA', 'USDT' ]
-Published [ '1INCH', 'USDT' ]
-Published [ 'GMX', 'USDT' ]
-Published [ 'INJ', 'USDT' ]
-Published [ 'KNC', 'USDT' ]
-Published [ 'IMX', 'USDT' ]
-Published [ 'FET', 'USDT' ]
+Published [ 'ZRX', 'USDT' ]
+Published [ 'ETC', 'USDT' ]
+Published [ 'KAVA', 'USDT' ]
+Published [ 'LINK', 'USDT' ]
+Published [ 'STORJ', 'USDT' ]
+Published [ 'HIGH', 'USDT' ]
+Published [ 'COTI', 'USDT' ]
 Published [ 'DOT', 'USDT' ]
+Published [ 'FXS', 'USDT' ]
+Published [ 'ACH', 'USDT' ]
 Published [ 'DOGE', 'USDT' ]
-Published [ 'STX', 'USDT' ]
+Published [ 'BNB', 'USDT' ]
+Published [ 'COMP', 'USDT' ]
 Published [ 'MKR', 'USDT' ]
+Published [ 'ORDI', 'USDT' ]
 Published [ 'EDU', 'USDT' ]
 Published [ 'AVAX', 'USDT' ]
 Published [ 'WLD', 'USDT' ]
-Published [ 'ETC', 'USDT' ]
-Published [ 'PEPE', 'USDT' ]
-Published [ 'BLUR', 'USDT' ]
-Published [ 'ACH', 'USDT' ]
-Published [ 'APE', 'USDT' ]
-Published [ 'ADA', 'USDT' ]
 Published [ 'LTC', 'USDT' ]
-Published [ 'COMP', 'USDT' ]
-Published [ 'SXP', 'USDT' ]
-Published [ 'LDO', 'USDT' ]
-Published [ 'MANA', 'USDT' ]
-Published [ 'BNB', 'USDT' ]
+Published [ 'PEPE', 'USDT' ]
+Published [ 'KNC', 'USDT' ]
+Published [ 'STX', 'USDT' ]
 Published [ 'NEAR', 'USDT' ]
-Published [ 'XRP', 'USDT' ]
-Published [ 'GMT', 'USDT' ]
-Published [ 'OP', 'USDT' ]
-Published [ 'SUI', 'USDT' ]
-Published [ 'ORDI', 'USDT' ]
-Published [ 'EOS', 'USDT' ]
-Published [ 'SAND', 'USDT' ]
 Published [ 'SNX', 'USDT' ]
-Published [ 'WAVES', 'USDT' ]
 Published [ 'ARB', 'USDT' ]
-Published [ 'SSV', 'USDT' ]
-Published [ 'ZIL', 'USDT' ]
-Published [ 'TRX', 'USDT' ]
-Published [ 'BCH', 'USDT' ]
-Published [ 'AXS', 'USDT' ]
-Published [ 'FIL', 'USDT' ]
-Published [ 'AAVE', 'USDT' ]
-Published [ 'DYDX', 'USDT' ]
+Published [ 'SAND', 'USDT' ]
+Published [ 'LDO', 'USDT' ]
+Published [ 'BLUR', 'USDT' ]
+Published [ 'OP', 'USDT' ]
 Published [ 'SOL', 'USDT' ]
-Published [ 'GALA', 'USDT' ]
+Published [ 'APE', 'USDT' ]
+Published [ 'EOS', 'USDT' ]
+Published [ 'SXP', 'USDT' ]
+Published [ 'SUSHI', 'USDT' ]
+Published [ 'FIL', 'USDT' ]
+Published [ 'AXS', 'USDT' ]
+Published [ 'MANA', 'USDT' ]
+Published [ 'SUI', 'USDT' ]
+Published [ 'GMT', 'USDT' ]
 Published [ 'UNI', 'USDT' ]
+Published [ 'ZIL', 'USDT' ]
+Published [ 'SSV', 'USDT' ]
+Published [ 'XRP', 'USDT' ]
+Published [ 'BCH', 'USDT' ]
+Published [ 'ATOM', 'USDT' ]
+Published [ 'TRX', 'USDT' ]
+Published [ 'GALA', 'USDT' ]
+Published [ 'AAVE', 'USDT' ]
+Published [ 'THETA', 'USDT' ]
+Published [ 'YFI', 'USDT' ]
+Published [ 'ALGO', 'USDT' ]
+Published [ 'WAVES', 'USDT' ]
+Published [ 'CRV', 'USDT' ]
+Published [ 'MASK', 'USDT' ]
+Published [ 'ENJ', 'USDT' ]
+Published [ 'CHZ', 'USDT' ]
+Published [ 'DYDX', 'USDT' ]
+Published [ 'EGLD', 'USDT' ]
+Published [ 'ENS', 'USDT' ]
 Published [ 'NEO', 'USDT' ]
 Published [ 'DASH', 'USDT' ]
-Published [ 'ALGO', 'USDT' ]
-Published [ 'ATOM', 'USDT' ]
-Published [ 'THETA', 'USDT' ]
-Published [ 'MASK', 'USDT' ]
+Published [ 'KSM', 'USDT' ]
 Published [ 'APT', 'USDT' ]
 Published [ 'QTUM', 'USDT' ]
-Published [ 'ENJ', 'USDT' ]
-Published [ 'YFI', 'USDT' ]
-Published [ 'ENS', 'USDT' ]
-Published [ 'SUSHI', 'USDT' ]
-Published [ 'EGLD', 'USDT' ]
-Published [ 'CHZ', 'USDT' ]
-Published [ 'KSM', 'USDT' ]
 Published [ 'IOST', 'USDT' ]
-Published [ 'CRV', 'USDT' ]

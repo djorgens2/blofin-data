@@ -1,5 +1,5 @@
 import * as Instrument from "../db/interfaces/instrument";
-import * as Candle from "../db/interfaces/candle"
+import * as Candle from "../db/interfaces/candle";
 
 export interface ICandleAPI {
   ts: number;
@@ -23,28 +23,31 @@ export function Publish(
   Pair: Instrument.IInstrumentPair,
   Candles: ICandleAPI[]
 ) {
-  Candles.forEach(async (item) => await Candle.Publish(
-      Pair.instrument,
-      Pair.period_type,
-      item.ts,
-      item.open,
-      item.high,
-      item.low,
-      item.close,
-      item.vol,
-      item.volCurrency,
-      item.volCurrencyQuote,
-      item.confirm
-  ));
+  Candles.forEach(
+    async (item) =>
+      await Candle.Publish(
+        Pair.instrument,
+        Pair.period,
+        item.ts,
+        item.open,
+        item.high,
+        item.low,
+        item.close,
+        item.vol,
+        item.volCurrency,
+        item.volCurrencyQuote,
+        item.confirm
+      )
+  );
   console.log(Candles);
 }
 
 export async function Import() {
   const pair = await Instrument.Fetch();
-  
+
   pair.forEach((item) => {
     fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${item.pair}&limit=10&bar=${item.period}`
+      `https://openapi.blofin.com/api/v1/market/candles?instId=${item.instrument_pair}&limit=${item.data_collection_rate}&bar=${item.timeframe}`
     )
       .then((response) => response.json())
       .then((result: IResult) => {
@@ -59,9 +62,9 @@ export async function Import() {
           volCurrencyQuote: parseInt(field[7]),
           confirm: Boolean(field[8]),
         }));
-  
+
         /*@ts-ignore*/
         Publish(item, candles);
-      });      
+      });
   });
 }

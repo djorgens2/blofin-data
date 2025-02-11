@@ -1,14 +1,35 @@
-INSERT INTO instrument_period SELECT i.instrument, pt.period_type, false FROM instrument i, period_type pt;
+INSERT INTO instrument_period SELECT i.instrument, pt.period, 0 FROM instrument i, period pt;
 
 UPDATE instrument_period ip
-   SET trading_period = true 
+   SET data_collection_rate = 1440 
  WHERE instrument IN (
      SELECT ip.instrument 
-       FROM period_type pt,
+       FROM period pt,
             instrument i,
             currency b 
       WHERE ip.instrument=i.instrument
-        AND ip.period_type=pt.period_type
-        AND pt.period='15m'
+        AND ip.period=pt.period
+        AND pt.timeframe='15m'
         AND b.currency = i.base_currency
         AND b.symbol in ('BTC','XRP', 'ENA', 'ARC'));
+
+select i.instrument, 
+       concat(b.symbol,'-',q.symbol) as symbol_pair,
+       pt.period,
+       pt.timeframe,
+       b.currency as base_currency,
+       b.symbol as base_symbol,
+       q.currency as quote_currency,
+       q.symbol as quote_symbol, 
+       ip.data_collection_rate
+  from instrument i,
+       instrument_period ip,
+       period pt,
+       currency b,
+       currency q
+ where i.base_currency = b.currency
+   and i.quote_currency = q.currency
+   and i.instrument = ip.instrument
+   and ip.period = pt.period
+   and ip.data_collection_rate != 0
+   and b.suspense = false

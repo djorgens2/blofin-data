@@ -9,13 +9,14 @@ export interface IInstrument extends RowDataPacket {
 
 export interface IInstrumentPair extends RowDataPacket {
   instrument: number;
-  pair: string;
-  period_type: number;
-  period: string;
+  instrument_pair: string;
+  period: number;
+  timeframe: string;
   base_currency: number;
   base_symbol: string;
   quote_currency: number;
   quote_symbol: string;
+  data_collection_rate: number;
 }
 
 export async function Publish(Base: number, Quote: number): Promise<number> {
@@ -35,10 +36,9 @@ export async function Publish(Base: number, Quote: number): Promise<number> {
 
 export function Fetch() {
   return Select<IInstrumentPair>(
-    `SELECT i.instrument, concat(b.symbol,'-',q.symbol) AS pair, pt.period_type, pt.period, b.currency AS base_currency, b.symbol AS base_symbol, q.currency AS quote_currency, q.symbol AS quote_symbol
-       FROM instrument i, instrument_period ip, period_type pt, currency b, currency q
-      WHERE i.base_currency=b.currency AND i.quote_currency=q.currency AND i.instrument = ip.instrument AND ip.period_type = pt.period_type
-        AND ip.trading_period = true AND b.suspense = false`,
+    `SELECT i.instrument, concat(b.symbol,'-',q.symbol) AS instrument_pair, pt.period, pt.timeframe, b.currency AS base_currency, b.symbol AS base_symbol, q.currency AS quote_currency, q.symbol AS quote_symbol, ip.data_collection_rate
+       FROM instrument i, instrument_period ip, period pt, currency b, currency q
+      WHERE i.base_currency=b.currency AND i.quote_currency=q.currency AND i.instrument = ip.instrument AND ip.period = pt.period AND ip.data_collection_rate>0 AND b.suspense = false`,
     []
   );
 }
