@@ -6,7 +6,7 @@ DROP TABLE blofin.candle;
 DROP TABLE blofin.contract_type;
 DROP TABLE blofin.instrument_type;
 DROP TABLE blofin.instrument;
-DROP TABLE blofin.period_type;
+DROP TABLE blofin.period;
 DROP TABLE blofin.currency;
 
 CREATE  TABLE blofin.contract_type ( 
@@ -46,7 +46,7 @@ CREATE  TABLE blofin.period (
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
 	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_period UNIQUE ( period ) 
+	CONSTRAINT ak_period UNIQUE ( timeframe ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.candle ( 
@@ -87,7 +87,6 @@ CREATE  TABLE blofin.instrument_detail (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_instrument_type ON blofin.instrument_detail ( instrument_type );
-
 CREATE INDEX fk_contract_type ON blofin.instrument_detail ( contract_type );
 
 CREATE  TABLE blofin.instrument_period ( 
@@ -100,3 +99,55 @@ CREATE  TABLE blofin.instrument_period (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+-- blofin.vw_active_instruments source
+CREATE OR REPLACE VIEW blofin.vw_active_instruments AS
+SELECT
+	i.instrument,
+	CONCAT(b.symbol, '-', q.symbol) AS instrument_pair,
+	pt.period,
+	pt.timeframe,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	ip.data_collection_rate
+FROM
+	instrument i,
+	instrument_period ip,
+	period pt,
+	currency b,
+	currency q
+WHERE
+	i.base_currency = b.currency
+	AND i.quote_currency = q.currency
+	AND i.instrument = ip.instrument
+	AND ip.period = pt.period
+	AND ip.data_collection_rate != 0
+	AND b.suspense = FALSE;
+
+CREATE OR REPLACE VIEW blofin.vw_candles AS
+SELECT
+	i.instrument,
+	CONCAT(b.symbol, '-', q.symbol) AS instrument_pair,
+	pt.period,
+	pt.timeframe,
+	c.open,
+	c.high,
+	c.low,
+	c.close,
+	c.volume
+FROM
+	instrument i,
+	instrument_period ip,
+	period pt,
+	currency b,
+	currency q,
+	candle c
+WHERE
+	c.instrument = i.instrument
+	AND c.period = pt.period
+	AND i.base_currency = b.currency
+	AND i.quote_currency = q.currency
+	AND i.instrument = ip.instrument
+	AND ip.period = pt.period;

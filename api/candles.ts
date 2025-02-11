@@ -39,7 +39,6 @@ export function Publish(
         item.confirm
       )
   );
-  console.log(Candles);
 }
 
 export async function Import() {
