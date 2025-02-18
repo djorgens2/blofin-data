@@ -132,6 +132,7 @@ SELECT
 	CONCAT(b.symbol, '-', q.symbol) AS instrument_pair,
 	pt.period,
 	pt.timeframe,
+	c.bar_time,
 	c.open,
 	c.high,
 	c.low,
