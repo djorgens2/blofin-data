@@ -1,6 +1,7 @@
+import { Analyze } from "./app/analyze";
 import {
-  EventType as et,
-  AlertType as at,
+  EventType as event,
+  AlertType as alert,
   Event,
   Alert,
   MaxEvent,
@@ -9,7 +10,7 @@ import {
   ClearEvents,
 } from "./app/event";
 
-SetEvent(et.NewBreakout, at.Minor);
+SetEvent(event.NewBreakout, alert.Minor);
 
 console.log(Event);
 console.log(Alert);
@@ -18,3 +19,5 @@ ClearEvents();
 
 console.log(Event);
 console.log(Alert);
+
+Analyze();

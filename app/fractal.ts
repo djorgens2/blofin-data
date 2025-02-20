@@ -19,7 +19,7 @@ interface IFractal {
   fractalPoint: number[];
 };
 
-function updateFractal(Price:ICompare) {console.log(Price)};
+function updateFractal(Price:ICompare) {/*console.log(Price)*/};
 
 export async function CalculateFractal(pair: Partial<IInstrumentPair>) {
   const candles: Partial<ICandle>[] = await Fetch(
@@ -65,7 +65,7 @@ export async function CalculateFractal(pair: Partial<IInstrumentPair>) {
         smaClose -= candles[row-sma].close!;
       }
   }
-  if (row+1>=sma)
-    console.log(row, [smaOpen, smaClose], [smaOpen/sma, smaClose/sma]);
+//  if (row+1>=sma)
+//    console.log(row, [smaOpen, smaClose], [smaOpen/sma, smaClose/sma]);
   });
 }
