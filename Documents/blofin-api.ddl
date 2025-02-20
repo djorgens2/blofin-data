@@ -28,6 +28,7 @@ CREATE  TABLE blofin.instrument (
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
 	base_currency        BINARY(3)    NOT NULL   ,
 	quote_currency       BINARY(3)    NOT NULL   ,
+	is_trading           BOOLEAN      NOT NULL DEFAULT FALSE,
 	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
 	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -111,7 +112,8 @@ SELECT
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
 	q.symbol AS quote_symbol,
-	ip.data_collection_rate
+	ip.data_collection_rate,
+	ip.sma_factor
 FROM
 	instrument i,
 	instrument_period ip,
@@ -123,7 +125,7 @@ WHERE
 	AND i.quote_currency = q.currency
 	AND i.instrument = ip.instrument
 	AND ip.period = pt.period
-	AND ip.data_collection_rate != 0
+	AND ip.data_collection_rate>0
 	AND b.suspense = FALSE;
 
 CREATE OR REPLACE VIEW blofin.vw_candles AS

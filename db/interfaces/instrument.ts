@@ -17,12 +17,14 @@ export interface IInstrumentPair extends RowDataPacket {
   quote_currency: number;
   quote_symbol: string;
   data_collection_rate: number;
+  sna_factor: number;
+  is_trading: boolean;
 }
 
 export async function Publish(Base: number, Quote: number): Promise<number> {
   const key = UniqueKey("");
   const set = await Modify(
-    `INSERT IGNORE INTO instrument VALUES (UNHEX(?),?,?)`,
+    `INSERT IGNORE INTO instrument VALUES (UNHEX(?),?,?,false)`,
     [key, Base, Quote]
   );
   const get = await Select<IInstrument>(
@@ -36,7 +38,8 @@ export async function Publish(Base: number, Quote: number): Promise<number> {
 
 export function Fetch() {
   return Select<IInstrumentPair>(
-    `SELECT i.instrument, concat(b.symbol,'-',q.symbol) AS instrument_pair, pt.period, pt.timeframe, b.currency AS base_currency, b.symbol AS base_symbol, q.currency AS quote_currency, q.symbol AS quote_symbol, ip.data_collection_rate
+    `SELECT i.instrument, concat(b.symbol,'-',q.symbol) AS instrument_pair, pt.period, pt.timeframe, b.currency AS base_currency, b.symbol AS base_symbol,
+            q.currency AS quote_currency, q.symbol AS quote_symbol, ip.data_collection_rate, ip.sma_factor, i.is_trading
        FROM instrument i, instrument_period ip, period pt, currency b, currency q
       WHERE i.base_currency=b.currency AND i.quote_currency=q.currency AND i.instrument = ip.instrument AND ip.period = pt.period AND ip.data_collection_rate>0 AND b.suspense = false`,
     []

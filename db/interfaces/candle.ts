@@ -48,3 +48,12 @@ export async function Publish(
 
   return set.insertId;
 }
+
+export function Fetch(instrument: number, period: number) {
+  return Select<ICandle>(
+    `SELECT bar_time, open, high, low, close FROM candle
+     WHERE instrument = ?	AND period = ? ORDER BY	bar_time;
+`,
+    [instrument, period]
+  );
+}

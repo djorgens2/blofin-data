@@ -1,7 +1,7 @@
 {
   "name": "blofin-data",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./main",
   "scripts": {
     "dev": "ts-node bulk.ts"
   },
