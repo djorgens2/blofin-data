@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "./main",
   "scripts": {
-    "dev": "ts-node bulk.ts"
+    "main": "npx tsx main > main.log",
+    "test": "npx tsx ./test/modules/$TEST_SCRIPT"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.1",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   }
 }

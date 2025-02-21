@@ -1,5 +1,5 @@
 import { RowDataPacket } from "mysql2";
-import { Select, Modify, UniqueKey } from "../query.utils";
+import { Select, Modify, UniqueKey } from "@db/query.utils";
 
 interface IContractType extends RowDataPacket {
   contract_type: number;

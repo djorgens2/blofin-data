@@ -1,4 +1,4 @@
-import { Select, Modify } from "../query.utils";
+import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export interface IInstrumentDetail extends RowDataPacket {

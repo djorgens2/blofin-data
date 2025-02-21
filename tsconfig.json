@@ -3,21 +3,25 @@
     "target": "ES2017",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "module": "NodeNext",                                /* Specify what module code is generated. */
     "moduleResolution": "nodenext",
+    "outDir": "./build/js",
+    "baseUrl": "./",
+    "rootDir": "./",
     "lib": 
        ["ESNext",
         "dom",
         "dom.iterable"
     ],
-    "outDir": "./build/js",
-    "baseUrl": "./",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@app/*": ["app/*"],
+      "@db/*": ["db/*"],
+      "@components/*": ["components/*"],
     },
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx","*.d.ts"],
   "exclude": ["node_modules","Documents"]
 }

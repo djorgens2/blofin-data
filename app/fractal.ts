@@ -5,13 +5,13 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import type { EventType as TEvent, AlertType as TAlert } from "./event";
-import type { Direction as TDirection, Action as TAction } from "../components/std.util";
+import type { EventType as TEvent, AlertType as TAlert } from "@app/event";
+import type { Direction as TDirection, Action as TAction } from "@components/std.util";
 
-import { SetEvent, ClearEvents, IsEventSet, EventType, AlertType } from "./event";
-import { ICompare, IsHigher, IsLower, Direction, Action } from "../components/std.util";
-import { ICandle, Fetch } from "../db/interfaces/candle";
-import { IInstrumentPair } from "../db/interfaces/instrument";
+import { SetEvent, ClearEvents, IsEventSet, EventType, AlertType } from "@app/event";
+import { ICompare, IsHigher, IsLower, Direction, Action } from "@components/std.util";
+import { ICandle, Fetch } from "@db/interfaces/candle";
+import { IInstrumentPair } from "@db/interfaces/instrument";
 
 export enum Fibonacci {
   Root = 0,

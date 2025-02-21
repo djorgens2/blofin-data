@@ -1,6 +1,5 @@
 npm init -y
 npm i mysql2
 npm i -D typescript @types/node
-npm i -D ts-node
 npx tsc --init
 npm install nanoid@^3.0.0 --save

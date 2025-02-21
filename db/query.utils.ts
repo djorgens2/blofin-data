@@ -1,4 +1,4 @@
-import pool from "./db.config";
+import pool from "@db/db.config";
 
 import { customAlphabet } from "nanoid";
 import { ResultSetHeader } from "mysql2";

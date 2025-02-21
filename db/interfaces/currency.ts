@@ -1,4 +1,4 @@
-import { Select, Modify, UniqueKey } from "../query.utils";
+import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
 export interface ICurrency extends RowDataPacket {

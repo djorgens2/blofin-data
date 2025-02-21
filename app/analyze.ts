@@ -1,4 +1,4 @@
-import { Fetch } from "../db/interfaces/instrument";
+import { Fetch } from "@db/interfaces/instrument";
 import { CalculateFractal } from "./fractal"
 
 export async function Analyze() {
