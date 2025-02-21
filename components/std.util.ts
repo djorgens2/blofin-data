@@ -1,4 +1,21 @@
-const NoValue: number = -1;
+"use strict"
+
+export const NoValue: number = -1;
+
+export enum Direction {
+  None = 0,
+  Up = 1,
+  Down = -1,
+  Flat = 2,
+  Unset = -2,
+};
+
+export enum Action {
+  None,
+  Buy,
+  Sell,
+  Wait,
+};
 
 export interface ICompare {
   Value: number;

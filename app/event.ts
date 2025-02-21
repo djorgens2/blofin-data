@@ -4,6 +4,8 @@
 //|                                                                  |
 //+------------------------------------------------------------------+
 
+"use strict";
+
 export enum AlertType {
   NoAlert,
   Notify,
@@ -57,27 +59,21 @@ export enum EventType {
   Count,
 }
 
-const NoValue: number = -1;
+const Events: Array<boolean> = new Array(EventType.Count).fill(false);
+const Alerts: Array<AlertType> = new Array(EventType.Count).fill(AlertType.NoAlert);
 
-export const Event: Array<boolean> = new Array(EventType.Count).fill(false);
-export const Alert: Array<AlertType> = new Array(EventType.Count).fill(
-  AlertType.NoAlert
-);
-export let MaxEvent: EventType = EventType.NoEvent;
-export let MaxAlert: AlertType = AlertType.NoAlert;
+let MaxEvent: EventType = EventType.NoEvent;
+let MaxAlert: AlertType = AlertType.NoAlert;
 
 //+------------------------------------------------------------------+
 //| SetEvent - Sets the triggering event to true                     |
 //+------------------------------------------------------------------+
-export function SetEvent(
-  NewEvent: EventType,
-  NewAlert: AlertType = AlertType.Notify
-) {
+export function SetEvent(NewEvent: EventType, NewAlert: AlertType = AlertType.Notify) {
   if (NewEvent === EventType.NoEvent) return;
 
-  Event[EventType.NoEvent] = false;
-  Event[NewEvent] = true;
-  Alert[NewEvent] = Math.max(NewAlert, Alert[NewEvent]);
+  Events[EventType.NoEvent] = false;
+  Events[NewEvent] = true;
+  Alerts[NewEvent] = Math.max(NewAlert, Alerts[NewEvent]);
 
   if (NewAlert > MaxAlert) {
     MaxEvent = NewEvent;
@@ -91,11 +87,22 @@ export function SetEvent(
 //| ClearEvents - Initializes all events to false                    |
 //+------------------------------------------------------------------+
 export function ClearEvents() {
-  Event.fill(false);
-  Alert.fill(AlertType.NoAlert);
+  Events.fill(false);
+  Alerts.fill(AlertType.NoAlert);
 
-  Event[EventType.NoEvent] = true;
+  Events[EventType.NoEvent] = true;
 
   MaxEvent = EventType.NoEvent;
   MaxAlert = AlertType.NoAlert;
+}
+
+//+------------------------------------------------------------------+
+//| Returns true if Event is set on a specified Alert (if provided)  |
+//+------------------------------------------------------------------+
+export function IsEventSet(Event: EventType, Alert: AlertType = AlertType.NoAlert): boolean {
+  if (Alert === AlertType.NoAlert) return Events[Event];
+
+  if (Events[Event] && Alerts[Event] === Alert) return Events[Event];
+
+  return false;
 }
