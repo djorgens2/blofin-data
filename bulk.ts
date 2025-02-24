@@ -11,7 +11,7 @@ async function PublishCurrency(
   Symbol: string,
   Suspense: boolean
 ): Promise<number> {
-  const key = UniqueKey("");
+  const key = UniqueKey(6);
   const set = await Modify(
     `INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (UNHEX(?),?,'./public/images/currency/no-image.png',?) ON DUPLICATE KEY UPDATE suspense=?`,
     [key, Symbol, Suspense, Suspense]
@@ -25,7 +25,7 @@ async function PublishCurrency(
 }
 
 async function PublishInstrument(Base: number, Quote: number): Promise<number> {
-  const key = UniqueKey("");
+  const key = UniqueKey(6);
   const set = await Modify(
     `INSERT IGNORE INTO instrument VALUES (UNHEX(?),?,?)`,
     [key, Base, Quote]

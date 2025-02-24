@@ -1,9 +1,7 @@
 //+------------------------------------------------------------------+
 //|                                                         Event.ts |
 //|                                 Copyright 2018, Dennis Jorgenson |
-//|                                                                  |
 //+------------------------------------------------------------------+
-
 "use strict";
 
 export enum AlertType {
@@ -97,7 +95,7 @@ export function ClearEvents() {
 }
 
 //+------------------------------------------------------------------+
-//| Returns true if Event is set on a specified Alert (if provided)  |
+//| IsEventSet - Returns true on Event on provided Alert or NoAlert  |
 //+------------------------------------------------------------------+
 export function IsEventSet(Event: EventType, Alert: AlertType = AlertType.NoAlert): boolean {
   if (Alert === AlertType.NoAlert) return Events[Event];

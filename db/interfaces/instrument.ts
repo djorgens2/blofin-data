@@ -1,47 +1,62 @@
+//+------------------------------------------------------------------+
+//|                                                    instrument.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict"
+
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
 export interface IInstrument extends RowDataPacket {
   instrument: number;
-  base_currency: number;
-  quote_currency: number;
-}
-
-export interface IInstrumentPair extends RowDataPacket {
-  instrument: number;
-  instrument_pair: string;
-  period: number;
-  timeframe: string;
+  currency_pair: string;
   base_currency: number;
   base_symbol: string;
   quote_currency: number;
   quote_symbol: string;
+  trade_period: number;
+  trade_timeframe: string;
+  interval_period: number;
+  interval_timeframe: string;
   data_collection_rate: number;
-  sna_factor: number;
-  is_trading: boolean;
+  sma_factor: number;
+  contract_value: number;
+  max_leverage: number;
+  min_size: number;
+  lot_size: number;
+  tick_size: number;
+  digits: number;
+  max_limit_size: number;
+  max_market_size: number;
+  suspense: boolean;
 }
 
-export async function Publish(Base: number, Quote: number): Promise<number> {
-  const key = UniqueKey("");
-  const set = await Modify(
-    `INSERT IGNORE INTO instrument VALUES (UNHEX(?),?,?,false)`,
-    [key, Base, Quote]
-  );
-  const get = await Select<IInstrument>(
-    "SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?",
-    [Base, Quote]
-  );
+export async function Publish(baseCurrency: number, quoteCurrency: number): Promise<number> {
+  const key = UniqueKey(6);
+  const set = await Modify(`INSERT IGNORE INTO instrument (instrument, base_currency, quote_currency) VALUES (UNHEX(?),?,?)`, [key, baseCurrency, quoteCurrency]);
+  const get = await Select<IInstrument>("SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?", [baseCurrency, quoteCurrency]);
 
-  /*@ts-ignore*/
-  return get.length === 0 ? set.insertId : get[0].instrument;
+  return get.length === 0 ? set.insertId : get[0].instrument!;
 }
 
 export function Fetch() {
-  return Select<IInstrumentPair>(
-    `SELECT i.instrument, concat(b.symbol,'-',q.symbol) AS instrument_pair, pt.period, pt.timeframe, b.currency AS base_currency, b.symbol AS base_symbol,
-            q.currency AS quote_currency, q.symbol AS quote_symbol, ip.data_collection_rate, ip.sma_factor, i.is_trading
-       FROM instrument i, instrument_period ip, period pt, currency b, currency q
-      WHERE i.base_currency=b.currency AND i.quote_currency=q.currency AND i.instrument = ip.instrument AND ip.period = pt.period AND ip.data_collection_rate>0 AND b.suspense = false`,
+  return Select<IInstrument>(`SELECT * FROM vw_instruments`, []);
+}
+
+export function FetchActive() {
+  return Select<IInstrument>(
+    `SELECT instrument, currency_pair, trade_period, trade_timeframe, sma_factor, data_collection_rate, digits
+       FROM vw_instruments WHERE data_collection_rate > 0 AND suspense = false`,
     []
   );
+}
+
+export function FetchInactive() {
+  return Select<IInstrument>(
+    `SELECT * FROM vw_instruments WHERE data_collection_rate = 0 AND suspense = false`, []);
+}
+
+export function FetchSuspense() {
+  return Select<IInstrument>(
+    `SELECT * FROM vw_instruments WHERE suspense = true`, []);
 }

@@ -1,10 +1,26 @@
-import { Select, Modify, UniqueKey } from "@db/query.utils";
+//+------------------------------------------------------------------+
+//|                                                        candle.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
+
+import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
+import type { ICandleAPI } from "@/api/candles";
+
+import { Select, Modify } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
 export interface ICandle extends RowDataPacket {
   instrument: number;
+  instrument_pair: string;
+  base_currency: number;
+  base_symbol: string;
+  quote_currency: number;
+  quote_symbol: string;
   period: number;
-  bar_time: number;
+  timeframe: string;
+  time: number;
+  bar_time: Date;
   open: number;
   high: number;
   low: number;
@@ -15,34 +31,22 @@ export interface ICandle extends RowDataPacket {
   completed: boolean;
 }
 
-export async function Publish(
-  Instrument: number,
-  Period: number,
-  BarTime: number,
-  Open: number,
-  High: number,
-  Low: number,
-  Close: number,
-  Volume: number,
-  VolCurrency: number,
-  VolCurrencyQuote: number,
-  Completed: boolean
-): Promise<number> {
+export async function Publish(instrument: Partial<IInstrumentPeriod>, candle: ICandleAPI): Promise<number> {
   const set = await Modify(
     `REPLACE INTO candle SET instrument = ?, period = ?, bar_time = FROM_UNIXTIME(?/1000), open = ?, high = ?, low = ?, close = ?,
         volume = ?, vol_currency = ?, vol_currency_quote = ?, completed = ?`,
     [
-      Instrument,
-      Period,
-      BarTime,
-      Open,
-      High,
-      Low,
-      Close,
-      Volume,
-      VolCurrency,
-      VolCurrencyQuote,
-      Completed,
+      instrument.instrument,
+      instrument.period,
+      candle.ts,
+      candle.open,
+      candle.high,
+      candle.low,
+      candle.close,
+      candle.vol,
+      candle.volCurrency,
+      candle.volCurrencyQuote,
+      candle.confirm,
     ]
   );
 
@@ -51,9 +55,9 @@ export async function Publish(
 
 export function Fetch(instrument: number, period: number) {
   return Select<ICandle>(
-    `SELECT bar_time, open, high, low, close FROM candle
-     WHERE instrument = ?	AND period = ? ORDER BY	bar_time;
-`,
+    `SELECT time, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
+     FROM vw_candles
+     WHERE instrument = ?	AND period = ? ORDER BY	bar_time;`,
     [instrument, period]
   );
 }

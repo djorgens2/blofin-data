@@ -1,5 +1,13 @@
-import { Select, Modify } from "@db/query.utils";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+//+------------------------------------------------------------------+
+//|                                             instrument_detail.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
+
+import type { IInstrumentAPI } from "@/api/instruments";
+
+import { Modify } from "@db/query.utils";
+import { RowDataPacket } from "mysql2";
 
 export interface IInstrumentDetail extends RowDataPacket {
   instrument: number;
@@ -16,36 +24,23 @@ export interface IInstrumentDetail extends RowDataPacket {
   expiry_time: number;
 }
 
-export async function Publish(
-  Instrument: number,
-  Type: number,
-  Contract: number,
-  Value: number,
-  MaxLeverage: number,
-  MinSize: number,
-  LotSize: number,
-  TickSize: number,
-  MaxLimitSize: number,
-  MaxMarketSize: number,
-  ListTime: number,
-  Expiry: number
-): Promise<number> {
+export async function Publish(instrument: number, instrumentType: number, contractType: number, apiInstrument: Partial<IInstrumentAPI>): Promise<number> {
   const set = await Modify(
     `REPLACE INTO instrument_detail SET instrument = ?, instrument_type = ?, contract_type = ?, contract_value = ?, max_leverage = ?, min_size = ?, lot_size = ?,
         tick_size = ?, max_limit_size = ?, max_market_size = ?, list_time = FROM_UNIXTIME(?/1000), expiry_time = FROM_UNIXTIME(?/1000)`,
     [
-      Instrument,
-      Type,
-      Contract,
-      Value,
-      MaxLeverage,
-      MinSize,
-      LotSize,
-      TickSize,
-      MaxLimitSize,
-      MaxMarketSize,
-      ListTime,
-      Expiry,
+      instrument,
+      instrumentType,
+      contractType,
+      apiInstrument.contractValue,
+      apiInstrument.maxLeverage,
+      apiInstrument.minSize,
+      apiInstrument.lotSize,
+      apiInstrument.tickSize,
+      apiInstrument.maxLimitSize,
+      apiInstrument.maxMarketSize,
+      apiInstrument.listTime,
+      apiInstrument.expireTime,
     ]
   );
 

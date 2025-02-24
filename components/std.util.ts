@@ -1,6 +1,6 @@
-"use strict"
+"use strict";
 
-export const NoValue: number = -1;
+export const Novalue: number = -1;
 
 export enum Direction {
   None = 0,
@@ -18,16 +18,16 @@ export enum Action {
 };
 
 export interface ICompare {
-  Value: number;
-  Precision: number;
-  Update: boolean;
+  value: number;
+  digits: number;
+  update: boolean;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
 //+--------------------------------------------------------------------------------------+
-export const SplitSymbol = (Symbol: string): string[] => {
-  const symbols: string[] = Symbol.split("-");
+export const SplitSymbol = (symbol: string): string[] => {
+  const symbols: string[] = symbol.split("-");
 
   if (symbols.length === 1) {
     symbols.push("USDT");
@@ -36,14 +36,11 @@ export const SplitSymbol = (Symbol: string): string[] => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on high value comparison and updates value if .Update is set to true    |
+//| Returns true on high value comparison and updates value if .update is set to true    |
 //+--------------------------------------------------------------------------------------+
-export const IsHigher = (Test: number, Props: ICompare): boolean => {
-  if (
-    parseFloat(Test.toFixed(Props.Precision)) >
-    parseFloat(Props.Value.toFixed(Props.Precision))
-  ) {
-    if (Props.Update) Props.Value = parseFloat(Test.toFixed(Props.Precision));
+export const IsHigher = (test: number, props: ICompare): boolean => {
+  if (parseFloat(test.toFixed(props.digits)) > parseFloat(props.value.toFixed(props.digits))) {
+    if (props.update) props.value = parseFloat(test.toFixed(props.digits));
 
     return true;
   }
@@ -51,14 +48,11 @@ export const IsHigher = (Test: number, Props: ICompare): boolean => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on low value comparison and updates value if .Update is set to true     |
+//| Returns true on low value comparison and updates value if .update is set to true     |
 //+--------------------------------------------------------------------------------------+
-export const IsLower = (Test: number, Props: ICompare): boolean => {
-  if (
-    parseFloat(Test.toFixed(Props.Precision)) <
-    parseFloat(Props.Value.toFixed(Props.Precision))
-  ) {
-    if (Props.Update) Props.Value = parseFloat(Test.toFixed(Props.Precision));
+export const IsLower = (test: number, props: ICompare): boolean => {
+  if (parseFloat(test.toFixed(props.digits)) < parseFloat(props.value.toFixed(props.digits))) {
+    if (props.update) props.value = parseFloat(test.toFixed(props.digits));
 
     return true;
   }
@@ -66,14 +60,11 @@ export const IsLower = (Test: number, Props: ICompare): boolean => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on [value, precision] comparison and reforms value on .Update           |
+//| Returns true on [value, digits] comparison and reforms value on .update           |
 //+--------------------------------------------------------------------------------------+
-export const IsEqual = (Test: number, Props: ICompare): boolean => {
-  if (
-    parseFloat(Test.toFixed(Props.Precision)) ===
-    parseFloat(Props.Value.toFixed(Props.Precision))
-  ) {
-    if (Props.Update) Props.Value = parseFloat(Test.toFixed(Props.Precision));
+export const IsEqual = (test: number, props: ICompare): boolean => {
+  if (parseFloat(test.toFixed(props.digits)) === parseFloat(props.value.toFixed(props.digits))) {
+    if (props.update) props.value = parseFloat(test.toFixed(props.digits));
 
     return true;
   }

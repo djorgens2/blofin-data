@@ -1,10 +1,17 @@
-import { SplitSymbol } from "../components/std.util";
+//+------------------------------------------------------------------+
+//|                                                   instruments.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
 
-import * as Instrument from "../db/interfaces/instrument";
-import * as Currency from "../db/interfaces/currency";
-import * as ContractType from "../db/interfaces/contract_type";
-import * as InstrumentType from "../db/interfaces/instrument_type";
-import * as InstrumentDetail from "../db/interfaces/instrument_detail";
+import { SplitSymbol } from "@components/std.util";
+
+import * as Instrument from "@db/interfaces/instrument";
+import * as Currency from "@db/interfaces/currency";
+import * as ContractType from "@db/interfaces/contract_type";
+import * as InstrumentType from "@db/interfaces/instrument_type";
+import * as InstrumentDetail from "@db/interfaces/instrument_detail";
+import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 
 export interface IInstrumentAPI {
   instId: string;
@@ -30,34 +37,29 @@ export interface IResult {
   data: IInstrumentAPI[];
 }
 
-export function Publish(Instruments: IInstrumentAPI[]) {
-  Instruments.forEach(async (item) => {
-    const symbol: string[] = SplitSymbol(item.instId);
+//+------------------------------------------------------------------+
+//| Publish - Updates Instruments, related elements stored locally   |
+//+------------------------------------------------------------------+
+export function Publish(apiInstruments: IInstrumentAPI[]) {
+  apiInstruments.forEach(async (apiInstrument) => {
+    const symbol: string[] = SplitSymbol(apiInstrument.instId);
+    const baseCurrency = await Currency.Publish(symbol[0], apiInstrument.state !== "live");
+    const quoteCurrency = await Currency.Publish(symbol[1], false);
+    const contractType = await ContractType.Publish(apiInstrument.contractType);
+    const instrumentType = await InstrumentType.Publish(apiInstrument.instType);
+    const instrument = await Instrument.Publish(baseCurrency, quoteCurrency);
 
-    const base = await Currency.Publish(symbol[0], item.state !== "live");
-    const quote = await Currency.Publish(symbol[1], false);
-    const contract = await ContractType.Publish(item.contractType);
-    const inst_type = await InstrumentType.Publish(item.instType);
-    const instrument = await Instrument.Publish(base, quote);
-    const detail = await InstrumentDetail.Publish(
-      instrument,
-      inst_type,
-      contract,
-      item.contractValue,
-      item.maxLeverage,
-      item.minSize,
-      item.lotSize,
-      item.tickSize,
-      item.maxLimitSize,
-      item.maxMarketSize,
-      item.listTime,
-      item.expireTime
-    );
+    await InstrumentDetail.Publish(instrument, instrumentType, contractType, apiInstrument);
 
     console.log("Published", symbol);
   });
+
+  InstrumentPeriod.Publish();
 }
 
+//+------------------------------------------------------------------+
+//| Import - Retrieve api Instrument, pass to publisher              |
+//+------------------------------------------------------------------+
 export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then((response) => response.json())

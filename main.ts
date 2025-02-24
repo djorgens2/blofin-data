@@ -1,11 +1,11 @@
-import * as periods from "./db/interfaces/period"
-import * as instruments from "./api/instruments";
-import * as candles from "./api/candles";
+import * as Period from "@db/interfaces/period"
+import * as Instruments from "@api/instruments";
+import * as Candles from "@api/candles";
 
-import { Analyze } from "./app/analyze";
+import { ProcessUpdates } from "@/app/process";
 
-periods.Import();
-instruments.Import();
-candles.Import();
+Period.Import();
+Instruments.Import();
+Candles.Import();
 
-Analyze();
+ProcessUpdates();

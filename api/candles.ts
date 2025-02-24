@@ -1,5 +1,13 @@
-import * as Instrument from "../db/interfaces/instrument";
-import * as Candle from "../db/interfaces/candle";
+//+------------------------------------------------------------------+
+//|                                                       candles.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
+
+import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period"; 
+
+import * as InstrumentPeriod from "@db/interfaces/instrument_period";
+import * as Candle from "@db/interfaces/candle";
 
 export interface ICandleAPI {
   ts: number;
@@ -19,38 +27,25 @@ export interface IResult {
   data: string[][];
 }
 
-export function Publish(
-  Pair: Instrument.IInstrumentPair,
-  Candles: ICandleAPI[]
-) {
-  Candles.forEach(
-    async (item) =>
-      await Candle.Publish(
-        Pair.instrument,
-        Pair.period,
-        item.ts,
-        item.open,
-        item.high,
-        item.low,
-        item.close,
-        item.vol,
-        item.volCurrency,
-        item.volCurrencyQuote,
-        item.confirm
-      )
-  );
+//+------------------------------------------------------------------+
+//| Publish - Refresh candle data by instrument stored locally       |
+//+------------------------------------------------------------------+
+export function Publish(instrument: Partial<IInstrumentPeriod>, apiCandles: ICandleAPI[]) {
+  apiCandles.forEach(async (apiCandle) => {
+    await Candle.Publish(instrument, apiCandle);
+  });
 }
 
+//+------------------------------------------------------------------+
+//| Import - Retrieve api Candle, format, pass to publisher          |
+//+------------------------------------------------------------------+
 export async function Import() {
-  const pair = await Instrument.Fetch();
-
-  pair.forEach((item) => {
-    fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${item.instrument_pair}&limit=${item.data_collection_rate}&bar=${item.timeframe}`
-    )
+  const instruments = await InstrumentPeriod.FetchActive();
+  instruments.forEach((instrument) => {
+    fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${instrument.data_collection_rate}&bar=${instrument.timeframe}`)
       .then((response) => response.json())
       .then((result: IResult) => {
-        const candles: ICandleAPI[] = result.data.map((field: string[]) => ({
+        const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
           ts: parseInt(field[0]),
           open: parseFloat(field[1]),
           high: parseFloat(field[2]),
@@ -62,8 +57,7 @@ export async function Import() {
           confirm: Boolean(field[8]),
         }));
 
-        /*@ts-ignore*/
-        Publish(item, candles);
+        Publish(instrument, apiCandles);
       });
   });
 }

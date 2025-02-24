@@ -1,29 +1,25 @@
+//+------------------------------------------------------------------+
+//|                                                   query.utils.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict"
+
 import pool from "@db/db.config";
 
 import { customAlphabet } from "nanoid";
 import { ResultSetHeader } from "mysql2";
 
-export async function Select<T>(
-  Query: string,
-  Fields: Array<any>
-): Promise<Partial<T>[]> {
-  const [results] = await pool.execute(Query, Fields);
+export async function Select<T>(query: string, fields: Array<any>): Promise<Partial<T>[]> {
+  const [results] = await pool.execute(query, fields);
   return results as T[];
 }
 
-export async function Modify(
-  Query: string,
-  Fields: Array<any>
-): Promise<ResultSetHeader> {
-  const [results] = await pool.execute(Query, Fields);
+export async function Modify(query: string, fields: Array<any>): Promise<ResultSetHeader> {
+  const [results] = await pool.execute(query, fields);
   return results as ResultSetHeader;
 }
 
-export const UniqueKey = (Key: string): string => {
-  const nanoid = customAlphabet("0123456789abcdef", 6);
-  const key = nanoid();
-
-  if (Key.length > 0) console.log([Key, key]);
-
-  return key;
+export const UniqueKey = (length: number): string => {
+  const nanoid = customAlphabet("0123456789abcdef", length);
+  return nanoid();
 };

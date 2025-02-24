@@ -1,3 +1,9 @@
+//+------------------------------------------------------------------+
+//|                                                        period.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict"
+
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
@@ -21,26 +27,16 @@ const Period: string[][] = [
 
 export interface IPeriod extends RowDataPacket {
   period: number;
-  Timeframe: string;
+  timeframe: string;
   description: string;
 }
 
-export async function Publish(
-  Timeframe: string,
-  Description: string
-): Promise<number> {
-  const key = UniqueKey("");
-  const set = await Modify(
-    `INSERT IGNORE INTO period VALUES (UNHEX(?), ?, ?)`,
-    [key, Timeframe, Description]
-  );
-  const get = await Select<IPeriod>(
-    "SELECT period FROM period WHERE timeframe = ?",
-    [Timeframe]
-  );
+export async function Publish(timeframe: string, description: string): Promise<number> {
+  const key = UniqueKey(6);
+  const set = await Modify(`INSERT IGNORE INTO period VALUES (UNHEX(?), ?, ?)`, [key, timeframe, description]);
+  const get = await Select<IPeriod>("SELECT period FROM period WHERE timeframe = ?", [timeframe]);
 
-  /*@ts-ignore*/
-  return get.length === 0 ? set.insertId : get[0].period;
+  return get.length === 0 ? set.insertId : get[0].period!;
 }
 
 export function Import() {
