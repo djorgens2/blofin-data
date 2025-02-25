@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { SplitSymbol } from "@components/std.util";
+import { SplitSymbol } from "@/lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Currency from "@db/interfaces/currency";

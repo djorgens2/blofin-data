@@ -5,9 +5,9 @@
 "use strict";
 
 import { SetEvent, ClearEvents, IsEventSet, EventType, AlertType } from "@app/event";
-import { IsHigher, IsLower } from "@components/std.util";
+import { IsHigher, IsLower, Action, Direction } from "@/lib/std.util";
 
-import type { ICompare } from "@components/std.util";
+import type { ICompare } from "@/lib/std.util";
 import type { ICandle } from "@db/interfaces/candle";
 import type { IInstrument } from "@/db/interfaces/instrument";
 
@@ -80,6 +80,7 @@ export interface IFractal {
   point: [ number, number, number, number, number, number, number ];
   updatedAt: number;
 }
+const dir: Direction = Direction.Down;
 
 //+------------------------------------------------------------------+
 //| Publish - Wraps up Bar processing (sma, fractal, et al)          |

@@ -1,27 +1,27 @@
 "use strict";
 
-export const Novalue: number = -1;
-
 export enum Direction {
   None = 0,
   Up = 1,
   Down = -1,
   Flat = 2,
   Unset = -2,
-};
+}
 
 export enum Action {
   None,
   Buy,
   Sell,
   Wait,
-};
+}
 
 export interface ICompare {
   value: number;
   digits: number;
   update: boolean;
 }
+
+//export const dir:Action = Action.Sell;
 
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |

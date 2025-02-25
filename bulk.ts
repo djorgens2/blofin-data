@@ -2,7 +2,7 @@ import { IInstrumentAPI, IResult } from "./api/instruments";
 import { Select, Modify, UniqueKey } from "./db/query.utils";
 import { ICurrency } from "./db/interfaces/currency";
 import { IInstrument } from "./db/interfaces/instrument";
-import { SplitSymbol } from "./components/std.util";
+import { SplitSymbol } from "./lib/std.util";
 import * as ContractType from "./db/interfaces/contract_type";
 import * as InstrumentType from "./db/interfaces/instrument_type";
 import * as InstrumentDetail from "./db/interfaces/instrument_detail";
@@ -21,7 +21,7 @@ async function PublishCurrency(
     [Symbol]
   );
 
-  return get.length === 0 ? set.insertId : get[0].currency;
+  return get.length === 0 ? set.insertId : get[0].currency!;
 }
 
 async function PublishInstrument(Base: number, Quote: number): Promise<number> {
@@ -51,15 +51,7 @@ function Publish(Instruments: IInstrumentAPI[]) {
       inst,
       inst_type,
       contract,
-      item.contractValue,
-      item.maxLeverage,
-      item.minSize,
-      item.lotSize,
-      item.tickSize,
-      item.maxLimitSize,
-      item.maxMarketSize,
-      item.listTime,
-      item.expireTime
+      item
     );
     console.log("Published", symbol);
   });
