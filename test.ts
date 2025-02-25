@@ -1,5 +1,13 @@
-import { Action, Direction } from "@lib/std.util";
+import { Direction, Bias } from "@lib/std.defs.d";
 
-const test:Action = Action.Buy;
+enum dir {up,down,left,right};
 
-console.log(test);
+console.log(Object.keys(dir).length/2);
+
+export const Role = {
+    Unassigned: "Unassigned",
+    Seller: "Seller",
+    Buyer: "Buyer",
+  } as const;
+
+console.log(Object.keys(Direction).length)

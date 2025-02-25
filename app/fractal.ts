@@ -4,10 +4,11 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { SetEvent, ClearEvents, IsEventSet, EventType, AlertType } from "@app/event";
-import { IsHigher, IsLower, Action, Direction } from "@/lib/std.util";
+import { Action, Direction, Bias } from "@/lib/std.defs.d";
 
-import type { ICompare } from "@/lib/std.util";
+import { SetEvent, ClearEvents, IsEventSet, EventType, AlertType } from "@app/event";
+import { IsHigher, IsLower } from "@/lib/std.util";
+
 import type { ICandle } from "@db/interfaces/candle";
 import type { IInstrument } from "@/db/interfaces/instrument";
 
@@ -46,47 +47,46 @@ export enum FractalState {
   Count,
 }
 
-export enum FractalPoint {
-  Origin,
-  Base,
-  Root,
-  Expansion,
-  Retrace,
-  Recovery,
-  Close,
+interface IPoint {
+  Origin: number;
+  Base: number;
+  Root: number;
+  Expansion: number;
+  Retrace: number;
+  Recovery: number;
+  Close: number;
 }
 
-export enum Bar {
-  Open,
-  Close,
-  High,
-  Low,
-}
-
-export interface IBar {
+interface IBar {
   time: number;
-  price: [ number, number, number, number, ];
-  volume: number;
-  lead: Action;
-  bias: Action;
-  sma: [ number, number ];
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+interface IDirection extends IBar {
+  direction: Direction;
+  lead: Bias;
+  bias: Bias;
 }
 
-export interface IFractal {
+interface IFractal {
   time: number;
   direction: Direction;
-  lead: Action;
-  bias: Action;
-  point: [ number, number, number, number, number, number, number ];
+  lead: Bias;
+  bias: Bias;
+  bar: IBar;
+  sma: IBar;
+  point: IPoint;
+  volume: number;
   updatedAt: number;
 }
-const dir: Direction = Direction.Down;
 
 //+------------------------------------------------------------------+
 //| Publish - Wraps up Bar processing (sma, fractal, et al)          |
 //+------------------------------------------------------------------+
-export function Publish(candle: Partial<ICandle>, sma:number[]) {
-    //console.log(sma);
+export function Publish(candle: Partial<ICandle>, sma: Partial<IBar>) {
+  console.log(sma);
 }
 
 //+------------------------------------------------------------------+
@@ -94,49 +94,39 @@ export function Publish(candle: Partial<ICandle>, sma:number[]) {
 //+------------------------------------------------------------------+
 export async function Update(instrument: Partial<IInstrument>) {
   const candles: Partial<ICandle>[] = await Candle.Fetch(instrument.instrument!, instrument.trade_period!);
-  const sma: [number, number] = [ 0 ,0];
-  const high: ICompare = { value: 0, digits: instrument.digits!, update: true };
-  const low: ICompare = { value: 0, digits: instrument.digits!, update: true };
+
+  const sma = { open: 0, close: 0 };
+  const high = { value: candles[0].high!, digits: instrument.digits!, update: true };
+  const low = { value: candles[0].low!, digits: instrument.digits!, update: true };
 
   candles.forEach((candle, row) => {
     ClearEvents();
 
-    if (row === 0) {
-      //-- Initialize sma
-      sma[Bar.Open] = candle.open!;
-      sma[Bar.Close] = candle.close!;
+    //-- Aggregate sma
+    sma.open += candle.open!;
+    sma.close += candle.close!;
 
-      //-- Initialize fractal
-      high.value = candle.high!;
-      low.value = candle.low!;
-
-    } else {
-      //-- Aggregate sma
-      sma[Bar.Open] += candle.open!;
-      sma[Bar.Close] += candle.close!;
-
-      //-- Set SMA base
-      if (row >= instrument.sma_factor!) {
-        sma[Bar.Open] -= candles[row - instrument.sma_factor!].open!;
-        sma[Bar.Close] -= candles[row - instrument.sma_factor!].close!;
-      }
-
-      Publish(candle, [
-        row+1<instrument.sma_factor! ? 0 : sma[Bar.Open]/instrument.sma_factor!,
-        row+1<instrument.sma_factor! ? 0 : sma[Bar.Close]/instrument.sma_factor!
-      ]);
-
-      //-- Handle Fractal events
-      if (IsHigher(candle.high!, high)) SetEvent(EventType.NewHigh, AlertType.Minor);
-      if (IsLower(candle.low!, low)) SetEvent(EventType.NewLow, AlertType.Minor);
+    //-- Set SMA base
+    if (row + 1 > instrument.sma_factor!) {
+      sma.open -= candles[row - instrument.sma_factor!].open!;
+      sma.close -= candles[row - instrument.sma_factor!].close!;
     }
 
+    Publish(candle, {
+      open: row + 1 < instrument.sma_factor! ? 0 : sma.open / instrument.sma_factor!,
+      close: row + 1 < instrument.sma_factor! ? 0 : sma.close / instrument.sma_factor!,
+    });
+
+    //-- Handle Fractal events
+    if (IsHigher(candle.high!, high)) SetEvent(EventType.NewHigh, AlertType.Minor);
+    if (IsLower(candle.low!, low)) SetEvent(EventType.NewLow, AlertType.Minor);
+
     if (IsEventSet(EventType.NewHigh) && IsEventSet(EventType.NewLow)) {
-      console.log("New High: ", high.value.toFixed(high.digits), "NewLow", low.value.toFixed(low.digits));
+      //console.log("New High: ", high.value.toFixed(high.digits), "NewLow", low.value.toFixed(low.digits));
     } else if (IsEventSet(EventType.NewHigh)) {
-      console.log("New High: ", high.value.toFixed(high.digits));
+      //console.log("New High: ", high.value.toFixed(high.digits));
     } else if (IsEventSet(EventType.NewLow)) {
-      console.log("New Low: ", low.value.toFixed(low.digits));
+      //console.log("New Low: ", low.value.toFixed(low.digits));
     }
   });
 }

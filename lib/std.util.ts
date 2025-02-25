@@ -1,20 +1,5 @@
 "use strict";
 
-export enum Direction {
-  None = 0,
-  Up = 1,
-  Down = -1,
-  Flat = 2,
-  Unset = -2,
-}
-
-export enum Action {
-  None,
-  Buy,
-  Sell,
-  Wait,
-}
-
 export interface ICompare {
   value: number;
   digits: number;
