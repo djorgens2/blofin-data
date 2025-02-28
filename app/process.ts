@@ -14,7 +14,7 @@ export async function ProcessUpdates() {
   const instruments = await Instrument.FetchActive();
 
   instruments.forEach((instrument) => {
-    console.log(instrument)
+//    console.log(instrument)
     Fractal.Update(instrument);
   });
 }

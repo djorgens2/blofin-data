@@ -125,313 +125,315 @@ CREATE TABLE
 
 CREATE INDEX fk_c_period ON blofin.candle (period);
 
-CREATE OR REPLACE
-VIEW blofin.vw_candles AS
+CREATE
+OR REPLACE VIEW blofin.vw_candles AS
 SELECT
 	i.instrument AS instrument,
-	CONCAT(b.symbol, '-', q.symbol) AS instrument_pair,
-    b.currency AS base_currency,
+	CONCAT (b.symbol, '-', q.symbol) AS currency_pair,
+	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
 	q.symbol AS quote_symbol,
 	pt.period AS period,
 	pt.timeframe AS timeframe,
 	c.bar_time,
-	UNIX_TIMESTAMP(c.bar_time) AS time,
-	c.open,
-	c.high,
-	c.low,
-	c.close,
-	c.volume,
-	c.vol_currency,
-	c.vol_currency_quote,
-	c.completed
+	UNIX_TIMESTAMP (c.bar_time) AS time,
+	c.open AS open,
+	c.high AS high,
+	c.low AS low,
+	c.close AS close,
+	c.volume AS volume,
+	c.vol_currency AS vol_currency,
+	c.vol_currency_quote AS vol_currency_quote,
+	c.completed AS completed
 FROM
-	blofin.instrument i,
-    blofin.instrument_period ip,
-    blofin.period pt,
-    blofin.currency b,
-    blofin.currency q,
-    blofin.candle c
+	blofin.instrument i
+	JOIN blofin.instrument_period ip
+	JOIN blofin.period pt
+	JOIN blofin.currency b
+	JOIN blofin.currency q
+	JOIN blofin.candle c
 WHERE
-	    c.instrument = i.instrument
-	AND c.period = pt.period
-	AND i.base_currency = b.currency
-	AND i.quote_currency = q.currency
-	AND i.instrument = ip.instrument
-	AND ip.period = pt.period;
+	(
+		(c.instrument = i.instrument)
+		AND (c.period = pt.period)
+		AND (i.base_currency = b.currency)
+		AND (i.quote_currency = q.currency)
+		AND (i.instrument = ip.instrument)
+		AND (ip.period = pt.period)
+	);
 
-CREATE VIEW
-	blofin.vw_instrument_periods AS
+CREATE
+OR REPLACE VIEW blofin.vw_instrument_period_pivot AS
 select
-	`i`.`instrument` AS `instrument`,
-	concat (`b`.`symbol`, '-', `q`.`symbol`) AS `currency_pair`,
-	`b`.`currency` AS `base_currency`,
-	`b`.`symbol` AS `base_symbol`,
-	`q`.`currency` AS `quote_currency`,
-	`q`.`symbol` AS `quote_symbol`,
-	'BARS' AS `type_def`,
+	i.instrument AS instrument,
+	concat (b.symbol, '-', q.symbol) AS currency_pair,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	'BARS' AS type_def,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1m') then `ip`.`data_collection_rate`
+				when (p.timeframe = '1m') then ip.data_collection_rate
 			end
 		)
-	) AS `period_1m`,
+	) AS period_1m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '3m') then `ip`.`data_collection_rate`
+				when (p.timeframe = '3m') then ip.data_collection_rate
 			end
 		)
-	) AS `period_3m`,
+	) AS period_3m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '5m') then `ip`.`data_collection_rate`
+				when (p.timeframe = '5m') then ip.data_collection_rate
 			end
 		)
-	) AS `period_5m`,
+	) AS period_5m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '15m') then `ip`.`data_collection_rate`
+				when (p.timeframe = '15m') then ip.data_collection_rate
 			end
 		)
-	) AS `period_15m`,
+	) AS period_15m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '30m') then `ip`.`data_collection_rate`
+				when (p.timeframe = '30m') then ip.data_collection_rate
 			end
 		)
-	) AS `period_30m`,
+	) AS period_30m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '1H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_1h`,
+	) AS period_1h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '2H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '2H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_2h`,
+	) AS period_2h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '4H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '4H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_4h`,
+	) AS period_4h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '6H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '6H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_6h`,
+	) AS period_6h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '8H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '8H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_8h`,
+	) AS period_8h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '12H') then `ip`.`data_collection_rate`
+				when (p.timeframe = '12H') then ip.data_collection_rate
 			end
 		)
-	) AS `period_12h`,
+	) AS period_12h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1D') then `ip`.`data_collection_rate`
+				when (p.timeframe = '1D') then ip.data_collection_rate
 			end
 		)
-	) AS `period_1d`,
+	) AS period_1d,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '3D') then `ip`.`data_collection_rate`
+				when (p.timeframe = '3D') then ip.data_collection_rate
 			end
 		)
-	) AS `period_3d`,
+	) AS period_3d,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1W') then `ip`.`data_collection_rate`
+				when (p.timeframe = '1W') then ip.data_collection_rate
 			end
 		)
-	) AS `period_1w`,
+	) AS period_1w,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1M') then `ip`.`data_collection_rate`
+				when (p.timeframe = '1M') then ip.data_collection_rate
 			end
 		)
-	) AS `period_1mm`
+	) AS period_1mm
 from
 	(
 		(
-			`blofin`.`instrument` `i`
-			left join `blofin`.`instrument_period` `ip` on ((`ip`.`instrument` = `i`.`instrument`))
+			blofin.instrument i
+			left join blofin.instrument_period ip on ((ip.instrument = i.instrument))
 		)
-		left join `blofin`.`period` `p` on ((`ip`.`period` = `p`.`period`))
+		left join blofin.period p on ((ip.period = p.period))
 	)
-	join `blofin`.`currency` `b`
-	join `blofin`.`currency` `q`
+	join blofin.currency b
+	join blofin.currency q
 where
 	(
-		(`i`.`base_currency` = `b`.`currency`)
-		and (`i`.`quote_currency` = `q`.`currency`)
+		(i.base_currency = b.currency)
+		and (i.quote_currency = q.currency)
 	)
 group by
-	`i`.`instrument`
+	i.instrument
 union all
 select
-	`i`.`instrument` AS `instrument`,
-	concat (`b`.`symbol`, '-', `q`.`symbol`) AS `currency_pair`,
-	`b`.`currency` AS `base_currency`,
-	`b`.`symbol` AS `base_symbol`,
-	`q`.`currency` AS `quote_currency`,
-	`q`.`symbol` AS `quote_symbol`,
-	'SMA' AS `type_def`,
+	i.instrument AS instrument,
+	concat (b.symbol, '-', q.symbol) AS currency_pair,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	'SMA' AS type_def,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1m') then `ip`.`sma_factor`
+				when (p.timeframe = '1m') then ip.sma_factor
 			end
 		)
-	) AS `1m`,
+	) AS period_1m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '3m') then `ip`.`sma_factor`
+				when (p.timeframe = '3m') then ip.sma_factor
 			end
 		)
-	) AS `3m`,
+	) AS period_3m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '5m') then `ip`.`sma_factor`
+				when (p.timeframe = '5m') then ip.sma_factor
 			end
 		)
-	) AS `5m`,
+	) AS period_5m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '15m') then `ip`.`sma_factor`
+				when (p.timeframe = '15m') then ip.sma_factor
 			end
 		)
-	) AS `15m`,
+	) AS period_15m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '30m') then `ip`.`sma_factor`
+				when (p.timeframe = '30m') then ip.sma_factor
 			end
 		)
-	) AS `30m`,
+	) AS period_30m,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1H') then `ip`.`sma_factor`
+				when (p.timeframe = '1H') then ip.sma_factor
 			end
 		)
-	) AS `1h`,
+	) AS period_1h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '2H') then `ip`.`sma_factor`
+				when (p.timeframe = '2H') then ip.sma_factor
 			end
 		)
-	) AS `2h`,
+	) AS period_2h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '4H') then `ip`.`sma_factor`
+				when (p.timeframe = '4H') then ip.sma_factor
 			end
 		)
-	) AS `4h`,
+	) AS period_4h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '6H') then `ip`.`sma_factor`
+				when (p.timeframe = '6H') then ip.sma_factor
 			end
 		)
-	) AS `6h`,
+	) AS period_6h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '8H') then `ip`.`sma_factor`
+				when (p.timeframe = '8H') then ip.sma_factor
 			end
 		)
-	) AS `8h`,
+	) AS period_8h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '12H') then `ip`.`sma_factor`
+				when (p.timeframe = '12H') then ip.sma_factor
 			end
 		)
-	) AS `12h`,
+	) AS period_12h,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1D') then `ip`.`sma_factor`
+				when (p.timeframe = '1D') then ip.sma_factor
 			end
 		)
-	) AS `1d`,
+	) AS period_1d,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '3D') then `ip`.`sma_factor`
+				when (p.timeframe = '3D') then ip.sma_factor
 			end
 		)
-	) AS `3d`,
+	) AS period_3d,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1W') then `ip`.`sma_factor`
+				when (p.timeframe = '1W') then ip.sma_factor
 			end
 		)
-	) AS `1w`,
+	) AS period_1w,
 	max(
 		(
 			case
-				when (`p`.`timeframe` = '1M') then `ip`.`sma_factor`
+				when (p.timeframe = '1M') then ip.sma_factor
 			end
 		)
-	) AS `1mm`
+	) AS period_1mm
 from
 	(
 		(
-			`blofin`.`instrument` `i`
-			left join `blofin`.`instrument_period` `ip` on ((`ip`.`instrument` = `i`.`instrument`))
+			blofin.instrument i
+			left join blofin.instrument_period ip on ((ip.instrument = i.instrument))
 		)
-		left join `blofin`.`period` `p` on ((`ip`.`period` = `p`.`period`))
+		left join blofin.period p on ((ip.period = p.period))
 	)
-	join `blofin`.`currency` `b`
-	join `blofin`.`currency` `q`
+	join blofin.currency b
+	join blofin.currency q
 where
 	(
-		(`i`.`base_currency` = `b`.`currency`)
-		and (`i`.`quote_currency` = `q`.`currency`)
+		(i.base_currency = b.currency)
+		and (i.quote_currency = q.currency)
 	)
 group by
-	`i`.`instrument`
+	i.instrument
 order by
-	`currency_pair`,
-	`type_def`;
+	currency_pair,
+	type_def;
 
 CREATE
 OR REPLACE VIEW blofin.vw_instruments AS
-SELECT distinct
-	i.instrument,
+SELECT
+	i.instrument AS instrument,
 	CONCAT (b.symbol, '-', q.symbol) AS currency_pair,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
@@ -443,29 +445,80 @@ SELECT distinct
 	ti.timeframe AS interval_timeframe,
 	IFNULL (ip.data_collection_rate, 0) AS data_collection_rate,
 	IFNULL (ip.sma_factor, 0) AS sma_factor,
-	id.contract_value,
-	id.max_leverage,
-	id.min_size,
-	id.lot_size,
-	id.tick_size,
+	id.contract_value AS contract_value,
+	id.max_leverage AS max_leverage,
+	id.min_size AS min_size,
+	id.lot_size AS lot_size,
+	id.tick_size AS tick_size,
 	LENGTH (
-		SUBSTRING_INDEX (CAST(id.tick_size AS CHAR), '.', -1)
-	) AS 'precision',
-	id.max_limit_size,
-	id.max_market_size,
-	b.suspense
+		SUBSTRING_INDEX (
+			CAST(id.tick_size AS CHAR charset utf8mb4),
+			'.',
+			- (1)
+		)
+	) + 1 AS digits,
+	id.max_limit_size AS max_limit_size,
+	id.max_market_size AS max_market_size,
+	b.suspense AS suspense
 FROM
-	instrument i
-	LEFT JOIN instrument_period ip ON (
-		i.trade_period = ip.period
-		AND i.instrument = ip.instrument
+	(
+		(
+			(
+				blofin.instrument i
+				LEFT JOIN blofin.instrument_period ip ON (
+					(
+						(i.trade_period = ip.period)
+						AND (i.instrument = ip.instrument)
+					)
+				)
+			)
+			LEFT JOIN blofin.period tp ON ((i.trade_period = tp.period))
+		)
+		LEFT JOIN blofin.period ti ON ((i.interval_period = ti.period))
 	)
-	LEFT JOIN period tp ON (i.trade_period = tp.period)
-	LEFT JOIN period ti ON (i.interval_period = ti.period),
-	instrument_detail id,
-	currency b,
-	currency q
+	JOIN blofin.instrument_detail id
+	JOIN blofin.currency b
+	JOIN blofin.currency q
 WHERE
-	i.instrument = id.instrument
-	AND i.base_currency = b.currency
-	AND i.quote_currency = q.currency;
+	(
+		(i.instrument = id.instrument)
+		AND (i.base_currency = b.currency)
+		AND (i.quote_currency = q.currency)
+	);
+
+CREATE
+OR REPLACE VIEW blofin.vw_instrument_periods AS
+SELECT
+	i.instrument AS instrument,
+	concat (b.symbol, '-', q.symbol) AS currency_pair,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	p.period AS period,
+	p.timeframe AS timeframe,
+	ifnull (ip.data_collection_rate, 0) AS data_collection_rate,
+	ifnull (ip.sma_factor, 0) AS sma_factor,
+	length (
+		substring_index (
+			cast(id.tick_size AS char charset utf8mb4),
+			'.',
+			- (1)
+		)
+	) + 1 AS digits,
+	b.suspense AS suspense
+from
+	blofin.instrument i
+	join blofin.instrument_period ip
+	join blofin.period p
+	join blofin.instrument_detail id
+	join blofin.currency b
+	join blofin.currency q
+where
+	(
+		(i.instrument = ip.instrument)
+		and (i.instrument = id.instrument)
+		and (i.base_currency = b.currency)
+		and (i.quote_currency = q.currency)
+		and (ip.period = p.period)
+	);

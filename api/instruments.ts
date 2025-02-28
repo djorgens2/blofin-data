@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { SplitSymbol } from "@/lib/std.util";
+import { splitSymbol } from "@/lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Currency from "@db/interfaces/currency";
@@ -42,7 +42,7 @@ export interface IResult {
 //+------------------------------------------------------------------+
 export function Publish(apiInstruments: IInstrumentAPI[]) {
   apiInstruments.forEach(async (apiInstrument) => {
-    const symbol: string[] = SplitSymbol(apiInstrument.instId);
+    const symbol: string[] = splitSymbol(apiInstrument.instId);
     const baseCurrency = await Currency.Publish(symbol[0], apiInstrument.state !== "live");
     const quoteCurrency = await Currency.Publish(symbol[1], false);
     const contractType = await ContractType.Publish(apiInstrument.contractType);

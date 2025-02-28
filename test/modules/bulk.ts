@@ -2,7 +2,7 @@ import { IInstrumentAPI, IResult } from "../../api/instruments";
 import { Select, Modify, UniqueKey } from "../../db/query.utils";
 import { ICurrency } from "../../db/interfaces/currency";
 import { IInstrument } from "../../db/interfaces/instrument";
-import { SplitSymbol } from "../../lib/std.util";
+import { splitSymbol } from "../../lib/std.util";
 import * as ContractType from "../../db/interfaces/contract_type";
 import * as InstrumentType from "../../db/interfaces/instrument_type";
 import * as InstrumentDetail from "../../db/interfaces/instrument_detail";
@@ -41,7 +41,7 @@ async function PublishInstrument(Base: number, Quote: number): Promise<number> {
 
 function Publish(Instruments: IInstrumentAPI[]) {
   Instruments.forEach(async (item) => {
-    const symbol: string[] = SplitSymbol(item.instId);
+    const symbol: string[] = splitSymbol(item.instId);
     const base = await PublishCurrency(symbol[0], item.state !== "live");
     const quote = await PublishCurrency(symbol[1], false);
     const contract = await ContractType.Publish(item.contractType);
