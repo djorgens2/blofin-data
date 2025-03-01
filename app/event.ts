@@ -4,103 +4,126 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-export enum AlertType {
-  NoAlert,
-  Notify,
-  Nominal,
-  Warning,
-  Minor,
-  Major,
-  Critical,
-  Count,
-}
+export const Alert = {
+  NoAlert: 0,
+  Notify: 1,
+  Nominal: 2,
+  Warning: 3,
+  Minor: 4,
+  Major: 5,
+  Critical: 6,
+} as const;
 
-export enum EventType {
-  NoEvent,
-  AdverseEvent, //-- Very bad event
-  NewHigh,
-  NewLow,
-  NewBoundary,
-  NewDirection, //-- Directional change
-  NewState,
-  NewBias,
-  NewTick, //-- Tick level event; aggregate or trade
-  NewSegment, //-- Segment level event; aggregate of Ticks
-  NewContraction,
-  NewFractal, //-- Fractal Direction change
-  NewFibonacci, //-- Fibonacci Level change only
-  NewOrigin,
-  NewTrend,
-  NewTerm,
-  NewLead,
-  NewExpansion,
-  NewDivergence,
-  NewConvergence,
-  NewRally,
-  NewPullback,
-  NewRetrace,
-  NewCorrection,
-  NewRecovery,
-  NewBreakout,
-  NewReversal,
-  NewExtension,
-  NewFlatline,
-  NewConsolidation,
-  NewParabolic, //-- Expanding, Multidirectional (parabolic) event
-  NewChannel,
-  CrossCheck,
-  Exception,
-  SessionOpen,
-  SessionClose,
-  NewDay,
-  NewHour,
-  Count,
-}
+export const Event = {
+  NoEvent: 0,
+  AdverseEvent: 1, //-- Very bad event
+  NewHigh: 2,
+  NewLow: 3,
+  NewBoundary: 4,
+  NewDirection: 5, //-- Directional change
+  NewState: 6,
+  NewBias: 7,
+  NewTick: 8, //-- Tick level event; aggregate or trade
+  NewSegment: 9, //-- Segment level event; aggregate of Ticks
+  NewContraction: 10,
+  NewFractal: 11, //-- Fractal Direction change
+  NewFibonacci: 12, //-- Fibonacci Level change only
+  NewOrigin: 13,
+  NewTrend: 14,
+  NewTerm: 15,
+  NewLead: 16,
+  NewExpansion: 17,
+  NewDivergence: 18,
+  NewConvergence: 19,
+  NewRally: 20,
+  NewPullback: 21,
+  NewRetrace: 22,
+  NewCorrection: 23,
+  NewRecovery: 24,
+  NewBreakout: 25,
+  NewReversal: 26,
+  NewExtension: 27,
+  NewFlatline: 28,
+  NewConsolidation: 29,
+  NewParabolic: 30, //-- Expanding Multidirectional (parabolic) event
+  NewChannel: 31,
+  CrossCheck: 32,
+  Exception: 33,
+  SessionOpen: 34,
+  SessionClose: 35,
+  NewDay: 36,
+  NewHour: 37,
+} as const;
 
-const Events: Array<boolean> = new Array(EventType.Count).fill(false);
-const Alerts: Array<AlertType> = new Array(EventType.Count).fill(AlertType.NoAlert);
+export type Alert = typeof Alert[keyof typeof Alert];
+export type Event = typeof Event[keyof typeof Event];
 
-let MaxEvent: EventType = EventType.NoEvent;
-let MaxAlert: AlertType = AlertType.NoAlert;
+export class CEvent {
+  #Events: Array<boolean> = new Array(Object.keys(Event).length).fill(false);
+  #Alerts: Array<Alert> = new Array(Object.keys(Event).length).fill(Alert.NoAlert);
 
-//+------------------------------------------------------------------+
-//| SetEvent - Sets the triggering event to true                     |
-//+------------------------------------------------------------------+
-export function SetEvent(NewEvent: EventType, NewAlert: AlertType = AlertType.Notify) {
-  if (NewEvent === EventType.NoEvent) return;
+  #MaxEvent: Event = Event.NoEvent;
+  #MaxAlert: Alert = Alert.NoAlert;
+  
+  //+------------------------------------------------------------------+
+  //| set - Sets the triggering event and Alert level                  |
+  //+------------------------------------------------------------------+
+  set(setEvent: Event, setAlert: Alert = Alert.Notify) {
+  if (setEvent === Event.NoEvent) return;
 
-  Events[EventType.NoEvent] = false;
-  Events[NewEvent] = true;
-  Alerts[NewEvent] = Math.max(NewAlert, Alerts[NewEvent]);
+    this.#Events[Event.NoEvent] = false;
+    this.#Events[setEvent] = true;
+    this.#Alerts[setEvent] = <Alert>Math.max(setAlert, this.#Alerts[setEvent]);
 
-  if (NewAlert > MaxAlert) {
-    MaxEvent = NewEvent;
-    MaxAlert = NewAlert;
+    if (setAlert > this.#MaxAlert) {
+      this.#MaxEvent = setEvent;
+      this.#MaxAlert = setAlert;
+    }
+
+    if (setAlert === this.#MaxAlert) this.#MaxEvent = <Event>Math.max(setEvent, this.#MaxEvent);
   }
 
-  if (NewAlert === MaxAlert) MaxEvent = Math.max(NewEvent, MaxEvent);
-}
+  //+------------------------------------------------------------------+
+  //| clear - ResetsInitializes all events to false                    |
+  //+------------------------------------------------------------------+
+  clear() {
+    this.#Events.fill(false);
+    this.#Alerts.fill(Alert.NoAlert);
 
-//+------------------------------------------------------------------+
-//| ClearEvents - Initializes all events to false                    |
-//+------------------------------------------------------------------+
-export function ClearEvents() {
-  Events.fill(false);
-  Alerts.fill(AlertType.NoAlert);
+    this.#Events[Event.NoEvent] = true;
 
-  Events[EventType.NoEvent] = true;
+    this.#MaxEvent = Event.NoEvent;
+    this.#MaxAlert = Alert.NoAlert;
+  }
 
-  MaxEvent = EventType.NoEvent;
-  MaxAlert = AlertType.NoAlert;
-}
+  //+------------------------------------------------------------------+
+  //| isSet - Returns true on Event for provided Alert condition       |
+  //+------------------------------------------------------------------+
+  isSet(setEvent: Event, setAlert:Alert = Alert.NoAlert): boolean {
+    if (setAlert === Alert.NoAlert) return this.#Events[setEvent];
+    if (this.#Events[setEvent] && this.#Alerts[setEvent] === setAlert) return this.#Events[setEvent];
 
-//+------------------------------------------------------------------+
-//| IsEventSet - Returns true on Event on provided Alert or NoAlert  |
-//+------------------------------------------------------------------+
-export function IsEventSet(Event: EventType, Alert: AlertType = AlertType.NoAlert): boolean {
-  if (Alert === AlertType.NoAlert) return Events[Event];
+    return false;
+  }
 
-  if (Events[Event] && Alerts[Event] === Alert) return Events[Event];
+  //+------------------------------------------------------------------+
+  //| maxEvent - Returns MaxEvent active from last clearEvent call     |
+  //+------------------------------------------------------------------+
+  maxEvent(): Event {
+    return this.#MaxEvent;
+  }
 
-  return false;
+  //+------------------------------------------------------------------+
+  //| maxAlert - Returns MaxAlert active from last clearEvent call     |
+  //+------------------------------------------------------------------+
+  maxAlert(): Alert {
+    return this.#MaxAlert;
+  }
+
+  //+------------------------------------------------------------------+
+  //| active - Returns true when any event is active                   |
+  //+------------------------------------------------------------------+
+  active(): boolean {
+    return !this.#Events[Event.NoEvent];
+  }
 }
