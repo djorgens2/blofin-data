@@ -59,6 +59,9 @@ export enum Event {
 export type Alerts = keyof typeof Alert;
 export type Events = keyof typeof Event;
 
+//+------------------------------------------------------------------+
+//| Class CEvent: stores private Event stack with access methods     |
+//+------------------------------------------------------------------+
 export class CEvent {
   #Events: Array<boolean> = new Array(Object.keys(Event).length / 2).fill(false);
   #Alerts: Array<Alert> = new Array(Object.keys(Event).length / 2).fill(Alert.NoAlert);

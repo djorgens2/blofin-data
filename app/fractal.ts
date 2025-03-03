@@ -163,14 +163,21 @@ function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = 
 //| PublishBar - Wraps up Bar processing                             |
 //+------------------------------------------------------------------+
 export function PublishBar(candle: Partial<ICandle>, row: number) {
-  // if (Bar.length===0) console.log('we gotta glitch')
   const prior = {
     direction: Bar[0].direction,
     lead: Bar[0].lead,
     bias: Bar[0].bias,
-    low: Bar[0].low,
+    open: Bar[0].open,
     high: Bar[0].high,
+    low: Bar[0].low,
+    close: Bar[0].close,
   };
+
+  //--- set Bias
+  if (prior.open !== candle.close!) {
+    prior.bias !== bias(direction(candle.close! - prior.open)) && event.set(Event.NewBias, Alert.Notify);
+    prior.bias = bias(direction(candle.close! - prior.open));
+  }
 
   if (prior.low > candle.low!) {
     event.set(Event.NewLow, Alert.Notify);
@@ -186,7 +193,6 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
     //--- set Lead
     if (prior.low > candle.low! && prior.high < candle.high!) {
       event.set(Event.NewOutsideBar, Alert.Nominal);
-      console.log("Outside Bar handler");
     } else {
       if (prior.low > candle.low!) {
         prior.lead !== Bias.Short && event.set(Event.NewLead, Alert.Nominal);
@@ -208,7 +214,6 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
     //--- set Direction
     if (bar.min > candle.low! && bar.max < candle.high!) {
       event.set(Event.NewOutsideBar, Alert.Minor);
-      console.log("Outside Bar handler");
     } else {
       if (bar.min > candle.low!) {
         prior.direction !== Direction.Down && event.set(Event.NewDirection, Alert.Minor);
@@ -226,8 +231,6 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
     }
   }
 
-  event.triggered() && console.log(event.active());
-  
   if (row > 0) {
     if (event.isSet(Event.NewLead)) {
       prior.lead === Bias.Long ? ((bar.min = bar.retrace), (bar.retrace = candle.high!)) : ((bar.max = bar.retrace), (bar.retrace = candle.low!));
@@ -248,7 +251,21 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
     });
   }
 
-  if (row < 60) console.log(row, event.isSet(Event.NewLead) ? "NewLead: " : "newBar: ", prior, bar);
+  if (row < 60) {
+    console.log(
+      row.toFixed(0).concat(":"),
+      event.isSet(Event.NewDirection)
+        ? "NewDirection: "
+        : event.isSet(Event.NewLead)
+        ? "NewLead: "
+        : event.isSet(Event.NewBoundary)
+        ? "NewBoundary: "
+        : "NewBar: ",
+      prior,
+      bar
+    );
+    event.triggered() ? console.log(event.active()) : console.log("---");
+  }
 }
 
 //+------------------------------------------------------------------+
