@@ -4,8 +4,9 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { Action, Direction, Bias, Measure } from "@/lib/std.defs.d";
-import { isBetween } from "@/lib/std.util";
+import type { IMeasure } from "@/lib/std.util"; //-- types
+import { Action, Direction, Bias } from "@/lib/std.util"; //-- enums
+import { bias, direction, isBetween } from "@/lib/std.util"; //-- functions
 
 import { CEvent, Event, Alert } from "@app/event";
 import type { ICandle } from "@db/interfaces/candle";
@@ -28,7 +29,7 @@ export enum FibonacciType {
   f823 = 8.236,
 }
 
-export enum FractalState {
+export enum State {
   NoState, // No State Assignment
   Rally, // Advancing fractal
   Pullback, // Declining fractal
@@ -70,18 +71,18 @@ interface IFractalPoint {
   Expansion: IPoint;
   Retrace: IPoint;
   Recovery: IPoint;
-  Close: IBar;
 }
 
 interface IFibonacci {
-  retrace: Measure,
-  extension: Measure,
+  retrace: IMeasure;
+  extension: IMeasure;
 }
 
 interface IFractal extends ITrend {
-  state: FractalState;
+  state: State;
   volume: number;
   point: IFractalPoint;
+  close: IBar;
 }
 
 //-- Data collections
@@ -92,9 +93,10 @@ let Fractal: IFractal;
 let Fibonacci: IFibonacci;
 
 //-- Work variables
+let bar: { min: number; max: number; retrace: number };
 let sma: { open: number; close: number; factor: number; digits: number };
 let fractal: { min: number; max: number; minTime: number; maxTime: number; factor: number; digits: number };
-let event:CEvent = new CEvent;
+let event: CEvent = new CEvent();
 
 //-- Utility functions ----------------------------------------------------//
 
@@ -143,7 +145,7 @@ function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = 
   const stopBar = timeStop ? iBar(timeStop) : Bar.length - 1;
   const searchDir = stopBar - startBar > 0 ? Direction.Up : Direction.Down;
 
-  !includeStart && isBetween(startBar, 0, Bar.length - 1) && (startBar += searchDir);
+  !includeStart && isBetween(startBar, 0, Bar.length - 1, false) && (startBar += searchDir);
 
   let searchIndex = startBar;
 
@@ -161,19 +163,92 @@ function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = 
 //| PublishBar - Wraps up Bar processing                             |
 //+------------------------------------------------------------------+
 export function PublishBar(candle: Partial<ICandle>, row: number) {
-  // do work;
+  // if (Bar.length===0) console.log('we gotta glitch')
+  const prior = {
+    direction: Bar[0].direction,
+    lead: Bar[0].lead,
+    bias: Bar[0].bias,
+    low: Bar[0].low,
+    high: Bar[0].high,
+  };
 
-  // publish
-  Bar.unshift({
-    time: candle.time!,
-    direction: Direction.None,
-    lead: Bias.None,
-    bias: Bias.None,
-    open: candle.open!,
-    high: candle.high!,
-    low: candle.low!,
-    close: candle.close!,
-  });
+  if (prior.low > candle.low!) {
+    event.set(Event.NewLow, Alert.Notify);
+    event.set(Event.NewBoundary, Alert.Notify);
+  }
+
+  if (prior.high < candle.high!) {
+    event.set(Event.NewHigh, Alert.Notify);
+    event.set(Event.NewBoundary, Alert.Notify);
+  }
+
+  if (event.isSet(Event.NewBoundary)) {
+    //--- set Lead
+    if (prior.low > candle.low! && prior.high < candle.high!) {
+      event.set(Event.NewOutsideBar, Alert.Nominal);
+      console.log("Outside Bar handler");
+    } else {
+      if (prior.low > candle.low!) {
+        prior.lead !== Bias.Short && event.set(Event.NewLead, Alert.Nominal);
+        prior.lead = Bias.Short;
+
+        event.set(Event.NewLow, Alert.Nominal);
+        event.set(Event.NewBoundary, Alert.Nominal);
+      }
+
+      if (prior.high < candle.high!) {
+        prior.lead !== Bias.Long && event.set(Event.NewLead, Alert.Nominal);
+        prior.lead = Bias.Long;
+
+        event.set(Event.NewHigh, Alert.Nominal);
+        event.set(Event.NewBoundary, Alert.Nominal);
+      }
+    }
+
+    //--- set Direction
+    if (bar.min > candle.low! && bar.max < candle.high!) {
+      event.set(Event.NewOutsideBar, Alert.Minor);
+      console.log("Outside Bar handler");
+    } else {
+      if (bar.min > candle.low!) {
+        prior.direction !== Direction.Down && event.set(Event.NewDirection, Alert.Minor);
+        prior.direction = Direction.Down;
+
+        event.set(Event.NewBoundary, Alert.Minor);
+      }
+
+      if (bar.max < candle.high!) {
+        prior.direction !== Direction.Up && event.set(Event.NewDirection, Alert.Minor);
+        prior.direction = Direction.Up;
+
+        event.set(Event.NewBoundary, Alert.Minor);
+      }
+    }
+  }
+
+  event.triggered() && console.log(event.active());
+  
+  if (row > 0) {
+    if (event.isSet(Event.NewLead)) {
+      prior.lead === Bias.Long ? ((bar.min = bar.retrace), (bar.retrace = candle.high!)) : ((bar.max = bar.retrace), (bar.retrace = candle.low!));
+    }
+    event.isSet(Event.NewHigh) && prior.direction === Direction.Up && ((bar.retrace = candle.high!), (bar.max = candle.high!));
+    event.isSet(Event.NewLow) && prior.direction === Direction.Down && ((bar.retrace = candle.low!), (bar.min = candle.low!));
+
+    // publish
+    Bar.unshift({
+      time: candle.time!,
+      direction: prior.direction,
+      lead: prior.lead,
+      bias: prior.bias,
+      open: candle.open!,
+      high: candle.high!,
+      low: candle.low!,
+      close: candle.close!,
+    });
+  }
+
+  if (row < 60) console.log(row, event.isSet(Event.NewLead) ? "NewLead: " : "newBar: ", prior, bar);
 }
 
 //+------------------------------------------------------------------+
@@ -206,18 +281,19 @@ export function PublishSMA(row: number) {
 //| setFibonacci - Calculate fibonacci sequence%'s on active Fractal |
 //+------------------------------------------------------------------+
 function setFibonacci() {
+  const recovery: number = Fractal.point.Recovery.time > 0 ? Fractal.point.Recovery.price : Fractal.point.Retrace.price;
   Fibonacci = {
     retrace: {
-      min: 0,
-      max: parseFloat((1-((Fractal.point.Root.price-Fractal.point.Retrace.price)/(Fractal.point.Root.price-Fractal.point.Expansion.price))).toFixed(3)),
-      now: 0,
+      min: parseFloat((1 - (Fractal.point.Root.price - recovery) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
+      max: parseFloat((1 - (Fractal.point.Root.price - Fractal.point.Retrace.price) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
+      now: parseFloat((1 - (Fractal.point.Root.price - Bar[0].close) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
     },
     extension: {
-      min: 0,
-      max: parseFloat(((Fractal.point.Root.price-Fractal.point.Expansion.price)/(Fractal.point.Root.price-Fractal.point.Base.price)).toFixed(3)),
-      now: 0,
-    }
-  }
+      min: parseFloat(((Fractal.point.Root.price - Fractal.point.Retrace.price) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
+      max: parseFloat(((Fractal.point.Root.price - Fractal.point.Expansion.price) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
+      now: parseFloat(((Fractal.point.Root.price - Bar[0].close) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
+    },
+  };
 }
 
 //+------------------------------------------------------------------+
@@ -252,9 +328,6 @@ function setFractal() {
     Fractal.point.Retrace = { time: retrace.time, price: retrace.time > fractal.maxTime ? retrace.low : retrace.close };
     Fractal.point.Recovery = { time: recovery.time > retrace.time ? recovery.time : 0, price: recovery.time > retrace.time ? recovery.high : 0 };
   }
-
-  setFibonacci();
-  console.log(Fractal,Fibonacci);
 }
 
 //+------------------------------------------------------------------+
@@ -276,7 +349,9 @@ export function PublishFractal(row: number) {
     event.set(Event.NewLow, Alert.Minor);
   }
 
-  if (row + 1 === fractal.factor) setFractal();
+  if (row + 1 >= fractal.factor) {
+    if (row + 1 === fractal.factor) setFractal();
+  }
 }
 
 //-- Object initialization functions -----------------------------------------//
@@ -284,15 +359,26 @@ export function PublishFractal(row: number) {
 //+------------------------------------------------------------------+
 //| initBar - Resets the Bar(obj) on change of currency pair         |
 //+------------------------------------------------------------------+
-function initializeBar() {
+function initBar(candle: Partial<ICandle>) {
   Bar.splice(0, Bar.length);
+  Bar.unshift({
+    time: candle.time!,
+    direction: direction(candle.close! - candle.open!),
+    lead: bias(direction(candle.close! - candle.open!)),
+    bias: bias(direction(candle.close! - candle.open!)),
+    open: candle.open!,
+    high: candle.high!,
+    low: candle.low!,
+    close: candle.close!,
+  });
+  bar = { min: Bar[0].low, max: Bar[0].high, retrace: Bar[0].lead === Bias.Long ? Bar[0].high : Bar[0].low };
 }
 
 //+------------------------------------------------------------------+
 //| initFractal - Resets sma(work):SMA(obj) each currency            |
 //+------------------------------------------------------------------+
 function initSMA(factor: number, digits: number) {
-  Bar.splice(0, SMA.length);
+  SMA.splice(0, SMA.length);
   sma = { open: 0, close: 0, factor: factor, digits: digits };
 }
 
@@ -305,7 +391,7 @@ function initFractal(min: number, max: number, time: number, factor: number, dig
     direction: Direction.None,
     lead: Bias.None,
     bias: Bias.None,
-    state: FractalState.Breakout,
+    state: State.Breakout,
     volume: 0,
     point: {
       Origin: { time: 0, price: 0 },
@@ -314,8 +400,8 @@ function initFractal(min: number, max: number, time: number, factor: number, dig
       Expansion: { time: 0, price: 0 },
       Retrace: { time: 0, price: 0 },
       Recovery: { time: 0, price: 0 },
-      Close: { time: 0, direction: Direction.None, lead: Bias.None, bias: Bias.None, open: 0, high: 0, low: 0, close: 0 },
     },
+    close: { time: 0, direction: Direction.None, lead: Bias.None, bias: Bias.None, open: 0, high: 0, low: 0, close: 0 },
   };
 
   fractal = { min: min, max: max, minTime: time, maxTime: time, factor: factor, digits: digits };
@@ -329,7 +415,7 @@ export async function Update(instrument: Partial<IInstrument>) {
 
   console.log(instrument);
 
-  initializeBar();
+  initBar(candles[0]);
   initSMA(instrument.sma_factor!, instrument.digits!);
   initFractal(candles[0].low!, candles[0].high!, candles[0].time!, instrument.sma_factor!, instrument.digits!);
 

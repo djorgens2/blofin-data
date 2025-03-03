@@ -4,83 +4,98 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-export const Alert = {
-  NoAlert: 0,
-  Notify: 1,
-  Nominal: 2,
-  Warning: 3,
-  Minor: 4,
-  Major: 5,
-  Critical: 6,
-} as const;
+export enum Alert {
+  NoAlert,
+  Notify,
+  Nominal,
+  Warning,
+  Minor,
+  Major,
+  Critical,
+}
 
-export const Event = {
-  NoEvent: 0,
-  AdverseEvent: 1, //-- Very bad event
-  NewHigh: 2,
-  NewLow: 3,
-  NewBoundary: 4,
-  NewDirection: 5, //-- Directional change
-  NewState: 6,
-  NewBias: 7,
-  NewTick: 8, //-- Tick level event; aggregate or trade
-  NewSegment: 9, //-- Segment level event; aggregate of Ticks
-  NewContraction: 10,
-  NewFractal: 11, //-- Fractal Direction change
-  NewFibonacci: 12, //-- Fibonacci Level change only
-  NewOrigin: 13,
-  NewTrend: 14,
-  NewTerm: 15,
-  NewLead: 16,
-  NewExpansion: 17,
-  NewDivergence: 18,
-  NewConvergence: 19,
-  NewRally: 20,
-  NewPullback: 21,
-  NewRetrace: 22,
-  NewCorrection: 23,
-  NewRecovery: 24,
-  NewBreakout: 25,
-  NewReversal: 26,
-  NewExtension: 27,
-  NewFlatline: 28,
-  NewConsolidation: 29,
-  NewParabolic: 30, //-- Expanding Multidirectional (parabolic) event
-  NewChannel: 31,
-  CrossCheck: 32,
-  Exception: 33,
-  SessionOpen: 34,
-  SessionClose: 35,
-  NewDay: 36,
-  NewHour: 37,
-} as const;
+export enum Event {
+  NoEvent,
+  AdverseEvent, //-- Very bad event
+  NewHigh,
+  NewLow,
+  NewBoundary,
+  NewOutsideBar,
+  NewDirection, //-- Directional change
+  NewState,
+  NewBias,
+  NewTick, //-- Tick level event; aggregate or trade
+  NewSegment, //-- Segment level event; aggregate of Ticks
+  NewContraction,
+  NewFractal, //-- Fractal Direction change
+  NewFibonacci, //-- Fibonacci Level change only
+  NewOrigin,
+  NewTrend,
+  NewTerm,
+  NewLead,
+  NewExpansion,
+  NewDivergence,
+  NewConvergence,
+  NewRally,
+  NewPullback,
+  NewRetrace,
+  NewCorrection,
+  NewRecovery,
+  NewBreakout,
+  NewReversal,
+  NewExtension,
+  NewFlatline,
+  NewConsolidation,
+  NewParabolic, //-- Expanding Multidirectional (parabolic) event
+  NewChannel,
+  CrossCheck,
+  Exception,
+  SessionOpen,
+  SessionClose,
+  NewDay,
+  NewHour,
+}
 
-export type Alert = typeof Alert[keyof typeof Alert];
-export type Event = typeof Event[keyof typeof Event];
+export type Alerts = keyof typeof Alert;
+export type Events = keyof typeof Event;
 
 export class CEvent {
-  #Events: Array<boolean> = new Array(Object.keys(Event).length).fill(false);
-  #Alerts: Array<Alert> = new Array(Object.keys(Event).length).fill(Alert.NoAlert);
+  #Events: Array<boolean> = new Array(Object.keys(Event).length / 2).fill(false);
+  #Alerts: Array<Alert> = new Array(Object.keys(Event).length / 2).fill(Alert.NoAlert);
 
   #MaxEvent: Event = Event.NoEvent;
   #MaxAlert: Alert = Alert.NoAlert;
-  
+
+  #EventText: string[];
+  #AlertText: string[];
+
+  //+------------------------------------------------------------------+
+  //| Event constructor                                                |
+  //+------------------------------------------------------------------+
+  constructor() {
+    let alert = Object.keys(Alert) as Alerts[];
+    let event = Object.keys(Event) as Events[];
+
+    this.#AlertText = alert.slice(alert.length / 2);
+    this.#EventText = event.slice(event.length / 2);
+  }
+
   //+------------------------------------------------------------------+
   //| set - Sets the triggering event and Alert level                  |
   //+------------------------------------------------------------------+
-  set(setEvent: Event, setAlert: Alert = Alert.Notify) {
-  if (setEvent === Event.NoEvent) return;
+  set(event: Event, alert: Alert = Alert.Notify) {
+    if (event === Event.NoEvent) return;
 
     this.#Events[Event.NoEvent] = false;
-    this.#Events[setEvent] = true;
-    this.#Alerts[setEvent] = <Alert>Math.max(setAlert, this.#Alerts[setEvent]);
+    this.#Events[event] = true;
+    this.#Alerts[event] = <Alert>Math.max(alert, this.#Alerts[event]);
 
-    if (setAlert > this.#MaxAlert) {
-      this.#MaxEvent = setEvent;
-      this.#MaxAlert = setAlert;
+    if (alert > this.#MaxAlert) {
+      this.#MaxEvent = event;
+      this.#MaxAlert = alert;
     }
 
-    if (setAlert === this.#MaxAlert) this.#MaxEvent = <Event>Math.max(setEvent, this.#MaxEvent);
+    alert === this.#MaxAlert && (this.#MaxEvent = <Event>Math.max(event, this.#MaxEvent));
   }
 
   //+------------------------------------------------------------------+
@@ -99,7 +114,7 @@ export class CEvent {
   //+------------------------------------------------------------------+
   //| isSet - Returns true on Event for provided Alert condition       |
   //+------------------------------------------------------------------+
-  isSet(setEvent: Event, setAlert:Alert = Alert.NoAlert): boolean {
+  isSet(setEvent: Event, setAlert: Alert = Alert.NoAlert): boolean {
     if (setAlert === Alert.NoAlert) return this.#Events[setEvent];
     if (this.#Events[setEvent] && this.#Alerts[setEvent] === setAlert) return this.#Events[setEvent];
 
@@ -121,9 +136,34 @@ export class CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| active - Returns true when any event is active                   |
+  //| triggered - Returns true on any active event                     |
   //+------------------------------------------------------------------+
-  active(): boolean {
+  triggered(): boolean {
     return !this.#Events[Event.NoEvent];
+  }
+
+  //+------------------------------------------------------------------+
+  //| text - Returns translated literal event text(key)                |
+  //+------------------------------------------------------------------+
+  text(event: Event): string {
+    return this.#EventText[event];
+  }
+
+  //+------------------------------------------------------------------+
+  //| active - Returns an object of active {event, alert}              |
+  //+------------------------------------------------------------------+
+  active(): Array<{ event: string; alert: string }> {
+    const activeEvents: Array<{ event: string; alert: string }> = [];
+
+    if (this.triggered()) {
+      this.#Events.forEach((active, row) => {
+        if (active) {
+          activeEvents.push({ event: this.#EventText[row], alert: this.#AlertText[this.#Alerts[row]] });
+        }
+      });
+
+      return activeEvents;
+    }
+    return [{ event: "Inactive", alert: "None" }];
   }
 }
