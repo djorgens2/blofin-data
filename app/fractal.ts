@@ -4,13 +4,13 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import type { IMeasure } from "@/lib/std.util"; //-- types
-import { Action, Direction, Bias } from "@/lib/std.util"; //-- enums
-import { bias, direction, isBetween } from "@/lib/std.util"; //-- functions
+import type { IMeasure } from "@lib/std.util"; //-- types
+import { Action, Direction, Bias } from "@lib/std.util"; //-- enums
+import { bias, direction, isBetween } from "@lib/std.util"; //-- functions
 
-import { CEvent, Event, Alert } from "@app/event";
+import { CEvent, Event, Alert } from "@class/event";
 import type { ICandle } from "@db/interfaces/candle";
-import type { IInstrument } from "@/db/interfaces/instrument";
+import type { IInstrument } from "@db/interfaces/instrument";
 
 import * as Candle from "@db/interfaces/candle";
 
@@ -175,68 +175,68 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
 
   //--- set Bias
   if (prior.open !== candle.close!) {
-    prior.bias !== bias(direction(candle.close! - prior.open)) && event.set(Event.NewBias, Alert.Notify);
+    prior.bias !== bias(direction(candle.close! - prior.open)) && event.setEvent(Event.NewBias, Alert.Notify);
     prior.bias = bias(direction(candle.close! - prior.open));
   }
 
   if (prior.low > candle.low!) {
-    event.set(Event.NewLow, Alert.Notify);
-    event.set(Event.NewBoundary, Alert.Notify);
+    event.setEvent(Event.NewLow, Alert.Notify);
+    event.setEvent(Event.NewBoundary, Alert.Notify);
   }
 
   if (prior.high < candle.high!) {
-    event.set(Event.NewHigh, Alert.Notify);
-    event.set(Event.NewBoundary, Alert.Notify);
+    event.setEvent(Event.NewHigh, Alert.Notify);
+    event.setEvent(Event.NewBoundary, Alert.Notify);
   }
 
-  if (event.isSet(Event.NewBoundary)) {
+  if (event.isEventActive(Event.NewBoundary)) {
     //--- set Lead
     if (prior.low > candle.low! && prior.high < candle.high!) {
-      event.set(Event.NewOutsideBar, Alert.Nominal);
+      event.setEvent(Event.NewOutsideBar, Alert.Nominal);
     } else {
       if (prior.low > candle.low!) {
-        prior.lead !== Bias.Short && event.set(Event.NewLead, Alert.Nominal);
+        prior.lead !== Bias.Short && event.setEvent(Event.NewLead, Alert.Nominal);
         prior.lead = Bias.Short;
 
-        event.set(Event.NewLow, Alert.Nominal);
-        event.set(Event.NewBoundary, Alert.Nominal);
+        event.setEvent(Event.NewLow, Alert.Nominal);
+        event.setEvent(Event.NewBoundary, Alert.Nominal);
       }
 
       if (prior.high < candle.high!) {
-        prior.lead !== Bias.Long && event.set(Event.NewLead, Alert.Nominal);
+        prior.lead !== Bias.Long && event.setEvent(Event.NewLead, Alert.Nominal);
         prior.lead = Bias.Long;
 
-        event.set(Event.NewHigh, Alert.Nominal);
-        event.set(Event.NewBoundary, Alert.Nominal);
+        event.setEvent(Event.NewHigh, Alert.Nominal);
+        event.setEvent(Event.NewBoundary, Alert.Nominal);
       }
     }
 
     //--- set Direction
     if (bar.min > candle.low! && bar.max < candle.high!) {
-      event.set(Event.NewOutsideBar, Alert.Minor);
+      event.setEvent(Event.NewOutsideBar, Alert.Minor);
     } else {
       if (bar.min > candle.low!) {
-        prior.direction !== Direction.Down && event.set(Event.NewDirection, Alert.Minor);
+        prior.direction !== Direction.Down && event.setEvent(Event.NewDirection, Alert.Minor);
         prior.direction = Direction.Down;
 
-        event.set(Event.NewBoundary, Alert.Minor);
+        event.setEvent(Event.NewBoundary, Alert.Minor);
       }
 
       if (bar.max < candle.high!) {
-        prior.direction !== Direction.Up && event.set(Event.NewDirection, Alert.Minor);
+        prior.direction !== Direction.Up && event.setEvent(Event.NewDirection, Alert.Minor);
         prior.direction = Direction.Up;
 
-        event.set(Event.NewBoundary, Alert.Minor);
+        event.setEvent(Event.NewBoundary, Alert.Minor);
       }
     }
   }
 
   if (row > 0) {
-    if (event.isSet(Event.NewLead)) {
+    if (event.isEventActive(Event.NewLead)) {
       prior.lead === Bias.Long ? ((bar.min = bar.retrace), (bar.retrace = candle.high!)) : ((bar.max = bar.retrace), (bar.retrace = candle.low!));
     }
-    event.isSet(Event.NewHigh) && prior.direction === Direction.Up && ((bar.retrace = candle.high!), (bar.max = candle.high!));
-    event.isSet(Event.NewLow) && prior.direction === Direction.Down && ((bar.retrace = candle.low!), (bar.min = candle.low!));
+    event.isEventActive(Event.NewHigh) && prior.direction === Direction.Up && ((bar.retrace = candle.high!), (bar.max = candle.high!));
+    event.isEventActive(Event.NewLow) && prior.direction === Direction.Down && ((bar.retrace = candle.low!), (bar.min = candle.low!));
 
     // publish
     Bar.unshift({
@@ -254,17 +254,17 @@ export function PublishBar(candle: Partial<ICandle>, row: number) {
   if (row < 60) {
     console.log(
       row.toFixed(0).concat(":"),
-      event.isSet(Event.NewDirection)
+      event.isEventActive(Event.NewDirection)
         ? "NewDirection: "
-        : event.isSet(Event.NewLead)
+        : event.isEventActive(Event.NewLead)
         ? "NewLead: "
-        : event.isSet(Event.NewBoundary)
+        : event.isEventActive(Event.NewBoundary)
         ? "NewBoundary: "
         : "NewBar: ",
       prior,
       bar
     );
-    event.triggered() ? console.log(event.active()) : console.log("---");
+    event.isAnyEventActive() ? console.log(event.activeEvents()) : console.log("---");
   }
 }
 
@@ -356,14 +356,14 @@ export function PublishFractal(row: number) {
     fractal.max = Bar[0].high;
     fractal.maxTime = Bar[0].time;
 
-    event.set(Event.NewHigh, Alert.Minor);
+    event.setEvent(Event.NewHigh, Alert.Minor);
   }
 
   if (Bar[0].low < fractal.min) {
     fractal.min = Bar[0].low;
     fractal.minTime = Bar[0].time;
 
-    event.set(Event.NewLow, Alert.Minor);
+    event.setEvent(Event.NewLow, Alert.Minor);
   }
 
   if (row + 1 >= fractal.factor) {
@@ -437,7 +437,7 @@ export async function Update(instrument: Partial<IInstrument>) {
   initFractal(candles[0].low!, candles[0].high!, candles[0].time!, instrument.sma_factor!, instrument.digits!);
 
   candles.forEach((candle, row) => {
-    event.clear();
+    event.clearEvents();
 
     PublishBar(candle, row);
     PublishSMA(row);

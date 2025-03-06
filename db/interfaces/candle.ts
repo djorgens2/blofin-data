@@ -19,8 +19,8 @@ export interface ICandle extends RowDataPacket {
   quote_symbol: string;
   period: number;
   timeframe: string;
-  time: number;
   bar_time: Date;
+  timestamp: number;
   open: number;
   high: number;
   low: number;
@@ -55,9 +55,9 @@ export async function Publish(instrument: Partial<IInstrumentPeriod>, candle: IC
 
 export function Fetch(instrument: number, period: number) {
   return Select<ICandle>(
-    `SELECT time, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
+    `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
-     WHERE instrument = ?	AND period = ? ORDER BY	bar_time;`,
+     WHERE instrument = ?	AND period = ? ORDER BY	timestamp;`,
     [instrument, period]
   );
 }

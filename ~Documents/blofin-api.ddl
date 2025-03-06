@@ -46,7 +46,18 @@ CREATE TABLE
 			description VARCHAR(30) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+			units INT NOT NULL,
 			CONSTRAINT ak_period UNIQUE (timeframe)
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_as_cs;
+
+CREATE TABLE
+	blofin.trade_state (
+		trade_state BINARY(3) NOT NULL PRIMARY KEY,
+		state VARCHAR(10) NOT NULL,
+		description VARCHAR(30) CHARACTER
+		SET
+			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+			CONSTRAINT ak_trade_state UNIQUE (state)
 	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_as_cs;
 
 CREATE TABLE
@@ -56,11 +67,13 @@ CREATE TABLE
 		quote_currency BINARY(3) NOT NULL,
 		trade_period BINARY(3),
 		interval_period BINARY(3),
+		trade_state BINARY(3) DEFAULT (0x1697FE) NOT NULL,
 		CONSTRAINT ak_instrument UNIQUE (base_currency, quote_currency),
 		CONSTRAINT fk_i_base_currency FOREIGN KEY (base_currency) REFERENCES blofin.currency (currency) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		CONSTRAINT fk_i_interval_period FOREIGN KEY (interval_period) REFERENCES blofin.period (period) ON DELETE RESTRICT ON UPDATE RESTRICT,
 		CONSTRAINT fk_i_quote_currency FOREIGN KEY (quote_currency) REFERENCES blofin.currency (currency) ON DELETE NO ACTION ON UPDATE NO ACTION,
-		CONSTRAINT fk_i_trade_period FOREIGN KEY (trade_period) REFERENCES blofin.period (period) ON DELETE RESTRICT ON UPDATE RESTRICT
+		CONSTRAINT fk_i_trade_period FOREIGN KEY (trade_period) REFERENCES blofin.period (period) ON DELETE RESTRICT ON UPDATE RESTRICT,
+		CONSTRAINT fk_i_trade_state FOREIGN KEY (trade_state) REFERENCES blofin.trade_state (trade_state) ON DELETE NO ACTION ON UPDATE NO ACTION
 	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_i_quote_currency ON blofin.instrument (quote_currency);
@@ -96,7 +109,7 @@ CREATE TABLE
 	blofin.instrument_period (
 		instrument BINARY(3) NOT NULL,
 		period BINARY(3) NOT NULL,
-		data_collection_rate SMALLINT DEFAULT (0) NOT NULL,
+		data_collection_rate SMALLINT DEFAULT ('0') NOT NULL,
 		sma_factor SMALLINT DEFAULT ('0') NOT NULL,
 		CONSTRAINT pk_instrument_period PRIMARY KEY (instrument, period),
 		CONSTRAINT fk_ip_instrument FOREIGN KEY (instrument) REFERENCES blofin.instrument (instrument) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -137,7 +150,7 @@ SELECT
 	pt.period AS period,
 	pt.timeframe AS timeframe,
 	c.bar_time,
-	UNIX_TIMESTAMP (c.bar_time) AS time,
+	UNIX_TIMESTAMP (c.bar_time) AS timestamp,
 	c.open AS open,
 	c.high AS high,
 	c.low AS low,
@@ -441,10 +454,11 @@ SELECT
 	q.symbol AS quote_symbol,
 	tp.period AS trade_period,
 	tp.timeframe AS trade_timeframe,
+	tp.units AS units,
 	ti.period AS interval_period,
 	ti.timeframe AS interval_timeframe,
-	IFNULL (ip.data_collection_rate, 0) AS data_collection_rate,
-	IFNULL (ip.sma_factor, 0) AS sma_factor,
+	ip.data_collection_rate AS data_collection_rate,
+	ip.sma_factor AS sma_factor,
 	id.contract_value AS contract_value,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
@@ -459,6 +473,8 @@ SELECT
 	) + 1 AS digits,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
+	ts.trade_state AS trade_state,
+	ts.state AS state,
 	b.suspense AS suspense
 FROM
 	(
@@ -477,11 +493,13 @@ FROM
 		LEFT JOIN blofin.period ti ON ((i.interval_period = ti.period))
 	)
 	JOIN blofin.instrument_detail id
+	JOIN blofin.trade_state ts
 	JOIN blofin.currency b
 	JOIN blofin.currency q
 WHERE
 	(
 		(i.instrument = id.instrument)
+		AND (i.trade_state = ts.trade_state)
 		AND (i.base_currency = b.currency)
 		AND (i.quote_currency = q.currency)
 	);
@@ -497,28 +515,33 @@ SELECT
 	q.symbol AS quote_symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	ifnull (ip.data_collection_rate, 0) AS data_collection_rate,
-	ifnull (ip.sma_factor, 0) AS sma_factor,
-	length (
+	p.units AS units,
+	ip.data_collection_rate AS data_collection_rate,
+	ip.sma_factor AS sma_factor,
+	LENGTH (
 		substring_index (
 			cast(id.tick_size AS char charset utf8mb4),
 			'.',
 			- (1)
 		)
 	) + 1 AS digits,
+	ts.trade_state AS trade_state,
+	ts.state AS state,
 	b.suspense AS suspense
-from
+FROM
 	blofin.instrument i
-	join blofin.instrument_period ip
-	join blofin.period p
-	join blofin.instrument_detail id
-	join blofin.currency b
-	join blofin.currency q
-where
+	JOIN blofin.trade_state ts
+	JOIN blofin.instrument_period ip
+	JOIN blofin.period p
+	JOIN blofin.instrument_detail id
+	JOIN blofin.currency b
+	JOIN blofin.currency q
+WHERE
 	(
 		(i.instrument = ip.instrument)
-		and (i.instrument = id.instrument)
-		and (i.base_currency = b.currency)
-		and (i.quote_currency = q.currency)
-		and (ip.period = p.period)
+		AND (i.trade_state = ts.trade_state)
+		AND (i.instrument = id.instrument)
+		AND (i.base_currency = b.currency)
+		AND (i.quote_currency = q.currency)
+		AND (ip.period = p.period)
 	);

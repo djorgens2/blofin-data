@@ -1,0 +1,35 @@
+//+------------------------------------------------------------------+
+//|                                                   trade_state.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
+
+import { Modify, Select, UniqueKey } from "@db/query.utils";
+import { RowDataPacket } from "mysql2";
+
+const TradeState: Array<{ state: string, description: string; }> = [
+  {  state: "Enabled", description: "Enabled for trading" },
+  {  state: "Disabled", description: "Disabled from trading" },
+  {  state: "Halted", description: "Adverse event halt" },
+  {  state: "Suspended", description: "Suspended by broker" },
+];
+
+export interface ITradeState extends RowDataPacket {
+  trade_state: number;
+  state: string;
+  description: string;
+}
+
+export async function Publish(state: string, description: string): Promise<number> {
+  const key = UniqueKey(6);
+  const set = await Modify(`INSERT IGNORE INTO trade_state VALUES (UNHEX(?), ?, ?)`, [key, state, description]);
+  const get = await Select<ITradeState>("SELECT state FROM trade_state WHERE state = ?", [state]);
+
+  return get.length === 0 ? set.insertId : get[0].trade_state!;
+}
+
+export function Import() {
+  TradeState.forEach((state) => {
+    Publish(state.state, state.description);
+  });
+}

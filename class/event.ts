@@ -84,9 +84,9 @@ export class CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| set - Sets the triggering event and Alert level                  |
+  //| setEvent - Sets the triggering event and Alert level             |
   //+------------------------------------------------------------------+
-  set(event: Event, alert: Alert = Alert.Notify) {
+  setEvent(event: Event, alert: Alert = Alert.Notify) {
     if (event === Event.NoEvent) return;
 
     this.#Events[Event.NoEvent] = false;
@@ -102,9 +102,9 @@ export class CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| clear - ResetsInitializes all events to false                    |
+  //| clearEvents - Resets/Initializes all events to false             |
   //+------------------------------------------------------------------+
-  clear() {
+  clearEvents() {
     this.#Events.fill(false);
     this.#Alerts.fill(Alert.NoAlert);
 
@@ -115,13 +115,20 @@ export class CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| isSet - Returns true on Event for provided Alert condition       |
+  //| isEventActive - Returns Event:Alert state of the provided Event  |
   //+------------------------------------------------------------------+
-  isSet(setEvent: Event, setAlert: Alert = Alert.NoAlert): boolean {
+  isEventActive(setEvent: Event, setAlert: Alert = Alert.NoAlert): boolean {
     if (setAlert === Alert.NoAlert) return this.#Events[setEvent];
     if (this.#Events[setEvent] && this.#Alerts[setEvent] === setAlert) return this.#Events[setEvent];
 
     return false;
+  }
+
+  //+------------------------------------------------------------------+
+  //| isAnyEventActive - Returns true on any active event              |
+  //+------------------------------------------------------------------+
+  isAnyEventActive(): boolean {
+    return !this.#Events[Event.NoEvent];
   }
 
   //+------------------------------------------------------------------+
@@ -139,26 +146,26 @@ export class CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| triggered - Returns true on any active event                     |
+  //| eventText - Returns translated literal event text(key)           |
   //+------------------------------------------------------------------+
-  triggered(): boolean {
-    return !this.#Events[Event.NoEvent];
-  }
-
-  //+------------------------------------------------------------------+
-  //| text - Returns translated literal event text(key)                |
-  //+------------------------------------------------------------------+
-  text(event: Event): string {
+  eventText(event: Event): string {
     return this.#EventText[event];
   }
 
   //+------------------------------------------------------------------+
-  //| active - Returns an object of active {event, alert}              |
+  //| alertText - Returns translated literal alert text(key)           |
   //+------------------------------------------------------------------+
-  active(): Array<{ event: string; alert: string }> {
+  alertText(event: Event): string {
+    return this.#EventText[event];
+  }
+
+  //+------------------------------------------------------------------+
+  //| activeEvents - Returns an object of active {event, alert}        |
+  //+------------------------------------------------------------------+
+  activeEvents(): Array<{ event: string; alert: string }> {
     const activeEvents: Array<{ event: string; alert: string }> = [];
 
-    if (this.triggered()) {
+    if (this.isAnyEventActive()) {
       this.#Events.forEach((active, row) => {
         if (active) {
           activeEvents.push({ event: this.#EventText[row], alert: this.#AlertText[this.#Alerts[row]] });

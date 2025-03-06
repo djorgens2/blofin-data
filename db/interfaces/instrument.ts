@@ -2,10 +2,17 @@
 //|                                                    instrument.ts |
 //|                                 Copyright 2018, Dennis Jorgenson |
 //+------------------------------------------------------------------+
-"use strict"
+"use strict";
 
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
+
+export enum TradeState {
+  Enabled = 'Enabled',
+  Disabled = 'Disabled',
+  Halt = 'Halt',
+  Suspended = 'Suspended',
+}
 
 export interface IInstrument extends RowDataPacket {
   instrument: number;
@@ -33,7 +40,11 @@ export interface IInstrument extends RowDataPacket {
 
 export async function Publish(baseCurrency: number, quoteCurrency: number): Promise<number> {
   const key = UniqueKey(6);
-  const set = await Modify(`INSERT IGNORE INTO instrument (instrument, base_currency, quote_currency) VALUES (UNHEX(?),?,?)`, [key, baseCurrency, quoteCurrency]);
+  const set = await Modify(`INSERT IGNORE INTO instrument (instrument, base_currency, quote_currency) VALUES (UNHEX(?),?,?)`, [
+    key,
+    baseCurrency,
+    quoteCurrency,
+  ]);
   const get = await Select<IInstrument>("SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?", [baseCurrency, quoteCurrency]);
 
   return get.length === 0 ? set.insertId : get[0].instrument!;
@@ -51,12 +62,18 @@ export function FetchActive() {
   );
 }
 
-export function FetchInactive() {
+export function FetchState(state: TradeState) {
   return Select<IInstrument>(
-    `SELECT * FROM vw_instruments WHERE data_collection_rate = 0 AND suspense = false`, []);
+    `SELECT instrument, currency_pair, trade_period, trade_timeframe, sma_factor, data_collection_rate, digits
+       FROM vw_instruments WHERE state=? AND trade_period IS NOT NULL`,
+    [state]
+  );
 }
 
-export function FetchSuspense() {
-  return Select<IInstrument>(
-    `SELECT * FROM vw_instruments WHERE suspense = true`, []);
+export function FetchInactive() {
+  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE data_collection_rate = 0 AND suspense = false`, []);
+}
+
+export function FetchSuspended() {
+  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE suspense = true`, []);
 }

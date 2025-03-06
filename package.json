@@ -5,7 +5,7 @@
   "scripts": {
     "main": "npx tsx main > main.log",
     "test": "npx tsx ./test/modules/$TEST_SCRIPT",
-    "candle": "npx tsx ./candle.ts > candle.log"
+    "import": "npx tsx import.ts > import.log"
   },
   "keywords": [],
   "author": "",

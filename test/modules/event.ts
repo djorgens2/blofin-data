@@ -1,5 +1,5 @@
-import { EventType, AlertType } from "@app/event";
-import { SetEvent, ClearEvents, IsEventSet } from "@app/event";
+import { EventType, AlertType } from "@/class/event";
+import { SetEvent, ClearEvents, IsEventSet } from "@/class/event";
 
 console.log("Alert with type");
 SetEvent(EventType.NewBreakout, AlertType.Minor);

@@ -45,7 +45,7 @@ export function Fetch() {
 
 export function FetchActive() {
   return Select<IInstrumentPeriod>(
-    `SELECT instrument, currency_pair, period, timeframe, data_collection_rate, digits
+    `SELECT instrument, currency_pair, period, timeframe, units, data_collection_rate, digits
        FROM vw_instrument_periods WHERE data_collection_rate > 0 AND suspense = false`,
     []
   );

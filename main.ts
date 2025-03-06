@@ -1,11 +1,9 @@
-import * as Period from "@db/interfaces/period"
-import * as Instruments from "@api/instruments";
-import * as Candles from "@api/candles";
+//+------------------------------------------------------------------+
+//|                                                          main.ts |
+//|                                 Copyright 2018, Dennis Jorgenson |
+//+------------------------------------------------------------------+
+"use strict";
 
-import { ProcessUpdates } from "@/app/process";
+import { Start } from "@app/process";
 
-Period.Import();
-Instruments.Import();
-Candles.Import();
-
-ProcessUpdates();
+Start();

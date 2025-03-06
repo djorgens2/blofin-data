@@ -4,7 +4,7 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period"; 
+import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import * as Candle from "@db/interfaces/candle";
@@ -30,7 +30,7 @@ export interface IResult {
 //+------------------------------------------------------------------+
 //| Publish - Refresh candle data by instrument stored locally       |
 //+------------------------------------------------------------------+
-export function Publish(instrument: Partial<IInstrumentPeriod>, apiCandles: ICandleAPI[]) {
+export function Publish(instrument: Partial<IInstrumentPeriod>, apiCandles: Array<ICandleAPI>) {
   apiCandles.forEach(async (apiCandle) => {
     await Candle.Publish(instrument, apiCandle);
   });
@@ -42,7 +42,9 @@ export function Publish(instrument: Partial<IInstrumentPeriod>, apiCandles: ICan
 export async function Import() {
   const instruments = await InstrumentPeriod.FetchActive();
   instruments.forEach((instrument) => {
-    fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${instrument.data_collection_rate}&bar=${instrument.timeframe}`)
+    fetch(
+      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${instrument.data_collection_rate}&bar=${instrument.timeframe}`
+    )
       .then((response) => response.json())
       .then((result: IResult) => {
         const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
@@ -54,7 +56,7 @@ export async function Import() {
           vol: parseInt(field[5]),
           volCurrency: parseInt(field[6]),
           volCurrencyQuote: parseInt(field[7]),
-          confirm: Boolean(field[8]),
+          confirm: parseInt(field[8]) === 1,
         }));
 
         Publish(instrument, apiCandles);
