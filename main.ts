@@ -4,6 +4,7 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { Start } from "@app/process";
+import { Process } from "@app/process";
 
-Start();
+//-- this will loop at tight intervals
+Process();

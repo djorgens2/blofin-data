@@ -4,14 +4,17 @@
 //+------------------------------------------------------------------+
 "use strict";
 
+import { IInstrument } from "@/db/interfaces/instrument";
 import { Alert, Event } from "@class/event";
-import { CFractal } from "@class/fractal";
+import { CFractal, IBar } from "@class/fractal";
 
 export class COrder extends CFractal {
-    update () {
-        this.setEvent(Event.NewHigh, Alert.Critical);
-        console.log(this.activeEvents())
-    }
+  constructor(instrument: Partial<IInstrument>, bar: IBar) {
+    super(instrument!, bar);
+
+  }
+
+  update() {
+    this.updateFractal();
+  }
 }
-
-

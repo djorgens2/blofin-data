@@ -4,29 +4,49 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { TradeState } from "@/db/interfaces/instrument";
+import { COrder } from "@class/order";
+import { TradeState } from "@db/interfaces/instrument";
 
-import * as Instrument from "@/db/interfaces/instrument";
-import * as Fractal from "@app/fractal";
+import type { ICandle } from "@db/interfaces/candle";
+import type { IBar } from "@class/fractal";
+
+import * as Instrument from "@db/interfaces/instrument";
+import * as Candle from "@db/interfaces/candle";
+import { bias, direction } from "@/lib/std.util";
+
+const Order: Array<COrder> = [];
 
 //+------------------------------------------------------------------+
-//| ProcessUpdate - Main update process for trade metrics/indicators |
+//| Init - Instantiates order classes for each open trade instrument |
 //+------------------------------------------------------------------+
-export async function ProcessUpdates() {
-  const instruments = await Instrument.FetchActive();
+export async function Init() {
+  const instruments = await Instrument.FetchState(TradeState.Enabled);
 
-  instruments.forEach((instrument) => {
-    Fractal.Update(instrument);
+  instruments.forEach(async (instrument) => {
+    const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(instrument.instrument!, instrument.trade_period!);
+    const bar: IBar = {
+      time: candle.time!,
+      direction: direction(candle.close! - candle.open!),
+      lead: bias(direction(candle.close! - candle.open!)),
+      bias: bias(direction(candle.close! - candle.open!)),
+      open: candle.open!,
+      high: candle.high!,
+      low: candle.low!,
+      close: candle.close!,
+      volume: candle.volume!,
+    };
+    const order: COrder = new COrder(instrument, bar);
+    Order.push(order);
   });
 }
 
 //+------------------------------------------------------------------+
-//| Start - Main process for managing trade metrics and positions    |
+//| Process - Main processor; processes incoming ticks               |
 //+------------------------------------------------------------------+
-export async function Start() {
-  const instruments = await Instrument.FetchState(TradeState.Enabled);
+export async function Process() {
+  await Init();
 
-  instruments.forEach((instrument) => {
-    
+  Order.forEach((order) => {
+    order.update();
   });
 }

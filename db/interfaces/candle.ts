@@ -57,7 +57,25 @@ export function Fetch(instrument: number, period: number) {
   return Select<ICandle>(
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
-     WHERE instrument = ?	AND period = ? ORDER BY	timestamp;`,
+     WHERE instrument = ?	AND period = ? ORDER BY	timestamp`,
+    [instrument, period]
+  );
+}
+
+export function FetchTimestamp(instrument: number, period: number, timestamp: number) {
+  return Select<ICandle>(
+    `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
+     FROM vw_candles
+     WHERE instrument = ?	AND period = ? AND timestamp > ? ORDER BY timestamp`,
+    [instrument, period, timestamp]
+  );
+}
+
+export function FetchFirst(instrument: number, period: number) {
+  return Select<ICandle>(
+    `SELECT timestamp as start_time, open, high, low, close, volume, vol_currency, vol_currency_quote, completed FROM vw_candles
+     WHERE (instrument,period,timestamp) = (SELECT instrument,period,MIN(UNIX_TIMESTAMP(bar_time)) FROM candle WHERE instrument = ? AND period = ?
+     GROUP BY instrument, period)`,
     [instrument, period]
   );
 }

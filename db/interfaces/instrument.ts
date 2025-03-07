@@ -8,10 +8,10 @@ import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
 export enum TradeState {
-  Enabled = 'Enabled',
-  Disabled = 'Disabled',
-  Halt = 'Halt',
-  Suspended = 'Suspended',
+  Enabled = "Enabled",
+  Disabled = "Disabled",
+  Halt = "Halt",
+  Suspended = "Suspended",
 }
 
 export interface IInstrument extends RowDataPacket {
@@ -23,6 +23,7 @@ export interface IInstrument extends RowDataPacket {
   quote_symbol: string;
   trade_period: number;
   trade_timeframe: string;
+  units: number;
   interval_period: number;
   interval_timeframe: string;
   data_collection_rate: number;
@@ -35,6 +36,8 @@ export interface IInstrument extends RowDataPacket {
   digits: number;
   max_limit_size: number;
   max_market_size: number;
+  trade_state: number;
+  state: string;
   suspense: boolean;
 }
 
@@ -63,11 +66,7 @@ export function FetchActive() {
 }
 
 export function FetchState(state: TradeState) {
-  return Select<IInstrument>(
-    `SELECT instrument, currency_pair, trade_period, trade_timeframe, sma_factor, data_collection_rate, digits
-       FROM vw_instruments WHERE state=? AND trade_period IS NOT NULL`,
-    [state]
-  );
+  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE state=? AND trade_period IS NOT NULL`, [state]);
 }
 
 export function FetchInactive() {

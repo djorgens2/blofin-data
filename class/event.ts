@@ -56,9 +56,6 @@ export enum Event {
   NewHour,
 }
 
-export type Alerts = keyof typeof Alert;
-export type Events = keyof typeof Event;
-
 //+------------------------------------------------------------------+
 //| Class CEvent: stores private Event stack with access methods     |
 //+------------------------------------------------------------------+
@@ -76,8 +73,8 @@ export class CEvent {
   //| Event constructor                                                |
   //+------------------------------------------------------------------+
   constructor() {
-    let alert = Object.keys(Alert) as Alerts[];
-    let event = Object.keys(Event) as Events[];
+    let alert = Object.keys(Alert) as Array<keyof typeof Alert>;
+    let event = Object.keys(Event) as Array<keyof typeof Event>;
 
     this.#AlertText = alert.slice(alert.length / 2);
     this.#EventText = event.slice(event.length / 2);
