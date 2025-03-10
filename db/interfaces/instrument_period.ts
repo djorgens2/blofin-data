@@ -6,7 +6,7 @@
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { TradeState } from "@db/interfaces/instrument";
+import { TradeState } from "@db/interfaces/trade_state";
 
 export interface IInstrumentPeriod extends RowDataPacket {
   instrument: number;
@@ -17,6 +17,7 @@ export interface IInstrumentPeriod extends RowDataPacket {
   quote_symbol: string;
   period: number;
   timeframe: string;
+  timeframe_units: number;
   bulk_collection_rate: number;
   interval_collection_rate: number;
   sma_factor: number;
@@ -43,17 +44,21 @@ export async function Publish(): Promise<ResultSetHeader> {
   return set;
 }
 
-export function Fetch() {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods`, []);
+export function Fetch(instrument: number, period: number) {
+  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where instrument = ? AND period = ?`, [instrument, period]);
+}
+
+export function FetchSymbol(currency_pair: string, timeframe: string) {
+  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where currency_pair = ? AND period = ?`, [currency_pair, timeframe]);
 }
 
 export function FetchState(state: TradeState) {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instruments WHERE state = ?`, [state]);
+  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods WHERE state = ?`, [state]);
 }
 
 export function FetchActive() {
   return Select<IInstrumentPeriod>(
-    `SELECT instrument, currency_pair, period, timeframe, bulk_collection_rate, digits
+    `SELECT instrument, currency_pair, period, timeframe, bulk_collection_rate, digits 
        FROM vw_instrument_periods WHERE bulk_collection_rate > 0 AND suspense = false`,
     []
   );
@@ -61,8 +66,7 @@ export function FetchActive() {
 
 export function FetchInactive() {
   return Select<IInstrumentPeriod>(
-    `SELECT * FROM vw_instrument_periods
-      WHERE bulk_collection_rate = 0 AND suspense = false`,
+    `SELECT * FROM vw_instrument_periods WHERE bulk_collection_rate = 0 AND suspense = false`,
     []
   );
 }

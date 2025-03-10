@@ -7,12 +7,12 @@
 import { Modify, Select, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
-const TradeState: Array<{ state: string, description: string; }> = [
-  {  state: "Enabled", description: "Enabled for trading" },
-  {  state: "Disabled", description: "Disabled from trading" },
-  {  state: "Halted", description: "Adverse event halt" },
-  {  state: "Suspended", description: "Suspended by broker" },
-];
+export enum TradeState {
+  Enabled = "Enabled",
+  Disabled = "Disabled",
+  Halt = "Halt",
+  Suspended = "Suspended",
+}
 
 export interface ITradeState extends RowDataPacket {
   trade_state: number;
@@ -29,7 +29,14 @@ export async function Publish(state: string, description: string): Promise<numbe
 }
 
 export function Import() {
-  TradeState.forEach((state) => {
+  const TradeStates: Array<{ state: string, description: string; }> = [
+    {  state: "Enabled", description: "Enabled for trading" },
+    {  state: "Disabled", description: "Disabled from trading" },
+    {  state: "Halted", description: "Adverse event halt" },
+    {  state: "Suspended", description: "Suspended by broker" },
+  ];
+    
+  TradeStates.forEach((state) => {
     Publish(state.state, state.description);
   });
 }

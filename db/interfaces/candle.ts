@@ -4,7 +4,6 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { ICandleAPI } from "@/api/candles";
 
 import { Select, Modify } from "@db/query.utils";
@@ -31,13 +30,13 @@ export interface ICandle extends RowDataPacket {
   completed: boolean;
 }
 
-export async function Publish(instrument: Partial<IInstrumentPeriod>, candle: ICandleAPI): Promise<number> {
+export async function Publish(instrument: number, period: number, candle: ICandleAPI): Promise<number> {
   const set = await Modify(
     `REPLACE INTO candle SET instrument = ?, period = ?, bar_time = FROM_UNIXTIME(?/1000), open = ?, high = ?, low = ?, close = ?,
         volume = ?, vol_currency = ?, vol_currency_quote = ?, completed = ?`,
     [
-      instrument.instrument,
-      instrument.period,
+      instrument,
+      period,
       candle.ts,
       candle.open,
       candle.high,

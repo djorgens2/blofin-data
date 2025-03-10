@@ -30,9 +30,9 @@ export interface IResult {
 //+------------------------------------------------------------------+
 //| Publish - Refresh candle data by instrument stored locally       |
 //+------------------------------------------------------------------+
-export function Publish(instrument: Partial<IInstrumentPeriod>, apiCandles: Array<ICandleAPI>) {
+export function Publish(instrument: number, period: number, apiCandles: Array<ICandleAPI>) {
   apiCandles.forEach(async (apiCandle) => {
-    await Candle.Publish(instrument, apiCandle);
+    await Candle.Publish(instrument, period, apiCandle);
   });
 }
 
@@ -43,7 +43,7 @@ export async function BulkImport() {
   const instruments = await InstrumentPeriod.FetchActive();
   instruments.forEach((instrument) => {
     fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${instrument.bulk_collection_rate}&bar=${instrument.timeframe}`
+      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair!}&limit=${instrument.bulk_collection_rate!}&bar=${instrument.timeframe}`
     )
       .then((response) => response.json())
       .then((result: IResult) => {
@@ -59,7 +59,7 @@ export async function BulkImport() {
           confirm: parseInt(field[8]) === 1,
         }));
 
-        Publish(instrument, apiCandles);
+        Publish(instrument.instrument!, instrument.period!, apiCandles);
       });
   });
 }
@@ -67,10 +67,9 @@ export async function BulkImport() {
 //+------------------------------------------------------------------+
 //| Import - Retrieve api Candle, format, pass to publisher          |
 //+------------------------------------------------------------------+
-export async function IntervalImport(instrument: Partial<IInstrumentPeriod>) {
-    console.log(instrument)
+export async function IntervalImport(instrument: Partial<IInstrumentPeriod>, interval: number) {
     fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${instrument.intervalCollectionRate}&bar=${instrument.timeframe}`
+      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${interval}&bar=${instrument.timeframe}`
     )
       .then((response) => response.json())
       .then((result: IResult) => {
@@ -86,6 +85,6 @@ export async function IntervalImport(instrument: Partial<IInstrumentPeriod>) {
           confirm: parseInt(field[8]) === 1,
         }));
 
-        Publish(instrument, apiCandles);
+        Publish(instrument.instrument!, instrument.period!, apiCandles);
       });
   };

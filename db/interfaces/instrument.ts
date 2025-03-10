@@ -4,15 +4,9 @@
 //+------------------------------------------------------------------+
 "use strict";
 
+import { TradeState } from "@db/interfaces/trade_state";
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
-
-export enum TradeState {
-  Enabled = "Enabled",
-  Disabled = "Disabled",
-  Halt = "Halt",
-  Suspended = "Suspended",
-}
 
 export interface IInstrument extends RowDataPacket {
   instrument: number;
@@ -52,8 +46,12 @@ export async function Publish(baseCurrency: number, quoteCurrency: number): Prom
   return get.length === 0 ? set.insertId : get[0].instrument!;
 }
 
-export function Fetch() {
-  return Select<IInstrument>(`SELECT * FROM vw_instruments`, []);
+export function Fetch(instrument: number) {
+  return Select<IInstrument>(`SELECT * FROM vw_instruments where instrument = ?`, [instrument]);
+}
+
+export function FetchSymbol(currency_pair: string) {
+  return Select<IInstrument>(`SELECT * FROM vw_instruments where currency_pair = ?`, [currency_pair]);
 }
 
 export function FetchActive() {

@@ -143,10 +143,10 @@ export class CFractal extends CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| Publish - Main Update loop; processes bar, sma, fractal, events   |
+  //| Update - Main Update loop; processes bar, sma, fractal, events   |
   //+------------------------------------------------------------------+
-  async Publish() {
-    console.log('publishing')
+  async Update() {
+    console.log('Updating')
     const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.#Instrument.instrument!, this.#Instrument.trade_period!, this.#timestamp);
     console.log('data ready')
 

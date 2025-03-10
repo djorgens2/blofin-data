@@ -17,6 +17,6 @@ export class COrder extends CFractal {
   Process() {
     console.log(this.Instrument());
 
-    this.Publish();
+    this.Update();
   }
 }
