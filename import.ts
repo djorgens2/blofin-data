@@ -6,4 +6,4 @@ import * as Candles from "@api/candles";
 TradeState.Import();
 Period.Import();
 Instruments.Import();
-Candles.Import();
+Candles.BulkImport();

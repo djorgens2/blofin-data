@@ -6,6 +6,7 @@
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { TradeState } from "@db/interfaces/instrument";
 
 export interface IInstrumentPeriod extends RowDataPacket {
   instrument: number;
@@ -16,9 +17,12 @@ export interface IInstrumentPeriod extends RowDataPacket {
   quote_symbol: string;
   period: number;
   timeframe: string;
-  data_collection_rate: number;
+  bulk_collection_rate: number;
+  interval_collection_rate: number;
   sma_factor: number;
   digits: number;
+  trade_state: number;
+  state: string;
   suspense: boolean;
 }
 
@@ -43,10 +47,14 @@ export function Fetch() {
   return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods`, []);
 }
 
+export function FetchState(state: TradeState) {
+  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instruments WHERE state = ?`, [state]);
+}
+
 export function FetchActive() {
   return Select<IInstrumentPeriod>(
-    `SELECT instrument, currency_pair, period, timeframe, units, data_collection_rate, digits
-       FROM vw_instrument_periods WHERE data_collection_rate > 0 AND suspense = false`,
+    `SELECT instrument, currency_pair, period, timeframe, bulk_collection_rate, digits
+       FROM vw_instrument_periods WHERE bulk_collection_rate > 0 AND suspense = false`,
     []
   );
 }
@@ -54,7 +62,7 @@ export function FetchActive() {
 export function FetchInactive() {
   return Select<IInstrumentPeriod>(
     `SELECT * FROM vw_instrument_periods
-      WHERE data_collection_rate = 0 AND suspense = false`,
+      WHERE bulk_collection_rate = 0 AND suspense = false`,
     []
   );
 }

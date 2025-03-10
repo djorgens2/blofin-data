@@ -7,46 +7,49 @@
 import { COrder } from "@class/order";
 import { TradeState } from "@db/interfaces/instrument";
 
+import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { ICandle } from "@db/interfaces/candle";
 import type { IBar } from "@class/fractal";
 
-import * as Instrument from "@db/interfaces/instrument";
+import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import * as Candle from "@db/interfaces/candle";
-import { bias, direction } from "@/lib/std.util";
+import * as Candles from "@api/candles"
 
-const Order: Array<COrder> = [];
+export class CProcess {
+  #Order: Array<COrder> = [];
 
-//+------------------------------------------------------------------+
-//| Init - Instantiates order classes for each open trade instrument |
-//+------------------------------------------------------------------+
-export async function Init() {
-  const instruments = await Instrument.FetchState(TradeState.Enabled);
-
-  instruments.forEach(async (instrument) => {
-    const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(instrument.instrument!, instrument.trade_period!);
+  //+-----------------------------------------------------------------------+
+  //| LoadOrderArray - creates order classes by pair, loads array           |
+  //+-----------------------------------------------------------------------+
+  async LoadOrderArray(instrument: Partial<IInstrumentPeriod>, candle: Partial<ICandle>) {
     const bar: IBar = {
-      time: candle.time!,
-      direction: direction(candle.close! - candle.open!),
-      lead: bias(direction(candle.close! - candle.open!)),
-      bias: bias(direction(candle.close! - candle.open!)),
+      time: candle.start_time!,
       open: candle.open!,
       high: candle.high!,
       low: candle.low!,
       close: candle.close!,
       volume: candle.volume!,
+      completed: candle.completed!,
     };
     const order: COrder = new COrder(instrument, bar);
-    Order.push(order);
-  });
-}
+    this.#Order.unshift(order);
+  }
 
-//+------------------------------------------------------------------+
-//| Process - Main processor; processes incoming ticks               |
-//+------------------------------------------------------------------+
-export async function Process() {
-  await Init();
+  //+-----------------------------------------------------------------------+
+  //| Start - Loads order class array, syncs bar history, processes orders  |
+  //+-----------------------------------------------------------------------+
+  async Start() {
+    const instruments = await InstrumentPeriod.FetchState(TradeState.Enabled);
 
-  Order.forEach((order) => {
-    order.update();
-  });
+    instruments.forEach(async (instrument, row) => {
+      await Candles.IntervalImport(instrument!);
+      const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(instrument.instrument!, instrument.trade_period!);
+      await this.LoadOrderArray(instrument, candle);
+
+      this.#Order.forEach(async (order)=>{
+        await Candles.IntervalImport(instrument!);
+        order.Process();
+      })
+    });
+  }
 }

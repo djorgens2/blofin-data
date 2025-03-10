@@ -3,8 +3,14 @@
 //|                                 Copyright 2018, Dennis Jorgenson |
 //+------------------------------------------------------------------+
 "use strict";
+import * as Process from "@app/process";
+import { CProcess } from "@app/process";
 
-import { Process } from "@app/process";
+const app = new CProcess;
 
-//-- this will loop at tight intervals
-Process();
+app.Start();
+
+// Process.Initialize();
+
+// // //-- this will loop at tight intervals
+// Process.Update();

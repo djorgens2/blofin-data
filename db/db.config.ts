@@ -13,6 +13,7 @@ const pool = mysql.createPool({
   database: "blofin",
   connectionLimit: 10,
   maxIdle: 10,
+  connectTimeout: 100000,
 });
 
 // port: process.env.DB_PORT,

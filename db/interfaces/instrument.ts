@@ -23,10 +23,9 @@ export interface IInstrument extends RowDataPacket {
   quote_symbol: string;
   trade_period: number;
   trade_timeframe: string;
-  units: number;
-  interval_period: number;
-  interval_timeframe: string;
-  data_collection_rate: number;
+  timeframe_units: number;
+  bulk_collection_rate: number;
+  interval_collection_rate: number;
   sma_factor: number;
   contract_value: number;
   max_leverage: number;
@@ -66,7 +65,7 @@ export function FetchActive() {
 }
 
 export function FetchState(state: TradeState) {
-  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE state=? AND trade_period IS NOT NULL`, [state]);
+  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE state = ?`, [state]);
 }
 
 export function FetchInactive() {

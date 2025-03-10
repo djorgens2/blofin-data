@@ -42,6 +42,22 @@ export enum State {
   Channel, // Congruent Price Channel
 }
 
+export interface IBar {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  completed: boolean;
+}
+
+interface ITrend extends IBar {
+  direction: Direction;
+  lead: Bias;
+  bias: Bias;
+}
+
 interface IPoint {
   time: number;
   price: number;
@@ -57,40 +73,18 @@ interface IFractalPoint {
   Close: IPoint;
 }
 
-interface ITrend {
-  time: number;
+interface IFractal {
   direction: Direction;
   lead: Bias;
   bias: Bias;
-}
-
-export interface IBar extends ITrend {
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  state: State;
   volume: number;
-}
-
-interface IFractalPoint {
-  Origin: IPoint;
-  Base: IPoint;
-  Root: IPoint;
-  Expansion: IPoint;
-  Retrace: IPoint;
-  Recovery: IPoint;
-  Close: IPoint;
+  point: IFractalPoint;
 }
 
 interface IFibonacci {
   retrace: IMeasure;
   extension: IMeasure;
-}
-
-interface IFractal extends ITrend {
-  state: State;
-  volume: number;
-  point: IFractalPoint;
 }
 
 //+------------------------------------------------------------------+
@@ -99,7 +93,7 @@ interface IFractal extends ITrend {
 export class CFractal extends CEvent {
   //-- Data collections
   #Instrument: Partial<IInstrument>;
-  #Bar: IBar[] = [];
+  #Bar: ITrend[] = [];
   #SMA: IBar[] = [];
   #Fractal: IFractal;
 
@@ -124,7 +118,6 @@ export class CFractal extends CEvent {
     this.#sma_factor = this.#Instrument.sma_factor!;
     this.#digits = this.#Instrument.digits!;
     this.#Fractal = {
-      time: 0,
       direction: Direction.None,
       lead: Bias.None,
       bias: Bias.None,
@@ -141,19 +134,21 @@ export class CFractal extends CEvent {
       },
     };
 
-    this.#Bar.push(bar);
-    this.#bar = { min: this.#Bar[0].low, max: this.#Bar[0].high, retrace: this.#Bar[0].lead === Bias.Long ? this.#Bar[0].high : this.#Bar[0].low };
+    this.#timestamp = bar.time;
+    this.#bar = { min: bar.low, max: bar.high, retrace: bar.close > bar.open ? bar.high : bar.low };
     this.#sma = { open: 0, close: 0 };
-    this.#fractal = { min: this.#bar.min, max: this.#bar.max, minTime: this.#timestamp!, maxTime: this.#timestamp! };
+    this.#fractal = { min: bar.low, max: bar.high, minTime: bar.time, maxTime: bar.time };
 
-    console.log(this.#Instrument,this.#Bar,this.#bar,this.#Fractal, this.#fractal);
+    //console.log(bar, this.#Instrument, this.#Bar, this.#bar, this.#Fractal, this.#fractal);
   }
-  
+
   //+------------------------------------------------------------------+
-  //| Update - Main Update loop; processes bar, sma, fractal, events   |
+  //| Publish - Main Update loop; processes bar, sma, fractal, events   |
   //+------------------------------------------------------------------+
-  async updateFractal() {
-    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.#Instrument.instrument!, this.#Instrument.data_collection_rate!, this.#timestamp);
+  async Publish() {
+    console.log('publishing')
+    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.#Instrument.instrument!, this.#Instrument.trade_period!, this.#timestamp);
+    console.log('data ready')
 
     candles.forEach((candle, row) => {
       this.clearEvents();
@@ -163,4 +158,18 @@ export class CFractal extends CEvent {
       // PublishFractal(row);
     });
   }
+
+  //+------------------------------------------------------------------+
+  //| Instrument - returns instrument details                          |
+  //+------------------------------------------------------------------+
+   Instrument(): Array<string> {
+    return [this.#Instrument.currency_pair!, this.#Instrument.trade_timeframe!];
+  }
+
+  // bar.completed! && ();
+
+  // direction: direction(candle.close! - candle.open!),
+  // lead: bias(direction(candle.close! - candle.open!)),
+  // bias: bias(direction(candle.close! - candle.open!)),
+  // this.#Bar.push(bar);
 }

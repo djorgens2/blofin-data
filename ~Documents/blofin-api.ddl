@@ -43,10 +43,10 @@ CREATE TABLE
 		timeframe VARCHAR(3) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+			timeframe_units INT NOT NULL,
 			description VARCHAR(30) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
-			units INT NOT NULL,
 			CONSTRAINT ak_period UNIQUE (timeframe)
 	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_as_cs;
 
@@ -66,11 +66,9 @@ CREATE TABLE
 		base_currency BINARY(3) NOT NULL,
 		quote_currency BINARY(3) NOT NULL,
 		trade_period BINARY(3),
-		interval_period BINARY(3),
 		trade_state BINARY(3) DEFAULT (0x1697FE) NOT NULL,
 		CONSTRAINT ak_instrument UNIQUE (base_currency, quote_currency),
 		CONSTRAINT fk_i_base_currency FOREIGN KEY (base_currency) REFERENCES blofin.currency (currency) ON DELETE NO ACTION ON UPDATE NO ACTION,
-		CONSTRAINT fk_i_interval_period FOREIGN KEY (interval_period) REFERENCES blofin.period (period) ON DELETE RESTRICT ON UPDATE RESTRICT,
 		CONSTRAINT fk_i_quote_currency FOREIGN KEY (quote_currency) REFERENCES blofin.currency (currency) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		CONSTRAINT fk_i_trade_period FOREIGN KEY (trade_period) REFERENCES blofin.period (period) ON DELETE RESTRICT ON UPDATE RESTRICT,
 		CONSTRAINT fk_i_trade_state FOREIGN KEY (trade_state) REFERENCES blofin.trade_state (trade_state) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -79,8 +77,6 @@ CREATE TABLE
 CREATE INDEX fk_i_quote_currency ON blofin.instrument (quote_currency);
 
 CREATE INDEX fk_i_trade_period ON blofin.instrument (trade_period);
-
-CREATE INDEX fk_i_interval_period ON blofin.instrument (interval_period);
 
 CREATE TABLE
 	blofin.instrument_detail (
@@ -109,8 +105,9 @@ CREATE TABLE
 	blofin.instrument_period (
 		instrument BINARY(3) NOT NULL,
 		period BINARY(3) NOT NULL,
-		data_collection_rate SMALLINT DEFAULT ('0') NOT NULL,
-		sma_factor SMALLINT DEFAULT ('0') NOT NULL,
+		bulk_collection_rate SMALLINT DEFAULT (0) NOT NULL,
+		interval_collection_rate SMALLINT DEFAULT (0) NOT NULL,
+		sma_factor SMALLINT DEFAULT (0) NOT NULL,
 		CONSTRAINT pk_instrument_period PRIMARY KEY (instrument, period),
 		CONSTRAINT fk_ip_instrument FOREIGN KEY (instrument) REFERENCES blofin.instrument (instrument) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		CONSTRAINT fk_ip_period FOREIGN KEY (period) REFERENCES blofin.period (period) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -454,10 +451,17 @@ SELECT
 	q.symbol AS quote_symbol,
 	tp.period AS trade_period,
 	tp.timeframe AS trade_timeframe,
-	tp.units AS units,
-	ti.period AS interval_period,
-	ti.timeframe AS interval_timeframe,
-	ip.data_collection_rate AS data_collection_rate,
+	tp.timeframe_units AS timeframe_units,
+	ip.bulk_collection_rate AS bulk_collection_rate,
+	IF (
+		ip.bulk_collection_rate = 0,
+		0,
+		if (
+			ip.interval_collection_rate > 4,
+			ip.interval_collection_rate,
+			4
+		)
+	) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
 	id.contract_value AS contract_value,
 	id.max_leverage AS max_leverage,
@@ -490,7 +494,6 @@ FROM
 			)
 			LEFT JOIN blofin.period tp ON ((i.trade_period = tp.period))
 		)
-		LEFT JOIN blofin.period ti ON ((i.interval_period = ti.period))
 	)
 	JOIN blofin.instrument_detail id
 	JOIN blofin.trade_state ts
@@ -515,8 +518,9 @@ SELECT
 	q.symbol AS quote_symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	p.units AS units,
-	ip.data_collection_rate AS data_collection_rate,
+	p.timeframe_units AS timeframe_units,
+	ip.bulk_collection_rate AS bulk_collection_rate,
+    IF(ip.bulk_collection_rate=0, 0, if(ip.interval_collection_rate>4, ip.interval_collection_rate, 4)) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
 	LENGTH (
 		substring_index (
@@ -536,12 +540,23 @@ FROM
 	JOIN blofin.instrument_detail id
 	JOIN blofin.currency b
 	JOIN blofin.currency q
+	JOIN (
+	       SELECT ipts.instrument,
+                  ipts.period,
+                  IF(its.trade_period=ipts.period,its.trade_state,x'1697fe') AS trade_state
+             FROM
+                  blofin.instrument_period ipts
+             JOIN blofin.instrument its
+            WHERE ipts.instrument=its.instrument
+         ) tps
 WHERE
 	(
-		(i.instrument = ip.instrument)
-		AND (i.trade_state = ts.trade_state)
+		(ip.instrument=i.instrument)
+		AND (ip.period = p.period)
+		AND (ip.instrument = tps.instrument)
+		AND (ip.period= tps.period)
+		AND (tps.trade_state = ts.trade_state)
 		AND (i.instrument = id.instrument)
 		AND (i.base_currency = b.currency)
 		AND (i.quote_currency = q.currency)
-		AND (ip.period = p.period)
 	);
