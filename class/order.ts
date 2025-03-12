@@ -4,18 +4,20 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { IInstrument } from "@/db/interfaces/instrument";
+import type { ICandle } from "@/db/interfaces/candle";
+import type { IInstrument } from "@/db/interfaces/instrument";
+
 import { Alert, Event } from "@class/event";
-import { CFractal, IBar } from "@class/fractal";
+import { CFractal } from "@class/fractal";
 
 export class COrder extends CFractal {
-  constructor(instrument: Partial<IInstrument>, bar: IBar) {
-    super(instrument!, bar);
+  constructor(instrument: Partial<IInstrument>, candle: Partial<ICandle>) {
+    super(instrument!, candle!);
 
   }
 
   Process() {
-    console.log(this.Instrument());
+    console.log(this.Identification());
 
     this.Update();
   }

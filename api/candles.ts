@@ -67,24 +67,23 @@ export async function BulkImport() {
 //+------------------------------------------------------------------+
 //| Import - Retrieve api Candle, format, pass to publisher          |
 //+------------------------------------------------------------------+
-export async function IntervalImport(instrument: Partial<IInstrumentPeriod>, interval: number) {
-    fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair}&limit=${interval}&bar=${instrument.timeframe}`
-    )
-      .then((response) => response.json())
-      .then((result: IResult) => {
-        const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
-          ts: parseInt(field[0]),
-          open: parseFloat(field[1]),
-          high: parseFloat(field[2]),
-          low: parseFloat(field[3]),
-          close: parseFloat(field[4]),
-          vol: parseInt(field[5]),
-          volCurrency: parseInt(field[6]),
-          volCurrencyQuote: parseInt(field[7]),
-          confirm: parseInt(field[8]) === 1,
-        }));
+export function IntervalImport(instrument: Partial<IInstrumentPeriod>, interval: number) {
+  console.log(instrument.currency_pair!, ["Interval", interval]);
+  fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair!}&limit=${interval}&bar=${instrument.timeframe!}`)
+    .then((response) => response.json())
+    .then((result: IResult) => {
+      const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
+        ts: parseInt(field[0]),
+        open: parseFloat(field[1]),
+        high: parseFloat(field[2]),
+        low: parseFloat(field[3]),
+        close: parseFloat(field[4]),
+        vol: parseInt(field[5]),
+        volCurrency: parseInt(field[6]),
+        volCurrencyQuote: parseInt(field[7]),
+        confirm: parseInt(field[8]) === 1,
+      }));
 
-        Publish(instrument.instrument!, instrument.period!, apiCandles);
-      });
-  };
+      Publish(instrument.instrument!, instrument.period!, apiCandles);
+    });
+}

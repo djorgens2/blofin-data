@@ -60,14 +60,14 @@ export enum Event {
 //| Class CEvent: stores private Event stack with access methods     |
 //+------------------------------------------------------------------+
 export class CEvent {
-  #Events: Array<boolean> = new Array(Object.keys(Event).length / 2).fill(false);
-  #Alerts: Array<Alert> = new Array(Object.keys(Event).length / 2).fill(Alert.NoAlert);
+  private Event: Array<boolean> = new Array(Object.keys(Event).length / 2).fill(false);
+  private Alert: Array<Alert> = new Array(Object.keys(Event).length / 2).fill(Alert.NoAlert);
 
-  #MaxEvent: Event = Event.NoEvent;
-  #MaxAlert: Alert = Alert.NoAlert;
+  private MaxEvent: Event = Event.NoEvent;
+  private MaxAlert: Alert = Alert.NoAlert;
 
-  #EventText: string[];
-  #AlertText: string[];
+  private AlertText: string[];
+  private EventText: string[];
 
   //+------------------------------------------------------------------+
   //| Event constructor                                                |
@@ -76,8 +76,8 @@ export class CEvent {
     let alert = Object.keys(Alert) as Array<keyof typeof Alert>;
     let event = Object.keys(Event) as Array<keyof typeof Event>;
 
-    this.#AlertText = alert.slice(alert.length / 2);
-    this.#EventText = event.slice(event.length / 2);
+    this.AlertText = alert.slice(alert.length / 2);
+    this.EventText = event.slice(event.length / 2);
   }
 
   //+------------------------------------------------------------------+
@@ -86,37 +86,37 @@ export class CEvent {
   setEvent(event: Event, alert: Alert = Alert.Notify) {
     if (event === Event.NoEvent) return;
 
-    this.#Events[Event.NoEvent] = false;
-    this.#Events[event] = true;
-    this.#Alerts[event] = <Alert>Math.max(alert, this.#Alerts[event]);
+    this.Event[Event.NoEvent] = false;
+    this.Event[event] = true;
+    this.Alert[event] = <Alert>Math.max(alert, this.Alert[event]);
 
-    if (alert > this.#MaxAlert) {
-      this.#MaxEvent = event;
-      this.#MaxAlert = alert;
+    if (alert > this.MaxAlert) {
+      this.MaxEvent = event;
+      this.MaxAlert = alert;
     }
 
-    alert === this.#MaxAlert && (this.#MaxEvent = <Event>Math.max(event, this.#MaxEvent));
+    alert === this.MaxAlert && (this.MaxEvent = <Event>Math.max(event, this.MaxEvent));
   }
 
   //+------------------------------------------------------------------+
   //| clearEvents - Resets/Initializes all events to false             |
   //+------------------------------------------------------------------+
   clearEvents() {
-    this.#Events.fill(false);
-    this.#Alerts.fill(Alert.NoAlert);
+    this.Event.fill(false);
+    this.Alert.fill(Alert.NoAlert);
 
-    this.#Events[Event.NoEvent] = true;
+    this.Event[Event.NoEvent] = true;
 
-    this.#MaxEvent = Event.NoEvent;
-    this.#MaxAlert = Alert.NoAlert;
+    this.MaxEvent = Event.NoEvent;
+    this.MaxAlert = Alert.NoAlert;
   }
 
   //+------------------------------------------------------------------+
   //| isEventActive - Returns Event:Alert state of the provided Event  |
   //+------------------------------------------------------------------+
   isEventActive(setEvent: Event, setAlert: Alert = Alert.NoAlert): boolean {
-    if (setAlert === Alert.NoAlert) return this.#Events[setEvent];
-    if (this.#Events[setEvent] && this.#Alerts[setEvent] === setAlert) return this.#Events[setEvent];
+    if (setAlert === Alert.NoAlert) return this.Event[setEvent];
+    if (this.Event[setEvent] && this.Alert[setEvent] === setAlert) return this.Event[setEvent];
 
     return false;
   }
@@ -125,35 +125,35 @@ export class CEvent {
   //| isAnyEventActive - Returns true on any active event              |
   //+------------------------------------------------------------------+
   isAnyEventActive(): boolean {
-    return !this.#Events[Event.NoEvent];
+    return !this.Event[Event.NoEvent];
   }
 
   //+------------------------------------------------------------------+
   //| maxEvent - Returns MaxEvent active from last clearEvent call     |
   //+------------------------------------------------------------------+
   maxEvent(): Event {
-    return this.#MaxEvent;
+    return this.MaxEvent;
   }
 
   //+------------------------------------------------------------------+
   //| maxAlert - Returns MaxAlert active from last clearEvent call     |
   //+------------------------------------------------------------------+
   maxAlert(): Alert {
-    return this.#MaxAlert;
+    return this.MaxAlert;
   }
 
   //+------------------------------------------------------------------+
   //| eventText - Returns translated literal event text(key)           |
   //+------------------------------------------------------------------+
   eventText(event: Event): string {
-    return this.#EventText[event];
+    return this.EventText[event];
   }
 
   //+------------------------------------------------------------------+
   //| alertText - Returns translated literal alert text(key)           |
   //+------------------------------------------------------------------+
   alertText(event: Event): string {
-    return this.#EventText[event];
+    return this.EventText[event];
   }
 
   //+------------------------------------------------------------------+
@@ -163,9 +163,9 @@ export class CEvent {
     const activeEvents: Array<{ event: string; alert: string }> = [];
 
     if (this.isAnyEventActive()) {
-      this.#Events.forEach((active, row) => {
+      this.Event.forEach((active, row) => {
         if (active) {
-          activeEvents.push({ event: this.#EventText[row], alert: this.#AlertText[this.#Alerts[row]] });
+          activeEvents.push({ event: this.EventText[row], alert: this.AlertText[this.Alert[row]] });
         }
       });
 

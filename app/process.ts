@@ -10,49 +10,62 @@ import { TradeState } from "@db/interfaces/trade_state";
 import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { IInstrument } from "@db/interfaces/instrument";
 import type { ICandle } from "@db/interfaces/candle";
-import type { IBar } from "@class/fractal";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import * as Instrument from "@db/interfaces/instrument";
 import * as Candle from "@db/interfaces/candle";
-import * as Candles from "@api/candles"
 
+//+------------------------------------------------------------------------------------+
+//| CProcess - Order Processing Class/Container                                        |
+//+------------------------------------------------------------------------------------+
 export class CProcess {
-  #Order: Array<COrder> = [];
+  private Orders: Array<COrder> = [];
 
-  //+-----------------------------------------------------------------------+
-  //| LoadOrderArray - creates order classes by pair, loads array           |
-  //+-----------------------------------------------------------------------+
-  async LoadOrderArray(instrument: Partial<IInstrumentPeriod>, candle: Partial<ICandle>) {
-    const bar: IBar = {
-      time: candle.start_time!,
-      open: candle.open!,
-      high: candle.high!,
-      low: candle.low!,
-      close: candle.close!,
-      volume: candle.volume!,
-      completed: candle.completed!,
-    };
-    const order: COrder = new COrder(instrument, bar);
-    this.#Order.unshift(order);
+  //+------------------------------------------------------------------------------------+
+  //| Initialize - Loads order class array, bulk syncs bar history                       |
+  //+------------------------------------------------------------------------------------+
+  async Initialize(tradePeriod: Partial<IInstrumentPeriod>) {
+    const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(tradePeriod.instrument!, tradePeriod.period!);
+    const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch(tradePeriod.instrument!);
+    const order: COrder = new COrder(instrument, candle);
+    this.Orders.push(order);
   }
 
-  //+-----------------------------------------------------------------------+
-  //| Start - Loads order class array, syncs bar history, processes orders  |
-  //+-----------------------------------------------------------------------+
+  //+------------------------------------------------------------------------------------+
+  //| Ready - Returns true on Instrument found and ready for order processing            |
+  //+------------------------------------------------------------------------------------+
+  Ready(instrument: number, period: number): boolean {
+    this.Orders.forEach((order) => {
+      if (order.Exists(instrument, period)) return true;
+    });
+    return false;
+  }
+
+  //+------------------------------------------------------------------------------------+
+  //| Start - Loads order class array, syncs bar history, processes orders               |
+  //+------------------------------------------------------------------------------------+
   async Start() {
     const tradePeriods = await InstrumentPeriod.FetchState(TradeState.Enabled);
 
-    tradePeriods.forEach(async (tradePeriod, row) => {
-      await Candles.IntervalImport(tradePeriod!,tradePeriod.bulk_collection_rate!);
-      const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(tradePeriod.instrument!, tradePeriod.period!);
-      const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch(tradePeriod.instrument!)
-      await this.LoadOrderArray(instrument, candle);
-
-      this.#Order.forEach(async (order)=>{
-        await Candles.IntervalImport(tradePeriod!,tradePeriod.interval_collection_rate!);
-        order.Process();
-      })
+    tradePeriods.forEach((tradePeriod, order) => {
+      if (this.Ready(tradePeriod.instrument!, tradePeriod.period!)) {
+        //        Candles.IntervalImport(this.TradePeriod[row], this.TradePeriod[row].interval_collection_rate!);
+        this.Orders[order].Process();
+      } else {
+        //        Candles.IntervalImport(tradePeriod!, tradePeriod.bulk_collection_rate!);
+        this.Initialize(tradePeriod);
+      }
+    });
+    
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (this.Orders.length > 0) {
+          console.log('Ive got mail!',this.Orders.length);
+          resolve(`Processed: ${this.Orders.length}`);
+        } else {
+          reject(`Error processing orders`);
+        }
+      }, 500);
     });
   }
 }

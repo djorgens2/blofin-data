@@ -92,32 +92,38 @@ interface IFibonacci {
 //+------------------------------------------------------------------+
 export class CFractal extends CEvent {
   //-- Data collections
-  #Instrument: Partial<IInstrument>;
-  #Bar: ITrend[] = [];
-  #SMA: IBar[] = [];
-  #Fractal: IFractal;
+  private Instrument: Partial<IInstrument>;
+  private Bar: ITrend[] = [];
+  private SMA: IBar[] = [];
+  private Fractal: IFractal;
+
+  //-- Identification
+  private instrument:number;
+  private period: number;
 
   //-- Work variables
-  #bar: { min: number; max: number; retrace: number };
-  #sma: { open: number; close: number };
-  #fractal: { min: number; max: number; minTime: number; maxTime: number };
+  private bar: { min: number; max: number; retrace: number };
+  private sma: { open: number; close: number };
+  private fractal: { min: number; max: number; minTime: number; maxTime: number };
 
   //-- Properties
-  #timestamp: number = 0;
-  #sma_factor: number = 0;
-  #digits: number = 0;
-  #bars: number = 0;
+  private timestamp: number = 0;
+  private sma_factor: number = 0;
+  private digits: number = 0;
+  private bars: number = 0;
 
   //+------------------------------------------------------------------+
   //| Fractal constructor                                              |
   //+------------------------------------------------------------------+
-  constructor(instrument: Partial<IInstrument>, bar: IBar) {
+  constructor(instrument: Partial<IInstrument>, candle: Partial<ICandle>) {
     super();
 
-    this.#Instrument = structuredClone(instrument);
-    this.#sma_factor = this.#Instrument.sma_factor!;
-    this.#digits = this.#Instrument.digits!;
-    this.#Fractal = {
+    this.Instrument = structuredClone(instrument);
+    this.instrument = this.Instrument.instrument!;
+    this.period = this.Instrument.period!;
+    this.sma_factor = this.Instrument.sma_factor!;
+    this.digits = this.Instrument.digits!;
+    this.Fractal = {
       direction: Direction.None,
       lead: Bias.None,
       bias: Bias.None,
@@ -134,12 +140,12 @@ export class CFractal extends CEvent {
       },
     };
 
-    this.#timestamp = bar.time;
-    this.#bar = { min: bar.low, max: bar.high, retrace: bar.close > bar.open ? bar.high : bar.low };
-    this.#sma = { open: 0, close: 0 };
-    this.#fractal = { min: bar.low, max: bar.high, minTime: bar.time, maxTime: bar.time };
+    this.timestamp = candle.time;
+    this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
+    this.sma = { open: 0, close: 0 };
+    this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.time!, maxTime: candle.time! };
 
-    //console.log(bar, this.#Instrument, this.#Bar, this.#bar, this.#Fractal, this.#fractal);
+    console.log(candle!, this.Instrument, this.Bar, this.bar, this.Fractal, this.fractal);
   }
 
   //+------------------------------------------------------------------+
@@ -147,7 +153,7 @@ export class CFractal extends CEvent {
   //+------------------------------------------------------------------+
   async Update() {
     console.log('Updating')
-    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.#Instrument.instrument!, this.#Instrument.trade_period!, this.#timestamp);
+    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
     console.log('data ready')
 
     candles.forEach((candle, row) => {
@@ -160,10 +166,17 @@ export class CFractal extends CEvent {
   }
 
   //+------------------------------------------------------------------+
-  //| Instrument - returns instrument details                          |
+  //| Identification - returns instrument details                          |
   //+------------------------------------------------------------------+
-   Instrument(): Array<string> {
-    return [this.#Instrument.currency_pair!, this.#Instrument.trade_timeframe!];
+  Exists(instrument: number, period: number): boolean {
+    return instrument === this.instrument && period === this.period;
+  }
+
+  //+------------------------------------------------------------------+
+  //| Identification - returns instrument details                          |
+  //+------------------------------------------------------------------+
+  Identification(): Array<string> {
+    return [this.Instrument.currency_pair!, this.Instrument.trade_timeframe!];
   }
 
   // bar.completed! && ();
@@ -171,5 +184,5 @@ export class CFractal extends CEvent {
   // direction: direction(candle.close! - candle.open!),
   // lead: bias(direction(candle.close! - candle.open!)),
   // bias: bias(direction(candle.close! - candle.open!)),
-  // this.#Bar.push(bar);
+  // this.Bar.push(bar);
 }
