@@ -25,3 +25,8 @@ export async function Publish(symbol: string, suspense: boolean): Promise<number
 
   return get.length === 0 ? set.insertId : get[0].currency!;
 }
+
+export async function Symbol(currency: number): Promise<string> {
+  const [get]: Array<Partial<ICurrency>> = await Select<ICurrency>("SELECT symbol FROM currency WHERE currency = ?", [currency]);
+  return get.symbol!;
+}

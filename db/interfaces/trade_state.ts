@@ -7,7 +7,7 @@
 import { Modify, Select, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
-export enum TradeState {
+export enum State {
   Enabled = "Enabled",
   Disabled = "Disabled",
   Halt = "Halt",
@@ -23,7 +23,7 @@ export interface ITradeState extends RowDataPacket {
 export async function Publish(state: string, description: string): Promise<number> {
   const key = UniqueKey(6);
   const set = await Modify(`INSERT IGNORE INTO trade_state VALUES (UNHEX(?), ?, ?)`, [key, state, description]);
-  const get = await Select<ITradeState>("SELECT state FROM trade_state WHERE state = ?", [state]);
+  const get = await Select<ITradeState>("SELECT trade_state FROM trade_state WHERE state = ?", [state]);
 
   return get.length === 0 ? set.insertId : get[0].trade_state!;
 }
@@ -39,4 +39,13 @@ export function Import() {
   TradeStates.forEach((state) => {
     Publish(state.state, state.description);
   });
+}
+
+export function Fetch(tradeState: number) {
+  return Select<ITradeState>(`SELECT * FROM trade_state WHERE trade_state = ?`, [tradeState]);
+}
+
+export async function Key(state: State): Promise<number> {
+  const [tradeState] = await Select<ITradeState>("SELECT trade_state FROM trade_state WHERE state = ?", [state]);
+  return tradeState.trade_state!;
 }

@@ -5,10 +5,10 @@
 "use strict";
 
 export interface IMeasure {
-  min: number,
-  max: number,
-  now: number,
-};
+  min: number;
+  max: number;
+  now: number;
+}
 
 export const Direction = {
   None: 0,
@@ -55,6 +55,26 @@ export const splitSymbol = (symbol: string): string[] => {
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Returns a UIntArray on a valid hex value passed as a string|number; validates binary |
+//+--------------------------------------------------------------------------------------+
+export const hex = (key: string | number | object, length: number = 0): Uint8Array => {
+  const regex = /^\d+$/;
+  const bytes = [];
+
+  if (key instanceof Uint8Array) if (key.length === length || length === 0) return key;
+
+  let decimal: number =
+    typeof key === "number" ? key : typeof key === "string" ? (key.slice(0, 2) === "0x" ? parseInt(key, 16) : regex.test(key) ? parseInt(key) : 0) : 0;
+
+  while (decimal > 0) {
+    bytes.unshift(decimal % 256);
+    decimal = Math.floor(decimal / 256);
+  }
+
+  return new Uint8Array(bytes.length <= Math.abs(length) || length === 0 ? bytes : []);
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Returns the direction key derived from supplied value                                |
 //+--------------------------------------------------------------------------------------+
 export const bias = (direction: Direction): Bias => {
@@ -72,11 +92,11 @@ export const direction = (value: number): Direction => {
 //| Returns true on high value comparison and updates value if .update is set to true    |
 //+--------------------------------------------------------------------------------------+
 export const isBetween = (test: number, bound1: number, bound2: number, inclusive = true, digits: number = 8): boolean => {
-  const highBound:number = parseFloat(Math.max(bound1, bound2).toFixed(digits));
-  const lowBound:number = parseFloat(Math.min(bound1, bound2).toFixed(digits));
-  const check:number = parseFloat(test.toFixed(digits));
+  const highBound: number = parseFloat(Math.max(bound1, bound2).toFixed(digits));
+  const lowBound: number = parseFloat(Math.min(bound1, bound2).toFixed(digits));
+  const check: number = parseFloat(test.toFixed(digits));
 
-  if (!inclusive) return (check > lowBound && check < highBound);
+  if (!inclusive) return check > lowBound && check < highBound;
 
   return lowBound === check || highBound === check;
 };

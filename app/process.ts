@@ -5,7 +5,7 @@
 "use strict";
 
 import { COrder } from "@class/order";
-import { TradeState } from "@db/interfaces/trade_state";
+import { State } from "@db/interfaces/trade_state";
 
 import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { IInstrument } from "@db/interfaces/instrument";
@@ -45,14 +45,13 @@ export class CProcess {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start() {
-    const tradePeriods = await InstrumentPeriod.FetchState(TradeState.Enabled);
+    const tradePeriods = await InstrumentPeriod.FetchState(State.Enabled);
 
     tradePeriods.forEach((tradePeriod, order) => {
       if (this.Ready(tradePeriod.instrument!, tradePeriod.period!)) {
         //        Candles.IntervalImport(this.TradePeriod[row], this.TradePeriod[row].interval_collection_rate!);
         this.Orders[order].Process();
       } else {
-        //        Candles.IntervalImport(tradePeriod!, tradePeriod.bulk_collection_rate!);
         this.Initialize(tradePeriod);
       }
     });

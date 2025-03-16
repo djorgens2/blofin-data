@@ -25,6 +25,7 @@ export interface IInstrumentDetail extends RowDataPacket {
 }
 
 export async function Publish(instrument: number, instrumentType: number, contractType: number, apiInstrument: Partial<IInstrumentAPI>): Promise<number> {
+  console.log(instrument)
   const set = await Modify(
     `REPLACE INTO instrument_detail SET instrument = ?, instrument_type = ?, contract_type = ?, contract_value = ?, max_leverage = ?, min_size = ?, lot_size = ?,
         tick_size = ?, max_limit_size = ?, max_market_size = ?, list_time = FROM_UNIXTIME(?/1000), expiry_time = FROM_UNIXTIME(?/1000)`,

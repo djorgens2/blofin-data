@@ -43,7 +43,7 @@ export enum State {
 }
 
 export interface IBar {
-  time: number;
+  timestamp: number;
   open: number;
   high: number;
   low: number;
@@ -59,7 +59,7 @@ interface ITrend extends IBar {
 }
 
 interface IPoint {
-  time: number;
+  timestamp: number;
   price: number;
 }
 
@@ -130,20 +130,20 @@ export class CFractal extends CEvent {
       state: State.Breakout,
       volume: 0,
       point: {
-        Origin: { time: 0, price: 0 },
-        Base: { time: 0, price: 0 },
-        Root: { time: 0, price: 0 },
-        Expansion: { time: 0, price: 0 },
-        Retrace: { time: 0, price: 0 },
-        Recovery: { time: 0, price: 0 },
-        Close: { time: 0, price: 0 },
+        Origin: { timestamp: 0, price: 0 },
+        Base: { timestamp: 0, price: 0 },
+        Root: { timestamp: 0, price: 0 },
+        Expansion: { timestamp: 0, price: 0 },
+        Retrace: { timestamp: 0, price: 0 },
+        Recovery: { timestamp: 0, price: 0 },
+        Close: { timestamp: 0, price: 0 },
       },
     };
 
-    this.timestamp = candle.time;
+    this.timestamp = candle.timestamp!;
     this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
     this.sma = { open: 0, close: 0 };
-    this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.time!, maxTime: candle.time! };
+    this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.start_time!, maxTime: candle.start_time! };
 
     console.log(candle!, this.Instrument, this.Bar, this.bar, this.Fractal, this.fractal);
   }

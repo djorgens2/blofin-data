@@ -30,7 +30,7 @@ export interface ICandle extends RowDataPacket {
   completed: boolean;
 }
 
-export async function Publish(instrument: number, period: number, candle: ICandleAPI): Promise<number> {
+export async function Publish(instrument: number, period: number, candle: ICandleAPI) {
   const set = await Modify(
     `REPLACE INTO candle SET instrument = ?, period = ?, bar_time = FROM_UNIXTIME(?/1000), open = ?, high = ?, low = ?, close = ?,
         volume = ?, vol_currency = ?, vol_currency_quote = ?, completed = ?`,
@@ -49,7 +49,7 @@ export async function Publish(instrument: number, period: number, candle: ICandl
     ]
   );
 
-  return set.insertId;
+  return set.affectedRows;
 }
 
 export function Fetch(instrument: number, period: number) {
