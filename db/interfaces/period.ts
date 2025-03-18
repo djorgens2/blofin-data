@@ -1,11 +1,12 @@
-//+------------------------------------------------------------------+
-//|                                                        period.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                            period.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
+import { Select, Modify, UniqueKey } from "@db/query.utils";
+import { hex } from "@/lib/std.util";
 
 const Period: Array<{ timeframe: string; description: string; units: number }> = [
   { timeframe: "1m", description: "1 Minute", units: 1 },
@@ -26,22 +27,53 @@ const Period: Array<{ timeframe: string; description: string; units: number }> =
 ];
 
 export interface IPeriod extends RowDataPacket {
-  period: number;
+  period: Uint8Array;
   timeframe: string;
   description: string;
   units: number;
 }
 
-export async function Publish(timeframe: string, description: string, units: number): Promise<number> {
-  const key = UniqueKey(6);
-  const set = await Modify(`INSERT IGNORE INTO period VALUES (UNHEX(?), ?, ?, ?)`, [key, timeframe, description, units]);
-  const get = await Select<IPeriod>("SELECT period FROM period WHERE timeframe = ?", [timeframe]);
-
-  return get.length === 0 ? set.insertId : get[0].period!;
+export interface IKeyProps {
+  period?: Uint8Array;
+  timeframe?: string;
 }
 
+//+--------------------------------------------------------------------------------------+
+//| Imports period seed data to the database;                                            |
+//+--------------------------------------------------------------------------------------+
 export function Import() {
   Period.forEach((period) => {
     Publish(period.timeframe, period.description, period.units);
   });
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Adds all new contract types recieved from Blofin to the database;                    |
+//+--------------------------------------------------------------------------------------+
+export async function Publish(timeframe: string, description: string, units: number): Promise<Uint8Array> {
+  const period = await Key({ timeframe });
+
+  if (period === undefined) {
+    const key = hex(UniqueKey(6), 3);
+    await Modify(`INSERT INTO period VALUES (?, ?, ?, ?)`, [key, timeframe, description, units]);
+
+    return key;
+  }
+  return period;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Examines contract type search methods in props; executes first in priority sequence; |
+//+--------------------------------------------------------------------------------------+
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+  const args = [];
+
+  if (props.period) {
+    args.push(hex(props.period, 3), `SELECT period FROM period WHERE period = ?`);
+  } else if (props.timeframe) {
+    args.push(props.timeframe, `SELECT period FROM period WHERE timeframe = ?`);
+  } else return undefined;
+
+  const [key] = await Select<IPeriod>(args[1].toString(), [args[0]]);
+  return key === undefined ? undefined : key.period;
 }

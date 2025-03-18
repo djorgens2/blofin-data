@@ -1,31 +1,24 @@
-//+------------------------------------------------------------------+
-//|                                                    instrument.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                        instrument.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { State } from "@db/interfaces/trade_state";
-import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
-
-import * as Currency from "db/interfaces/currency";
-import * as TradeState from "@db/interfaces/trade_state";
+import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex, splitSymbol } from "@/lib/std.util";
+import { State } from "@db/interfaces/trade_state";
 
-export interface IKeyProps {
-  currencyPair?: string;
-  symbol?: Array<string>;
-  currency?: Array<number>;
-};
+import * as TradeState from "@db/interfaces/trade_state";
 
 export interface IInstrument extends RowDataPacket {
-  instrument: number;
+  instrument: Uint8Array;
   currency_pair: string;
-  base_currency: number;
+  base_currency: Uint8Array;
   base_symbol: string;
-  quote_currency: number;
+  quote_currency: Uint8Array;
   quote_symbol: string;
-  trade_period: number;
+  trade_period: Uint8Array;
   trade_timeframe: string;
   timeframe_units: number;
   bulk_collection_rate: number;
@@ -39,59 +32,69 @@ export interface IInstrument extends RowDataPacket {
   digits: number;
   max_limit_size: number;
   max_market_size: number;
-  trade_state: number;
+  trade_state: Uint8Array;
   state: string;
   suspense: boolean;
 }
 
-export async function Publish(baseCurrency: number, quoteCurrency: number): Promise<number> {
-  const [baseSymbol, quoteSymbol] = await Promise.all([Currency.Symbol(baseCurrency), Currency.Symbol(quoteCurrency)]);
-  const [instrument] = await Select<IInstrument>("SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?", [
-    baseCurrency,
-    quoteCurrency,
-  ]);
+export interface IKeyProps {
+  instrument?: Uint8Array;
+  currencyPair?: string;
+  symbol?: Array<string>;
+  currency?: Array<Uint8Array>;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Determines if instrument exists, if not, writes new to database; returns Key         |
+//+--------------------------------------------------------------------------------------+
+export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Array): Promise<Uint8Array> {
+  const instrument = await Key({ currency: [baseCurrency, quoteCurrency] });
 
   if (instrument === undefined) {
-    if (baseSymbol === undefined || quoteSymbol === undefined) return 0;
+    const key = hex(UniqueKey(6), 3);
+    const tradeState = await TradeState.Key({ state: State.Disabled });
 
-    const key = UniqueKey(6);
-    const tradeState = await TradeState.Key(State.Disabled);
-    const instrument = await Modify(`INSERT INTO instrument (instrument, base_currency, quote_currency, trade_state) VALUES (UNHEX(?), ?, ?, ?)`, [
+    await Modify(`INSERT INTO instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
       key,
       baseCurrency,
       quoteCurrency,
       tradeState,
     ]);
-
-    return instrument.insertId;
+    return key;
   }
-
-  return instrument.instrument!;
+  return instrument;
 }
 
-export function Fetch(instrument: number) {
+//+--------------------------------------------------------------------------------------+
+//| Examines instrument search methods in props; executes first in priority sequence;    |
+//+--------------------------------------------------------------------------------------+
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+  const args = [];
+
+  if (props.instrument) {
+    args.push(hex(props.instrument,3), `SELECT instrument FROM instrument WHERE instrument = ?`);
+  } else if (props.currency?.length === 2) {
+    args.push(hex(props.currency[0]), hex(props.currency[1]), `SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?`);
+  } else {
+    const symbol: Array<string> =
+      props.symbol?.length === 2 ? [props.symbol[0], props.symbol[1]] : props.currencyPair === undefined ? ["", ""] : splitSymbol(props.currencyPair);
+    args.push(symbol[0], symbol[1], `SELECT instrument FROM vw_instruments WHERE base_symbol = ? AND quote_symbol = ?`);
+  }
+
+  const [key] = await Select<IInstrument>(args[args.length-1].toString(), args.slice(0, args.length-1));
+  return key === undefined ? undefined : key.instrument;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieves all trading-related instrument detail by Key;                              |
+//+--------------------------------------------------------------------------------------+
+export function Fetch(instrument: Uint8Array) {
   return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE instrument = ?`, [instrument]);
 }
 
-export async function Key(props: IKeyProps): Promise<number> {
-  const args = [];
-
-  if (props.currency?.length === 2) {
-    args.push(hex(props.currency[0]),hex(props.currency[1]),`SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?`);
-  } else {
-    const symbol: Array<string> = props.symbol?.length === 2 ? [props.symbol[0], props.symbol[1]] : props.currencyPair === undefined ? ['',''] : splitSymbol(props.currencyPair!);
-    args.push(symbol[0],symbol[1],`SELECT instrument FROM vw_instruments WHERE base_symbol = ? AND quote_symbol = ?`);
-  }
-
-  const [key] = await Select<IInstrument>(args[2].toString(), args.slice(0,2));
-  // const [key] = await Select<IInstrument>(`SELECT instrument FROM vw_instruments WHERE base_symbol = ? AND quote_symbol = ?`, [symbol[0], symbol[1]]);
-  return key.instrument!;
-}
-
-export function Symbol(currency_pair: string) {
-  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE currency_pair = ?`, [currency_pair]);
-}
-
+//+--------------------------------------------------------------------------------------+
+//| Retrieves all instruments identified for bulk loading candle data;                   |
+//+--------------------------------------------------------------------------------------+
 export function FetchActive() {
   return Select<IInstrument>(
     `SELECT instrument, currency_pair, trade_period, trade_timeframe, sma_factor, data_collection_rate, digits

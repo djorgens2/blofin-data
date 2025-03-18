@@ -30,7 +30,7 @@ export interface IResult {
 //+------------------------------------------------------------------+
 //| Publish - Refresh candle data by instrument stored locally       |
 //+------------------------------------------------------------------+
-export function Publish(instrument: number, period: number, apiCandles: Array<ICandleAPI>) {
+export function Publish(instrument: Uint8Array, period: Uint8Array, apiCandles: Array<ICandleAPI>) {
   apiCandles.forEach(async (apiCandle) => {
     await Candle.Publish(instrument, period, apiCandle);
   });
@@ -67,8 +67,8 @@ export async function BulkImport() {
 //+------------------------------------------------------------------+
 //| Import - Retrieve api Candle, format, pass to publisher          |
 //+------------------------------------------------------------------+
-export function IntervalImport(instrument: Partial<IInstrumentPeriod>, interval: number) {
-  console.log(instrument.currency_pair!, ["Interval", interval]);
+export function IntervalImport(instrument: IInstrumentPeriod, interval: number) {
+  console.log(instrument.currency_pair, ["Interval", interval]);
   fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair!}&limit=${interval}&bar=${instrument.timeframe!}`)
     .then((response) => response.json())
     .then((result: IResult) => {
@@ -84,6 +84,6 @@ export function IntervalImport(instrument: Partial<IInstrumentPeriod>, interval:
         confirm: parseInt(field[8]) === 1,
       }));
 
-      Publish(instrument.instrument!, instrument.period!, apiCandles);
+      Publish(instrument.instrument, instrument.period, apiCandles);
     });
 }

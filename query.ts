@@ -1,18 +1,23 @@
 import * as Instrument from "./db/interfaces/instrument";
+import * as Contract from "./db/interfaces/contract_type";
+import * as Currency from "./db/interfaces/currency";
+import * as Type from "./db/interfaces/instrument_type";
+import * as Period from "./db/interfaces/period";
+import * as State from "./db/interfaces/trade_state";
+import * as Detail from "./db/interfaces/instrument_detail";
 
-function Example1() {
-  const jsonString = '{"name": "John Doe", "age": 30, "city": "New York"}';
-  const obj = JSON.parse(jsonString);
-
-  console.log(obj);
-  console.log(obj.name); // Output: John Doe
-  console.log(obj.age); // Output: 30
-  console.log(obj.city); // Output: New York
+enum Subject {
+  Instrument = "-i",
+  Contract = "-c",
+  Currency = "-$",
+  Type = '-t',
+  Period = "-p",
+  Detail = "-d",
+  State = "-s",
 }
 
-// script.js
 function parser<T>(arg: string): Partial<T> {
-  const obj:Partial<T> = {};
+  const obj: Partial<T> = {};
 
   try {
     const json = JSON.parse(arg);
@@ -22,33 +27,70 @@ function parser<T>(arg: string): Partial<T> {
       console.log(obj);
       return obj;
     }
-  } catch (error) {
-      const parts = arg.split("=");
-      if (parts.length === 2) {
-        const key = parts[0].trim();
-        const value = parts[1].trim();
-        obj[key] = value;            
-    };
-    return obj;
+  } catch (e) {
+    const parts = arg.split("=");
+    throw new Error('something jacked up');
+    // if (parts.length === 2) {
+    //   const key = parts[0].trim();
+    //   const value = parts[1].trim();
+    //   obj[key] = value;
+    // }
+    // return obj;
   }
-  
+
   return obj;
 }
 
-async function get<T>(props: T) {
-  const instrument = await Instrument.Key(props);
-  console.log("Fetch Instrument:", props, instrument);
+async function show(subject: string, args: string) {
+  console.log(subject, args);
+
+  switch (subject) {
+    case Subject.Instrument: {
+      const props: Instrument.IKeyProps = parser<Instrument.IKeyProps>(args);
+      const key = await Instrument.Key(props);
+      console.log("Fetch Instrument:", props, key);
+      break;
+    }
+    case Subject.Contract: {
+      const props: Contract.IKeyProps = parser<Contract.IKeyProps>(args); 
+      const key = await Contract.Key(props);
+      console.log("Fetch contract:", props, key);
+      break;
+    }
+    case Subject.Currency: {
+      const props: Currency.IKeyProps = parser<Currency.IKeyProps>(args); 
+      const key = await Currency.Key(props);
+      console.log("Fetch currency:", props, key);
+      break;
+    }
+    case Subject.Type: {
+      const props: Type.IKeyProps = parser<Type.IKeyProps>(args); 
+      const key = await Type.Key(props);
+      console.log("Fetch type:", props, key);
+      break;
+    }
+    case Subject.Period: {
+      const props: Period.IKeyProps = parser<Period.IKeyProps>(args); 
+      const key = await Period.Key(props);
+      console.log("Fetch period:", props, key);
+      break;
+    }
+    case Subject.State: {
+      const props: State.IKeyProps = parser<State.IKeyProps>(args); 
+      const key = await State.Key(props);
+      console.log("Fetch state:", props, key);
+      break;
+    }
+    case Subject.Detail: {
+      const props: Detail.IKeyProps = parser<Detail.IKeyProps>(args); 
+      const key = await Detail.Key(props);
+      console.log("Fetch detail:", props, key);
+      break;
+    }
+  }
 }
 
-Example1();
-const [cli_props] = process.argv.slice(2);
-get<Partial<Instrument.IKeyProps>>(parser<Partial<Instrument.IKeyProps>>(cli_props));
-//process.exit (0);
-      // Object.keys(parsed).forEach(key => {
-      // if (Array.isArray(parsed.key)) {
-      //   obj[key].forEach(item => obj[key].push(item))
+const [cli_subject] = process.argv.slice(2);
+const [cli_props] = process.argv.slice(3);
 
-      // } else if (Array.isArray(parsed.currency)) {
-      //   obj.currency = parsed.currency;
-      // }
-      // })
+show(cli_subject, cli_props);

@@ -6,23 +6,23 @@
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { TradeState } from "@db/interfaces/trade_state";
+import { State } from "@db/interfaces/trade_state";
 
 export interface IInstrumentPeriod extends RowDataPacket {
-  instrument: number;
+  instrument: Uint8Array;
   currency_pair: string;
-  base_currency: number;
+  base_currency: Uint8Array;
   base_symbol: string;
-  quote_currency: number;
+  quote_currency: Uint8Array;
   quote_symbol: string;
-  period: number;
+  period: Uint8Array;
   timeframe: string;
   timeframe_units: number;
   bulk_collection_rate: number;
   interval_collection_rate: number;
   sma_factor: number;
   digits: number;
-  trade_state: number;
+  trade_state: Uint8Array;
   state: string;
   suspense: boolean;
 }
@@ -52,7 +52,7 @@ export function FetchSymbol(currency_pair: string, timeframe: string) {
   return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where currency_pair = ? AND period = ?`, [currency_pair, timeframe]);
 }
 
-export function FetchState(state: TradeState) {
+export function FetchState(state: State) {
   return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods WHERE state = ?`, [state]);
 }
 

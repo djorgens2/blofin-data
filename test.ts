@@ -1,55 +1,87 @@
-import { CEvent, Event, Alert } from "@class/event";
+//----------------------------------- Instrument Type ------------------------------------------//
+// import { Publish } from "./db/interfaces/instrument_type";
 
-const event: CEvent = new CEvent();
-
-console.log(event);
-
-event.setEvent(Event.NewHour, Alert.Major);
-event.setEvent(Event.NewHigh, Alert.Nominal);
-event.setEvent(Event.NewBoundary, Alert.Minor);
-event.setEvent(Event.NewLow, Alert.Minor);
-event.setEvent(Event.NewOutsideBar, Alert.Major);
-
-console.log(event.eventText(Event.NewDay));
-console.log(event.activeEvents());
-
-// function somePromise() {
-//     return new Promise((resolve, reject) => {
-//       setTimeout(() => {
-//         const success = Math.random() < 0.8; // Simulate success or failure randomly
-//         if (success) {
-//           resolve('Operation completed successfully');
-//         } else {
-//           reject('Operation failed');
-//         }
-//       }, 1000);
-//     });
+// async function awaitingsolong() {
+//   async function insert(sourceRef: string) {
+//     const key = await Publish(sourceRef);
+//     console.log(key);
+//     return key;
 //   }
-  
-// async function myAsyncFunction() {
-//     try {
-//       const result = await somePromise();
-//       // This code runs after somePromise() resolves
-//       console.log('Promise resolved with:', result);
-//       return result; // Optionally return the result
-//     } catch (error) {
-//       // This code runs if somePromise() rejects
-//       console.error('Promise rejected with:', error);
-//       throw error; // Re-throw the error to propagate it further if needed
-//     } finally {
-//       // This code always runs after the try/catch block, regardless of the Promise's outcome
-//       console.log('Finally block executed');
-//     }
+//   const key = await insert('Linear');
+// }
+
+// awaitingsolong();
+
+//------------------------------------- Currency Type ------------------------------------------//
+// import { Publish } from "./db/interfaces/currency";
+
+// async function awaitingsolong() {
+//   async function insert(symbol: string) {
+//     const key = await Publish(symbol, false);
+//     console.log(key);
+//     return key;
 //   }
-  
-//   async function runAsyncFunction() {
-//     try {
-//       const finalResult = await myAsyncFunction();
-//       console.log('myAsyncFunction completed successfully with:', finalResult);
-//     } catch (error) {
-//        console.error('myAsyncFunction failed with:', error);
-//     }
+//   const key = await insert('BMT');
+// }
+
+// awaitingsolong();
+
+// //--------------------------------- Contract Type ------------------------------------------//
+// import { Publish } from "./db/interfaces/contract_type";
+
+// async function awaitingsolong() {
+//   async function insert(sourceRef: string) {
+//     const key = await Publish(sourceRef);
+//     console.log(key);
+//     return key;
 //   }
-  
-//   runAsyncFunction(); // Call the async function to start the process
-  
+//   const key = await insert('SWAP');
+// }
+
+// awaitingsolong();
+
+//--------------------------------- Trade State ------------------------------------------//
+// import { Key, State } from "./db/interfaces/trade_state";
+
+// async function awaitingsolong() {
+//   async function test() {
+//     const key = await Key(State.Disabled);
+//     return key;
+//   }
+//   const key = await test();
+//   console.log(key);
+// }
+
+// awaitingsolong();
+
+//----------------------------- Unique hex Key ------------------------------------------//
+// import { UniqueKey } from "./db/query.utils"; 
+// import { hex } from "./lib/std.util";
+
+// const key = UniqueKey(6);
+// const key2 = hex(key,3);
+// console.log(key, key.length, key2)
+
+// const key3 = hex(UniqueKey(6),3);
+
+// console.log(key, key.length, key2, key3)
+
+//----------------------------- Instrument Import ---------------------------------------//
+import { Import } from "./api/instruments";
+Import();
+
+//----------------------------- Event Triggers ------------------------------------------//
+// import { CEvent, Event, Alert } from "@class/event";
+// const event: CEvent = new CEvent();
+
+// console.log(event);
+
+// event.setEvent(Event.NewHour, Alert.Major);
+// event.setEvent(Event.NewHigh, Alert.Nominal);
+// event.setEvent(Event.NewBoundary, Alert.Minor);
+// event.setEvent(Event.NewLow, Alert.Minor);
+// event.setEvent(Event.NewOutsideBar, Alert.Major);
+
+// console.log(event.eventText(Event.NewDay));
+// console.log(event.activeEvents());
+

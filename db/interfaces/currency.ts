@@ -1,32 +1,56 @@
-//+------------------------------------------------------------------+
-//|                                                      currency.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                          currency.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
+import { Select, Modify, UniqueKey } from "@db/query.utils";
+import { hex } from "@/lib/std.util";
 
 export interface ICurrency extends RowDataPacket {
-  currency: number;
+  currency: Uint8Array;
   symbol: string;
   image_url: string;
   suspense: boolean;
 }
 
-export async function Publish(symbol: string, suspense: boolean): Promise<number> {
-  const key = UniqueKey(6);
-  const set = await Modify(
-    `INSERT INTO currency (currency, symbol, image_url, suspense) 
-        VALUES (UNHEX(?), ?, './public/images/currency/no-image.png', ?) ON DUPLICATE KEY UPDATE suspense = ?`,
-    [key, symbol, suspense, suspense]
-  );
-  const get = await Select<ICurrency>("SELECT currency FROM currency WHERE symbol = ?", [symbol]);
-
-  return get.length === 0 ? set.insertId : get[0].currency!;
+export interface IKeyProps {
+  currency?: Uint8Array;
+  symbol?: string;
 }
 
-export async function Symbol(currency: number): Promise<string> {
-  const [get]: Array<Partial<ICurrency>> = await Select<ICurrency>("SELECT symbol FROM currency WHERE currency = ?", [currency]);
-  return get.symbol!;
+//+--------------------------------------------------------------------------------------+
+//| Adds all new currencies recieved from Blofin to the database; defaults image         |
+//+--------------------------------------------------------------------------------------+
+export async function Publish(symbol: string, suspense: boolean): Promise<Uint8Array> {
+  const currency = await Key({ symbol });
+
+  if (currency === undefined) {
+    const key = hex(UniqueKey(6),3);
+    const defaultImage: string = './public/images/currency/no-image.png';
+
+    await Modify(
+      `INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`,
+      [key, symbol, defaultImage, suspense]
+    );
+    return key;
+  }
+  return currency;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Examines currency search methods in props; executes first in priority sequence;      |
+//+--------------------------------------------------------------------------------------+
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+  const args = [];
+
+  if (props.currency) {
+    args.push(hex(props.currency, 3), `SELECT currency FROM currency WHERE currency = ?`);
+  } else if (props.symbol) {
+    args.push(props.symbol, `SELECT currency FROM currency WHERE symbol = ?`);
+  } else return undefined;
+
+  const [key] = await Select<ICurrency>(args[1].toString(), [args[0]]);
+  return key === undefined ? undefined : key.currency;
 }

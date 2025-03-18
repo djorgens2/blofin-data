@@ -35,18 +35,5 @@ export async function Modify(query: string, fields: Array<any>): Promise<ResultS
 
 export const UniqueKey = (length: number): string => {
   const nanoid = customAlphabet("0123456789abcdef", length);
-  return nanoid();
+  return "0x".concat(nanoid());
 };
-
-//-- Work-in-Progress
-// export const UniqueHexKey = (length: number): Uint8Array => {
-//   const nanoid = customAlphabet("0123456789abcdef", length);
-//   const hexCode:string = nanoid();
-//   const binaryLength = Math.ceil(length/2)
-//   const binary = new Uint8Array(
-//     for (let i = 0; i < 3; i++) {
-//       binary[i] = parseInt(hexCode.substring(i * 2, (i + 1) * 2), 16);
-//     }
-  
-//     return { hexCode, binary };
-// };

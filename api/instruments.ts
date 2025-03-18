@@ -1,10 +1,10 @@
-//+------------------------------------------------------------------+
-//|                                                   instruments.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                       instruments.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { splitSymbol } from "@/lib/std.util";
+import { hex, splitSymbol } from "@/lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Currency from "@db/interfaces/currency";
@@ -17,6 +17,8 @@ export interface IInstrumentAPI {
   instId: string;
   baseCurrency: string;
   quoteCurrency: string;
+  instType: string;
+  contractType: string;
   contractValue: number;
   listTime: number;
   expireTime: number;
@@ -24,8 +26,6 @@ export interface IInstrumentAPI {
   minSize: number;
   lotSize: number;
   tickSize: number;
-  instType: string;
-  contractType: string;
   maxLimitSize: number;
   maxMarketSize: number;
   state: string;
@@ -37,9 +37,9 @@ export interface IResult {
   data: IInstrumentAPI[];
 }
 
-//+------------------------------------------------------------------+
-//| Publish - Updates Instruments, related elements stored locally   |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//| Publish - Updates Instruments, related elements stored locally                       |
+//+--------------------------------------------------------------------------------------+
 export function Publish(apiInstruments: IInstrumentAPI[]) {
   apiInstruments.forEach(async (apiInstrument) => {
     const symbol: string[] = splitSymbol(apiInstrument.instId);
@@ -57,9 +57,9 @@ export function Publish(apiInstruments: IInstrumentAPI[]) {
   InstrumentPeriod.Publish();
 }
 
-//+------------------------------------------------------------------+
-//| Import - Retrieve api Instrument, pass to publisher              |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//| Import - Retrieve api Instrument, pass to publisher                                  |
+//+--------------------------------------------------------------------------------------+
 export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then((response) => response.json())

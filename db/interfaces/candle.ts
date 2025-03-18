@@ -10,13 +10,13 @@ import { Select, Modify } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
 export interface ICandle extends RowDataPacket {
-  instrument: number;
+  instrument: Uint8Array;
   instrument_pair: string;
-  base_currency: number;
+  base_currency: Uint8Array;
   base_symbol: string;
-  quote_currency: number;
+  quote_currency: Uint8Array;
   quote_symbol: string;
-  period: number;
+  period: Uint8Array;
   timeframe: string;
   bar_time: Date;
   timestamp: number;
@@ -30,7 +30,7 @@ export interface ICandle extends RowDataPacket {
   completed: boolean;
 }
 
-export async function Publish(instrument: number, period: number, candle: ICandleAPI) {
+export async function Publish(instrument: Uint8Array, period: Uint8Array, candle: ICandleAPI) {
   const set = await Modify(
     `REPLACE INTO candle SET instrument = ?, period = ?, bar_time = FROM_UNIXTIME(?/1000), open = ?, high = ?, low = ?, close = ?,
         volume = ?, vol_currency = ?, vol_currency_quote = ?, completed = ?`,
@@ -48,8 +48,6 @@ export async function Publish(instrument: number, period: number, candle: ICandl
       candle.confirm,
     ]
   );
-
-  return set.affectedRows;
 }
 
 export function Fetch(instrument: number, period: number) {
