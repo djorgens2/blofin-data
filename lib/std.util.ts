@@ -89,7 +89,7 @@ export const direction = (value: number): Direction => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on high value comparison and updates value if .update is set to true    |
+//| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
 //+--------------------------------------------------------------------------------------+
 export const isBetween = (test: number, bound1: number, bound2: number, inclusive = true, digits: number = 8): boolean => {
   const highBound: number = parseFloat(Math.max(bound1, bound2).toFixed(digits));
@@ -99,4 +99,14 @@ export const isBetween = (test: number, bound1: number, bound2: number, inclusiv
   if (!inclusive) return check > lowBound && check < highBound;
 
   return lowBound === check || highBound === check;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns true on equal comparison at a specified precision                            |
+//+--------------------------------------------------------------------------------------+
+export const isEqual = (test: number | string, check: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof test === 'string' ? parseFloat(test).toFixed(digits) : test.toFixed(digits);
+  const arg2: string = typeof check === 'string' ? parseFloat(check).toFixed(digits) : check.toFixed(digits);
+
+  return arg1 === arg2;
 };

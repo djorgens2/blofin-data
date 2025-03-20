@@ -1,3 +1,18 @@
+//----------------------------------- Instrument diffs ------------------------------------------//
+        //   local.instrument_type !== api[instrument].instType && console.log(local.instrument_type !== api[instrument].instType);
+        //   local.contract_type !== api[instrument].contractType && console.log(local.contract_type !== api[instrument].contractType);
+        //   !isEqual(local.contract_value!,api[instrument].contractValue) && console.log(local.contract_value, api[instrument].contractValue);
+        //   !isEqual(local.list_timestamp!,api[instrument].listTime / 1000) && console.log(local.list_timestamp, api[instrument].listTime / 1000);
+        //   !isEqual(local.expiry_timestamp!,api[instrument].expireTime / 1000) && console.log(local.expire_timestamp, api[instrument].expireTime / 1000);
+        //   !isEqual(local.max_leverage!,api[instrument].maxLeverage) && console.log(local.max_leverage, api[instrument].maxLeverage);
+        //   !isEqual(local.min_size!,api[instrument].minSize) && console.log(local.min_size, api[instrument].minSize);
+        //   !isEqual(local.lot_size!,api[instrument].lotSize) && console.log(local.lot_size, api[instrument].lotSize);
+        //   !isEqual(local.tick_size!,api[instrument].tickSize) && console.log(local.tick_size, api[instrument].tickSize);
+        //   !isEqual(local.max_limit_size!,api[instrument].maxLimitSize) && console.log(local.max_limit_size, api[instrument].maxLimitSize);
+        //   !isEqual(local.max_market_size!,api[instrument].maxMarketSize) && console.log(local.max_market_size, api[instrument].maxMarketSize);
+        //   (local.suspense === (api[instrument].state === "live")) && console.log(local.suspense,api[instrument].state);
+
+
 //----------------------------------- Instrument Type ------------------------------------------//
 // import { Publish } from "./db/interfaces/instrument_type";
 
@@ -7,7 +22,7 @@
 //     console.log(key);
 //     return key;
 //   }
-//   const key = await insert('Linear');
+//   const key = await insert('Linea``r');
 // }
 
 // awaitingsolong();

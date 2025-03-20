@@ -27,13 +27,10 @@ export async function Publish(symbol: string, suspense: boolean): Promise<Uint8A
   const currency = await Key({ symbol });
 
   if (currency === undefined) {
-    const key = hex(UniqueKey(6),3);
-    const defaultImage: string = './public/images/currency/no-image.png';
+    const key = hex(UniqueKey(6), 3);
+    const defaultImage: string = "./public/images/currency/no-image.png";
 
-    await Modify(
-      `INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`,
-      [key, symbol, defaultImage, suspense]
-    );
+    await Modify(`INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`, [key, symbol, defaultImage, suspense]);
     return key;
   }
   return currency;
@@ -53,4 +50,21 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 
   const [key] = await Select<ICurrency>(args[1].toString(), [args[0]]);
   return key === undefined ? undefined : key.currency;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
+//+--------------------------------------------------------------------------------------+
+export async function Suspend(suspensions: Array<IKeyProps>) {
+  for (const suspense of suspensions) {
+    const args = [];
+
+    if (suspense.currency) {
+      args.push(suspense.currency, `UPDATE currency SET suspense = true WHERE currency = ?`);
+    } else if (suspense.symbol) {
+      args.push(suspense.symbol, `UPDATE currency SET suspense = true WHERE symbol = ?`);
+    } else return;
+
+    await Modify(args[1].toString(), [args[0]]);
+  }
 }

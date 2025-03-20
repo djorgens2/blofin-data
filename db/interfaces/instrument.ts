@@ -9,6 +9,7 @@ import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex, splitSymbol } from "@/lib/std.util";
 import { State } from "@db/interfaces/trade_state";
 
+import * as Currency from "@db/interfaces/currency";
 import * as TradeState from "@db/interfaces/trade_state";
 
 export interface IInstrument extends RowDataPacket {
@@ -18,6 +19,8 @@ export interface IInstrument extends RowDataPacket {
   base_symbol: string;
   quote_currency: Uint8Array;
   quote_symbol: string;
+  instrument_type: string;
+  contract_type: string;
   trade_period: Uint8Array;
   trade_timeframe: string;
   timeframe_units: number;
@@ -32,6 +35,10 @@ export interface IInstrument extends RowDataPacket {
   digits: number;
   max_limit_size: number;
   max_market_size: number;
+  list_time: Date;
+  list_timestamp: number;
+  expiry_time: Date;
+  expiry_timestamp: number;
   trade_state: Uint8Array;
   state: string;
   suspense: boolean;
@@ -72,7 +79,7 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   const args = [];
 
   if (props.instrument) {
-    args.push(hex(props.instrument,3), `SELECT instrument FROM instrument WHERE instrument = ?`);
+    args.push(hex(props.instrument, 3), `SELECT instrument FROM instrument WHERE instrument = ?`);
   } else if (props.currency?.length === 2) {
     args.push(hex(props.currency[0]), hex(props.currency[1]), `SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?`);
   } else {
@@ -81,15 +88,22 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
     args.push(symbol[0], symbol[1], `SELECT instrument FROM vw_instruments WHERE base_symbol = ? AND quote_symbol = ?`);
   }
 
-  const [key] = await Select<IInstrument>(args[args.length-1].toString(), args.slice(0, args.length-1));
+  const [key] = await Select<IInstrument>(args[args.length - 1].toString(), args.slice(0, args.length - 1));
   return key === undefined ? undefined : key.instrument;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieves all trading-related instrument detail by Key;                              |
+//| Retrieves all trading-related instrument details by Key;                              |
 //+--------------------------------------------------------------------------------------+
 export function Fetch(instrument: Uint8Array) {
   return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE instrument = ?`, [instrument]);
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieves all instruments including details;                                         |
+//+--------------------------------------------------------------------------------------+
+export function FetchAll() {
+  return Select<IInstrument>(`SELECT * FROM vw_instruments`, []);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -101,4 +115,24 @@ export function FetchActive() {
        FROM vw_instruments WHERE data_collection_rate > 0 AND suspense = false`,
     []
   );
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
+//+--------------------------------------------------------------------------------------+
+export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
+  const state = await TradeState.Key({ state: "Suspended" });
+
+  for (const suspense of suspensions) {
+    const args = [state];
+
+    if (suspense.currency) {
+      args.push(hex(suspense.currency));
+    } else if (suspense.symbol) {
+      const currency = await Currency.Key({ symbol: suspense.symbol });
+      args.push(currency);
+    } else return;
+
+    await Modify(`UPDATE instrument SET trade_state = ? WHERE base_currency = ?`, args);
+  }
 }

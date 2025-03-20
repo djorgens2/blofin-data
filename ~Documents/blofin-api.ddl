@@ -43,17 +43,17 @@ CREATE TABLE
 		timeframe VARCHAR(3) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
-			timeframe_units INT NOT NULL,
 			description VARCHAR(30) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
+			timeframe_units INT NOT NULL,
 			CONSTRAINT ak_period UNIQUE (timeframe)
 	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_as_cs;
 
 CREATE TABLE
 	blofin.trade_state (
 		trade_state BINARY(3) NOT NULL PRIMARY KEY,
-		state VARCHAR(10) NOT NULL,
+		state VARCHAR(10) COLLATE utf8mb4_0900_as_cs NOT NULL,
 		description VARCHAR(30) CHARACTER
 		SET
 			utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL,
@@ -78,12 +78,14 @@ CREATE INDEX fk_i_quote_currency ON blofin.instrument (quote_currency);
 
 CREATE INDEX fk_i_trade_period ON blofin.instrument (trade_period);
 
+CREATE INDEX fk_i_trade_state ON blofin.instrument (trade_state);
+
 CREATE TABLE
 	blofin.instrument_detail (
 		instrument BINARY(3) NOT NULL PRIMARY KEY,
 		instrument_type BINARY(3) NOT NULL,
 		contract_type BINARY(3) NOT NULL,
-		contract_value DECIMAL(13, 2) NOT NULL,
+		contract_value DECIMAL(17, 5) NOT NULL,
 		max_leverage INT NOT NULL,
 		min_size DECIMAL(5, 3) NOT NULL,
 		lot_size DECIMAL(5, 3) NOT NULL,
@@ -105,9 +107,9 @@ CREATE TABLE
 	blofin.instrument_period (
 		instrument BINARY(3) NOT NULL,
 		period BINARY(3) NOT NULL,
-		bulk_collection_rate SMALLINT DEFAULT (0) NOT NULL,
+		bulk_collection_rate SMALLINT DEFAULT ('0') NOT NULL,
+		sma_factor SMALLINT DEFAULT ('0') NOT NULL,
 		interval_collection_rate SMALLINT DEFAULT (0) NOT NULL,
-		sma_factor SMALLINT DEFAULT (0) NOT NULL,
 		CONSTRAINT pk_instrument_period PRIMARY KEY (instrument, period),
 		CONSTRAINT fk_ip_instrument FOREIGN KEY (instrument) REFERENCES blofin.instrument (instrument) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		CONSTRAINT fk_ip_period FOREIGN KEY (period) REFERENCES blofin.period (period) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -449,6 +451,8 @@ SELECT
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
 	q.symbol AS quote_symbol,
+	it.source_ref AS instrument_type,
+	ct.source_ref AS contract_type,
 	tp.period AS trade_period,
 	tp.timeframe AS trade_timeframe,
 	tp.timeframe_units AS timeframe_units,
@@ -477,35 +481,30 @@ SELECT
 	) + 1 AS digits,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
+	id.list_time AS list_time,
+	UNIX_TIMESTAMP (id.list_time) AS list_timestamp,
+	id.expiry_time AS expiry_time,
+	UNIX_TIMESTAMP (id.expiry_time) AS expiry_timestamp,
 	ts.trade_state AS trade_state,
 	ts.state AS state,
 	b.suspense AS suspense
 FROM
-	(
-		(
-			(
-				blofin.instrument i
-				LEFT JOIN blofin.instrument_period ip ON (
-					(
-						(i.trade_period = ip.period)
-						AND (i.instrument = ip.instrument)
-					)
-				)
-			)
-			LEFT JOIN blofin.period tp ON ((i.trade_period = tp.period))
-		)
+	blofin.instrument i
+	LEFT JOIN blofin.instrument_period ip ON (
+		i.trade_period = ip.period
+		AND i.instrument = ip.instrument
 	)
-	JOIN blofin.instrument_detail id
+	LEFT JOIN blofin.instrument_detail id ON (i.instrument = id.instrument)
+	LEFT JOIN blofin.instrument_type it ON (id.instrument_type = it.instrument_type)
+	LEFT JOIN blofin.contract_type ct ON (id.contract_type = ct.contract_type)
+	LEFT JOIN blofin.period tp ON ((i.trade_period = tp.period))
 	JOIN blofin.trade_state ts
 	JOIN blofin.currency b
 	JOIN blofin.currency q
 WHERE
-	(
-		(i.instrument = id.instrument)
-		AND (i.trade_state = ts.trade_state)
-		AND (i.base_currency = b.currency)
-		AND (i.quote_currency = q.currency)
-	);
+	(i.trade_state = ts.trade_state)
+	AND (i.base_currency = b.currency)
+	AND (i.quote_currency = q.currency);
 
 CREATE
 OR REPLACE VIEW blofin.vw_instrument_periods AS
@@ -520,7 +519,15 @@ SELECT
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	ip.bulk_collection_rate AS bulk_collection_rate,
-    IF(ip.bulk_collection_rate=0, 0, if(ip.interval_collection_rate>4, ip.interval_collection_rate, 4)) AS interval_collection_rate,
+	IF (
+		ip.bulk_collection_rate = 0,
+		0,
+		if (
+			ip.interval_collection_rate > 4,
+			ip.interval_collection_rate,
+			4
+		)
+	) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
 	LENGTH (
 		substring_index (
@@ -541,20 +548,26 @@ FROM
 	JOIN blofin.currency b
 	JOIN blofin.currency q
 	JOIN (
-	       SELECT ipts.instrument,
-                  ipts.period,
-                  IF(its.trade_period=ipts.period,its.trade_state,x'1697fe') AS trade_state
-             FROM
-                  blofin.instrument_period ipts
-             JOIN blofin.instrument its
-            WHERE ipts.instrument=its.instrument
-         ) tps
+		SELECT
+			ipts.instrument,
+			ipts.period,
+			IF (
+				its.trade_period = ipts.period,
+				its.trade_state,
+				x'1697fe'
+			) AS trade_state
+		FROM
+			blofin.instrument_period ipts
+			JOIN blofin.instrument its
+		WHERE
+			ipts.instrument = its.instrument
+	) tps
 WHERE
 	(
-		(ip.instrument=i.instrument)
+		(ip.instrument = i.instrument)
 		AND (ip.period = p.period)
 		AND (ip.instrument = tps.instrument)
-		AND (ip.period= tps.period)
+		AND (ip.period = tps.period)
 		AND (tps.trade_state = ts.trade_state)
 		AND (i.instrument = id.instrument)
 		AND (i.base_currency = b.currency)

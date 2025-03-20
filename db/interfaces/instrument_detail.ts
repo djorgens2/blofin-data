@@ -11,6 +11,8 @@ import { Modify, Select } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
+import * as ContractType from "@db/interfaces/contract_type";
+import * as InstrumentType from "@db/interfaces/instrument_type";
 
 export interface IInstrumentDetail extends RowDataPacket {
   instrument: Uint8Array;
@@ -79,7 +81,7 @@ export async function Publish(
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Performs a lookup on instrument_detail; returns key if present                       |
+//| Performs a lookup on instrument_detail; returns key if instrument detail exists      |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   const args = [];
@@ -90,4 +92,46 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 
   const [key] = await Select<IInstrumentDetail>(args[1].toString(), [args[0]]);
   return key === undefined ? undefined : key.instrument;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Updates instrument detail on all identified changes                                  |
+//+--------------------------------------------------------------------------------------+
+export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
+  for (const update of updates) {
+    const contractType = await ContractType.Key({ sourceRef: update.contractType });
+    const instrumentType = await InstrumentType.Key({ sourceRef: update.instType });
+
+    if (update.instrument) {
+      await Modify(
+        `UPDATE instrument_detail 
+            SET instrument_type = ?,
+                contract_type = ?,
+                contract_value = ?,
+                max_leverage = ?,
+                min_size = ?,
+                lot_size = ?,
+                tick_size = ?,
+                max_limit_size = ?,
+                max_market_size = ?,
+                list_time = FROM_UNIXTIME(?/1000),
+                expiry_time = FROM_UNIXTIME(?/1000)
+          WHERE instrument = ?`,
+        [
+          instrumentType,
+          contractType,
+          update.contractValue,
+          update.maxLeverage,
+          update.minSize,
+          update.lotSize,
+          update.tickSize,
+          update.maxLimitSize,
+          update.maxMarketSize,
+          update.listTime,
+          update.expireTime,
+          update.instrument,
+        ]
+      );
+    }
+  }
 }
