@@ -50,7 +50,7 @@ export async function Publish(instrument: Uint8Array, period: Uint8Array, candle
   );
 }
 
-export function Fetch(instrument: number, period: number) {
+export function Fetch(instrument: Uint8Array, period: Uint8Array) {
   return Select<ICandle>(
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
@@ -59,7 +59,7 @@ export function Fetch(instrument: number, period: number) {
   );
 }
 
-export function FetchTimestamp(instrument: number, period: number, timestamp: number) {
+export function FetchTimestamp(instrument: Uint8Array, period: Uint8Array, timestamp: number) {
   return Select<ICandle>(
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
@@ -68,7 +68,7 @@ export function FetchTimestamp(instrument: number, period: number, timestamp: nu
   );
 }
 
-export function FetchFirst(instrument: number, period: number) {
+export function FetchFirst(instrument: Uint8Array, period: Uint8Array) {
   return Select<ICandle>(
     `SELECT timestamp as start_time, open, high, low, close, volume, vol_currency, vol_currency_quote, completed FROM vw_candles
      WHERE (instrument,period,timestamp) = (SELECT instrument,period,MIN(UNIX_TIMESTAMP(bar_time)) FROM candle WHERE instrument = ? AND period = ?

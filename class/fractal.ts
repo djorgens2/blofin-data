@@ -98,8 +98,8 @@ export class CFractal extends CEvent {
   private Fractal: IFractal;
 
   //-- Identification
-  private instrument:number;
-  private period: number;
+  private instrument:Uint8Array;
+  private period: Uint8Array;
 
   //-- Work variables
   private bar: { min: number; max: number; retrace: number };
@@ -168,7 +168,7 @@ export class CFractal extends CEvent {
   //+------------------------------------------------------------------+
   //| Identification - returns instrument details                          |
   //+------------------------------------------------------------------+
-  Exists(instrument: number, period: number): boolean {
+  Exists(instrument: Uint8Array, period: Uint8Array): boolean {
     return instrument === this.instrument && period === this.period;
   }
 

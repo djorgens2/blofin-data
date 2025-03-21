@@ -46,9 +46,9 @@ export interface IInstrument extends RowDataPacket {
 
 export interface IKeyProps {
   instrument?: Uint8Array;
+  currency?: Uint8Array | Array<Uint8Array>;
   currencyPair?: string;
-  symbol?: Array<string>;
-  currency?: Array<Uint8Array>;
+  symbol?: string | Array<string>;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -73,22 +73,36 @@ export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Arra
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Examines instrument search methods in props; executes first in priority sequence;    |
+//| Returns instrument by search method in props; executes search in priority sequence;  |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
-  const args = [];
+export async function Key<T extends IKeyProps>(props: T): Promise<Uint8Array | undefined> {
+  const keys: Array<Uint8Array | string> = [];
+  const filters: Array<string> = [];
+
+  let sql = `SELECT instrument FROM vw_instruments`;
 
   if (props.instrument) {
-    args.push(hex(props.instrument, 3), `SELECT instrument FROM instrument WHERE instrument = ?`);
-  } else if (props.currency?.length === 2) {
-    args.push(hex(props.currency[0]), hex(props.currency[1]), `SELECT instrument FROM instrument WHERE base_currency = ? AND quote_currency = ?`);
+    keys.push(hex(props.instrument, 3));
+    filters.push(`instrument`);
+  } else if (props.currency) {
+    Array.isArray(props.currency)
+      ? keys.push(hex(props.currency[0], 3), hex(props.currency.length > 1 ? props.currency[1] : 0, 3))
+      : keys.push(hex(props.currency, 3));
+    keys.length === 2 ? filters.push(`base_currency`, `quote_currency`) : filters.push(`base_currency`);
   } else {
-    const symbol: Array<string> =
-      props.symbol?.length === 2 ? [props.symbol[0], props.symbol[1]] : props.currencyPair === undefined ? ["", ""] : splitSymbol(props.currencyPair);
-    args.push(symbol[0], symbol[1], `SELECT instrument FROM vw_instruments WHERE base_symbol = ? AND quote_symbol = ?`);
+    props.currencyPair && (props.symbol = splitSymbol(props.currencyPair));
+    if (props.symbol) {
+      Array.isArray(props.symbol) ? keys.push(props.symbol[0], props.symbol.length > 1 ? props.symbol[1] : "USDT") : keys.push(props.symbol);
+      keys.length === 2 ? filters.push(`base_symbol`, `quote_symbol`) : filters.push(`base_symbol`);
+    }
   }
 
-  const [key] = await Select<IInstrument>(args[args.length - 1].toString(), args.slice(0, args.length - 1));
+  filters.forEach((filter, position) => {
+    sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
+  });
+
+  console.log(sql, keys, filters);
+  const [key] = await Select<IInstrument>(sql, keys);
   return key === undefined ? undefined : key.instrument;
 }
 

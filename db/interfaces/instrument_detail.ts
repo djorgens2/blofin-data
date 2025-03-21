@@ -42,7 +42,7 @@ export async function Publish(
   contractType: Uint8Array,
   api: IInstrumentAPI
 ): Promise<Uint8Array | undefined> {
-  const key = await Instrument.Key({ instrument });
+  const key = await Instrument.Key<IKeyProps>({ instrument });
   const confirm = await Key({ instrument });
 
   if (key === undefined) return key;

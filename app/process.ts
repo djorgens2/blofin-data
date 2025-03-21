@@ -34,7 +34,7 @@ export class CProcess {
   //+------------------------------------------------------------------------------------+
   //| Ready - Returns true on Instrument found and ready for order processing            |
   //+------------------------------------------------------------------------------------+
-  Ready(instrument: number, period: number): boolean {
+  Ready(instrument: Uint8Array, period: Uint8Array): boolean {
     this.Orders.forEach((order) => {
       if (order.Exists(instrument, period)) return true;
     });
@@ -45,7 +45,7 @@ export class CProcess {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start() {
-    const tradePeriods = await InstrumentPeriod.FetchState(State.Enabled);
+    const tradePeriods = await InstrumentPeriod.Fetch({state: State.Enabled });
 
     tradePeriods.forEach((tradePeriod, order) => {
       if (this.Ready(tradePeriod.instrument!, tradePeriod.period!)) {

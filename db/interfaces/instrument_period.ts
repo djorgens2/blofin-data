@@ -1,12 +1,16 @@
-//+------------------------------------------------------------------+
-//|                                             instrument_period.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                 instrument_period.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { State } from "@db/interfaces/trade_state";
+import { hex, copy } from "@/lib/std.util";
+
+import * as Instrument from "@db/interfaces/instrument";
+import * as Period from "@db/interfaces/period";
+import * as State from "@db/interfaces/trade_state";
 
 export interface IInstrumentPeriod extends RowDataPacket {
   instrument: Uint8Array;
@@ -27,8 +31,22 @@ export interface IInstrumentPeriod extends RowDataPacket {
   suspense: boolean;
 }
 
+export interface IKeyProps {
+  instrument?: Uint8Array;
+  currency?: Uint8Array;
+  currencyPair?: string;
+  symbol?: string;
+  period?: Uint8Array;
+  timeframe?: string;
+  tradeState?: Uint8Array;
+  state?: string;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Adds new/missing instrument periods;                                                 |
+//+--------------------------------------------------------------------------------------+
 export async function Publish(): Promise<ResultSetHeader> {
-  const set = await Modify(
+  const result = await Modify(
     `INSERT INTO instrument_period (instrument, period)
        SELECT missing.instrument, missing.period
          FROM instrument_period ip
@@ -41,36 +59,47 @@ export async function Publish(): Promise<ResultSetHeader> {
     []
   );
 
-  return set;
+  return result;
 }
 
-export function Fetch(instrument: number, period: number) {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where instrument = ? AND period = ?`, [instrument, period]);
+//+--------------------------------------------------------------------------------------+
+//| Examine instrument period search methods in props; return keys in priority sequence; |
+//+--------------------------------------------------------------------------------------+
+export async function Key<T extends IKeyProps>(props: T, limit: number = 1): Promise<Array<Uint8Array> | undefined> {
+  const key: IKeyProps = {};
+  const filter = [];
+  const args = [];
+
+  key.instrument = await Instrument.Key<IKeyProps>(props);
+  key.period = await Period.Key<IKeyProps>(props);
+  key.tradeState = await State.Key<IKeyProps>(props);
+
+  key.instrument && (filter.push(`instrument = ?`));
+  key.period && (filter.push(`period = ?`));
+  key.tradeState && (filter.push(`trade_state = ?`));
+
+  const results = await Select<IInstrumentPeriod>(`select instrument from instrument_period where bulk_collection_rate > 0`, []);
+  const keys: Array<Uint8Array> = []; 
+  
+  results.forEach((result) => keys.push(result.instrument!));
+
+  return keys === undefined ? undefined : keys.slice(0,limit);
 }
 
-export function FetchSymbol(currency_pair: string, timeframe: string) {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where currency_pair = ? AND period = ?`, [currency_pair, timeframe]);
+//+--------------------------------------------------------------------------------------+
+//| Fetch one instrument period for the provided instrument;                             |
+//+--------------------------------------------------------------------------------------+
+export function Fetch<T extends IKeyProps>(props: T) {
+  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where instrument = ? AND period = ?`, [props.instrument, props.period]);
 }
 
-export function FetchState(state: State) {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods WHERE state = ?`, [state]);
-}
-
+//+--------------------------------------------------------------------------------------+
+//| Returns details on actively trading/data collecting instruments                      |
+//+--------------------------------------------------------------------------------------+
 export function FetchActive() {
   return Select<IInstrumentPeriod>(
     `SELECT instrument, currency_pair, period, timeframe, bulk_collection_rate, digits 
        FROM vw_instrument_periods WHERE bulk_collection_rate > 0 AND suspense = false`,
     []
   );
-}
-
-export function FetchInactive() {
-  return Select<IInstrumentPeriod>(
-    `SELECT * FROM vw_instrument_periods WHERE bulk_collection_rate = 0 AND suspense = false`,
-    []
-  );
-}
-
-export function FetchSuspense() {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods WHERE suspense = true`, []);
 }

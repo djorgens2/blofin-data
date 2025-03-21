@@ -1,17 +1,16 @@
 //----------------------------------- Instrument diffs ------------------------------------------//
-        //   local.instrument_type !== api[instrument].instType && console.log(local.instrument_type !== api[instrument].instType);
-        //   local.contract_type !== api[instrument].contractType && console.log(local.contract_type !== api[instrument].contractType);
-        //   !isEqual(local.contract_value!,api[instrument].contractValue) && console.log(local.contract_value, api[instrument].contractValue);
-        //   !isEqual(local.list_timestamp!,api[instrument].listTime / 1000) && console.log(local.list_timestamp, api[instrument].listTime / 1000);
-        //   !isEqual(local.expiry_timestamp!,api[instrument].expireTime / 1000) && console.log(local.expire_timestamp, api[instrument].expireTime / 1000);
-        //   !isEqual(local.max_leverage!,api[instrument].maxLeverage) && console.log(local.max_leverage, api[instrument].maxLeverage);
-        //   !isEqual(local.min_size!,api[instrument].minSize) && console.log(local.min_size, api[instrument].minSize);
-        //   !isEqual(local.lot_size!,api[instrument].lotSize) && console.log(local.lot_size, api[instrument].lotSize);
-        //   !isEqual(local.tick_size!,api[instrument].tickSize) && console.log(local.tick_size, api[instrument].tickSize);
-        //   !isEqual(local.max_limit_size!,api[instrument].maxLimitSize) && console.log(local.max_limit_size, api[instrument].maxLimitSize);
-        //   !isEqual(local.max_market_size!,api[instrument].maxMarketSize) && console.log(local.max_market_size, api[instrument].maxMarketSize);
-        //   (local.suspense === (api[instrument].state === "live")) && console.log(local.suspense,api[instrument].state);
-
+//   local.instrument_type !== api[instrument].instType && console.log(local.instrument_type !== api[instrument].instType);
+//   local.contract_type !== api[instrument].contractType && console.log(local.contract_type !== api[instrument].contractType);
+//   !isEqual(local.contract_value!,api[instrument].contractValue) && console.log(local.contract_value, api[instrument].contractValue);
+//   !isEqual(local.list_timestamp!,api[instrument].listTime / 1000) && console.log(local.list_timestamp, api[instrument].listTime / 1000);
+//   !isEqual(local.expiry_timestamp!,api[instrument].expireTime / 1000) && console.log(local.expire_timestamp, api[instrument].expireTime / 1000);
+//   !isEqual(local.max_leverage!,api[instrument].maxLeverage) && console.log(local.max_leverage, api[instrument].maxLeverage);
+//   !isEqual(local.min_size!,api[instrument].minSize) && console.log(local.min_size, api[instrument].minSize);
+//   !isEqual(local.lot_size!,api[instrument].lotSize) && console.log(local.lot_size, api[instrument].lotSize);
+//   !isEqual(local.tick_size!,api[instrument].tickSize) && console.log(local.tick_size, api[instrument].tickSize);
+//   !isEqual(local.max_limit_size!,api[instrument].maxLimitSize) && console.log(local.max_limit_size, api[instrument].maxLimitSize);
+//   !isEqual(local.max_market_size!,api[instrument].maxMarketSize) && console.log(local.max_market_size, api[instrument].maxMarketSize);
+//   (local.suspense === (api[instrument].state === "live")) && console.log(local.suspense,api[instrument].state);
 
 //----------------------------------- Instrument Type ------------------------------------------//
 // import { Publish } from "./db/interfaces/instrument_type";
@@ -70,7 +69,7 @@
 // awaitingsolong();
 
 //----------------------------- Unique hex Key ------------------------------------------//
-// import { UniqueKey } from "./db/query.utils"; 
+// import { UniqueKey } from "./db/query.utils";
 // import { hex } from "./lib/std.util";
 
 // const key = UniqueKey(6);
@@ -85,6 +84,16 @@
 import { Import } from "./api/instruments";
 Import();
 
+//------------------- Instrument Periods Key Test ---------------------------------------//
+// import { State } from "./db/interfaces/trade_state";
+// import { Key } from "./db/interfaces/instrument_period";
+
+// async function get() {
+//   const keys = await Key({ state: State.Enabled });
+//   console.log(keys);
+// }
+
+// get();
 //----------------------------- Event Triggers ------------------------------------------//
 // import { CEvent, Event, Alert } from "@class/event";
 // const event: CEvent = new CEvent();
@@ -99,4 +108,3 @@ Import();
 
 // console.log(event.eventText(Event.NewDay));
 // console.log(event.activeEvents());
-

@@ -71,6 +71,7 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
     decimal = Math.floor(decimal / 256);
   }
 
+  while (bytes.length < length) bytes.unshift(0);
   return new Uint8Array(bytes.length <= Math.abs(length) || length === 0 ? bytes : []);
 };
 
@@ -105,8 +106,20 @@ export const isBetween = (test: number, bound1: number, bound2: number, inclusiv
 //| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
 export const isEqual = (test: number | string, check: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof test === 'string' ? parseFloat(test).toFixed(digits) : test.toFixed(digits);
-  const arg2: string = typeof check === 'string' ? parseFloat(check).toFixed(digits) : check.toFixed(digits);
+  const arg1: string = typeof test === "string" ? parseFloat(test).toFixed(digits) : test.toFixed(digits);
+  const arg2: string = typeof check === "string" ? parseFloat(check).toFixed(digits) : check.toFixed(digits);
 
   return arg1 === arg2;
 };
+
+//+--------------------------------------------------------------------------------------+
+//| Copies matching properties and values from source to target;                          |
+//+--------------------------------------------------------------------------------------+
+export function copy(source: any, target: any) {
+  for (const key in source) {
+    if (target.hasOwnProperty(key)) {
+      target[key] = source[key];
+    }
+  }
+  return target;
+}

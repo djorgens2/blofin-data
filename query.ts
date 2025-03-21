@@ -10,7 +10,7 @@ enum Subject {
   Instrument = "-i",
   Contract = "-c",
   Currency = "-$",
-  Type = '-t',
+  Type = "-t",
   Period = "-p",
   Detail = "-d",
   State = "-s",
@@ -24,12 +24,11 @@ function parser<T>(arg: string): Partial<T> {
 
     if (typeof json === "object" && json !== null) {
       const obj: Partial<T> = json;
-      console.log(obj);
       return obj;
     }
   } catch (e) {
     const parts = arg.split("=");
-    throw new Error('something jacked up');
+    throw new Error("something jacked up");
     // if (parts.length === 2) {
     //   const key = parts[0].trim();
     //   const value = parts[1].trim();
@@ -52,37 +51,37 @@ async function show(subject: string, args: string) {
       break;
     }
     case Subject.Contract: {
-      const props: Contract.IKeyProps = parser<Contract.IKeyProps>(args); 
+      const props: Contract.IKeyProps = parser<Contract.IKeyProps>(args);
       const key = await Contract.Key(props);
       console.log("Fetch contract:", props, key);
       break;
     }
     case Subject.Currency: {
-      const props: Currency.IKeyProps = parser<Currency.IKeyProps>(args); 
+      const props: Currency.IKeyProps = parser<Currency.IKeyProps>(args);
       const key = await Currency.Key(props);
       console.log("Fetch currency:", props, key);
       break;
     }
     case Subject.Type: {
-      const props: Type.IKeyProps = parser<Type.IKeyProps>(args); 
+      const props: Type.IKeyProps = parser<Type.IKeyProps>(args);
       const key = await Type.Key(props);
       console.log("Fetch type:", props, key);
       break;
     }
     case Subject.Period: {
-      const props: Period.IKeyProps = parser<Period.IKeyProps>(args); 
+      const props: Period.IKeyProps = parser<Period.IKeyProps>(args);
       const key = await Period.Key(props);
       console.log("Fetch period:", props, key);
       break;
     }
     case Subject.State: {
-      const props: State.IKeyProps = parser<State.IKeyProps>(args); 
+      const props: State.IKeyProps = parser<State.IKeyProps>(args);
       const key = await State.Key(props);
       console.log("Fetch state:", props, key);
       break;
     }
     case Subject.Detail: {
-      const props: Detail.IKeyProps = parser<Detail.IKeyProps>(args); 
+      const props: Detail.IKeyProps = parser<Detail.IKeyProps>(args);
       const key = await Detail.Key(props);
       console.log("Fetch detail:", props, key);
       break;
