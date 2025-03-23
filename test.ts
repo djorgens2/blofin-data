@@ -101,7 +101,7 @@ import * as Periods from "@db/interfaces/instrument_period"
 import { State } from "./db/interfaces/trade_state";
 
 async function importCandles() {
-  const instruments = await Periods.Fetch({state: State.Enabled},999);
+  const instruments = await Periods.Fetch({state: State.Enabled});
   console.log("Fetch filtered period:", instruments);
 
   instruments?.forEach ((db) => {
@@ -111,7 +111,12 @@ async function importCandles() {
       period: db.period!,
       timeframe: db.timeframe!,
     };
-    Import<Candles.IKeyProps>(props, 1440);
+    Import({
+      instrument: db.instrument!,
+      symbol: db.symbol!,
+      period: db.period!,
+      timeframe: db.timeframe!,
+    }, 1440);
   })
   
 }

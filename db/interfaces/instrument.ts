@@ -74,7 +74,7 @@ export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Arra
 //+--------------------------------------------------------------------------------------+
 //| Returns instrument by search method in props; executes search in priority sequence;  |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends IKeyProps>(props: T): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   const keys: Array<Uint8Array | string> = [];
   const filters: Array<string> = [];
 

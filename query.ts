@@ -90,7 +90,7 @@ async function show(subject: string, args: string) {
     }
     case Subject.KeySet: {
       const props: KeySet.IKeyProps = parser<KeySet.IKeyProps>(args);
-      const key = await KeySet.Fetch(props,999);
+      const key = await KeySet.Fetch(props);
       console.log("Fetch filtered period:", props, key);
       break;
     }

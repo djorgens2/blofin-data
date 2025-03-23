@@ -61,7 +61,7 @@ export async function Publish(state: string, description: string): Promise<Uint8
 //+--------------------------------------------------------------------------------------+
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends IKeyProps>(props: T): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   const args = [];
 
   if (props.tradeState) {

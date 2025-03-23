@@ -37,7 +37,7 @@ export async function Publish(sourceRef: string): Promise<Uint8Array> {
 //+--------------------------------------------------------------------------------------+
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends IKeyProps>(props: T): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   const args = [];
 
   if (props.contractType) {

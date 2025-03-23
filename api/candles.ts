@@ -37,9 +37,9 @@ export async function Publish(instrument: Uint8Array, period: Uint8Array, apiCan
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Process - Refresh candle data by instrument/timframe stored locally                  |
+//| Merges locally stored candle data with new data recieved from Blofin; Test:4i @.06ms |
 //+--------------------------------------------------------------------------------------+
-export async function Process(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
+export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
   const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, apiCandles.length);
   const modified: Array<ICandleAPI & IKeyProps> = [];
   const missing: Array<ICandleAPI & IKeyProps> = [];
@@ -115,7 +115,7 @@ export async function BulkImport() {
 //+--------------------------------------------------------------------------------------+
 //| Import - Retrieve api Candle, format, pass to publisher                              |
 //+--------------------------------------------------------------------------------------+
-export async function Import<T extends IKeyProps>(props: T, limit: number = 0) {
+export async function Import(props: IKeyProps, limit: number = 0) {
   fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=${limit}&bar=${props.timeframe}`)
     .then((response) => response.json())
     .then((result: IResult) => {
@@ -131,6 +131,6 @@ export async function Import<T extends IKeyProps>(props: T, limit: number = 0) {
         confirm: parseInt(field[8]) === 1,
       }));
 
-      Process(props, apiCandles);
+      Merge(props, apiCandles);
     });
 }

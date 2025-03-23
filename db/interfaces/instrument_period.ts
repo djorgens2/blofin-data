@@ -13,32 +13,24 @@ import * as Period from "@db/interfaces/period";
 import * as TradeState from "@db/interfaces/trade_state";
 
 export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {
-  instrument: Uint8Array;
-  symbol: string;
   base_currency: Uint8Array;
   base_symbol: string;
   quote_currency: Uint8Array;
   quote_symbol: string;
-  period: Uint8Array;
-  timeframe: string;
   timeframe_units: number;
   bulk_collection_rate: number;
   interval_collection_rate: number;
   sma_factor: number;
   digits: number;
-  trade_state: Uint8Array;
-  state: string;
-  activeCollection: boolean;
   suspense: boolean;
 }
 
 export interface IKeyProps {
-  instrument?: Uint8Array;
-  currency?: Uint8Array;
+  instrument?: Uint8Array | undefined;
   symbol?: string;
-  period?: Uint8Array;
+  period?: Uint8Array | undefined;
   timeframe?: string;
-  tradeState?: Uint8Array;
+  tradeState?: Uint8Array | undefined;
   activeCollection?: boolean;
   state?: string;
 }
@@ -66,17 +58,16 @@ export async function Publish(): Promise<ResultSetHeader> {
 //+--------------------------------------------------------------------------------------+
 //| Examine instrument period search methods in props; return keys in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch<T extends IKeyProps>(props: T, limit: number = 1): Promise<Partial<IInstrumentPeriod>[] | undefined> {
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrumentPeriod>>> {
   const params: IKeyProps = {};
   const keys: Array<Uint8Array | string | number | boolean> = [];
   const filters: Array<string> = [];
-  const keyset: Array<Uint8Array> = [];
-
+  
   let sql = `select * from vw_instrument_periods`;
 
-  params.instrument = await Instrument.Key<IKeyProps>(props);
-  params.period = await Period.Key<IKeyProps>(props);
-  params.tradeState = await TradeState.Key<IKeyProps>(props);
+  (props.symbol || props.instrument) && (params.instrument = await Instrument.Key(props));
+  (props.timeframe || props.period) && (params.period = await Period.Key(props));
+  (props.state || props.tradeState) && (params.tradeState = await TradeState.Key(props));
 
   if (params.instrument) {
     filters.push(`instrument`);
@@ -100,14 +91,8 @@ export async function Fetch<T extends IKeyProps>(props: T, limit: number = 1): P
   filters.forEach((filter, position) => {
     sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
   });
-
   
   return Select<IInstrumentPeriod>(sql, keys);
-  //const instruments = await Select<IInstrumentPeriod>(sql, keys);
-  
-  // instruments.forEach((key) => keyset.push(key.instrument!));
-  // console.log(sql, keys, filters, params);
-  // return keyset === undefined ? undefined : keyset.slice(0, limit);
 }
 
 //+--------------------------------------------------------------------------------------+

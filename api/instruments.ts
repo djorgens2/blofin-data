@@ -55,9 +55,9 @@ export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Arr
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Process - Compares Instruments/details stored locally w/Blofin json; applies diffs   |
+//| Merge Instruments/details stored locally w/Blofin json; applies diffs                |
 //+--------------------------------------------------------------------------------------+
-export async function Process(apiInstruments: Array<IInstrumentAPI>) {
+export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
   const instruments: Array<Partial<Instrument.IInstrument>> = await Instrument.FetchAll();
   const modified: Array<IInstrumentAPI> = [];
   const suspense: Array<Currency.IKeyProps> = [];
@@ -118,5 +118,5 @@ export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then((response) => response.json())
     .then(async (result: IResult) => await Publish(result.data))
-    .then(async (data: Array<IInstrumentAPI>) => await Process(data));
+    .then(async (data: Array<IInstrumentAPI>) => await Merge(data));
 }

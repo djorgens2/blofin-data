@@ -111,7 +111,7 @@ export async function Publish(instrument: Uint8Array, period: Uint8Array, candle
   );
 }
 
-export function Fetch<T extends IKeyProps>(props: T, limit: number = 0) {
+export function Fetch(props: IKeyProps, limit: number = 0) {
   return Select<ICandle>(
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
