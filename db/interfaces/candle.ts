@@ -9,15 +9,7 @@ import type { ICandleAPI } from "@/api/candles";
 import { Select, Modify } from "@db/query.utils";
 import { RowDataPacket } from "mysql2";
 
-export interface ICandle extends RowDataPacket {
-  instrument: Uint8Array;
-  instrument_pair: string;
-  base_currency: Uint8Array;
-  base_symbol: string;
-  quote_currency: Uint8Array;
-  quote_symbol: string;
-  period: Uint8Array;
-  timeframe: string;
+export interface ICandle extends IKeyProps, RowDataPacket {
   bar_time: Date;
   timestamp: number;
   open: number;
@@ -30,32 +22,102 @@ export interface ICandle extends RowDataPacket {
   completed: boolean;
 }
 
+export interface IKeyProps {
+  instrument: Uint8Array;
+  symbol: string;
+  base_currency?: Uint8Array;
+  base_symbol?: string;
+  quote_currency?: Uint8Array;
+  quote_symbol?: string;
+  period: Uint8Array;
+  timeframe: string;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Updates instrument detail on all identified changes                                  |
+//+--------------------------------------------------------------------------------------+
+export async function Update(modified: Array<ICandleAPI & IKeyProps>) {
+  for (const update of modified) {
+    await Modify(
+      `UPDATE candle 
+            SET open = ?,
+                high = ?,
+                low = ?,
+                close = ?,
+                volume = ?,
+                vol_currency = ?,
+                vol_currency_quote = ?,
+                completed = ?
+          WHERE instrument = ?
+            AND period = ?
+            AND bar_time = FROM_UNIXTIME(?/1000)`,
+      [
+        update.open,
+        update.high,
+        update.low,
+        update.close,
+        update.vol,
+        update.volCurrency,
+        update.volCurrencyQuote,
+        update.confirm,
+        update.instrument,
+        update.period,
+        update.ts,
+      ]
+    );
+  }
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Updates instrument detail on all identified changes                                  |
+//+--------------------------------------------------------------------------------------+
+export async function Insert(missing: Array<ICandleAPI & IKeyProps>) {
+  for (const insert of missing) {
+    await Modify(
+      `INSERT INTO candle 
+            SET instrument = ?,
+                period = ?,
+                bar_time = FROM_UNIXTIME(?/1000),
+                open = ?,
+                high = ?,
+                low = ?,
+                close = ?,
+                volume = ?,
+                vol_currency = ?,
+                vol_currency_quote = ?,
+                completed = ?`,
+      [
+        insert.instrument,
+        insert.period,
+        insert.ts,
+        insert.open,
+        insert.high,
+        insert.low,
+        insert.close,
+        insert.vol,
+        insert.volCurrency,
+        insert.volCurrencyQuote,
+        insert.confirm,
+      ]
+    );
+  }
+}
+
 export async function Publish(instrument: Uint8Array, period: Uint8Array, candle: ICandleAPI) {
   const set = await Modify(
     `REPLACE INTO candle SET instrument = ?, period = ?, bar_time = FROM_UNIXTIME(?/1000), open = ?, high = ?, low = ?, close = ?,
         volume = ?, vol_currency = ?, vol_currency_quote = ?, completed = ?`,
-    [
-      instrument,
-      period,
-      candle.ts,
-      candle.open,
-      candle.high,
-      candle.low,
-      candle.close,
-      candle.vol,
-      candle.volCurrency,
-      candle.volCurrencyQuote,
-      candle.confirm,
-    ]
+    [instrument, period, candle.ts, candle.open, candle.high, candle.low, candle.close, candle.vol, candle.volCurrency, candle.volCurrencyQuote, candle.confirm]
   );
 }
 
-export function Fetch(instrument: Uint8Array, period: Uint8Array) {
+export function Fetch<T extends IKeyProps>(props: T, limit: number = 0) {
   return Select<ICandle>(
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
-     WHERE instrument = ?	AND period = ? ORDER BY	timestamp`,
-    [instrument, period]
+     WHERE instrument = ?	AND period = ?
+     ORDER BY	timestamp DESC LIMIT ${limit}`,
+    [props.instrument, props.period]
   );
 }
 

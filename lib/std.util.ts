@@ -45,13 +45,13 @@ export type Role = (typeof Role)[keyof typeof Role];
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
 //+--------------------------------------------------------------------------------------+
-export const splitSymbol = (symbol: string): string[] => {
-  const symbols: string[] = symbol.split("-");
+export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
+  const symbols: Array<string> = typeof symbol === "string" ? symbol.split("-") : typeof Array.isArray(symbol) ? symbol[0].split("-") : [];
+    
+  symbols.length === 1 && (symbols.push("USDT"));
+  symbols[1].length === 0 && (symbols.splice(1,1,"USDT"))
 
-  if (symbols.length === 1) {
-    symbols.push("USDT");
-  }
-  return symbols;
+  return symbols.slice(0, 2);
 };
 
 //+--------------------------------------------------------------------------------------+

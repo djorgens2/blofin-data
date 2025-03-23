@@ -1,10 +1,11 @@
-import * as Instrument from "./db/interfaces/instrument";
-import * as Contract from "./db/interfaces/contract_type";
-import * as Currency from "./db/interfaces/currency";
-import * as Type from "./db/interfaces/instrument_type";
-import * as Period from "./db/interfaces/period";
-import * as State from "./db/interfaces/trade_state";
-import * as Detail from "./db/interfaces/instrument_detail";
+import * as Instrument from "@db/interfaces/instrument";
+import * as Contract from "@db/interfaces/contract_type";
+import * as Currency from "@db/interfaces/currency";
+import * as Type from "@db/interfaces/instrument_type";
+import * as Period from "@db/interfaces/period";
+import * as State from "@db/interfaces/trade_state";
+import * as Detail from "@db/interfaces/instrument_detail";
+import * as KeySet from "@db/interfaces/instrument_period";
 
 enum Subject {
   Instrument = "-i",
@@ -14,6 +15,7 @@ enum Subject {
   Period = "-p",
   Detail = "-d",
   State = "-s",
+  KeySet = "-K"
 }
 
 function parser<T>(arg: string): Partial<T> {
@@ -84,6 +86,12 @@ async function show(subject: string, args: string) {
       const props: Detail.IKeyProps = parser<Detail.IKeyProps>(args);
       const key = await Detail.Key(props);
       console.log("Fetch detail:", props, key);
+      break;
+    }
+    case Subject.KeySet: {
+      const props: KeySet.IKeyProps = parser<KeySet.IKeyProps>(args);
+      const key = await KeySet.Fetch(props,999);
+      console.log("Fetch filtered period:", props, key);
       break;
     }
   }

@@ -1,3 +1,13 @@
+//----------------------------------- KeySet tests ------------------------------------------//
+// import { KeySet, IKeyProps } from "./db/interfaces/keyset";
+
+// async function getKeys<T extends IKeyProps>(props: T)  {
+// const keyset: IKeyProps = await KeySet(props);
+//   console.log(keyset);
+// }
+
+// getKeys({symbol: "XRP-USDT"});
+
 //----------------------------------- Instrument diffs ------------------------------------------//
 //   local.instrument_type !== api[instrument].instType && console.log(local.instrument_type !== api[instrument].instType);
 //   local.contract_type !== api[instrument].contractType && console.log(local.contract_type !== api[instrument].contractType);
@@ -81,9 +91,32 @@
 // console.log(key, key.length, key2, key3)
 
 //----------------------------- Instrument Import ---------------------------------------//
-import { Import } from "./api/instruments";
-Import();
+// import { Import } from "./api/instruments";
+// Import();
 
+//----------------------------- Instrument Import ---------------------------------------//
+import { Import } from "./api/candles";
+import * as Candles from "@db/interfaces/candle"
+import * as Periods from "@db/interfaces/instrument_period"
+import { State } from "./db/interfaces/trade_state";
+
+async function importCandles() {
+  const instruments = await Periods.Fetch({state: State.Enabled},999);
+  console.log("Fetch filtered period:", instruments);
+
+  instruments?.forEach ((db) => {
+    const props: Candles.IKeyProps = {
+      instrument: db.instrument!,
+      symbol: db.symbol!,
+      period: db.period!,
+      timeframe: db.timeframe!,
+    };
+    Import<Candles.IKeyProps>(props, 1440);
+  })
+  
+}
+
+importCandles();
 //------------------- Instrument Periods Key Test ---------------------------------------//
 // import { State } from "./db/interfaces/trade_state";
 // import { Key } from "./db/interfaces/instrument_period";

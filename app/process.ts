@@ -1,7 +1,7 @@
-//+------------------------------------------------------------------+
-//|                                                       process.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                           process.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
 import { COrder } from "@class/order";
@@ -15,9 +15,9 @@ import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import * as Instrument from "@db/interfaces/instrument";
 import * as Candle from "@db/interfaces/candle";
 
-//+------------------------------------------------------------------------------------+
-//| CProcess - Order Processing Class/Container                                        |
-//+------------------------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//| CProcess - Order Processing Class/Container                                          |
+//+--------------------------------------------------------------------------------------+
 export class CProcess {
   private Orders: Array<COrder> = [];
 
@@ -47,7 +47,7 @@ export class CProcess {
   async Start() {
     const tradePeriods = await InstrumentPeriod.Fetch({state: State.Enabled });
 
-    tradePeriods.forEach((tradePeriod, order) => {
+    tradePeriods!.forEach((tradePeriod, order) => {
       if (this.Ready(tradePeriod.instrument!, tradePeriod.period!)) {
         //        Candles.IntervalImport(this.TradePeriod[row], this.TradePeriod[row].interval_collection_rate!);
         this.Orders[order].Process();

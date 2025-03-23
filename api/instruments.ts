@@ -50,8 +50,6 @@ export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Arr
     const instrument = await Instrument.Publish(baseCurrency, quoteCurrency);
 
     await InstrumentDetail.Publish(instrument, instrumentType, contractType, api);
-
-    //console.log("Published", symbol);
   }
   return apiInstrument;
 }
@@ -65,7 +63,7 @@ export async function Process(apiInstruments: Array<IInstrumentAPI>) {
   const suspense: Array<Currency.IKeyProps> = [];
 
   const db: Array<Partial<Instrument.IInstrument>> = instruments.sort((a, b) => {
-    return a.currency_pair! < b.currency_pair! ? -1 : a.currency_pair! > b.currency_pair! ? 1 : 0;
+    return a.symbol! < b.symbol! ? -1 : a.symbol! > b.symbol! ? 1 : 0;
   });
   const api: Array<IInstrumentAPI> = apiInstruments.sort((a, b) => {
     return a.instId < b.instId ? -1 : a.instId > b.instId ? 1 : 0;
@@ -75,7 +73,7 @@ export async function Process(apiInstruments: Array<IInstrumentAPI>) {
     let instrument = 0;
 
     db.forEach((local) => {
-      if (local.currency_pair === api[instrument].instId) {
+      if (local.symbol === api[instrument].instId) {
         let updated: boolean = false;
 
         !isEqual(local.contract_value!, api[instrument].contractValue) && (updated = true);
@@ -98,7 +96,7 @@ export async function Process(apiInstruments: Array<IInstrumentAPI>) {
         }
 
         instrument++;
-      } else if (local.currency_pair! <= api[instrument].instId) {
+      } else if (local.symbol! <= api[instrument].instId) {
         !local.suspense && suspense.push({ currency: local.base_currency!, symbol: local.base_symbol! });
       }
     });

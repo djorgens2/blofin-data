@@ -108,8 +108,8 @@ CREATE TABLE
 		instrument BINARY(3) NOT NULL,
 		period BINARY(3) NOT NULL,
 		bulk_collection_rate SMALLINT DEFAULT ('0') NOT NULL,
-		sma_factor SMALLINT DEFAULT ('0') NOT NULL,
 		interval_collection_rate SMALLINT DEFAULT (0) NOT NULL,
+		sma_factor SMALLINT DEFAULT ('0') NOT NULL,
 		CONSTRAINT pk_instrument_period PRIMARY KEY (instrument, period),
 		CONSTRAINT fk_ip_instrument FOREIGN KEY (instrument) REFERENCES blofin.instrument (instrument) ON DELETE NO ACTION ON UPDATE NO ACTION,
 		CONSTRAINT fk_ip_period FOREIGN KEY (period) REFERENCES blofin.period (period) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -141,7 +141,7 @@ CREATE
 OR REPLACE VIEW blofin.vw_candles AS
 SELECT
 	i.instrument AS instrument,
-	CONCAT (b.symbol, '-', q.symbol) AS currency_pair,
+	CONCAT (b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
@@ -176,277 +176,10 @@ WHERE
 	);
 
 CREATE
-OR REPLACE VIEW blofin.vw_instrument_period_pivot AS
-select
-	i.instrument AS instrument,
-	concat (b.symbol, '-', q.symbol) AS currency_pair,
-	b.currency AS base_currency,
-	b.symbol AS base_symbol,
-	q.currency AS quote_currency,
-	q.symbol AS quote_symbol,
-	'BARS' AS type_def,
-	max(
-		(
-			case
-				when (p.timeframe = '1m') then ip.data_collection_rate
-			end
-		)
-	) AS period_1m,
-	max(
-		(
-			case
-				when (p.timeframe = '3m') then ip.data_collection_rate
-			end
-		)
-	) AS period_3m,
-	max(
-		(
-			case
-				when (p.timeframe = '5m') then ip.data_collection_rate
-			end
-		)
-	) AS period_5m,
-	max(
-		(
-			case
-				when (p.timeframe = '15m') then ip.data_collection_rate
-			end
-		)
-	) AS period_15m,
-	max(
-		(
-			case
-				when (p.timeframe = '30m') then ip.data_collection_rate
-			end
-		)
-	) AS period_30m,
-	max(
-		(
-			case
-				when (p.timeframe = '1H') then ip.data_collection_rate
-			end
-		)
-	) AS period_1h,
-	max(
-		(
-			case
-				when (p.timeframe = '2H') then ip.data_collection_rate
-			end
-		)
-	) AS period_2h,
-	max(
-		(
-			case
-				when (p.timeframe = '4H') then ip.data_collection_rate
-			end
-		)
-	) AS period_4h,
-	max(
-		(
-			case
-				when (p.timeframe = '6H') then ip.data_collection_rate
-			end
-		)
-	) AS period_6h,
-	max(
-		(
-			case
-				when (p.timeframe = '8H') then ip.data_collection_rate
-			end
-		)
-	) AS period_8h,
-	max(
-		(
-			case
-				when (p.timeframe = '12H') then ip.data_collection_rate
-			end
-		)
-	) AS period_12h,
-	max(
-		(
-			case
-				when (p.timeframe = '1D') then ip.data_collection_rate
-			end
-		)
-	) AS period_1d,
-	max(
-		(
-			case
-				when (p.timeframe = '3D') then ip.data_collection_rate
-			end
-		)
-	) AS period_3d,
-	max(
-		(
-			case
-				when (p.timeframe = '1W') then ip.data_collection_rate
-			end
-		)
-	) AS period_1w,
-	max(
-		(
-			case
-				when (p.timeframe = '1M') then ip.data_collection_rate
-			end
-		)
-	) AS period_1mm
-from
-	(
-		(
-			blofin.instrument i
-			left join blofin.instrument_period ip on ((ip.instrument = i.instrument))
-		)
-		left join blofin.period p on ((ip.period = p.period))
-	)
-	join blofin.currency b
-	join blofin.currency q
-where
-	(
-		(i.base_currency = b.currency)
-		and (i.quote_currency = q.currency)
-	)
-group by
-	i.instrument
-union all
-select
-	i.instrument AS instrument,
-	concat (b.symbol, '-', q.symbol) AS currency_pair,
-	b.currency AS base_currency,
-	b.symbol AS base_symbol,
-	q.currency AS quote_currency,
-	q.symbol AS quote_symbol,
-	'SMA' AS type_def,
-	max(
-		(
-			case
-				when (p.timeframe = '1m') then ip.sma_factor
-			end
-		)
-	) AS period_1m,
-	max(
-		(
-			case
-				when (p.timeframe = '3m') then ip.sma_factor
-			end
-		)
-	) AS period_3m,
-	max(
-		(
-			case
-				when (p.timeframe = '5m') then ip.sma_factor
-			end
-		)
-	) AS period_5m,
-	max(
-		(
-			case
-				when (p.timeframe = '15m') then ip.sma_factor
-			end
-		)
-	) AS period_15m,
-	max(
-		(
-			case
-				when (p.timeframe = '30m') then ip.sma_factor
-			end
-		)
-	) AS period_30m,
-	max(
-		(
-			case
-				when (p.timeframe = '1H') then ip.sma_factor
-			end
-		)
-	) AS period_1h,
-	max(
-		(
-			case
-				when (p.timeframe = '2H') then ip.sma_factor
-			end
-		)
-	) AS period_2h,
-	max(
-		(
-			case
-				when (p.timeframe = '4H') then ip.sma_factor
-			end
-		)
-	) AS period_4h,
-	max(
-		(
-			case
-				when (p.timeframe = '6H') then ip.sma_factor
-			end
-		)
-	) AS period_6h,
-	max(
-		(
-			case
-				when (p.timeframe = '8H') then ip.sma_factor
-			end
-		)
-	) AS period_8h,
-	max(
-		(
-			case
-				when (p.timeframe = '12H') then ip.sma_factor
-			end
-		)
-	) AS period_12h,
-	max(
-		(
-			case
-				when (p.timeframe = '1D') then ip.sma_factor
-			end
-		)
-	) AS period_1d,
-	max(
-		(
-			case
-				when (p.timeframe = '3D') then ip.sma_factor
-			end
-		)
-	) AS period_3d,
-	max(
-		(
-			case
-				when (p.timeframe = '1W') then ip.sma_factor
-			end
-		)
-	) AS period_1w,
-	max(
-		(
-			case
-				when (p.timeframe = '1M') then ip.sma_factor
-			end
-		)
-	) AS period_1mm
-from
-	(
-		(
-			blofin.instrument i
-			left join blofin.instrument_period ip on ((ip.instrument = i.instrument))
-		)
-		left join blofin.period p on ((ip.period = p.period))
-	)
-	join blofin.currency b
-	join blofin.currency q
-where
-	(
-		(i.base_currency = b.currency)
-		and (i.quote_currency = q.currency)
-	)
-group by
-	i.instrument
-order by
-	currency_pair,
-	type_def;
-
-CREATE
 OR REPLACE VIEW blofin.vw_instruments AS
 SELECT
 	i.instrument AS instrument,
-	CONCAT (b.symbol, '-', q.symbol) AS currency_pair,
+	CONCAT (b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
@@ -457,28 +190,14 @@ SELECT
 	tp.timeframe AS trade_timeframe,
 	tp.timeframe_units AS timeframe_units,
 	ip.bulk_collection_rate AS bulk_collection_rate,
-	IF (
-		ip.bulk_collection_rate = 0,
-		0,
-		if (
-			ip.interval_collection_rate > 4,
-			ip.interval_collection_rate,
-			4
-		)
-	) AS interval_collection_rate,
+    IF(ip.bulk_collection_rate=0, 0, if(ip.interval_collection_rate>4, ip.interval_collection_rate, 4)) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
 	id.contract_value AS contract_value,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
 	id.lot_size AS lot_size,
 	id.tick_size AS tick_size,
-	LENGTH (
-		SUBSTRING_INDEX (
-			CAST(id.tick_size AS CHAR charset utf8mb4),
-			'.',
-			- (1)
-		)
-	) + 1 AS digits,
+	LENGTH (SUBSTRING_INDEX (CAST(id.tick_size AS CHAR charset utf8mb4),'.',- (1))) + 1 AS digits,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
 	id.list_time AS list_time,
@@ -489,11 +208,8 @@ SELECT
 	ts.state AS state,
 	b.suspense AS suspense
 FROM
-	blofin.instrument i
-	LEFT JOIN blofin.instrument_period ip ON (
-		i.trade_period = ip.period
-		AND i.instrument = ip.instrument
-	)
+    blofin.instrument i
+	LEFT JOIN blofin.instrument_period ip ON (i.trade_period = ip.period AND i.instrument = ip.instrument)
 	LEFT JOIN blofin.instrument_detail id ON (i.instrument = id.instrument)
 	LEFT JOIN blofin.instrument_type it ON (id.instrument_type = it.instrument_type)
 	LEFT JOIN blofin.contract_type ct ON (id.contract_type = ct.contract_type)
@@ -502,15 +218,15 @@ FROM
 	JOIN blofin.currency b
 	JOIN blofin.currency q
 WHERE
-	(i.trade_state = ts.trade_state)
-	AND (i.base_currency = b.currency)
-	AND (i.quote_currency = q.currency);
+		(i.trade_state = ts.trade_state)
+		AND (i.base_currency = b.currency)
+		AND (i.quote_currency = q.currency);
 
 CREATE
 OR REPLACE VIEW blofin.vw_instrument_periods AS
 SELECT
 	i.instrument AS instrument,
-	concat (b.symbol, '-', q.symbol) AS currency_pair,
+	CONCAT (b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
@@ -519,25 +235,12 @@ SELECT
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	ip.bulk_collection_rate AS bulk_collection_rate,
-	IF (
-		ip.bulk_collection_rate = 0,
-		0,
-		if (
-			ip.interval_collection_rate > 4,
-			ip.interval_collection_rate,
-			4
-		)
-	) AS interval_collection_rate,
+    IF(ip.bulk_collection_rate=0, 0, if(ip.interval_collection_rate>4, ip.interval_collection_rate, 4)) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
-	LENGTH (
-		substring_index (
-			cast(id.tick_size AS char charset utf8mb4),
-			'.',
-			- (1)
-		)
-	) + 1 AS digits,
+	LENGTH (SUBSTRING_INDEX (CAST(id.tick_size AS CHAR charset utf8mb4),'.',- (1))) + 1 AS digits,
 	ts.trade_state AS trade_state,
 	ts.state AS state,
+	IF(ip.bulk_collection_rate>0, true, false) AS active_collection,
 	b.suspense AS suspense
 FROM
 	blofin.instrument i
@@ -548,26 +251,20 @@ FROM
 	JOIN blofin.currency b
 	JOIN blofin.currency q
 	JOIN (
-		SELECT
-			ipts.instrument,
-			ipts.period,
-			IF (
-				its.trade_period = ipts.period,
-				its.trade_state,
-				x'1697fe'
-			) AS trade_state
-		FROM
-			blofin.instrument_period ipts
-			JOIN blofin.instrument its
-		WHERE
-			ipts.instrument = its.instrument
-	) tps
+	       SELECT ipts.instrument,
+                  ipts.period,
+                  IF(its.trade_period=ipts.period,its.trade_state,x'1697fe') AS trade_state
+             FROM
+                  blofin.instrument_period ipts
+             JOIN blofin.instrument its
+            WHERE ipts.instrument=its.instrument
+         ) tps
 WHERE
 	(
-		(ip.instrument = i.instrument)
+		(ip.instrument=i.instrument)
 		AND (ip.period = p.period)
 		AND (ip.instrument = tps.instrument)
-		AND (ip.period = tps.period)
+		AND (ip.period= tps.period)
 		AND (tps.trade_state = ts.trade_state)
 		AND (i.instrument = id.instrument)
 		AND (i.base_currency = b.currency)

@@ -6,15 +6,15 @@
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { hex, copy } from "@/lib/std.util";
+import { State } from "@db/interfaces/trade_state";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Period from "@db/interfaces/period";
-import * as State from "@db/interfaces/trade_state";
+import * as TradeState from "@db/interfaces/trade_state";
 
-export interface IInstrumentPeriod extends RowDataPacket {
+export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {
   instrument: Uint8Array;
-  currency_pair: string;
+  symbol: string;
   base_currency: Uint8Array;
   base_symbol: string;
   quote_currency: Uint8Array;
@@ -28,17 +28,18 @@ export interface IInstrumentPeriod extends RowDataPacket {
   digits: number;
   trade_state: Uint8Array;
   state: string;
+  activeCollection: boolean;
   suspense: boolean;
 }
 
 export interface IKeyProps {
   instrument?: Uint8Array;
   currency?: Uint8Array;
-  currencyPair?: string;
   symbol?: string;
   period?: Uint8Array;
   timeframe?: string;
   tradeState?: Uint8Array;
+  activeCollection?: boolean;
   state?: string;
 }
 
@@ -65,32 +66,48 @@ export async function Publish(): Promise<ResultSetHeader> {
 //+--------------------------------------------------------------------------------------+
 //| Examine instrument period search methods in props; return keys in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends IKeyProps>(props: T, limit: number = 1): Promise<Array<Uint8Array> | undefined> {
-  const key: IKeyProps = {};
-  const filter = [];
-  const args = [];
+export async function Fetch<T extends IKeyProps>(props: T, limit: number = 1): Promise<Partial<IInstrumentPeriod>[] | undefined> {
+  const params: IKeyProps = {};
+  const keys: Array<Uint8Array | string | number | boolean> = [];
+  const filters: Array<string> = [];
+  const keyset: Array<Uint8Array> = [];
 
-  key.instrument = await Instrument.Key<IKeyProps>(props);
-  key.period = await Period.Key<IKeyProps>(props);
-  key.tradeState = await State.Key<IKeyProps>(props);
+  let sql = `select * from vw_instrument_periods`;
 
-  key.instrument && (filter.push(`instrument = ?`));
-  key.period && (filter.push(`period = ?`));
-  key.tradeState && (filter.push(`trade_state = ?`));
+  params.instrument = await Instrument.Key<IKeyProps>(props);
+  params.period = await Period.Key<IKeyProps>(props);
+  params.tradeState = await TradeState.Key<IKeyProps>(props);
 
-  const results = await Select<IInstrumentPeriod>(`select instrument from instrument_period where bulk_collection_rate > 0`, []);
-  const keys: Array<Uint8Array> = []; 
+  if (params.instrument) {
+    filters.push(`instrument`);
+    keys.push(params.instrument);
+  }
+
+  if (params.period) {
+    filters.push(`period`);
+    keys.push(params.period);
+  }
+  if (params.tradeState) {
+    filters.push(`trade_state`);
+    keys.push(params.tradeState);
+  }
+
+  if (props.activeCollection) {
+    filters.push(`active_collection`);
+    keys.push(props.activeCollection);
+  }
+
+  filters.forEach((filter, position) => {
+    sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
+  });
+
   
-  results.forEach((result) => keys.push(result.instrument!));
-
-  return keys === undefined ? undefined : keys.slice(0,limit);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Fetch one instrument period for the provided instrument;                             |
-//+--------------------------------------------------------------------------------------+
-export function Fetch<T extends IKeyProps>(props: T) {
-  return Select<IInstrumentPeriod>(`SELECT * FROM vw_instrument_periods where instrument = ? AND period = ?`, [props.instrument, props.period]);
+  return Select<IInstrumentPeriod>(sql, keys);
+  //const instruments = await Select<IInstrumentPeriod>(sql, keys);
+  
+  // instruments.forEach((key) => keyset.push(key.instrument!));
+  // console.log(sql, keys, filters, params);
+  // return keyset === undefined ? undefined : keyset.slice(0, limit);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -98,7 +115,7 @@ export function Fetch<T extends IKeyProps>(props: T) {
 //+--------------------------------------------------------------------------------------+
 export function FetchActive() {
   return Select<IInstrumentPeriod>(
-    `SELECT instrument, currency_pair, period, timeframe, bulk_collection_rate, digits 
+    `SELECT instrument, symbol, period, timeframe, bulk_collection_rate, digits 
        FROM vw_instrument_periods WHERE bulk_collection_rate > 0 AND suspense = false`,
     []
   );

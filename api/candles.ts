@@ -1,13 +1,13 @@
-//+------------------------------------------------------------------+
-//|                                                       candles.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                           candles.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
-
+import type { ICandle, IKeyProps } from "@db/interfaces/candle";
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import * as Candle from "@db/interfaces/candle";
+import { isEqual } from "@/lib/std.util";
 
 export interface ICandleAPI {
   ts: number;
@@ -27,24 +27,72 @@ export interface IResult {
   data: string[][];
 }
 
-//+------------------------------------------------------------------+
-//| Publish - Refresh candle data by instrument stored locally       |
-//+------------------------------------------------------------------+
-export function Publish(instrument: Uint8Array, period: Uint8Array, apiCandles: Array<ICandleAPI>) {
+//+--------------------------------------------------------------------------------------+
+//| Publish - Refresh candle data by instrument stored locally                           |
+//+--------------------------------------------------------------------------------------+
+export async function Publish(instrument: Uint8Array, period: Uint8Array, apiCandles: Array<ICandleAPI>) {
   apiCandles.forEach(async (apiCandle) => {
     await Candle.Publish(instrument, period, apiCandle);
   });
 }
 
-//+------------------------------------------------------------------+
-//| Import - Retrieve api Candle, format, pass to publisher          |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//| Process - Refresh candle data by instrument/timframe stored locally                  |
+//+--------------------------------------------------------------------------------------+
+export async function Process(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
+  const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, apiCandles.length);
+  const modified: Array<ICandleAPI & IKeyProps> = [];
+  const missing: Array<ICandleAPI & IKeyProps> = [];
+
+  const db: Array<Partial<ICandle>> = candles.sort((a, b) => {
+    return a.timestamp! < b.timestamp! ? +1 : a.timestamp! > b.timestamp! ? -1 : 0;
+  });
+  const api: Array<ICandleAPI> = apiCandles.sort((a, b) => {
+    return a.ts < b.ts ? +1 : a.ts > b.ts ? -1 : 0;
+  });
+
+  let candle = 0;
+
+  api.forEach((remote) => {
+    if (remote.ts / 1000 === db[candle].timestamp) {
+      let updated: boolean = false;
+
+      !isEqual(remote.open, db[candle].open!) && (updated = true);
+      !isEqual(remote.high, db[candle].high!) && (updated = true);
+      !isEqual(remote.low, db[candle].low!) && (updated = true);
+      !isEqual(remote.close, db[candle].close!) && (updated = true);
+      !isEqual(remote.vol, db[candle].volume!) && (updated = true);
+      !isEqual(remote.volCurrency, db[candle].vol_currency!) && (updated = true);
+      !isEqual(remote.volCurrencyQuote, db[candle].vol_currency_quote!) && (updated = true);
+
+      remote.confirm === db[candle].completed! && (updated = true);
+
+      if (updated) {
+        const update = Object.assign({}, props, remote);
+        modified.push(update);
+      }
+
+      candle++;
+    } else if (remote.ts / 1000 > db[candle].timestamp!) {
+      const insert = Object.assign({}, props, remote);
+      missing.push(insert);
+    }
+  });
+
+  console.log("Candles Inserted: ", missing.length, missing);
+  console.log("Candles Updated: ", modified.length, modified);
+
+  await Candle.Update(modified);
+  await Candle.Insert(missing);
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Import - Retrieve api Candle, format, pass to publisher                              |
+//+--------------------------------------------------------------------------------------+
 export async function BulkImport() {
   const instruments = await InstrumentPeriod.FetchActive();
   instruments.forEach((instrument) => {
-    fetch(
-      `https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair!}&limit=${instrument.bulk_collection_rate!}&bar=${instrument.timeframe}`
-    )
+    fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.symbol}&limit=${instrument.bulk_collection_rate}&bar=${instrument.timeframe}`)
       .then((response) => response.json())
       .then((result: IResult) => {
         const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
@@ -64,12 +112,11 @@ export async function BulkImport() {
   });
 }
 
-//+------------------------------------------------------------------+
-//| Import - Retrieve api Candle, format, pass to publisher          |
-//+------------------------------------------------------------------+
-export function IntervalImport(instrument: IInstrumentPeriod, interval: number) {
-  console.log(instrument.currency_pair, ["Interval", interval]);
-  fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.currency_pair!}&limit=${interval}&bar=${instrument.timeframe!}`)
+//+--------------------------------------------------------------------------------------+
+//| Import - Retrieve api Candle, format, pass to publisher                              |
+//+--------------------------------------------------------------------------------------+
+export async function Import<T extends IKeyProps>(props: T, limit: number = 0) {
+  fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=${limit}&bar=${props.timeframe}`)
     .then((response) => response.json())
     .then((result: IResult) => {
       const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
@@ -84,6 +131,6 @@ export function IntervalImport(instrument: IInstrumentPeriod, interval: number) 
         confirm: parseInt(field[8]) === 1,
       }));
 
-      Publish(instrument.instrument, instrument.period, apiCandles);
+      Process(props, apiCandles);
     });
 }

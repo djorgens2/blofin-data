@@ -176,7 +176,7 @@ export class CFractal extends CEvent {
   //| Identification - returns instrument details                          |
   //+------------------------------------------------------------------+
   Identification(): Array<string> {
-    return [this.Instrument.currency_pair!, this.Instrument.trade_timeframe!];
+    return [this.Instrument.symbol!, this.Instrument.trade_timeframe!];
   }
 
   // bar.completed! && ();

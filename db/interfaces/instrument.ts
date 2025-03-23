@@ -14,7 +14,7 @@ import * as TradeState from "@db/interfaces/trade_state";
 
 export interface IInstrument extends RowDataPacket {
   instrument: Uint8Array;
-  currency_pair: string;
+  symbol: string;
   base_currency: Uint8Array;
   base_symbol: string;
   quote_currency: Uint8Array;
@@ -47,7 +47,6 @@ export interface IInstrument extends RowDataPacket {
 export interface IKeyProps {
   instrument?: Uint8Array;
   currency?: Uint8Array | Array<Uint8Array>;
-  currencyPair?: string;
   symbol?: string | Array<string>;
 }
 
@@ -89,25 +88,22 @@ export async function Key<T extends IKeyProps>(props: T): Promise<Uint8Array | u
       ? keys.push(hex(props.currency[0], 3), hex(props.currency.length > 1 ? props.currency[1] : 0, 3))
       : keys.push(hex(props.currency, 3));
     keys.length === 2 ? filters.push(`base_currency`, `quote_currency`) : filters.push(`base_currency`);
-  } else {
-    props.currencyPair && (props.symbol = splitSymbol(props.currencyPair));
-    if (props.symbol) {
-      Array.isArray(props.symbol) ? keys.push(props.symbol[0], props.symbol.length > 1 ? props.symbol[1] : "USDT") : keys.push(props.symbol);
-      keys.length === 2 ? filters.push(`base_symbol`, `quote_symbol`) : filters.push(`base_symbol`);
-    }
-  }
+  } else if (props.symbol) {
+    const symbol: Array<string> = splitSymbol(props.symbol);
+    keys.push(symbol[0], symbol[1]);
+    filters.push(`base_symbol`, `quote_symbol`);
+  } else return undefined;
 
   filters.forEach((filter, position) => {
     sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
   });
 
-  console.log(sql, keys, filters);
   const [key] = await Select<IInstrument>(sql, keys);
   return key === undefined ? undefined : key.instrument;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieves all trading-related instrument details by Key;                              |
+//| Retrieves all trading-related instrument details by Key;                             |
 //+--------------------------------------------------------------------------------------+
 export function Fetch(instrument: Uint8Array) {
   return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE instrument = ?`, [instrument]);
@@ -118,17 +114,6 @@ export function Fetch(instrument: Uint8Array) {
 //+--------------------------------------------------------------------------------------+
 export function FetchAll() {
   return Select<IInstrument>(`SELECT * FROM vw_instruments`, []);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Retrieves all instruments identified for bulk loading candle data;                   |
-//+--------------------------------------------------------------------------------------+
-export function FetchActive() {
-  return Select<IInstrument>(
-    `SELECT instrument, currency_pair, trade_period, trade_timeframe, sma_factor, data_collection_rate, digits
-       FROM vw_instruments WHERE data_collection_rate > 0 AND suspense = false`,
-    []
-  );
 }
 
 //+--------------------------------------------------------------------------------------+
