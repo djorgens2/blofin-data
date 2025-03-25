@@ -28,15 +28,6 @@ export interface IResult {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Publish - Refresh candle data by instrument stored locally                           |
-//+--------------------------------------------------------------------------------------+
-export async function Publish(instrument: Uint8Array, period: Uint8Array, apiCandles: Array<ICandleAPI>) {
-  apiCandles.forEach(async (apiCandle) => {
-    await Candle.Publish(instrument, period, apiCandle);
-  });
-}
-
-//+--------------------------------------------------------------------------------------+
 //| Merges locally stored candle data with new data recieved from Blofin; Test:4i @.06ms |
 //+--------------------------------------------------------------------------------------+
 export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
@@ -84,32 +75,6 @@ export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
 
   await Candle.Update(modified);
   await Candle.Insert(missing);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Import - Retrieve api Candle, format, pass to publisher                              |
-//+--------------------------------------------------------------------------------------+
-export async function BulkImport() {
-  const instruments = await InstrumentPeriod.FetchActive();
-  instruments.forEach((instrument) => {
-    fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${instrument.symbol}&limit=${instrument.bulk_collection_rate}&bar=${instrument.timeframe}`)
-      .then((response) => response.json())
-      .then((result: IResult) => {
-        const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
-          ts: parseInt(field[0]),
-          open: parseFloat(field[1]),
-          high: parseFloat(field[2]),
-          low: parseFloat(field[3]),
-          close: parseFloat(field[4]),
-          vol: parseInt(field[5]),
-          volCurrency: parseInt(field[6]),
-          volCurrencyQuote: parseInt(field[7]),
-          confirm: parseInt(field[8]) === 1,
-        }));
-
-        Publish(instrument.instrument!, instrument.period!, apiCandles);
-      });
-  });
 }
 
 //+--------------------------------------------------------------------------------------+

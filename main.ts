@@ -4,17 +4,17 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import * as TradeState from "@db/interfaces/trade_state";
+import * as States from "@db/interfaces/trade_state";
 import * as Period from "@/db/interfaces/period";
 import * as Instruments from "@api/instruments";
 import * as Candles from "@api/candles";
 
 import { CProcess } from "@app/process";
 
-TradeState.Import();
+States.Import();
 Period.Import();
 Instruments.Import();
-Candles.BulkImport()
+//Candles.BulkImport()
 
 const app = new CProcess();
 

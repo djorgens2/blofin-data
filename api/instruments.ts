@@ -58,7 +58,7 @@ export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Arr
 //| Merge Instruments/details stored locally w/Blofin json; applies diffs                |
 //+--------------------------------------------------------------------------------------+
 export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
-  const instruments: Array<Partial<Instrument.IInstrument>> = await Instrument.FetchAll();
+  const instruments: Array<Partial<Instrument.IInstrument>> = await Instrument.Fetch({});
   const modified: Array<IInstrumentAPI> = [];
   const suspense: Array<Currency.IKeyProps> = [];
 

@@ -24,10 +24,18 @@ export class CProcess {
   //+------------------------------------------------------------------------------------+
   //| Initialize - Loads order class array, bulk syncs bar history                       |
   //+------------------------------------------------------------------------------------+
-  async Initialize(tradePeriod: Partial<IInstrumentPeriod>) {
-    const [candle]: Array<Partial<ICandle>> = await Candle.FetchFirst(tradePeriod.instrument!, tradePeriod.period!);
-    const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch(tradePeriod.instrument!);
-    const order: COrder = new COrder(instrument, candle);
+  async Initialize(process: Partial<IInstrumentPeriod>) {
+    const props:Candle.IKeyProps = {
+      instrument: process.instrument!,
+      period: process.period!,
+      symbol: process.symbol!,
+      timeframe: process.timeframe!
+    };
+    const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, 10);
+
+    candles.forEach((candle) => {console.log(candle)})
+    const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch(props);
+    const order: COrder = new COrder(instrument, candles);
     this.Orders.push(order);
   }
 
@@ -45,21 +53,17 @@ export class CProcess {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start() {
-    const tradePeriods = await InstrumentPeriod.Fetch({state: State.Enabled });
+    const start = await InstrumentPeriod.Fetch({ symbol: "XRP", state: State.Enabled });
+    console.log();
 
-    tradePeriods!.forEach((tradePeriod, order) => {
-      if (this.Ready(tradePeriod.instrument!, tradePeriod.period!)) {
-        //        Candles.IntervalImport(this.TradePeriod[row], this.TradePeriod[row].interval_collection_rate!);
-        this.Orders[order].Process();
-      } else {
-        this.Initialize(tradePeriod);
-      }
+    start.forEach((process) => {
+      this.Initialize(process);
     });
-    
+
     await new Promise((resolve, reject) => {
       setTimeout(() => {
         if (this.Orders.length > 0) {
-          console.log('Ive got mail!',this.Orders.length);
+          console.log("Ive got mail!", this.Orders.length);
           resolve(`Processed: ${this.Orders.length}`);
         } else {
           reject(`Error processing orders`);

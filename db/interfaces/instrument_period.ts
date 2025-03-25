@@ -6,7 +6,6 @@
 
 import { Select, Modify } from "@db/query.utils";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
-import { State } from "@db/interfaces/trade_state";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Period from "@db/interfaces/period";

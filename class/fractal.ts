@@ -115,7 +115,7 @@ export class CFractal extends CEvent {
   //+------------------------------------------------------------------+
   //| Fractal constructor                                              |
   //+------------------------------------------------------------------+
-  constructor(instrument: Partial<IInstrument>, candle: Partial<ICandle>) {
+  constructor(instrument: Partial<IInstrument>, candles: Array<Partial<ICandle>>) {
     super();
 
     this.Instrument = structuredClone(instrument);
@@ -140,12 +140,12 @@ export class CFractal extends CEvent {
       },
     };
 
-    this.timestamp = candle.timestamp!;
-    this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
-    this.sma = { open: 0, close: 0 };
-    this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.start_time!, maxTime: candle.start_time! };
+    // this.timestamp = candle.timestamp!;
+    // this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
+    // this.sma = { open: 0, close: 0 };
+    // this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.start_time!, maxTime: candle.start_time! };
 
-    console.log(candle!, this.Instrument, this.Bar, this.bar, this.Fractal, this.fractal);
+    // console.log(candle!, this.Instrument, this.Bar, this.bar, this.Fractal, this.fractal);
   }
 
   //+------------------------------------------------------------------+

@@ -11,8 +11,8 @@ import { Alert, Event } from "@class/event";
 import { CFractal } from "@class/fractal";
 
 export class COrder extends CFractal {
-  constructor(instrument: Partial<IInstrument>, candle: Partial<ICandle>) {
-    super(instrument!, candle!);
+  constructor(instrument: Partial<IInstrument>, candles: Array<Partial<ICandle>>) {
+    super(instrument, candles);
 
   }
 

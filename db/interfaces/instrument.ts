@@ -105,15 +105,14 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves all trading-related instrument details by Key;                             |
 //+--------------------------------------------------------------------------------------+
-export function Fetch(instrument: Uint8Array) {
-  return Select<IInstrument>(`SELECT * FROM vw_instruments WHERE instrument = ?`, [instrument]);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Retrieves all instruments including details;                                         |
-//+--------------------------------------------------------------------------------------+
-export function FetchAll() {
-  return Select<IInstrument>(`SELECT * FROM vw_instruments`, []);
+export async function Fetch(props: IKeyProps, limit: number = 0 ) {
+  const instrument: Uint8Array | undefined = await Key(props);
+  const sql: string = `select * FROM vw_instruments` + ((instrument) ? ` WHERE instrument = ?` : ``) + ((limit) ? ` ORDER BY symbol LIMIT ${limit}` : ``);
+  const args = [];
+  
+  (instrument) && (args.push(instrument));
+  
+  return Select<IInstrument>(sql, args);
 }
 
 //+--------------------------------------------------------------------------------------+
