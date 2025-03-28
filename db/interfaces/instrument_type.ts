@@ -22,16 +22,16 @@ export interface IInstrumentType extends IKeyProps, RowDataPacket {
 //| Adds all new instrument types recieved from Blofin to the database;                    |
 //+----------------------------------------------------------------------------------------+
 export async function Publish(source_ref: string): Promise<IKeyProps["instrument_type"]> {
-  const instrumentType = await Key({ source_ref });
+  const instrument_type = await Key({ source_ref });
 
-  if (instrumentType === undefined) {
+  if (instrument_type === undefined) {
     const key = hex(UniqueKey(6), 3);
 
     await Modify(`INSERT INTO instrument_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
 
     return key;
   }
-  return instrumentType;
+  return instrument_type;
 }
 
 //+----------------------------------------------------------------------------------------+

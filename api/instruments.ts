@@ -88,7 +88,7 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
 
         local.instrument_type !== api[instrument].instType && (updated = true);
         local.contract_type !== api[instrument].contractType && (updated = true);
-        local.suspense === (api[instrument].state === "live") && (updated = true);
+        local.suspense === !!(api[instrument].state === "live") && (updated = true);
 
         if (updated) {
           const update = Object.assign({}, { instrument: local.instrument! }, api[instrument]);

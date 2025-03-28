@@ -56,13 +56,13 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
 
   if (instrument === undefined) {
     const key = hex(UniqueKey(6), 3);
-    const tradeState = await TradeState.Key({ state: State.Disabled });
+    const trade_state = await TradeState.Key({ state: State.Disabled });
 
     await Modify(`INSERT INTO instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
       key,
       base_currency,
       quote_currency,
-      tradeState,
+      trade_state,
     ]);
     return key;
   }

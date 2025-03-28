@@ -37,8 +37,8 @@ export interface IKeyProps {
 //+--------------------------------------------------------------------------------------+
 export async function Publish(
   instrument: Uint8Array,
-  instrumentType: Uint8Array,
-  contractType: Uint8Array,
+  instrument_type: Uint8Array,
+  contract_type: Uint8Array,
   api: IInstrumentAPI
 ): Promise<IKeyProps["instrument"] | undefined> {
   const key = await Instrument.Key({ instrument });
@@ -62,8 +62,8 @@ export async function Publish(
               expiry_time = FROM_UNIXTIME(?/1000)`,
       [
         instrument,
-        instrumentType,
-        contractType,
+        instrument_type,
+        contract_type,
         api.contractValue,
         api.maxLeverage,
         api.minSize,
@@ -100,8 +100,8 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
 //+--------------------------------------------------------------------------------------+
 export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
   for (const update of updates) {
-    const contractType = await ContractType.Key({ source_ref: update.contractType });
-    const instrumentType = await InstrumentType.Key({ source_ref: update.instType });
+    const contract_type = await ContractType.Key({ source_ref: update.contractType });
+    const instrument_type = await InstrumentType.Key({ source_ref: update.instType });
 
     if (update.instrument) {
       await Modify(
@@ -119,8 +119,8 @@ export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
                 expiry_time = FROM_UNIXTIME(?/1000)
           WHERE instrument = ?`,
         [
-          instrumentType,
-          contractType,
+          instrument_type,
+          contract_type,
           update.contractValue,
           update.maxLeverage,
           update.minSize,

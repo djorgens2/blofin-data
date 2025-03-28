@@ -56,7 +56,7 @@ export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
       !isEqual(remote.volCurrency, db[candle].vol_currency!) && (updated = true);
       !isEqual(remote.volCurrencyQuote, db[candle].vol_currency_quote!) && (updated = true);
 
-      remote.confirm === db[candle].completed! && (updated = true);
+      remote.confirm !== !!db[candle].completed! && (updated = true);
 
       if (updated) {
         const update = Object.assign({}, props, remote);
@@ -70,8 +70,7 @@ export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
     }
   });
 
-  console.log("Candles Inserted: ", missing.length, missing);
-  console.log("Candles Updated: ", modified.length, modified);
+  console.log(`Candles:`, { symbol: props.symbol, inserted: missing.length, updated: modified.length });
 
   await Candle.Update(modified);
   await Candle.Insert(missing);

@@ -4,11 +4,12 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
+
 import { fork } from "child_process";
 import { State } from "@db/interfaces/trade_state";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
-import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
 
 //+--------------------------------------------------------------------------------------+
 //| CProcess - Order Processing Class/Container                                          |
