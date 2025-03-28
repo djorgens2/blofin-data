@@ -124,14 +124,14 @@
 // importCandles();
 
 //------------------- Instrument fetch Test ---------------------------------------//
-import { Fetch } from "./db/interfaces/instrument";
+// import { Fetch } from "./db/interfaces/instrument";
 
-async function get() {
-  const instrument = await Fetch({symbol: "BTC"}, 10);
-  console.log(instrument);
-}
+// async function get() {
+//   const instrument = await Fetch({symbol: ""}, {limit:3, fromSymbol:'AV'});
+//   console.log(instrument);
+// }
 
-get();
+// get();
 
 //------------------- Instrument Periods Key Test ---------------------------------------//
 // import { State } from "./db/interfaces/trade_state";
@@ -158,3 +158,4 @@ get();
 
 // console.log(event.eventText(Event.NewDay));
 // console.log(event.activeEvents());
+

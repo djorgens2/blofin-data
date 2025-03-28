@@ -4,7 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
+
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
 
@@ -26,16 +27,14 @@ const Period: Array<{ timeframe: string; description: string; units: number }> =
   { timeframe: "1M", description: "1 Month", units: 0 },
 ];
 
-export interface IPeriod extends RowDataPacket {
-  period: Uint8Array;
-  timeframe: string;
-  description: string;
-  units: number;
-}
-
 export interface IKeyProps {
   period?: Uint8Array;
   timeframe?: string;
+}
+
+export interface IPeriod extends IKeyProps, RowDataPacket {
+  description: string;
+  units: number;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -50,7 +49,7 @@ export function Import() {
 //+--------------------------------------------------------------------------------------+
 //| Adds all new contract types recieved from Blofin to the database;                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(timeframe: string, description: string, units: number): Promise<Uint8Array> {
+export async function Publish(timeframe: string, description: string, units: number): Promise<IKeyProps["period"]> {
   const period = await Key({ timeframe });
 
   if (period === undefined) {
@@ -65,15 +64,19 @@ export async function Publish(timeframe: string, description: string, units: num
 //+--------------------------------------------------------------------------------------+
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<IKeyProps["period"] | undefined> {
   const args = [];
 
+  let sql: string = `SELECT period FROM period WHERE `;
+
   if (props.period) {
-    args.push(hex(props.period, 3), `SELECT period FROM period WHERE period = ?`);
+    args.push(hex(props.period, 3));
+    sql += `period = ?`;
   } else if (props.timeframe) {
-    args.push(props.timeframe, `SELECT period FROM period WHERE timeframe = ?`);
+    args.push(props.timeframe);
+    sql += `timeframe = ?`;
   } else return undefined;
 
-  const [key] = await Select<IPeriod>(args[1].toString(), [args[0]]);
+  const [key] = await Select<IPeriod>(sql, args);
   return key === undefined ? undefined : key.period;
 }

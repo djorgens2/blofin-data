@@ -98,7 +98,7 @@ export class CFractal extends CEvent {
   private Fractal: IFractal;
 
   //-- Identification
-  private instrument:Uint8Array;
+  private instrument: Uint8Array;
   private period: Uint8Array;
 
   //-- Work variables
@@ -140,6 +140,9 @@ export class CFractal extends CEvent {
       },
     };
 
+    this.bar = {min: 0, max:0, retrace: 0}
+    this. sma = { open: 0, close: 0};
+    this.fractal = { min: 0, max: 0, minTime: 0, maxTime: 0 };
     // this.timestamp = candle.timestamp!;
     // this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
     // this.sma = { open: 0, close: 0 };
@@ -151,18 +154,52 @@ export class CFractal extends CEvent {
   //+------------------------------------------------------------------+
   //| Update - Main Update loop; processes bar, sma, fractal, events   |
   //+------------------------------------------------------------------+
-  async Update() {
-    console.log('Updating')
-    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
-    console.log('data ready')
+  initialize() {
+    //-- Work variables
+    // bar: {
+    //   min: number;
+    //   max: number;
+    //   retrace: number;
+    // }
+    // sma: {
+    //   open: number;
+    //   close: number;
+    // }
+    // fractal: {
+    //   min: number;
+    //   max: number;
+    //   minTime: number;
+    //   maxTime: number;
+    // }
 
-    candles.forEach((candle, row) => {
-      this.clearEvents();
+    // console.log("Updating");
+    // const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
+    // console.log("data ready");
+
+    // candles.forEach((candle, row) => {
+    //   this.clearEvents();
 
       // PublishBar(candle, row);
       // PublishSMA(row);
       // PublishFractal(row);
-    });
+    // });
+  }
+
+  //+------------------------------------------------------------------+
+  //| Update - Main Update loop; processes bar, sma, fractal, events   |
+  //+------------------------------------------------------------------+
+  async Update() {
+    console.log("Updating");
+//    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
+    console.log("data ready");
+
+//    candles.forEach((candle, row) => {
+//      this.clearEvents();
+
+      // PublishBar(candle, row);
+      // PublishSMA(row);
+      // PublishFractal(row);
+//    });
   }
 
   //+------------------------------------------------------------------+

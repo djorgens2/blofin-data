@@ -5,7 +5,7 @@
 "use strict";
 
 import type { ICandle, IKeyProps } from "@db/interfaces/candle";
-import * as InstrumentPeriod from "@db/interfaces/instrument_period";
+
 import * as Candle from "@db/interfaces/candle";
 import { isEqual } from "@/lib/std.util";
 
@@ -28,10 +28,10 @@ export interface IResult {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Merges locally stored candle data with new data recieved from Blofin; Test:4i @.06ms |
+//| Retrieves blofin rest api data and merges locally;                                   |
 //+--------------------------------------------------------------------------------------+
 export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
-  const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, apiCandles.length);
+  const candles = await Candle.Fetch(props, apiCandles.length);
   const modified: Array<ICandleAPI & IKeyProps> = [];
   const missing: Array<ICandleAPI & IKeyProps> = [];
 
@@ -78,7 +78,7 @@ export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Import - Retrieve api Candle, format, pass to publisher                              |
+//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export async function Import(props: IKeyProps, limit: number = 0) {
   fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=${limit}&bar=${props.timeframe}`)

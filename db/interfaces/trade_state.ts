@@ -4,7 +4,8 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
+
 import { Modify, Select, UniqueKey } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
 
@@ -15,26 +16,24 @@ export enum State {
   Suspended = "Suspended",
 }
 
-export interface ITradeState extends RowDataPacket {
-  trade_state: Uint8Array;
-  state: string;
-  description: string;
+export interface IKeyProps {
+  trade_state?: Uint8Array;
+  state?: string;
 }
 
-export interface IKeyProps {
-  tradeState?: Uint8Array;
-  state?: string;
-};
+export interface ITradeState extends IKeyProps, RowDataPacket {
+  description: string;
+}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed Trade State data used in our proprietary app;                           |
 //+--------------------------------------------------------------------------------------+
 export function Import() {
-  const TradeStates: Array<{ state: string, description: string; }> = [
-    {  state: "Enabled", description: "Enabled for trading" },
-    {  state: "Disabled", description: "Disabled from trading" },
-    {  state: "Halted", description: "Adverse event halt" },
-    {  state: "Suspended", description: "Suspended by broker" },
+  const TradeStates: Array<{ state: string; description: string }> = [
+    { state: "Enabled", description: "Enabled for trading" },
+    { state: "Disabled", description: "Disabled from trading" },
+    { state: "Halted", description: "Adverse event halt" },
+    { state: "Suspended", description: "Suspended by broker" },
   ];
 
   TradeStates.forEach((state) => {
@@ -45,31 +44,35 @@ export function Import() {
 //+--------------------------------------------------------------------------------------+
 //| Adds all new contract types recieved from Blofin to the database;                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(state: string, description: string): Promise<Uint8Array> {
-  const tradeState = await Key({ state });
+export async function Publish(state: string, description: string): Promise<IKeyProps["trade_state"]> {
+  const trade_state = await Key({ state });
 
-  if (tradeState === undefined) {
+  if (trade_state === undefined) {
     const key = hex(UniqueKey(6), 3);
 
     await Modify(`INSERT INTO trade_state VALUES (?, ?, ?)`, [key, state, description]);
 
     return key;
   }
-  return tradeState;
+  return trade_state;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<IKeyProps["trade_state"] | undefined> {
   const args = [];
 
-  if (props.tradeState) {
-    args.push(hex(props.tradeState, 3), `SELECT trade_state FROM trade_state WHERE trade_state = ?`);
+  let sql: string = `SELECT trade_state FROM trade_state WHERE `;
+
+  if (props.trade_state) {
+    args.push(hex(props.trade_state, 3));
+    sql += `trade_state = ?`;
   } else if (props.state) {
-    args.push(props.state, `SELECT trade_state FROM trade_state WHERE state = ?`);
+    args.push(props.state);
+    sql += `state = ?`;
   } else return undefined;
 
-  const [key] = await Select<ITradeState>(args[1].toString(), [args[0]]);
+  const [key] = await Select<ITradeState>(sql, args);
   return key === undefined ? undefined : key.trade_state;
 }

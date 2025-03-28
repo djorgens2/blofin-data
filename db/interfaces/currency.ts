@@ -4,26 +4,25 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
+
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
-
-export interface ICurrency extends RowDataPacket {
-  currency: Uint8Array;
-  symbol: string;
-  image_url: string;
-  suspense: boolean;
-}
 
 export interface IKeyProps {
   currency?: Uint8Array;
   symbol?: string;
 }
 
+export interface ICurrency extends IKeyProps, RowDataPacket {
+  image_url: string;
+  suspense: boolean;
+}
+
 //+--------------------------------------------------------------------------------------+
 //| Adds all new currencies recieved from Blofin to the database; defaults image         |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(symbol: string, suspense: boolean): Promise<Uint8Array> {
+export async function Publish(symbol: string, suspense: boolean): Promise<IKeyProps["currency"]> {
   const currency = await Key({ symbol });
 
   if (currency === undefined) {
@@ -39,16 +38,20 @@ export async function Publish(symbol: string, suspense: boolean): Promise<Uint8A
 //+--------------------------------------------------------------------------------------+
 //| Examines currency search methods in props; executes first in priority sequence;      |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<IKeyProps["currency"] | undefined> {
   const args = [];
 
+  let sql: string = `SELECT currency FROM currency WHERE `;
+
   if (props.currency) {
-    args.push(hex(props.currency, 3), `SELECT currency FROM currency WHERE currency = ?`);
+    args.push(hex(props.currency, 3));
+    sql += `currency = ?`;
   } else if (props.symbol) {
-    args.push(props.symbol, `SELECT currency FROM currency WHERE symbol = ?`);
+    args.push(props.symbol);
+    sql += `symbol = ?`;
   } else return undefined;
 
-  const [key] = await Select<ICurrency>(args[1].toString(), [args[0]]);
+  const [key] = await Select<ICurrency>(sql, args);
   return key === undefined ? undefined : key.currency;
 }
 
@@ -56,15 +59,19 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 //| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
 //+--------------------------------------------------------------------------------------+
 export async function Suspend(suspensions: Array<IKeyProps>) {
-  for (const suspense of suspensions) {
+  for (const props of suspensions) {
     const args = [];
 
-    if (suspense.currency) {
-      args.push(suspense.currency, `UPDATE currency SET suspense = true WHERE currency = ?`);
-    } else if (suspense.symbol) {
-      args.push(suspense.symbol, `UPDATE currency SET suspense = true WHERE symbol = ?`);
+    let sql: string = `UPDATE currency SET suspense = true WHERE `;
+
+    if (props.currency) {
+      args.push(hex(props.currency, 3));
+      sql += `currency = ?`;
+    } else if (props.symbol) {
+      args.push(props.symbol);
+      sql += `symbol = ?`;
     } else return;
 
-    await Modify(args[1].toString(), [args[0]]);
+    await Modify(sql, args);
   }
 }

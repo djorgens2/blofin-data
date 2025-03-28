@@ -13,7 +13,7 @@ Instruments.Import();
 
 //-------------------------------- candles Import ---------------------------------------//
 async function importCandles() {
-  const instruments = await Periods.Fetch({activeCollection: true});
+  const instruments = await Periods.Fetch({active_collection: true});
   console.log("Fetch filtered period:", instruments);
 
   instruments?.forEach ((db) => {

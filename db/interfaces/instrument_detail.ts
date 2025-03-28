@@ -4,9 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { RowDataPacket } from "mysql2";
 import type { IInstrumentAPI } from "@/api/instruments";
 
-import { RowDataPacket } from "mysql2";
 import { Modify, Select } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
 
@@ -14,8 +14,7 @@ import * as Instrument from "@db/interfaces/instrument";
 import * as ContractType from "@db/interfaces/contract_type";
 import * as InstrumentType from "@db/interfaces/instrument_type";
 
-export interface IInstrumentDetail extends RowDataPacket {
-  instrument: Uint8Array;
+export interface IInstrumentDetail extends IKeyProps, RowDataPacket {
   instrument_type: Uint8Array;
   contract_type: Uint8Array;
   contract_value: number;
@@ -41,8 +40,8 @@ export async function Publish(
   instrumentType: Uint8Array,
   contractType: Uint8Array,
   api: IInstrumentAPI
-): Promise<Uint8Array | undefined> {
-  const key = await Instrument.Key<IKeyProps>({ instrument });
+): Promise<IKeyProps["instrument"] | undefined> {
+  const key = await Instrument.Key({ instrument });
   const confirm = await Key({ instrument });
 
   if (key === undefined) return key;
@@ -83,14 +82,16 @@ export async function Publish(
 //+--------------------------------------------------------------------------------------+
 //| Performs a lookup on instrument_detail; returns key if instrument detail exists      |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | undefined> {
   const args = [];
 
+  let sql: string = `SELECT instrument FROM instrument_detail WHERE instrument = ?`;
+
   if (props.instrument) {
-    args.push(hex(props.instrument, 3), `SELECT instrument FROM instrument_detail WHERE instrument = ?`);
+    args.push(hex(props.instrument, 3));
   } else return undefined;
 
-  const [key] = await Select<IInstrumentDetail>(args[1].toString(), [args[0]]);
+  const [key] = await Select<IInstrumentDetail>(sql, args);
   return key === undefined ? undefined : key.instrument;
 }
 
@@ -99,8 +100,8 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 //+--------------------------------------------------------------------------------------+
 export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
   for (const update of updates) {
-    const contractType = await ContractType.Key({ sourceRef: update.contractType });
-    const instrumentType = await InstrumentType.Key({ sourceRef: update.instType });
+    const contractType = await ContractType.Key({ source_ref: update.contractType });
+    const instrumentType = await InstrumentType.Key({ source_ref: update.instType });
 
     if (update.instrument) {
       await Modify(

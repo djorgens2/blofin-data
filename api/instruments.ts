@@ -43,13 +43,13 @@ export interface IResult {
 export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Array<IInstrumentAPI>> {
   for (const api of apiInstrument) {
     const symbol: string[] = splitSymbol(api.instId);
-    const baseCurrency = await Currency.Publish(symbol[0], api.state !== "live");
-    const quoteCurrency = await Currency.Publish(symbol[1], false);
-    const contractType = await ContractType.Publish(api.contractType);
-    const instrumentType = await InstrumentType.Publish(api.instType);
-    const instrument = await Instrument.Publish(baseCurrency, quoteCurrency);
+    const base_currency = await Currency.Publish(symbol[0], api.state !== "live");
+    const quote_currency = await Currency.Publish(symbol[1], false);
+    const contract_type = await ContractType.Publish(api.contractType);
+    const instrument_type = await InstrumentType.Publish(api.instType);
+    const instrument = await Instrument.Publish(base_currency!, quote_currency!);
 
-    await InstrumentDetail.Publish(instrument, instrumentType, contractType, api);
+    await InstrumentDetail.Publish(instrument!, instrument_type!, contract_type!, api);
   }
   return apiInstrument;
 }
@@ -58,7 +58,7 @@ export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Arr
 //| Merge Instruments/details stored locally w/Blofin json; applies diffs                |
 //+--------------------------------------------------------------------------------------+
 export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
-  const instruments: Array<Partial<Instrument.IInstrument>> = await Instrument.Fetch({});
+  const instruments = await Instrument.Fetch({});
   const modified: Array<IInstrumentAPI> = [];
   const suspense: Array<Currency.IKeyProps> = [];
 

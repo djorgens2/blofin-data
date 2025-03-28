@@ -4,34 +4,35 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
+
 import { Select, Modify } from "@db/query.utils";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Period from "@db/interfaces/period";
 import * as TradeState from "@db/interfaces/trade_state";
 
+export interface IKeyProps {
+  instrument?: Uint8Array | undefined;
+  symbol?: string;
+  base_symbol?: string;
+  base_currency?: Uint8Array;
+  period?: Uint8Array | undefined;
+  timeframe?: string;
+  active_collection?: boolean;
+  trade_state?: Uint8Array | undefined;
+  state?: string;
+}
+
 export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {
-  base_currency: Uint8Array;
-  base_symbol: string;
-  quote_currency: Uint8Array;
   quote_symbol: string;
+  quote_currency: Uint8Array;
   timeframe_units: number;
   bulk_collection_rate: number;
   interval_collection_rate: number;
   sma_factor: number;
   digits: number;
   suspense: boolean;
-}
-
-export interface IKeyProps {
-  instrument?: Uint8Array | undefined;
-  symbol?: string;
-  period?: Uint8Array | undefined;
-  timeframe?: string;
-  tradeState?: Uint8Array | undefined;
-  activeCollection?: boolean;
-  state?: string;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -61,12 +62,12 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
   const params: IKeyProps = {};
   const keys: Array<Uint8Array | string | number | boolean> = [];
   const filters: Array<string> = [];
-  
+
   let sql = `select * from vw_instrument_periods`;
 
-  (props.symbol || props.instrument) && (params.instrument = await Instrument.Key(props));
+  (props.symbol || props.base_currency || props.base_symbol || props.instrument) && (params.instrument = await Instrument.Key(props));
   (props.timeframe || props.period) && (params.period = await Period.Key(props));
-  (props.state || props.tradeState) && (params.tradeState = await TradeState.Key(props));
+  (props.state || props.trade_state) && (params.trade_state = await TradeState.Key(props));
 
   if (params.instrument) {
     filters.push(`instrument`);
@@ -77,30 +78,19 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
     filters.push(`period`);
     keys.push(params.period);
   }
-  if (params.tradeState) {
+  if (params.trade_state) {
     filters.push(`trade_state`);
-    keys.push(params.tradeState);
+    keys.push(params.trade_state);
   }
 
-  if (props.activeCollection) {
+  if (props.active_collection) {
     filters.push(`active_collection`);
-    keys.push(props.activeCollection);
+    keys.push(props.active_collection);
   }
 
   filters.forEach((filter, position) => {
     sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
   });
-  
-  return Select<IInstrumentPeriod>(sql, keys);
-}
 
-//+--------------------------------------------------------------------------------------+
-//| Returns details on actively trading/data collecting instruments                      |
-//+--------------------------------------------------------------------------------------+
-export function FetchActive() {
-  return Select<IInstrumentPeriod>(
-    `SELECT instrument, symbol, period, timeframe, bulk_collection_rate, digits 
-       FROM vw_instrument_periods WHERE bulk_collection_rate > 0 AND suspense = false`,
-    []
-  );
+  return Select<IInstrumentPeriod>(sql, keys);
 }

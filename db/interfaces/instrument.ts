@@ -4,7 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "mysql2";
+
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex, splitSymbol } from "@/lib/std.util";
 import { State } from "@db/interfaces/trade_state";
@@ -12,13 +13,16 @@ import { State } from "@db/interfaces/trade_state";
 import * as Currency from "@db/interfaces/currency";
 import * as TradeState from "@db/interfaces/trade_state";
 
-export interface IInstrument extends RowDataPacket {
-  instrument: Uint8Array;
-  symbol: string;
-  base_currency: Uint8Array;
-  base_symbol: string;
-  quote_currency: Uint8Array;
-  quote_symbol: string;
+export interface IKeyProps {
+  instrument?: Uint8Array;
+  symbol?: string;
+  base_symbol?: string;
+  quote_symbol?: string;
+  base_currency?: Uint8Array;
+  quote_currency?: Uint8Array;
+}
+
+export interface IInstrument extends IKeyProps, RowDataPacket {
   instrument_type: string;
   contract_type: string;
   trade_period: Uint8Array;
@@ -44,17 +48,11 @@ export interface IInstrument extends RowDataPacket {
   suspense: boolean;
 }
 
-export interface IKeyProps {
-  instrument?: Uint8Array;
-  currency?: Uint8Array | Array<Uint8Array>;
-  symbol?: string | Array<string>;
-}
-
 //+--------------------------------------------------------------------------------------+
 //| Determines if instrument exists, if not, writes new to database; returns Key         |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Array): Promise<Uint8Array> {
-  const instrument = await Key({ currency: [baseCurrency, quoteCurrency] });
+export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Array): Promise<IKeyProps["instrument"]> {
+  const instrument = await Key({ base_currency, quote_currency });
 
   if (instrument === undefined) {
     const key = hex(UniqueKey(6), 3);
@@ -62,8 +60,8 @@ export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Arra
 
     await Modify(`INSERT INTO instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
       key,
-      baseCurrency,
-      quoteCurrency,
+      base_currency,
+      quote_currency,
       tradeState,
     ]);
     return key;
@@ -74,7 +72,7 @@ export async function Publish(baseCurrency: Uint8Array, quoteCurrency: Uint8Arra
 //+--------------------------------------------------------------------------------------+
 //| Returns instrument by search method in props; executes search in priority sequence;  |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
+export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | undefined> {
   const keys: Array<Uint8Array | string> = [];
   const filters: Array<string> = [];
 
@@ -83,11 +81,24 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
   if (props.instrument) {
     keys.push(hex(props.instrument, 3));
     filters.push(`instrument`);
-  } else if (props.currency) {
-    Array.isArray(props.currency)
-      ? keys.push(hex(props.currency[0], 3), hex(props.currency.length > 1 ? props.currency[1] : 0, 3))
-      : keys.push(hex(props.currency, 3));
-    keys.length === 2 ? filters.push(`base_currency`, `quote_currency`) : filters.push(`base_currency`);
+  } else if (props.base_currency || props.quote_currency) {
+    if (props.base_currency) {
+      keys.push(hex(props.base_currency, 3));
+      filters.push(`base_currency`);
+    }
+    if (props.quote_currency) {
+      keys.push(hex(props.quote_currency, 3));
+      filters.push(`quote_currency`);
+    }
+  } else if (props.base_symbol || props.quote_symbol) {
+    if (props.base_symbol) {
+      keys.push(props.base_symbol);
+      filters.push(`base_symbol`);
+    }
+    if (props.quote_symbol) {
+      keys.push(props.quote_symbol);
+      filters.push(`quote_symbol`);
+    }
   } else if (props.symbol) {
     const symbol: Array<string> = splitSymbol(props.symbol);
     keys.push(symbol[0], symbol[1]);
@@ -98,6 +109,8 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
     sql += (position ? ` AND ` : ` WHERE `) + filter + ` = ?`;
   });
 
+  sql += ` LIMIT 1`;
+
   const [key] = await Select<IInstrument>(sql, keys);
   return key === undefined ? undefined : key.instrument;
 }
@@ -105,13 +118,18 @@ export async function Key(props: IKeyProps): Promise<Uint8Array | undefined> {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves all trading-related instrument details by Key;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps, limit: number = 0 ) {
-  const instrument: Uint8Array | undefined = await Key(props);
-  const sql: string = `select * FROM vw_instruments` + ((instrument) ? ` WHERE instrument = ?` : ``) + ((limit) ? ` ORDER BY symbol LIMIT ${limit}` : ``);
+export async function Fetch(props: IKeyProps, filter?: { limit?: number; fromSymbol?: string }): Promise<Array<Partial<IInstrument>>> {
+  const instrument = await Key(props);
   const args = [];
-  
-  (instrument) && (args.push(instrument));
-  
+  const sql: string =
+    `select * FROM vw_instruments` +
+    (instrument ? ` WHERE instrument = ?` : ``) +
+    (filter?.fromSymbol ? (instrument ? ` AND ` : ` WHERE `) : ``) +
+    (filter?.fromSymbol ? `symbol >= ? ORDER BY symbol LIMIT ${filter.limit || 1}` : ``);
+
+  instrument && args.push(instrument);
+  filter?.fromSymbol && args.push(filter.fromSymbol);
+
   return Select<IInstrument>(sql, args);
 }
 
@@ -119,7 +137,7 @@ export async function Fetch(props: IKeyProps, limit: number = 0 ) {
 //| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
 //+--------------------------------------------------------------------------------------+
 export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
-  const state = await TradeState.Key({ state: "Suspended" });
+  const state = await TradeState.Key({ state: State.Suspended });
 
   for (const suspense of suspensions) {
     const args = [state];

@@ -47,9 +47,9 @@ export type Role = (typeof Role)[keyof typeof Role];
 //+--------------------------------------------------------------------------------------+
 export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
   const symbols: Array<string> = typeof symbol === "string" ? symbol.split("-") : typeof Array.isArray(symbol) ? symbol[0].split("-") : [];
-    
-  symbols.length === 1 && (symbols.push("USDT"));
-  symbols[1].length === 0 && (symbols.splice(1,1,"USDT"))
+
+  symbols.length === 1 && symbols.push("USDT");
+  symbols[1].length === 0 && symbols.splice(1, 1, "USDT");
 
   return symbols.slice(0, 2);
 };
@@ -61,10 +61,28 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
   const regex = /^\d+$/;
   const bytes = [];
 
+  function dec(obj: object): number {
+    let hex: string = "";
+    "type" in obj && obj.type === "Buffer" && "data" in obj && Array.isArray(obj.data)
+      ? obj.data.forEach((val) => (hex += val.toString(16)))
+      : Object.values(obj).map((val) => (hex += val.toString(16)));
+    return parseInt(hex, 16);
+  }
+
   if (key instanceof Uint8Array) if (key.length === length || length === 0) return key;
 
   let decimal: number =
-    typeof key === "number" ? key : typeof key === "string" ? (key.slice(0, 2) === "0x" ? parseInt(key, 16) : regex.test(key) ? parseInt(key) : 0) : 0;
+    typeof key === "number"
+      ? key
+      : typeof key === "string"
+      ? key.slice(0, 2) === "0x"
+        ? parseInt(key, 16)
+        : regex.test(key)
+        ? parseInt(key, 16)
+        : 0
+      : typeof key === "object"
+      ? dec(key)
+      : 0;
 
   while (decimal > 0) {
     bytes.unshift(decimal % 256);
@@ -72,7 +90,7 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
   }
 
   while (bytes.length < length) bytes.unshift(0);
-  return new Uint8Array(bytes.length <= Math.abs(length) || length === 0 ? bytes : []);
+  return Buffer.from(new Uint8Array(bytes.length <= Math.abs(length) || length === 0 ? bytes : []));
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -113,7 +131,7 @@ export const isEqual = (test: number | string, check: number | string, digits: n
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Copies matching properties and values from source to target;                          |
+//| Copies matching properties and values from source to target;                         |
 //+--------------------------------------------------------------------------------------+
 export function copy(source: any, target: any) {
   for (const key in source) {
@@ -123,3 +141,24 @@ export function copy(source: any, target: any) {
   }
   return target;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Returns a buffer string for binary arrays; eg: 0xc0ffee returns 'Buffer< c0 ff ee >  |
+//+--------------------------------------------------------------------------------------+
+export function bufferString(uint8Array: Uint8Array): string {
+  const hex = Array.from(uint8Array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join(" ");
+  return `<buffer ${hex}>`;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Constant type to convert text arrays into 'enum-like' type guards;                   |
+//+--------------------------------------------------------------------------------------+
+export const createEnumLike = <T extends string>(items: readonly T[]) => {
+  const obj = {} as { [K in T]: K };
+  items.forEach((item) => {
+    obj[item] = item;
+  });
+  return obj as Readonly<typeof obj>;
+};
