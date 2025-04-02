@@ -95,39 +95,49 @@
 // Import();
 
 //-------------------------------- candles Import ---------------------------------------//
-// import { Import } from "./api/candles";
-// import * as Candles from "@db/interfaces/candle"
-// import * as Periods from "@db/interfaces/instrument_period"
-// import { State } from "./db/interfaces/trade_state";
+import { Import } from "./api/candles";
+import * as Candles from "@db/interfaces/candle"
+import * as Periods from "@db/interfaces/instrument_period"
+import { State } from "./db/interfaces/trade_state";
 
-// async function importCandles() {
-//   const instruments = await Periods.Fetch({activeCollection: true});
-//   console.log("Fetch filtered period:", instruments);
+async function importCandles() {
+  const instruments = await Periods.Fetch({active_collection: true});
+  console.log("Fetch filtered period:", instruments);
 
-//   instruments?.forEach ((db) => {
-//     const props: Candles.IKeyProps = {
-//       instrument: db.instrument!,
-//       symbol: db.symbol!,
-//       period: db.period!,
-//       timeframe: db.timeframe!,
-//     };
-//     Import({
-//       instrument: db.instrument!,
-//       symbol: db.symbol!,
-//       period: db.period!,
-//       timeframe: db.timeframe!,
-//     }, 1440);
-//   })
+  instruments?.forEach ((db) => {
+    const props: Candles.IKeyProps = {
+      instrument: db.instrument!,
+      symbol: db.symbol!,
+      period: db.period!,
+      timeframe: db.timeframe!,
+    };
+    Import({
+      instrument: db.instrument!,
+      symbol: db.symbol!,
+      period: db.period!,
+      timeframe: db.timeframe!,
+    }, 1440);
+  })
   
-// }
+}
 
-// importCandles();
+importCandles();
 
 //------------------- Instrument fetch Test ---------------------------------------//
 // import { Fetch } from "./db/interfaces/instrument";
 
 // async function get() {
 //   const instrument = await Fetch({symbol: ""}, {limit:3, fromSymbol:'AV'});
+//   console.log(instrument);
+// }
+
+// get();
+
+//------------------- Instrument Periiods Test ---------------------------------------//
+// import { Fetch } from "./db/interfaces/instrument_period";
+
+// async function get() {
+//   const instrument = await Fetch({symbol: "XRP-USDT", timeframe: '15m'});
 //   console.log(instrument);
 // }
 

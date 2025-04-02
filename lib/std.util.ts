@@ -4,43 +4,57 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-export interface IMeasure {
-  min: number;
-  max: number;
-  now: number;
+//-- IPC message header
+export interface IMessage {
+  state: string; //-- may convert to enum
+  symbol: string;
+  node: number;
+  code?: number;
+  success?: boolean;
+  text?: string;
+  timestamp?: EpochTimeStamp;
+  db?: {
+    insert?: number;
+    update?: number;
+    fetched?: number;
+  };
+  events?: {
+    fractal?: number;
+    sma?: number;
+  };
+  account?: {
+    open?: number;
+    close?: number;
+  };
 }
 
-export const Direction = {
-  None: 0,
-  Up: 1,
-  Down: -1,
-  Flat: 2,
-  Pend: -2,
-} as const;
-
-export const Action = {
-  None: "No Action",
-  Buy: "Buy",
-  Sell: "Sell",
-  Wait: "Wait",
-} as const;
-
-export const Bias = {
-  None: 0,
-  Short: -1,
-  Long: 1,
-} as const;
-
-export const Role = {
-  Unassigned: "Unassigned",
-  Seller: "Seller",
-  Buyer: "Buyer",
-} as const;
-
-export type Direction = (typeof Direction)[keyof typeof Direction];
-export type Action = (typeof Action)[keyof typeof Action];
-export type Bias = (typeof Bias)[keyof typeof Bias];
-export type Role = (typeof Role)[keyof typeof Role];
+//+--------------------------------------------------------------------------------------+
+//| Returns initialized Message header (clone) with identity retention (symbol);         |
+//+--------------------------------------------------------------------------------------+
+export function clear(message: IMessage): IMessage {
+  return {
+    state: message.state,
+    symbol: message.symbol,
+    node: message.node,
+    code: 0,
+    success: true,
+    text: "",
+    timestamp: Date.now(),
+    db: {
+      insert: 0,
+      update: 0,
+      fetched: 0,
+    },
+    events: {
+      fractal: 0,
+      sma: 0,
+    },
+    account: {
+      open: 0,
+      close: 0,
+    },
+  };
+}
 
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
@@ -70,6 +84,9 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
   }
 
   if (key instanceof Uint8Array) if (key.length === length || length === 0) return key;
+  if (typeof key === "string" && key.indexOf("Buffer") === 1) {
+    key = "0x" + key.slice(8, 15).split(" ").join("");
+  }
 
   let decimal: number =
     typeof key === "number"
@@ -94,18 +111,43 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns the direction key derived from supplied value                                |
+//| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+
-export const bias = (direction: Direction): Bias => {
-  return direction === Direction.Up ? Bias.Long : direction === Direction.Down ? Bias.Short : Bias.None;
-};
+export function hexString(uint8Array: Uint8Array, length: number): string {
+  const hex = Array.from(uint8Array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  return "0x" + hex.padStart(length, "0");
+}
 
 //+--------------------------------------------------------------------------------------+
-//| Returns the direction key derived from supplied value                                |
+//| Returns a buffer string for binary arrays; eg: 0xc0ffee returns '<Buffer c0 ff ee>'  |
 //+--------------------------------------------------------------------------------------+
-export const direction = (value: number): Direction => {
-  return value > 0 ? Direction.Up : value < 0 ? Direction.Down : Direction.None;
-};
+export function bufferString(uint8Array: Uint8Array): string {
+  const hex = Array.from(uint8Array)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join(" ");
+  return `<buffer ${hex}>`;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Parses an object usually from cli that was xfer'd as string into JSON or props       |
+//+--------------------------------------------------------------------------------------+
+export function parse<T extends object>(arg: string): Required<T> | undefined {
+  try {
+    const json = JSON.parse(arg);
+
+    if (typeof json === "object" && json !== null) {
+      const obj: Required<T> = {...json};
+      return obj;
+    }
+  } catch (e) {
+    throw new Error(`something jacked up`);
+  }
+
+  return undefined;
+}
 
 //+--------------------------------------------------------------------------------------+
 //| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
@@ -140,16 +182,6 @@ export function copy(source: any, target: any) {
     }
   }
   return target;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns a buffer string for binary arrays; eg: 0xc0ffee returns 'Buffer< c0 ff ee >  |
-//+--------------------------------------------------------------------------------------+
-export function bufferString(uint8Array: Uint8Array): string {
-  const hex = Array.from(uint8Array)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join(" ");
-  return `<buffer ${hex}>`;
 }
 
 //+--------------------------------------------------------------------------------------+

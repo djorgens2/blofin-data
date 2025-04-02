@@ -111,7 +111,7 @@ export function Fetch(props: IKeyProps, limit: number = 0): Promise<Array<Partia
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
      WHERE instrument = ?	AND period = ?
-     ORDER BY	timestamp DESC LIMIT ${limit}`,
+     ORDER BY	timestamp DESC LIMIT ${limit||1}`,
     [props.instrument, props.period]
   );
 }
