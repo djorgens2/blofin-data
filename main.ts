@@ -8,13 +8,13 @@ import * as TradeState from "@db/interfaces/trade_state";
 import * as Period from "@/db/interfaces/period";
 import * as Instruments from "@api/instruments";
 
-import { CApp } from "@app/app";
+import { CMain } from "@app/main";
 
 TradeState.Import();
 Period.Import();
 Instruments.Import();
 
-const app = new CApp();
+const app = new CMain();
 
 app.Start();
     
