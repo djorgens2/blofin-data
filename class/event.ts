@@ -59,118 +59,93 @@ export enum Event {
 //+------------------------------------------------------------------+
 //| Class CEvent: stores private Event stack with access methods     |
 //+------------------------------------------------------------------+
-export class CEvent {
-  private Event: Array<boolean> = new Array(Object.keys(Event).length / 2).fill(false);
-  private Alert: Array<Alert> = new Array(Object.keys(Event).length / 2).fill(Alert.NoAlert);
+export const CEvent = () => {
+  const AlertText: string[] = Object.keys(Alert).slice(Object.keys(Alert).length / 2);
+  const EventText: string[] = Object.keys(Event).slice(Object.keys(Event).length / 2);
 
-  private MaxEvent: Event = Event.NoEvent;
-  private MaxAlert: Alert = Alert.NoAlert;
+  const Events: Array<boolean> = new Array(EventText.length).fill(false);
+  const Alerts: Array<Alert> = new Array(AlertText.length).fill(Alert.NoAlert);
 
-  private AlertText: string[];
-  private EventText: string[];
-
-  //+------------------------------------------------------------------+
-  //| Event constructor                                                |
-  //+------------------------------------------------------------------+
-  constructor() {
-    let alert = Object.keys(Alert) as Array<keyof typeof Alert>;
-    let event = Object.keys(Event) as Array<keyof typeof Event>;
-
-    this.AlertText = alert.slice(alert.length / 2);
-    this.EventText = event.slice(event.length / 2);
-  }
+  let MaxEvent: Event = Event.NoEvent;
+  let MaxAlert: Alert = Alert.NoAlert;
 
   //+------------------------------------------------------------------+
   //| setEvent - Sets the triggering event and Alert level             |
   //+------------------------------------------------------------------+
-  setEvent(event: Event, alert: Alert = Alert.Notify) {
+  const setEvent = (event: Event, alert: Alert = Alert.Notify) => {
     if (event === Event.NoEvent) return;
 
-    this.Event[Event.NoEvent] = false;
-    this.Event[event] = true;
-    this.Alert[event] = <Alert>Math.max(alert, this.Alert[event]);
+    Events[Event.NoEvent] = false;
+    Events[event] = true;
+    Alerts[event] = <Alert>Math.max(alert, Alerts[event]);
 
-    if (alert > this.MaxAlert) {
-      this.MaxEvent = event;
-      this.MaxAlert = alert;
+    if (alert > MaxAlert) {
+      MaxEvent = event;
+      MaxAlert = alert;
     }
 
-    alert === this.MaxAlert && (this.MaxEvent = <Event>Math.max(event, this.MaxEvent));
-  }
+    alert === MaxAlert && (MaxEvent = <Event>Math.max(event, MaxEvent));
+  };
 
   //+------------------------------------------------------------------+
   //| clearEvents - Resets/Initializes all events to false             |
   //+------------------------------------------------------------------+
-  clearEvents() {
-    this.Event.fill(false);
-    this.Alert.fill(Alert.NoAlert);
+  const clearEvents = () => {
+    Events.fill(false);
+    Alerts.fill(Alert.NoAlert);
 
-    this.Event[Event.NoEvent] = true;
+    Events[Event.NoEvent] = true;
 
-    this.MaxEvent = Event.NoEvent;
-    this.MaxAlert = Alert.NoAlert;
-  }
+    MaxEvent = Event.NoEvent;
+    MaxAlert = Alert.NoAlert;
+  };
 
   //+------------------------------------------------------------------+
   //| isEventActive - Returns Event:Alert state of the provided Event  |
   //+------------------------------------------------------------------+
-  isEventActive(setEvent: Event, setAlert: Alert = Alert.NoAlert): boolean {
-    if (setAlert === Alert.NoAlert) return this.Event[setEvent];
-    if (this.Event[setEvent] && this.Alert[setEvent] === setAlert) return this.Event[setEvent];
+  const isEventActive = (event: Event, alert: Alert = Alert.NoAlert): boolean => {
+    if (alert === Alert.NoAlert) return Events[event];
+    if (Events[event] && Alerts[event] === alert) return Events[event];
 
     return false;
-  }
+  };
 
   //+------------------------------------------------------------------+
   //| isAnyEventActive - Returns true on any active event              |
   //+------------------------------------------------------------------+
-  isAnyEventActive(): boolean {
-    return !this.Event[Event.NoEvent];
-  }
-
-  //+------------------------------------------------------------------+
-  //| maxEvent - Returns MaxEvent active from last clearEvent call     |
-  //+------------------------------------------------------------------+
-  maxEvent(): Event {
-    return this.MaxEvent;
-  }
-
-  //+------------------------------------------------------------------+
-  //| maxAlert - Returns MaxAlert active from last clearEvent call     |
-  //+------------------------------------------------------------------+
-  maxAlert(): Alert {
-    return this.MaxAlert;
-  }
+  const isAnyEventActive = (): boolean => {
+    return !Events[Event.NoEvent];
+  };
 
   //+------------------------------------------------------------------+
   //| eventText - Returns translated literal event text(key)           |
   //+------------------------------------------------------------------+
-  eventText(event: Event): string {
-    return this.EventText[event];
-  }
+  const eventText = (event: Event): string => {
+    return EventText[event];
+  };
 
   //+------------------------------------------------------------------+
   //| alertText - Returns translated literal alert text(key)           |
   //+------------------------------------------------------------------+
-  alertText(event: Event): string {
-    return this.EventText[event];
-  }
+  const alertText = (event: Event): string => {
+    return EventText[event];
+  };
 
   //+------------------------------------------------------------------+
   //| activeEvents - Returns an object of active {event, alert}        |
   //+------------------------------------------------------------------+
-  activeEvents(): Array<{ event: string; alert: string }> {
+  const activeEvents = (): Array<{ event: string; alert: string }> => {
     const activeEvents: Array<{ event: string; alert: string }> = [];
 
-    if (this.isAnyEventActive()) {
-      this.Event.forEach((active, row) => {
-        if (active) {
-          activeEvents.push({ event: this.EventText[row], alert: this.AlertText[this.Alert[row]] });
-        }
+    if (isAnyEventActive()) {
+      Events.forEach((active, row) => {
+        active && activeEvents.push({ event: EventText[row], alert: AlertText[Alerts[row]] });
       });
 
       return activeEvents;
     }
     return [{ event: "Inactive", alert: "None" }];
-  }
-}
+  };
+
+  return { clearEvents, setEvent, isEventActive, isAnyEventActive, eventText, alertText, activeEvents, MaxAlert, MaxEvent };
+};

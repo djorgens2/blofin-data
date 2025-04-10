@@ -5,9 +5,11 @@
 "use strict";
 
 import type { ICandle, IKeyProps } from "@db/interfaces/candle";
+import type { IMessage } from "@/lib/std.util";
+
+import { isEqual } from "@/lib/std.util";
 
 import * as Candle from "@db/interfaces/candle";
-import { isEqual } from "@/lib/std.util";
 
 export interface ICandleAPI {
   ts: number;
@@ -30,7 +32,7 @@ export interface IResult {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves blofin rest api data and merges locally;                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
+export async function Merge(message: IMessage, props: IKeyProps, apiCandles: Array<ICandleAPI>) {
   const candles = await Candle.Fetch(props, apiCandles.length);
   const modified: Array<ICandleAPI & IKeyProps> = [];
   const missing: Array<ICandleAPI & IKeyProps> = [];
@@ -70,16 +72,16 @@ export async function Merge(props: IKeyProps, apiCandles: Array<ICandleAPI>) {
     }
   });
 
-  console.log(`Candles:`, { symbol: props.symbol, inserted: missing.length, updated: modified.length });
-
   await Candle.Update(modified);
   await Candle.Insert(missing);
+
+  process.send && process.send({ ...message, db: { insert: missing.length, update: modified.length } });
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Import(props: IKeyProps, limit: number = 0) {
+export async function Import(message: IMessage, props: IKeyProps, limit: number = 0) {
   fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=${limit}&bar=${props.timeframe}`)
     .then((response) => response.json())
     .then((result: IResult) => {
@@ -94,7 +96,6 @@ export async function Import(props: IKeyProps, limit: number = 0) {
         volCurrencyQuote: parseInt(field[7]),
         confirm: parseInt(field[8]) === 1,
       }));
-
-      Merge(props, apiCandles);
+      Merge(message, props, apiCandles);
     });
 }

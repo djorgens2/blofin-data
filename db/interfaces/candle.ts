@@ -111,7 +111,18 @@ export function Fetch(props: IKeyProps, limit: number = 0): Promise<Array<Partia
     `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
      FROM vw_candles
      WHERE instrument = ?	AND period = ?
-     ORDER BY	timestamp DESC LIMIT ${limit||1}`,
+     ORDER BY	timestamp DESC LIMIT ${limit || 1}`,
     [props.instrument, props.period]
   );
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Returns all candles meeting the mandatory instrument/period requirements;            |
+//+--------------------------------------------------------------------------------------+
+export async function First(props: IKeyProps): Promise<Partial<ICandle>> {
+  const [candle] = await Select<ICandle>(
+    `SELECT * FROM vw_candles WHERE (instrument, period, bar_time) = (SELECT instrument, period, min(bar_time) FROM candle WHERE instrument = ? AND period = ?)`,
+    [props.instrument, props.period]
+  );
+  return candle;
 }

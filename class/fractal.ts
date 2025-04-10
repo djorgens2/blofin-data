@@ -1,7 +1,7 @@
-//+------------------------------------------------------------------+
-//|                                                       fractal.ts |
-//|                                 Copyright 2018, Dennis Jorgenson |
-//+------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
+//|                                                                           fractal.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
 "use strict";
 
 import type { IInstrument } from "@/db/interfaces/instrument";
@@ -13,7 +13,8 @@ import * as Candle from "@db/interfaces/candle";
 import { CEvent, Event, Alert } from "@class/event";
 import { Action, Direction, Bias } from "@lib/app.util"; //-- enums
 import { bias, direction } from "@lib/app.util"; //-- functions
-import { isBetween } from "@/lib/std.util";
+import { hex, IMessage, isBetween } from "@/lib/std.util";
+import { LiaMittenSolid } from "react-icons/lia";
 
 export const Fibonacci = {
   Root: 0,
@@ -53,10 +54,11 @@ export interface IBar {
   completed: boolean;
 }
 
-interface ITrend extends IBar {
+interface IBars extends IBar {
   direction: Direction;
   lead: Bias;
   bias: Bias;
+  sma: number;
 }
 
 interface IPoint {
@@ -88,139 +90,85 @@ interface IFibonacci {
   extension: IMeasure;
 }
 
-//+------------------------------------------------------------------+
-//| Class CFractal                                                   |
-//+------------------------------------------------------------------+
-export class CFractal extends CEvent {
-  //-- Data collections
-  private Instrument: Partial<IInstrument>;
-  private Bar: ITrend[] = [];
-  private SMA: IBar[] = [];
-  private Fractal: IFractal;
-
-  //-- Identification
-  private instrument: Uint8Array;
-  private period: Uint8Array;
+//+--------------------------------------------------------------------------------------+
+//| Class CFractal                                                                       |
+//+--------------------------------------------------------------------------------------+
+export const CFractal = async (instrument: Partial<IInstrument>) => {
+  const event = CEvent();
+  const Bar: Array<IBars> = [];
+  const Fractal: IFractal = {
+    direction: Direction.None,
+    lead: Bias.None,
+    bias: Bias.None,
+    state: State.Breakout,
+    volume: 0,
+    point: {
+      Origin: { timestamp: 0, price: 0 },
+      Base: { timestamp: 0, price: 0 },
+      Root: { timestamp: 0, price: 0 },
+      Expansion: { timestamp: 0, price: 0 },
+      Retrace: { timestamp: 0, price: 0 },
+      Recovery: { timestamp: 0, price: 0 },
+      Close: { timestamp: 0, price: 0 },
+    },
+  };
+  const props: Candle.IKeyProps = {
+    instrument: instrument.instrument!,
+    symbol: instrument.symbol!,
+    period: instrument.trade_period!,
+    timeframe: instrument.trade_timeframe!,
+  };
+  const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, 10000); //-- limit will be added to instrument
+  const start: Partial<ICandle> = structuredClone(candles[candles.length - 1]);
 
   //-- Work variables
-  private bar: { min: number; max: number; retrace: number };
-  private sma: { open: number; close: number };
-  private fractal: { min: number; max: number; minTime: number; maxTime: number };
+  const fractal = { min: start.low!, max: start.high!, minTime: start.start_time!, maxTime: start.start_time! };
+  const bar = { min: start.low!, max: start.high!, retrace: start.close! > start.open! ? start.high! : start.low! };
+  const sma = { open: 0, close: 0 };
 
   //-- Properties
-  private timestamp: number = 0;
-  private sma_factor: number = 0;
-  private digits: number = 0;
-  private bars: number = 0;
+  const sma_factor: number = instrument.sma_factor!;
+  const digits: number = instrument.digits!;
 
-  //+------------------------------------------------------------------+
-  //| Fractal constructor                                              |
-  //+------------------------------------------------------------------+
-  constructor(instrument: Partial<IInstrument>, candles: Array<Partial<ICandle>>) {
-    super();
+  let timestamp: number = start.timestamp!;
+  let bars: number = candles.length;
 
-    this.Instrument = structuredClone(instrument);
-    this.instrument = this.Instrument.instrument!;
-    this.period = this.Instrument.period!;
-    this.sma_factor = this.Instrument.sma_factor!;
-    this.digits = this.Instrument.digits!;
-    this.Fractal = {
+  //+--------------------------------------------------------------------------------------+
+  //| Main Update loop; processes bar, sma, fractal, events                                |
+  //+--------------------------------------------------------------------------------------+
+  const Update = async (message: IMessage) => {
+    const limit: number = 100; //-- derived from timestamp
+    const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, limit);
+    event.setEvent(Event.NewBias);
+    event.setEvent(Event.NewHour, Alert.Major);
+    event.setEvent(Event.NewHigh, Alert.Nominal);
+    event.setEvent(Event.NewBoundary, Alert.Minor);
+    event.setEvent(Event.NewLow, Alert.Minor);
+    event.setEvent(Event.NewOutsideBar, Alert.Major);
+
+    console.log(event.eventText(Event.NewDay));
+    console.log(event.activeEvents());
+    
+    process.send && process.send(message);
+  };
+
+  //      clearEvents() {return this.clearEvents()}
+  candles.forEach((candle) => {
+    Bar.push({
       direction: Direction.None,
       lead: Bias.None,
       bias: Bias.None,
-      state: State.Breakout,
-      volume: 0,
-      point: {
-        Origin: { timestamp: 0, price: 0 },
-        Base: { timestamp: 0, price: 0 },
-        Root: { timestamp: 0, price: 0 },
-        Expansion: { timestamp: 0, price: 0 },
-        Retrace: { timestamp: 0, price: 0 },
-        Recovery: { timestamp: 0, price: 0 },
-        Close: { timestamp: 0, price: 0 },
-      },
-    };
+      sma: 0,
+      timestamp: candle.timestamp!,
+      open: candle.open!,
+      high: candle.high!,
+      low: candle.low!,
+      close: candle.close!,
+      volume: candle.volume!,
+      completed: candle.completed!,
+    });
+  });
 
-    this.bar = {min: 0, max:0, retrace: 0}
-    this. sma = { open: 0, close: 0};
-    this.fractal = { min: 0, max: 0, minTime: 0, maxTime: 0 };
-    // this.timestamp = candle.timestamp!;
-    // this.bar = { min: candle.low!, max: candle.high!, retrace: candle.close! > candle.open! ? candle.high! : candle.low! };
-    // this.sma = { open: 0, close: 0 };
-    // this.fractal = { min: candle.low!, max: candle.high!, minTime: candle.start_time!, maxTime: candle.start_time! };
+  return { Update, activeEvents: event.activeEvents, isAnyEventActive: event.isAnyEventActive };
 
-    // console.log(candle!, this.Instrument, this.Bar, this.bar, this.Fractal, this.fractal);
-  }
-
-  //+------------------------------------------------------------------+
-  //| Update - Main Update loop; processes bar, sma, fractal, events   |
-  //+------------------------------------------------------------------+
-  initialize() {
-    //-- Work variables
-    // bar: {
-    //   min: number;
-    //   max: number;
-    //   retrace: number;
-    // }
-    // sma: {
-    //   open: number;
-    //   close: number;
-    // }
-    // fractal: {
-    //   min: number;
-    //   max: number;
-    //   minTime: number;
-    //   maxTime: number;
-    // }
-
-    // console.log("Updating");
-    // const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
-    // console.log("data ready");
-
-    // candles.forEach((candle, row) => {
-    //   this.clearEvents();
-
-      // PublishBar(candle, row);
-      // PublishSMA(row);
-      // PublishFractal(row);
-    // });
-  }
-
-  //+------------------------------------------------------------------+
-  //| Update - Main Update loop; processes bar, sma, fractal, events   |
-  //+------------------------------------------------------------------+
-  async Update() {
-    console.log("Updating");
-//    const candles: Array<Partial<ICandle>> = await Candle.FetchTimestamp(this.Instrument.instrument!, this.Instrument.trade_period!, this.timestamp);
-    console.log("data ready");
-
-//    candles.forEach((candle, row) => {
-//      this.clearEvents();
-
-      // PublishBar(candle, row);
-      // PublishSMA(row);
-      // PublishFractal(row);
-//    });
-  }
-
-  //+------------------------------------------------------------------+
-  //| Identification - returns instrument details                          |
-  //+------------------------------------------------------------------+
-  Exists(instrument: Uint8Array, period: Uint8Array): boolean {
-    return instrument === this.instrument && period === this.period;
-  }
-
-  //+------------------------------------------------------------------+
-  //| Identification - returns instrument details                          |
-  //+------------------------------------------------------------------+
-  Identification(): Array<string> {
-    return [this.Instrument.symbol!, this.Instrument.trade_timeframe!];
-  }
-
-  // bar.completed! && ();
-
-  // direction: direction(candle.close! - candle.open!),
-  // lead: bias(direction(candle.close! - candle.open!)),
-  // bias: bias(direction(candle.close! - candle.open!)),
-  // this.Bar.push(bar);
-}
+};

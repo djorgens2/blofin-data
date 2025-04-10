@@ -95,30 +95,27 @@
 // Import();
 
 //-------------------------------- candles Import ---------------------------------------//
+import type { IMessage } from "@lib/std.util";
+import { clear } from "@lib/std.util";
 import { Import } from "./api/candles";
-import * as Candles from "@db/interfaces/candle"
-import * as Periods from "@db/interfaces/instrument_period"
 import { State } from "./db/interfaces/trade_state";
+import * as Candles from "@db/interfaces/candle";
+import * as Periods from "@db/interfaces/instrument_period";
 
 async function importCandles() {
-  const instruments = await Periods.Fetch({active_collection: true});
+  const instruments = await Periods.Fetch({ active_collection: true });
   console.log("Fetch filtered period:", instruments);
 
-  instruments?.forEach ((db) => {
+  instruments?.forEach((db, id) => {
+    const ipc = clear({ state: "init", symbol: db.symbol!, node: id });
     const props: Candles.IKeyProps = {
       instrument: db.instrument!,
       symbol: db.symbol!,
       period: db.period!,
       timeframe: db.timeframe!,
     };
-    Import({
-      instrument: db.instrument!,
-      symbol: db.symbol!,
-      period: db.period!,
-      timeframe: db.timeframe!,
-    }, 1440);
-  })
-  
+    Import(ipc, props, 1440);
+  });
 }
 
 importCandles();
@@ -156,9 +153,7 @@ importCandles();
 
 //----------------------------- Event Triggers ------------------------------------------//
 // import { CEvent, Event, Alert } from "@class/event";
-// const event: CEvent = new CEvent();
-
-// console.log(event);
+// const event = CEvent();
 
 // event.setEvent(Event.NewHour, Alert.Major);
 // event.setEvent(Event.NewHigh, Alert.Nominal);
@@ -168,4 +163,3 @@ importCandles();
 
 // console.log(event.eventText(Event.NewDay));
 // console.log(event.activeEvents());
-

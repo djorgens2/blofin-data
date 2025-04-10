@@ -16,7 +16,6 @@ export interface IMessage {
   db?: {
     insert?: number;
     update?: number;
-    fetched?: number;
   };
   events?: {
     fractal?: number;
@@ -43,7 +42,6 @@ export function clear(message: IMessage): IMessage {
     db: {
       insert: 0,
       update: 0,
-      fetched: 0,
     },
     events: {
       fractal: 0,
