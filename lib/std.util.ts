@@ -137,7 +137,7 @@ export function parse<T extends object>(arg: string): Required<T> | undefined {
     const json = JSON.parse(arg);
 
     if (typeof json === "object" && json !== null) {
-      const obj: Required<T> = {...json};
+      const obj: Required<T> = { ...json };
       return obj;
     }
   } catch (e) {
@@ -182,9 +182,6 @@ export function copy(source: any, target: any) {
   return target;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Constant type to convert text arrays into 'enum-like' type guards;                   |
-//+--------------------------------------------------------------------------------------+
 export const createEnumLike = <T extends string>(items: readonly T[]) => {
   const obj = {} as { [K in T]: K };
   items.forEach((item) => {
@@ -192,3 +189,18 @@ export const createEnumLike = <T extends string>(items: readonly T[]) => {
   });
   return obj as Readonly<typeof obj>;
 };
+
+//+--------------------------------------------------------------------------------------+
+//| Writes arrays of any type to the supplied file                                       |
+//+--------------------------------------------------------------------------------------+
+import * as fs from 'node:fs';
+
+export function fileWrite(filePath: string, array: any[]): void {
+  try {
+    const text = array.join('\n');
+    fs.writeFileSync(filePath, text);
+    console.log(`Array successfully written to ${filePath}`);
+  } catch (error: any) {
+    console.error(`Error writing to ${filePath}:`, error.message);
+  }
+}
