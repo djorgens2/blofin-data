@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 import type { IMessage } from "@lib/std.util";
 
-import { CFractal } from "@class/fractal";
+import { CFractal } from "@module/fractal";
 import { parse } from "@lib/std.util";
 
 import * as Candles from "@api/candles";

@@ -7,8 +7,8 @@
 import type { IInstrument } from "@/db/interfaces/instrument";
 import type { IMessage } from "@lib/std.util"; //-- types
 
-import { CFractal } from "./class/fractal";
-import { CEvent, Event, Alert } from "@class/event";
+import { CFractal } from "@module/fractal";
+import { CEvent, Event, Alert } from "@module/event";
 import { Action, Direction, Bias } from "@lib/app.util"; //-- enums
 import { bias, direction } from "@lib/app.util"; //-- functions
 import { hex, clear, isBetween } from "@/lib/std.util";

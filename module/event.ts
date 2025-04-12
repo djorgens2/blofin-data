@@ -24,7 +24,8 @@ export enum Event {
   NewDirection, //-- Directional change
   NewState,
   NewBias,
-  NewTick, //-- Tick level event; aggregate or trade
+  NewTick, //-- Tick event; change in close;
+  NewBar, //-- Bar/Candle event; new timestamp;
   NewSegment, //-- Segment level event; aggregate of Ticks
   NewContraction,
   NewFractal, //-- Fractal Direction change
@@ -64,7 +65,7 @@ export const CEvent = () => {
   const EventText: string[] = Object.keys(Event).slice(Object.keys(Event).length / 2);
 
   const Events: Array<boolean> = new Array(EventText.length).fill(false);
-  const Alerts: Array<Alert> = new Array(AlertText.length).fill(Alert.NoAlert);
+  const Alerts: Array<Alert> = new Array(EventText.length).fill(Alert.NoAlert);
 
   let MaxEvent: Event = Event.NoEvent;
   let MaxAlert: Alert = Alert.NoAlert;

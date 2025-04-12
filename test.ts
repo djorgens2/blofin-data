@@ -152,7 +152,7 @@ importCandles();
 // get();
 
 //----------------------------- Event Triggers ------------------------------------------//
-// import { CEvent, Event, Alert } from "@class/event";
+// import { CEvent, Event, Alert } from "@module/event";
 // const event = CEvent();
 
 // event.setEvent(Event.NewHour, Alert.Major);

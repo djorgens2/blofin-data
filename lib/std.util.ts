@@ -171,6 +171,15 @@ export const isEqual = (test: number | string, check: number | string, digits: n
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Returns a numeric value formatted to a specified precision                           |
+//+--------------------------------------------------------------------------------------+
+export const format = (value: number | string, precision: number = 8): number => {
+  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(precision) : value.toFixed(precision);
+
+  return Number(formatted)
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Copies matching properties and values from source to target;                         |
 //+--------------------------------------------------------------------------------------+
 export function copy(source: any, target: any) {
