@@ -73,7 +73,7 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   //| setEvent - Sets the triggering event and Alert level             |
   //+------------------------------------------------------------------+
-  const setEvent = (event: Event, alert: Alert = Alert.Notify) => {
+  const set = (event: Event, alert: Alert = Alert.Notify) => {
     if (event === Event.NoEvent) return;
 
     Events[Event.NoEvent] = false;
@@ -91,7 +91,7 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   //| clearEvents - Resets/Initializes all events to false             |
   //+------------------------------------------------------------------+
-  const clearEvents = () => {
+  const clear = () => {
     Events.fill(false);
     Alerts.fill(Alert.NoAlert);
 
@@ -104,7 +104,7 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   //| isEventActive - Returns Event:Alert state of the provided Event  |
   //+------------------------------------------------------------------+
-  const isEventActive = (event: Event, alert: Alert = Alert.NoAlert): boolean => {
+  const isActive = (event: Event, alert: Alert = Alert.NoAlert): boolean => {
     if (alert === Alert.NoAlert) return Events[event];
     if (Events[event] && Alerts[event] === alert) return Events[event];
 
@@ -114,8 +114,22 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   //| isAnyEventActive - Returns true on any active event              |
   //+------------------------------------------------------------------+
-  const isAnyEventActive = (): boolean => {
+  const isAnyActive = (): boolean => {
     return !Events[Event.NoEvent];
+  };
+
+  //+------------------------------------------------------------------+
+  //| MaxEvent - Returns the Highest active event based on alert       |
+  //+------------------------------------------------------------------+
+  const maxEvent = (): Event => {
+    return MaxEvent;
+  };
+
+  //+------------------------------------------------------------------+
+  //| MaxAlert - Returns the Highest active event based on alert       |
+  //+------------------------------------------------------------------+
+  const maxAlert = (): Alert => {
+    return MaxAlert;
   };
 
   //+------------------------------------------------------------------+
@@ -135,10 +149,10 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   //| activeEvents - Returns an object of active {event, alert}        |
   //+------------------------------------------------------------------+
-  const activeEvents = (): Array<{ event: string; alert: string }> => {
+  const active = (): Array<{ event: string; alert: string }> => {
     const activeEvents: Array<{ event: string; alert: string }> = [];
 
-    if (isAnyEventActive()) {
+    if (isAnyActive()) {
       Events.forEach((active, row) => {
         active && activeEvents.push({ event: EventText[row], alert: AlertText[Alerts[row]] });
       });
@@ -148,5 +162,5 @@ export const CEvent = () => {
     return [{ event: "Inactive", alert: "None" }];
   };
 
-  return { clearEvents, setEvent, isEventActive, isAnyEventActive, eventText, alertText, activeEvents, MaxAlert, MaxEvent };
+  return { clear, set, isActive, isAnyActive, eventText, alertText, active, maxAlert, maxEvent };
 };

@@ -130,7 +130,7 @@ export function bufferString(uint8Array: Uint8Array): string {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Parses an object usually from cli that was xfer'd as string into JSON or props       |
+//| Parses supplied string into a JSON|props object of <T> typically xfer'd via cli      |
 //+--------------------------------------------------------------------------------------+
 export function parse<T extends object>(arg: string): Required<T> | undefined {
   try {
@@ -150,10 +150,10 @@ export function parse<T extends object>(arg: string): Required<T> | undefined {
 //+--------------------------------------------------------------------------------------+
 //| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
 //+--------------------------------------------------------------------------------------+
-export const isBetween = (test: number, bound1: number, bound2: number, inclusive = true, digits: number = 8): boolean => {
+export const isBetween = (source: number, bound1: number, bound2: number, inclusive = true, digits: number = 8): boolean => {
   const highBound: number = parseFloat(Math.max(bound1, bound2).toFixed(digits));
   const lowBound: number = parseFloat(Math.min(bound1, bound2).toFixed(digits));
-  const check: number = parseFloat(test.toFixed(digits));
+  const check: number = parseFloat(source.toFixed(digits));
 
   if (!inclusive) return check > lowBound && check < highBound;
 
@@ -163,40 +163,40 @@ export const isBetween = (test: number, bound1: number, bound2: number, inclusiv
 //+--------------------------------------------------------------------------------------+
 //| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
-export const isEqual = (test: number | string, check: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof test === "string" ? parseFloat(test).toFixed(digits) : test.toFixed(digits);
-  const arg2: string = typeof check === "string" ? parseFloat(check).toFixed(digits) : check.toFixed(digits);
+export const isEqual = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
 
   return arg1 === arg2;
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns a numeric value formatted to a specified precision                           |
+//| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
-export const format = (value: number | string, precision: number = 8): number => {
-  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(precision) : value.toFixed(precision);
+export const isHigher = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
 
-  return Number(formatted)
+  return arg1 > arg2;
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Copies matching properties and values from source to target;                         |
+//| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
-export function copy(source: any, target: any) {
-  for (const key in source) {
-    if (target.hasOwnProperty(key)) {
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
+export const isLower = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
 
-export const createEnumLike = <T extends string>(items: readonly T[]) => {
-  const obj = {} as { [K in T]: K };
-  items.forEach((item) => {
-    obj[item] = item;
-  });
-  return obj as Readonly<typeof obj>;
+  return arg1 < arg2;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns a numeric value formatted to a specified precision                           |
+//+--------------------------------------------------------------------------------------+
+export const format = (value: number | string, digits: number = 8): number => {
+  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : value.toFixed(digits);
+
+  return Number(formatted)
 };
 
 //+--------------------------------------------------------------------------------------+

@@ -10,9 +10,9 @@ import type { IMeasure } from "@lib/app.util"; //-- types
 import type { IMessage } from "@lib/std.util";
 
 import { CEvent, Event, Alert } from "@module/event";
-import { Direction, Bias } from "@lib/app.util"; //-- enums
+import { Direction, Bias, directionChanged } from "@lib/app.util"; //-- enums
 import { bias, direction } from "@lib/app.util"; //-- functions
-import { isBetween, fileWrite, format } from "@lib/std.util";
+import { isBetween, isEqual, isHigher, isLower, fileWrite, format } from "@lib/std.util";
 
 import * as Candle from "@db/interfaces/candle";
 
@@ -45,6 +45,7 @@ enum State {
 }
 
 interface IPrice {
+  timestamp: number;
   open: number;
   high: number;
   low: number;
@@ -52,7 +53,6 @@ interface IPrice {
 }
 
 interface IBar extends IPrice {
-  timestamp: number;
   direction: Direction;
   lead: Bias;
   bias: Bias;
@@ -70,22 +70,21 @@ interface IPoint {
 }
 
 interface IFractalPoint {
-  Origin: IPoint;
-  Base: IPoint;
-  Root: IPoint;
-  Expansion: IPoint;
-  Retrace: IPoint;
-  Recovery: IPoint;
-  Close: IPoint;
+  origin: IPoint;
+  base: IPoint;
+  root: IPoint;
+  expansion: IPoint;
+  retrace: IPoint;
+  recovery: IPoint;
+  close: IPoint;
 }
 
-interface IFractal {
-  direction: Direction;
-  lead: Bias;
-  bias: Bias;
+interface IFractal extends IBar {
   state: State;
-  volume: number;
+  range: number;
   point: IFractalPoint;
+  support: IPoint;
+  resistance: IPoint;
 }
 
 interface IFibonacci {
@@ -111,7 +110,6 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   const start: Partial<ICandle> = structuredClone(candles[candles.length - 1]);
 
   //-- Work variables -------------------------------------------------------//
-  const fractal = { min: start.low!, max: start.high!, minTime: start.start_time!, maxTime: start.start_time! };
   const bar = { min: start.low!, max: start.high!, retrace: start.close! > start.open! ? start.high! : start.low! };
   const sma = { open: 0, close: 0 };
   const price: Array<IPrice> = [];
@@ -120,67 +118,64 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   const periods: number = instrument.sma_factor!;
   const digits: number = instrument.digits!;
 
-  let timestamp: number = start.timestamp!;
-  let bars: number = candles.length;
-
   //-- Utility functions ------------------------------------------------------------------------//
 
-  //+------------------------------------------------------------------+
-  //| iBar - Returns bar index for supplied timestamp                  |
-  //+------------------------------------------------------------------+
-  // function iBar(time: number): number {
-  //   let left = 0;
-  //   let right = Bar.length - 1;
+  //+--------------------------------------------------------------------------------------+
+  //| iBar - Returns bar index for supplied timestamp                                      |
+  //+--------------------------------------------------------------------------------------+
+  function iBar(time: number): number {
+    let left = 0;
+    let right = price.length - 1;
 
-  //   while (left <= right) {
-  //     const mid = Math.floor((left + right) / 2);
-  //     if (Bar[mid].timestamp === time) return mid;
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2);
+      if (price[mid].timestamp === time) return mid;
 
-  //     Bar[mid].timestamp > time ? (left = mid + 1) : (right = mid - 1);
-  //   }
+      price[mid].timestamp > time ? (left = mid + 1) : (right = mid - 1);
+    }
 
-  //   return -1;
-  // }
+    return -1;
+  }
 
-  // //+------------------------------------------------------------------+
-  // //| iHighest - Returns highest IBar(obj) between provided bounds     |
-  // //+------------------------------------------------------------------+
-  // function iHighest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IBar {
-  //   let startBar = timeStart ? iBar(timeStart) : 0;
-  //   const stopBar = timeStop ? iBar(timeStop) : Bar.length - 1;
-  //   const searchDir = stopBar - startBar > 0 ? Direction.Up : Direction.Down;
+  //+--------------------------------------------------------------------------------------+
+  //| iHighest - Returns highest IBar(obj) between provided bounds                         |
+  //+--------------------------------------------------------------------------------------+
+  function iHighest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+    let startBar = timeStart ? iBar(timeStart) : 0;
+    const stopBar = timeStop ? iBar(timeStop) : price.length;
+    const searchDir = direction(stopBar - startBar);
 
-  //   !includeStart && isBetween(startBar, 0, Bar.length - 1) && (startBar += searchDir);
-  //   let searchIndex = startBar;
+    !includeStart && isBetween(startBar, 0, price.length - 1) && (startBar += searchDir);
+    let searchIndex = startBar;
 
-  //   while (startBar !== stopBar) {
-  //     Bar[startBar].high > Bar[searchIndex].high && (searchIndex = startBar);
-  //     startBar += searchDir;
-  //   }
+    while (startBar !== stopBar) {
+      price[startBar].high > price[searchIndex].high && (searchIndex = startBar);
+      startBar += searchDir;
+    }
 
-  //   return Bar[searchIndex];
-  // }
+    return { timestamp: price[searchIndex].timestamp, price: price[searchIndex].high };
+  }
 
-  // //+------------------------------------------------------------------+
-  // //| iLowest - Returns lowest IBar(obj) between provided bounds       |
-  // //+------------------------------------------------------------------+
-  // function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IBar {
-  //   let startBar = timeStart ? iBar(timeStart) : 0;
+  //+--------------------------------------------------------------------------------------+
+  //| iLowest - Returns lowest IBar(obj) between provided bounds                           |
+  //+--------------------------------------------------------------------------------------+
+  function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+    let startBar = timeStart ? iBar(timeStart) : 0;
 
-  //   const stopBar = timeStop ? iBar(timeStop) : Bar.length - 1;
-  //   const searchDir = stopBar - startBar > 0 ? Direction.Up : Direction.Down;
+    const stopBar = timeStop ? iBar(timeStop) : price.length;
+    const searchDir = direction(stopBar - startBar);
 
-  //   !includeStart && isBetween(startBar, 0, Bar.length - 1, false) && (startBar += searchDir);
+    !includeStart && isBetween(startBar, 0, price.length - 1, false) && (startBar += searchDir);
 
-  //   let searchIndex = startBar;
+    let searchIndex = startBar;
 
-  //   while (startBar !== stopBar) {
-  //     Bar[startBar].low < Bar[searchIndex].low && (searchIndex = startBar);
-  //     startBar += searchDir;
-  //   }
+    while (startBar !== stopBar) {
+      price[startBar].low < price[searchIndex].low && (searchIndex = startBar);
+      startBar += searchDir;
+    }
 
-  //   return Bar[searchIndex];
-  // }
+    return { timestamp: price[searchIndex].timestamp, price: price[searchIndex].low };
+  }
 
   //+--------------------------------------------------------------------------------------+
   //| Main Update loop; processes bar, sma, fractal, events                                |
@@ -192,93 +187,92 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     process.send && process.send(message);
   };
 
-  //+------------------------------------------------------------------+
-  //| PublishBar - Wraps up Bar processing                             |
-  //+------------------------------------------------------------------+
-  function PublishBar(candle: Partial<ICandle>) {
+  //+--------------------------------------------------------------------------------------+
+  //| UpdateBar - Wraps up Bar processing                                                  |
+  //+--------------------------------------------------------------------------------------+
+  function UpdateBar(candle: Partial<ICandle>) {
     //--- set Bias
     if (Bar.open !== candle.close!) {
-      Bar.bias !== bias(direction(candle.close! - Bar.open!)) && event.setEvent(Event.NewBias, Alert.Notify);
+      Bar.bias !== bias(direction(candle.close! - Bar.open!)) && event.set(Event.NewBias, Alert.Notify);
       Bar.bias = bias(direction(candle.close! - Bar.open!));
     }
 
     if (Bar.low! > candle.low!) {
-      event.setEvent(Event.NewLow, Alert.Notify);
-      event.setEvent(Event.NewBoundary, Alert.Notify);
+      event.set(Event.NewLow, Alert.Notify);
+      event.set(Event.NewBoundary, Alert.Notify);
     }
 
     if (Bar.high! < candle.high!) {
-      event.setEvent(Event.NewHigh, Alert.Notify);
-      event.setEvent(Event.NewBoundary, Alert.Notify);
+      event.set(Event.NewHigh, Alert.Notify);
+      event.set(Event.NewBoundary, Alert.Notify);
     }
 
-    if (event.isEventActive(Event.NewBoundary)) {
+    if (event.isActive(Event.NewBoundary)) {
       //--- set Lead
       if (Bar.low! > candle.low! && Bar.high! < candle.high!) {
-        event.setEvent(Event.NewOutsideBar, Alert.Nominal);
+        event.set(Event.NewOutsideBar, Alert.Nominal);
       } else {
         if (Bar.low! > candle.low!) {
-          Bar.lead !== Bias.Short && event.setEvent(Event.NewLead, Alert.Nominal);
+          Bar.lead !== Bias.Short && event.set(Event.NewLead, Alert.Nominal);
           Bar.lead = Bias.Short;
 
-          event.setEvent(Event.NewLow, Alert.Nominal);
-          event.setEvent(Event.NewBoundary, Alert.Nominal);
+          event.set(Event.NewLow, Alert.Nominal);
+          event.set(Event.NewBoundary, Alert.Nominal);
         }
 
         if (Bar.high! < candle.high!) {
-          Bar.lead !== Bias.Long && event.setEvent(Event.NewLead, Alert.Nominal);
+          Bar.lead !== Bias.Long && event.set(Event.NewLead, Alert.Nominal);
           Bar.lead = Bias.Long;
 
-          event.setEvent(Event.NewHigh, Alert.Nominal);
-          event.setEvent(Event.NewBoundary, Alert.Nominal);
+          event.set(Event.NewHigh, Alert.Nominal);
+          event.set(Event.NewBoundary, Alert.Nominal);
         }
       }
 
       //--- set Direction
       if (bar.min > candle.low! && bar.max < candle.high!) {
-        event.setEvent(Event.NewOutsideBar, Alert.Minor);
+        event.set(Event.NewOutsideBar, Alert.Minor);
       } else {
         if (bar.min > candle.low!) {
-          Bar.direction !== Direction.Down && event.setEvent(Event.NewDirection, Alert.Minor);
+          Bar.direction !== Direction.Down && event.set(Event.NewDirection, Alert.Minor);
           Bar.direction = Direction.Down;
 
-          event.setEvent(Event.NewBoundary, Alert.Minor);
+          event.set(Event.NewBoundary, Alert.Minor);
         }
 
         if (bar.max < candle.high!) {
-          Bar.direction !== Direction.Up && event.setEvent(Event.NewDirection, Alert.Minor);
+          Bar.direction !== Direction.Up && event.set(Event.NewDirection, Alert.Minor);
           Bar.direction = Direction.Up;
 
-          event.setEvent(Event.NewBoundary, Alert.Minor);
+          event.set(Event.NewBoundary, Alert.Minor);
         }
       }
     }
 
-    candle.completed! && event.setEvent(Event.NewBar);
+    candle.completed! && event.set(Event.NewBar);
 
-    event.isEventActive(Event.NewBar) && (timestamp = candle.timestamp!);
-    event.isEventActive(Event.NewLead) && Bar.lead === Bias.Long
+    event.isActive(Event.NewBar) && (Bar.timestamp = candle.timestamp!);
+    event.isActive(Event.NewLead) && Bar.lead === Bias.Long
       ? ((bar.min = bar.retrace), (bar.retrace = candle.high!))
       : ((bar.max = bar.retrace), (bar.retrace = candle.low!));
-    event.isEventActive(Event.NewHigh) && Bar.direction === Direction.Up && ((bar.retrace = candle.high!), (bar.max = candle.high!));
-    event.isEventActive(Event.NewLow) && Bar.direction === Direction.Down && ((bar.retrace = candle.low!), (bar.min = candle.low!));
+    event.isActive(Event.NewHigh) && Bar.direction === Direction.Up && (bar.retrace = bar.max = candle.high!);
+    event.isActive(Event.NewLow) && Bar.direction === Direction.Down && (bar.retrace = bar.min = candle.low!);
 
-    Bar.timestamp = candle.timestamp;
     Bar.open = candle.open;
     Bar.high = candle.high;
     Bar.low = candle.low;
     Bar.close = candle.close;
   }
 
-  //+------------------------------------------------------------------+
-  //| PublishSMA - Computes SMA measures, trend detail, values         |
-  //+------------------------------------------------------------------+
-  function PublishSMA() {
-    if (event.isEventActive(Event.NewBar)) {
+  //+--------------------------------------------------------------------------------------+
+  //| UpdateSMA - Computes SMA measures, trend detail, values                              |
+  //+--------------------------------------------------------------------------------------+
+  function UpdateSMA() {
+    if (event.isActive(Event.NewBar)) {
       sma.open += Bar.open!;
       sma.close += Bar.close!;
 
-      price.push({ open: Bar.open!, high: Bar.high!, low: Bar.low!, close: Bar.close! });
+      price.push({ timestamp: Bar.timestamp!, open: Bar.open!, high: Bar.high!, low: Bar.low!, close: Bar.close! });
 
       if (price.length > periods) {
         sma.open -= price[0].open;
@@ -300,88 +294,98 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     SMA.low = 0;
   }
 
-  // //+------------------------------------------------------------------+
-  // //| setFibonacci - Calculate fibonacci sequence%'s on active Fractal |
-  // //+------------------------------------------------------------------+
-  // function setFibonacci(): IFibonacci {
-  //   const recovery: number = Fractal.point.Recovery.timestamp > 0 ? Fractal.point.Recovery.price : Fractal.point.Retrace.price;
-  //   return {
-  //     retrace: {
-  //       min: parseFloat((1 - (Fractal.point.Root.price - recovery) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
-  //       max: parseFloat((1 - (Fractal.point.Root.price - Fractal.point.Retrace.price) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
-  //       now: parseFloat((1 - (Fractal.point.Root.price - Bar[0].close) / (Fractal.point.Root.price - Fractal.point.Expansion.price)).toFixed(3)),
-  //     },
-  //     extension: {
-  //       min: parseFloat(((Fractal.point.Root.price - Fractal.point.Retrace.price) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
-  //       max: parseFloat(((Fractal.point.Root.price - Fractal.point.Expansion.price) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
-  //       now: parseFloat(((Fractal.point.Root.price - Bar[0].close) / (Fractal.point.Root.price - Fractal.point.Base.price)).toFixed(3)),
-  //     },
-  //   };
-  // }
+  //+--------------------------------------------------------------------------------------+
+  //| updateFibonacci - Calculate fibonacci %sequence's on active Fractal                  |
+  //+--------------------------------------------------------------------------------------+
+  function Fibonacci(): IFibonacci {
+    const recovery: number = Fractal.point!.recovery.timestamp > 0 ? Fractal.point!.recovery.price : Fractal.point!.retrace.price;
+    return {
+      retrace: {
+        min: parseFloat((1 - (Fractal.point!.root.price - recovery) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
+        max: parseFloat((1 - (Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
+        now: parseFloat((1 - (Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
+      },
+      extension: {
+        min: parseFloat(((Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
+        max: parseFloat(((Fractal.point!.root.price - Fractal.point!.expansion.price) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
+        now: parseFloat(((Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
+      },
+    };
+  }
 
-  // //+------------------------------------------------------------------+
-  // //| setFractal - Instantiates/Initializes new IFractal(obj)          |
-  // //+------------------------------------------------------------------+
-  // const setFractal = () => {
-  //   if (fractal.minTime === fractal.maxTime) console.log("Outside Reversal handler");
-  //   else if (fractal.minTime > fractal.maxTime) {
-  //     const base: IBar = iLowest(fractal.maxTime);
-  //     const retrace: IBar = iHighest(fractal.minTime, Bar[0].timestamp, false);
-  //     const recovery: IBar = iLowest(retrace.timestamp, Bar[0].timestamp, false);
+  //+--------------------------------------------------------------------------------------+
+  //| UpdateFractal - completes fractal calcs                                              |
+  //+--------------------------------------------------------------------------------------+
+  function UpdateFractal() {
+    const resistance = iHighest();
+    const support = iLowest();
+    const rangeDirection =
+      price[price.length - 1].close < Fractal.support!.price
+        ? Direction.Down
+        : price[price.length - 1].close > Fractal.resistance!.price
+        ? Direction.Up
+        : Direction.None;
 
-  //     Fractal.direction = Direction.Down;
-  //     Fractal.point.Origin = { timestamp: fractal.maxTime, price: fractal.max };
-  //     Fractal.point.Base = { timestamp: base.timestamp, price: Math.min(base.low, SMA[0].close) };
-  //     Fractal.point.Root = { timestamp: fractal.maxTime, price: fractal.max };
-  //     Fractal.point.Expansion = { timestamp: fractal.minTime, price: fractal.min };
-  //     Fractal.point.Retrace = { timestamp: retrace.timestamp, price: retrace.timestamp > fractal.minTime ? retrace.high : retrace.close };
-  //     Fractal.point.Recovery = {
-  //       timestamp: recovery.timestamp > retrace.timestamp ? recovery.timestamp : 0,
-  //       price: recovery.timestamp > retrace.timestamp ? recovery.low : 0,
-  //     };
-  //   } else {
-  //     const base: IBar = iHighest(fractal.minTime);
-  //     const retrace: IBar = iLowest(fractal.maxTime, Bar[0].timestamp, false);
-  //     const recovery: IBar = iHighest(retrace.timestamp, Bar[0].timestamp, false);
+    //--- Handle Reversals
+    if (directionChanged(Fractal.direction!, rangeDirection)) {
+      Fractal.direction = rangeDirection;
+      Fractal.point!.base = Fractal.direction === Direction.Up ? resistance : support;
+      Fractal.point!.root = Fractal.point!.expansion;
+      Fractal.point!.origin = Fractal.point!.root;
 
-  //     Fractal.direction = Direction.Up;
-  //     Fractal.point.Origin = { timestamp: fractal.minTime, price: fractal.min };
-  //     Fractal.point.Base = { timestamp: base.timestamp, price: Math.max(base.high, SMA[0].close) };
-  //     Fractal.point.Root = { timestamp: fractal.minTime, price: fractal.min };
-  //     Fractal.point.Expansion = { timestamp: fractal.maxTime, price: fractal.max };
-  //     Fractal.point.Retrace = { timestamp: retrace.timestamp, price: retrace.timestamp > fractal.maxTime ? retrace.low : retrace.close };
-  //     Fractal.point.Recovery = {
-  //       timestamp: recovery.timestamp > retrace.timestamp ? recovery.timestamp : 0,
-  //       price: recovery.timestamp > retrace.timestamp ? recovery.high : 0,
-  //     };
-  //   }
-  // };
+      event.set(Event.NewReversal, Alert.Major);
+    }
 
-  // //+------------------------------------------------------------------+
-  // //| PublishFractal - completes fractal calcs                         |
-  // //+------------------------------------------------------------------+
-  // function PublishFractal(row: number) {
-  //   //-- Handle Fractal events
-  //   if (Bar[0].high > fractal.max) {
-  //     fractal.max = Bar[0].high;
-  //     fractal.maxTime = Bar[0].timestamp;
+    //--- Check for Upper Boundary changes
+    if (Fractal.direction === Direction.Up)
+      if (isHigher(Bar.high!, Fractal.point!.expansion.price, digits)) {
+        Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.high! };
+        Fractal.point!.retrace = Fractal.point!.expansion;
+        Fractal.point!.recovery = Fractal.point!.expansion;
 
-  //     event.setEvent(Event.NewHigh, Alert.Minor);
-  //   }
+        event.set(Event.NewExpansion, Alert.Minor);
+      } else if (isLower(event.isActive(Event.NewBar) ? Bar.close! : Bar.low!, Fractal.point!.retrace.price, digits))
+        Fractal.point!.recovery = Fractal.point!.retrace;
+      else
+        Fractal.point!.recovery = {
+          timestamp: Bar.timestamp!,
+          price: Math.max(event.isActive(Event.NewBar) ? Bar.close! : Bar.high!, Fractal.point!.recovery.price),
+        };
+    //--- Check for Lower Boundary changes
+    else if (isLower(Bar.low!, Fractal.point!.expansion.price, digits)) {
+      Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.low! };
+      Fractal.point!.retrace = Fractal.point!.expansion;
+      Fractal.point!.recovery = Fractal.point!.expansion;
 
-  //   if (Bar[0].low < fractal.min) {
-  //     fractal.min = Bar[0].low;
-  //     fractal.minTime = Bar[0].timestamp;
+      event.set(Event.NewExpansion, Alert.Minor);
+    } else if (isHigher(event.isActive(Event.NewBar) ? Bar.close! : Bar.high!, Fractal.point!.retrace.price, digits))
+      Fractal.point!.recovery = Fractal.point!.retrace;
+    else
+      Fractal.point!.recovery = {
+        timestamp: Bar.timestamp!,
+        price: Math.min(event.isActive(Event.NewBar) ? Bar.close! : Bar.low!, Fractal.point!.recovery.price),
+      };
 
-  //     event.setEvent(Event.NewLow, Alert.Minor);
-  //   }
+    if (event.maxAlert() > Alert.Nominal) console.log(event.active(), Fractal, Fibonacci());
+    //   else
+    
+    // UpdatePivot(Type,Fractal.pivot.
+    // if(Event(NewLead,Alert(Type)))
+    // SetEvent(BoolToEvent(IsEqual(Fractal.Direction,BoolToInt(Event(NewHigh),DirectionUp,DirectionDown)),NewConvergence,NewDivergence),Alert(Type),fPrice.Close);
 
-  //   if (row + 1 >= periods) {
-  //     if (row + 1 === periods) setFractal();
-  //   }
+    isLower(resistance.price - support.price, Fractal.range!) && event.set(Event.NewConsolidation, Alert.Minor);
 
-  //   console.log(Fractal, setFibonacci());
-  // }
+    Fractal.range = format(resistance.price - support.price, digits);
+    Fractal.support = support;
+    Fractal.resistance = resistance;
+
+    // if (FibonacciChanged(Type,Fractal))
+    // {
+    // SetEvent(NewFibonacci,Alert(Type),Fractal.pivot.ice;
+    // InitPivot(Type,Fractal.pivot.stEvent));
+    // Flag(Type,Type==fShowFlags);
+    // }
+  }
 
   //-- initialization Section --------------------------------------------------------------//
 
@@ -396,16 +400,37 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     close: start.close!,
   });
 
+  Object.assign(SMA, Bar);
+
+  Object.assign(Fractal, {
+    direction: Bar.direction,
+    lead: Bar.lead,
+    bias: Bar.bias,
+    range: format(Bar.high! - Bar.low!),
+    state: State.Breakout,
+    point: {
+      origin: { timestamp: Bar.timestamp, price: format(Bar.direction! === Direction.Up ? Bar.low! : Bar.high!, digits) },
+      base: { timestamp: Bar.timestamp, price: format(Bar.direction! === Direction.Up ? Bar.high! : Bar.low!, digits) },
+      root: { timestamp: Bar.timestamp, price: format(Bar.direction! === Direction.Up ? Bar.low! : Bar.high!, digits) },
+      expansion: { timestamp: Bar.timestamp, price: format(Bar.direction! === Direction.Up ? Bar.high! : Bar.low!, digits) },
+      retrace: { timestamp: Bar.timestamp, price: format(Bar.open!, digits) },
+      recovery: { timestamp: Bar.timestamp, price: format(Bar.close!, digits) },
+      close: { timestamp: Bar.timestamp, price: format(Bar.close!, digits) },
+    },
+    support: { timestamp: Bar.timestamp, price: format(Bar.low!, digits) },
+    resistance: { timestamp: Bar.timestamp, price: format(Bar.high!, digits) },
+  });
+
   candles
     .slice()
     .reverse()
     .forEach((candle, id) => {
-      event.clearEvents();
+      event.clear();
 
-      PublishBar(candle);
-      PublishSMA();
-      //      PublishFractal(bar);
+      UpdateBar(candle);
+      UpdateSMA();
+      UpdateFractal();
     });
 
-  return { Update, activeEvents: event.activeEvents, isAnyEventActive: event.isAnyEventActive };
+  return { Update, active: event.active, isAnyActive: event.isAnyActive };
 };

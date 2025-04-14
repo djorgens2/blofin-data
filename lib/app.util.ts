@@ -37,6 +37,15 @@ export type Bias = (typeof Bias)[keyof typeof Bias];
 export type Role = (typeof Role)[keyof typeof Role];
 
 //+--------------------------------------------------------------------------------------+
+//| Returns true if all conditions are met to signal a change in direction               |
+//+--------------------------------------------------------------------------------------+
+export const directionChanged = (oldDirection: Direction, newDirection: Direction): boolean => {
+  if (newDirection === Direction.None) return false;
+  if (oldDirection === newDirection) return false;
+  return true;
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Returns the direction key derived from supplied value                                |
 //+--------------------------------------------------------------------------------------+
 export const bias = (direction: Direction): Bias => {
