@@ -163,29 +163,29 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 //+--------------------------------------------------------------------------------------+
 //| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
-export const isEqual = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
-  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+export const isEqual = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
 
   return arg1 === arg2;
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on equal comparison at a specified precision                            |
+//| Returns true on higher number|precision of the soruce(new) to benchmark(old)         |
 //+--------------------------------------------------------------------------------------+
-export const isHigher = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
-  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+export const isHigher = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
 
   return arg1 > arg2;
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on equal comparison at a specified precision                            |
+//| Returns true on lower number|precision of the soruce(new) to benchmark(old)          |
 //+--------------------------------------------------------------------------------------+
-export const isLower = (benchmark: number | string, source: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
-  const arg2: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+export const isLower = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
+  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
 
   return arg1 < arg2;
 };
@@ -196,17 +196,17 @@ export const isLower = (benchmark: number | string, source: number | string, dig
 export const format = (value: number | string, digits: number = 8): number => {
   const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : value.toFixed(digits);
 
-  return Number(formatted)
+  return Number(formatted);
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Writes arrays of any type to the supplied file                                       |
 //+--------------------------------------------------------------------------------------+
-import * as fs from 'node:fs';
+import * as fs from "node:fs";
 
 export function fileWrite(filePath: string, array: any[]): void {
   try {
-    const text = array.join('\n');
+    const text = array.join("\n");
     fs.writeFileSync(filePath, text);
     console.log(`Array successfully written to ${filePath}`);
   } catch (error: any) {

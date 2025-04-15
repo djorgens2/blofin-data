@@ -21,7 +21,7 @@ async function init() {
   const fractal = await CFractal(instrument);
   const message: IMessage = clear({ state: "ready", symbol: "XRP-USDT", node: 0 });
   const update = await fractal.Update(message);
-  const text = fractal.activeEvents();
+  const text = fractal.active();
 }
 
 init();

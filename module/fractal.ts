@@ -138,9 +138,9 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
-  //| iHighest - Returns highest IBar(obj) between provided bounds                         |
+  //| iHigh - Returns highest IBar(obj) between provided bounds                            |
   //+--------------------------------------------------------------------------------------+
-  function iHighest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+  function iHigh(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
     let startBar = timeStart ? iBar(timeStart) : 0;
     const stopBar = timeStop ? iBar(timeStop) : price.length;
     const searchDir = direction(stopBar - startBar);
@@ -157,9 +157,9 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
-  //| iLowest - Returns lowest IBar(obj) between provided bounds                           |
+  //| iLow - Returns lowest IBar(obj) between provided bounds                              |
   //+--------------------------------------------------------------------------------------+
-  function iLowest(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+  function iLow(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
     let startBar = timeStart ? iBar(timeStart) : 0;
 
     const stopBar = timeStop ? iBar(timeStop) : price.length;
@@ -302,7 +302,9 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     return {
       retrace: {
         min: parseFloat((1 - (Fractal.point!.root.price - recovery) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
-        max: parseFloat((1 - (Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
+        max: parseFloat(
+          (1 - (Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)
+        ),
         now: parseFloat((1 - (Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
       },
       extension: {
@@ -317,19 +319,15 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   //| UpdateFractal - completes fractal calcs                                              |
   //+--------------------------------------------------------------------------------------+
   function UpdateFractal() {
-    const resistance = iHighest();
-    const support = iLowest();
-    const rangeDirection =
-      price[price.length - 1].close < Fractal.support!.price
-        ? Direction.Down
-        : price[price.length - 1].close > Fractal.resistance!.price
-        ? Direction.Up
-        : Direction.None;
+    const close = { timestamp: Bar.timestamp!, price: Bar.close! };
+    const resistance = iHigh();
+    const support = iLow();
+    const rangeDirection = close.price < Fractal.support!.price ? Direction.Down : close.price > Fractal.resistance!.price ? Direction.Up : Direction.None;
 
     //--- Handle Reversals
     if (directionChanged(Fractal.direction!, rangeDirection)) {
       Fractal.direction = rangeDirection;
-      Fractal.point!.base = Fractal.direction === Direction.Up ? resistance : support;
+      Fractal.point!.base = Fractal.direction === Direction.Up ? Fractal.resistance! : Fractal.support!;
       Fractal.point!.root = Fractal.point!.expansion;
       Fractal.point!.origin = Fractal.point!.root;
 
@@ -340,35 +338,43 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     if (Fractal.direction === Direction.Up)
       if (isHigher(Bar.high!, Fractal.point!.expansion.price, digits)) {
         Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.high! };
-        Fractal.point!.retrace = Fractal.point!.expansion;
-        Fractal.point!.recovery = Fractal.point!.expansion;
+        Fractal.point!.retrace = close;
+        Fractal.point!.recovery = close;
 
         event.set(Event.NewExpansion, Alert.Minor);
-      } else if (isLower(event.isActive(Event.NewBar) ? Bar.close! : Bar.low!, Fractal.point!.retrace.price, digits))
-        Fractal.point!.recovery = Fractal.point!.retrace;
-      else
-        Fractal.point!.recovery = {
-          timestamp: Bar.timestamp!,
-          price: Math.max(event.isActive(Event.NewBar) ? Bar.close! : Bar.high!, Fractal.point!.recovery.price),
-        };
-    //--- Check for Lower Boundary changes
+      } else if (event.isActive(Event.NewBoundary)) {
+        if (event.isActive(Event.NewLow)) {
+          if (Fractal.point!.retrace.price > Bar.low!) {
+            Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.low! };
+            Fractal.point!.recovery = close;
+          }
+        }
+        if (event.isActive(Event.NewHigh))
+          Fractal.point!.recovery.price < Bar.high! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.high! });
+      } else {
+        Fractal.point!.recovery.price < Bar.close! && (Fractal.point!.recovery = close);
+        Fractal.point!.retrace.price > Bar.close! && (Fractal.point!.retrace = close);
+      }
+
+      //--- Check for Lower Boundary changes
     else if (isLower(Bar.low!, Fractal.point!.expansion.price, digits)) {
       Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.low! };
-      Fractal.point!.retrace = Fractal.point!.expansion;
-      Fractal.point!.recovery = Fractal.point!.expansion;
+      Fractal.point!.retrace = close;
+      Fractal.point!.recovery = close;
 
       event.set(Event.NewExpansion, Alert.Minor);
-    } else if (isHigher(event.isActive(Event.NewBar) ? Bar.close! : Bar.high!, Fractal.point!.retrace.price, digits))
-      Fractal.point!.recovery = Fractal.point!.retrace;
-    else
-      Fractal.point!.recovery = {
-        timestamp: Bar.timestamp!,
-        price: Math.min(event.isActive(Event.NewBar) ? Bar.close! : Bar.low!, Fractal.point!.recovery.price),
-      };
+    } else if (event.isActive(Event.NewHigh)) {
+      if (Fractal.point!.retrace.price < Bar.high!) {
+        Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.high! };
+        Fractal.point!.recovery = close;
+      }
+    } else if (event.isActive(Event.NewLow))
+      Fractal.point!.recovery.price > Bar.low! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.low! });
+    else {
+      Fractal.point!.recovery.price > Bar.close! && (Fractal.point!.recovery = close);
+      Fractal.point!.retrace.price < Bar.close! && (Fractal.point!.retrace = close);
+    }
 
-    if (event.maxAlert() > Alert.Nominal) console.log(event.active(), Fractal, Fibonacci());
-    //   else
-    
     // UpdatePivot(Type,Fractal.pivot.
     // if(Event(NewLead,Alert(Type)))
     // SetEvent(BoolToEvent(IsEqual(Fractal.Direction,BoolToInt(Event(NewHigh),DirectionUp,DirectionDown)),NewConvergence,NewDivergence),Alert(Type),fPrice.Close);
@@ -376,8 +382,14 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     isLower(resistance.price - support.price, Fractal.range!) && event.set(Event.NewConsolidation, Alert.Minor);
 
     Fractal.range = format(resistance.price - support.price, digits);
+    Fractal.point!.close = close;
     Fractal.support = support;
     Fractal.resistance = resistance;
+
+    // if (event.maxAlert() > Alert.Nominal)
+    //    console.log(event.active(), Fractal, Fibonacci());
+    //if (event.isActive(Event.NewHigh) && event.isActive(Event.NewLow))
+       console.log(event.active(), Fractal);
 
     // if (FibonacciChanged(Type,Fractal))
     // {
@@ -406,7 +418,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     direction: Bar.direction,
     lead: Bar.lead,
     bias: Bar.bias,
-    range: format(Bar.high! - Bar.low!),
+    range: format(Bar.high! - Bar.low!, digits),
     state: State.Breakout,
     point: {
       origin: { timestamp: Bar.timestamp, price: format(Bar.direction! === Direction.Up ? Bar.low! : Bar.high!, digits) },
