@@ -28,6 +28,24 @@ const FibonacciPercent = {
   Extension: [1.618, 2.618, 3.618, 4.236, 8.236],
 };
 
+const fibos = [
+  { state: "Root", percent: 0 },
+  { state: "Pullback", percent: 0.236 },
+  { state: "Pullback", percent: 0.382 },
+  { state: "Rally", percent: 0.236 },
+  { state: "Rally", percent: 0.382 },
+  { state: "Retrace", percent: 0.5 },
+  { state: "Retrace", percent: 0.618 },
+  { state: "Correction", percent: 0.764 },
+  { state: "Breakout", percent: 1 },
+  { state: "Reversal", percent: 1 },
+  { state: "Extension", percent: 1.618 },
+  { state: "Extension", percent: 2.618 },
+  { state: "Extension", percent: 3.618 },
+  { state: "Extension", percent: 4.236 },
+  { state: "Extension", percent: 8.236 },
+];
+
 enum State {
   NoState, // No State Assignment
   Rally, // Advancing fractal
@@ -108,6 +126,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   };
   const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, 10000); //-- limit will be added to instrument
   const start: Partial<ICandle> = structuredClone(candles[candles.length - 1]);
+  const report: Array<any> = [];
 
   //-- Work variables -------------------------------------------------------//
   const bar = { min: start.low!, max: start.high!, retrace: start.close! > start.open! ? start.high! : start.low! };
@@ -295,24 +314,119 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
-  //| updateFibonacci - Calculate fibonacci %sequence's on active Fractal                  |
+  //| Fibonacci - Returns Calculated fibonacci %sequence's for the active Fractal          |
   //+--------------------------------------------------------------------------------------+
   function Fibonacci(): IFibonacci {
     const recovery: number = Fractal.point!.recovery.timestamp > 0 ? Fractal.point!.recovery.price : Fractal.point!.retrace.price;
     return {
       retrace: {
-        min: parseFloat((1 - (Fractal.point!.root.price - recovery) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
-        max: parseFloat(
-          (1 - (Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)
-        ),
-        now: parseFloat((1 - (Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.expansion.price)).toFixed(3)),
+        min: format(1 - (Fractal.point!.root.price - recovery) / (Fractal.point!.root.price - Fractal.point!.expansion.price), 3),
+        max: format(1 - (Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.expansion.price), 3),
+        now: format(1 - (Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.expansion.price), 3),
       },
       extension: {
-        min: parseFloat(((Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
-        max: parseFloat(((Fractal.point!.root.price - Fractal.point!.expansion.price) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
-        now: parseFloat(((Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.base.price)).toFixed(3)),
+        min: format((Fractal.point!.root.price - Fractal.point!.retrace.price) / (Fractal.point!.root.price - Fractal.point!.base.price), 3),
+        max: format((Fractal.point!.root.price - Fractal.point!.expansion.price) / (Fractal.point!.root.price - Fractal.point!.base.price), 3),
+        now: format((Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.base.price), 3),
       },
     };
+  }
+
+  //+--------------------------------------------------------------------------------------+
+  //| UpdateFibonacci - Updates and validates Fractal state, properties, events            |
+  //+--------------------------------------------------------------------------------------+
+  function UpdateFibonacci() {
+    const fiboanacci = Fibonacci();
+
+    report.push([
+      Bar.timestamp,
+      Bar.open,
+      Bar.high,
+      Bar.low,
+      Bar.close,
+      SMA.open,
+      SMA.close,
+      event.isActive(Event.NewReversal) ? Fractal.point!.root.timestamp : "=na()",
+      event.isActive(Event.NewReversal) ? Fractal.point?.root.price : "=na()",
+    ]);
+
+    // Extension.Event   = NoEvent;
+    // Retrace.Event     = NoEvent;
+
+    // //-- Handle Fractal Resets
+    // if (Reset)
+    // {
+    //   //-- Reset Extension
+    //   ArrayInitialize(Extension.Percent,fext(Fractal[fpBase],Fractal[fpRoot],Fractal[fpExpansion],InDecimal));
+    //   Extension.Level            = Level(Extension.Percent[Max]);
+    //   Extension.Price            = Fractal[fpBase];
+    //   Extension.Event            = BoolToEvent(IsEqual(Fractal[fpRoot],fpoint[fpRoot]),NewBreakout,NewReversal);
+    // }
+    // else
+
+    // //-- Handle Interior Fractal Calcs
+    // {
+    //   //-- Update Extension
+    //   Extension.Percent[Now]     = fext(Fractal[fpBase],Fractal[fpRoot],Fractal[fpClose],InDecimal);
+    //   Extension.Percent[Min]     = fext(Fractal[fpBase],Fractal[fpRoot],Fractal[fpRetrace],InDecimal);
+    //   Extension.Percent[Max]     = fext(Fractal[fpBase],Fractal[fpRoot],Fractal[fpExpansion],InDecimal);
+
+    //   if (IsHigher(Level(Extension.Percent[Max]),Extension.Level))
+    //   {
+    //     Extension.Event          = NewExtension;
+    //     Extension.Price          = fprice(Fractal[fpBase],Fractal[fpRoot],Extension.Level);
+    //   }
+
+    //   //-- Handle New Extension
+    //   if (IsEqual(Extension.Percent[Min],Extension.Percent[Max],3))
+    //     if (Retrace.Level>FiboRoot)
+    //     {
+    //       Extension.Price        = BoolToDouble(IsBetween(fpoint[fpExpansion],fpoint[fpRoot],fpoint[fpBase]),Fractal[fpBase],fpoint[fpExpansion]);
+    //       Extension.Event        = NewBreakout;
+    //     }
+    // }
+
+    // //-- Reset Retrace
+    // if (Extension.Event>NoEvent)
+    // {
+    //   ArrayInitialize(Retrace.Percent,0.00);
+    //   Retrace.Level              = FiboRoot;
+    // }
+    // else
+
+    // //-- Update Retrace
+    // {
+    //   FibonacciType min          = Level(Retrace.Percent[Min]);
+
+    //   Retrace.Percent[Now]       = fret(Fractal[fpRoot],Fractal[fpExpansion],Fractal[fpClose],InDecimal);
+    //   Retrace.Percent[Min]       = fret(Fractal[fpRoot],Fractal[fpExpansion],Fractal[fpRecovery],InDecimal);
+    //   Retrace.Percent[Max]       = fret(Fractal[fpRoot],Fractal[fpExpansion],Fractal[fpRetrace],InDecimal);
+
+    //   if (IsHigher(Level(Retrace.Percent[Max]),Retrace.Level))
+    //   {
+    //     if (IsEqual(Retrace.Level,FiboCorrection))
+    //       Retrace.Event          = NewCorrection;
+    //     else
+    //     if (IsBetween(Retrace.Level,Fibo50,Fibo61))
+    //       Retrace.Event          = NewRetrace;
+    //     else
+    //     if (IsBetween(Retrace.Level,Fibo23,Fibo38))
+    //       Retrace.Event          = BoolToEvent(IsEqual(Direction(Fractal[fpBase]-Fractal[fpRoot]),DirectionUp),NewPullback,NewRally);
+
+    //     Retrace.Price            = fprice(Fractal[fpRoot],Fractal[fpExpansion],Retrace.Level);
+    //   }
+
+    //   if (Retrace.Percent[Max]>fibonacci[FiboCorrection])
+    //     if (IsLower(Level(Retrace.Percent[Min]),min))
+    //       if (Retrace.Percent[Min]<fibonacci[Fibo23])
+    //       {
+    //         Retrace.Event        = NewRecovery;
+    //         Retrace.Price        = fprice(Fractal[fpRoot],Fractal[fpExpansion],Fibo23);
+    //       }
+    // }
+
+    // SetEvent(Extension.Event,Alert(Type),Extension.Price);
+    // SetEvent(Retrace.Event,Alert(Type),Retrace.Price);
   }
 
   //+--------------------------------------------------------------------------------------+
@@ -322,6 +436,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     const close = { timestamp: Bar.timestamp!, price: Bar.close! };
     const resistance = iHigh();
     const support = iLow();
+    const prior = structuredClone(Fractal);
     const rangeDirection = close.price < Fractal.support!.price ? Direction.Down : close.price > Fractal.resistance!.price ? Direction.Up : Direction.None;
 
     //--- Handle Reversals
@@ -355,8 +470,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
         Fractal.point!.recovery.price < Bar.close! && (Fractal.point!.recovery = close);
         Fractal.point!.retrace.price > Bar.close! && (Fractal.point!.retrace = close);
       }
-
-      //--- Check for Lower Boundary changes
+    //--- Check for Lower Boundary changes
     else if (isLower(Bar.low!, Fractal.point!.expansion.price, digits)) {
       Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.low! };
       Fractal.point!.retrace = close;
@@ -375,10 +489,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       Fractal.point!.retrace.price < Bar.close! && (Fractal.point!.retrace = close);
     }
 
-    // UpdatePivot(Type,Fractal.pivot.
-    // if(Event(NewLead,Alert(Type)))
-    // SetEvent(BoolToEvent(IsEqual(Fractal.Direction,BoolToInt(Event(NewHigh),DirectionUp,DirectionDown)),NewConvergence,NewDivergence),Alert(Type),fPrice.Close);
-
+    //-- wrap-up tasks
     isLower(resistance.price - support.price, Fractal.range!) && event.set(Event.NewConsolidation, Alert.Minor);
 
     Fractal.range = format(resistance.price - support.price, digits);
@@ -386,17 +497,8 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     Fractal.support = support;
     Fractal.resistance = resistance;
 
-    // if (event.maxAlert() > Alert.Nominal)
-    //    console.log(event.active(), Fractal, Fibonacci());
     //if (event.isActive(Event.NewHigh) && event.isActive(Event.NewLow))
-       console.log(event.active(), Fractal);
-
-    // if (FibonacciChanged(Type,Fractal))
-    // {
-    // SetEvent(NewFibonacci,Alert(Type),Fractal.pivot.ice;
-    // InitPivot(Type,Fractal.pivot.stEvent));
-    // Flag(Type,Type==fShowFlags);
-    // }
+    //    console.log(event.active(), Fractal, Fibonacci());
   }
 
   //-- initialization Section --------------------------------------------------------------//
@@ -442,7 +544,10 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       UpdateBar(candle);
       UpdateSMA();
       UpdateFractal();
+      UpdateFibonacci();
     });
+
+  fileWrite("ctest-reverse.log", report);
 
   return { Update, active: event.active, isAnyActive: event.isAnyActive };
 };

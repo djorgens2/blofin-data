@@ -205,11 +205,14 @@ export const format = (value: number | string, digits: number = 8): number => {
 import * as fs from "node:fs";
 
 export function fileWrite(filePath: string, array: any[]): void {
-  try {
-    const text = array.join("\n");
-    fs.writeFileSync(filePath, text);
-    console.log(`Array successfully written to ${filePath}`);
-  } catch (error: any) {
-    console.error(`Error writing to ${filePath}:`, error.message);
+  if (typeof Array.isArray(array) && array.length > 0) {
+//    if (typeof array[0] === 'number' || array[0] === 'string')
+    try {
+      const text = array.join("\n");
+      fs.writeFileSync(filePath, text);
+      console.log(`Array successfully written to ${filePath}`);
+    } catch (error: any) {
+      console.error(`Error writing to ${filePath}:`, error.message);
+    }
   }
 }

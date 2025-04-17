@@ -71,7 +71,7 @@ export const CEvent = () => {
   let MaxAlert: Alert = Alert.NoAlert;
 
   //+------------------------------------------------------------------+
-  //| setEvent - Sets the triggering event and Alert level             |
+  //| set - Sets the triggering event and Alert level                  |
   //+------------------------------------------------------------------+
   const set = (event: Event, alert: Alert = Alert.Notify) => {
     if (event === Event.NoEvent) return;
@@ -89,7 +89,7 @@ export const CEvent = () => {
   };
 
   //+------------------------------------------------------------------+
-  //| clearEvents - Resets/Initializes all events to false             |
+  //| clear - Resets/Initializes all events to false                   |
   //+------------------------------------------------------------------+
   const clear = () => {
     Events.fill(false);
@@ -102,7 +102,7 @@ export const CEvent = () => {
   };
 
   //+------------------------------------------------------------------+
-  //| isEventActive - Returns Event:Alert state of the provided Event  |
+  //| isActive - Returns Event:Alert state of the provided Event       |
   //+------------------------------------------------------------------+
   const isActive = (event: Event, alert: Alert = Alert.NoAlert): boolean => {
     if (alert === Alert.NoAlert) return Events[event];
@@ -112,10 +112,26 @@ export const CEvent = () => {
   };
 
   //+------------------------------------------------------------------+
-  //| isAnyEventActive - Returns true on any active event              |
+  //| isAnyActive - Returns true on any active event                   |
   //+------------------------------------------------------------------+
   const isAnyActive = (): boolean => {
     return !Events[Event.NoEvent];
+  };
+
+  //+------------------------------------------------------------------+
+  //| active - Returns an object of active {event, alert}              |
+  //+------------------------------------------------------------------+
+  const active = (): Array<{ event: string; alert: string }> => {
+    const activeEvents: Array<{ event: string; alert: string }> = [];
+
+    if (isAnyActive()) {
+      Events.forEach((active, row) => {
+        active && activeEvents.push({ event: EventText[row], alert: AlertText[Alerts[row]] });
+      });
+
+      return activeEvents;
+    }
+    return [{ event: "Inactive", alert: "None" }];
   };
 
   //+------------------------------------------------------------------+
@@ -144,22 +160,6 @@ export const CEvent = () => {
   //+------------------------------------------------------------------+
   const alertText = (event: Event): string => {
     return EventText[event];
-  };
-
-  //+------------------------------------------------------------------+
-  //| activeEvents - Returns an object of active {event, alert}        |
-  //+------------------------------------------------------------------+
-  const active = (): Array<{ event: string; alert: string }> => {
-    const activeEvents: Array<{ event: string; alert: string }> = [];
-
-    if (isAnyActive()) {
-      Events.forEach((active, row) => {
-        active && activeEvents.push({ event: EventText[row], alert: AlertText[Alerts[row]] });
-      });
-
-      return activeEvents;
-    }
-    return [{ event: "Inactive", alert: "None" }];
   };
 
   return { clear, set, isActive, isAnyActive, eventText, alertText, active, maxAlert, maxEvent };
