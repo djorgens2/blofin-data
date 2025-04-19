@@ -163,3 +163,48 @@ importCandles();
 
 // console.log(event.eventText(Event.NewDay));
 // console.log(event.activeEvents());
+
+//----------------------------- Fibonacci Levels ------------------------------------------//
+
+//+--------------------------------------------------------------------------------------+
+//| Returns true on higher number|precision of the soruce(new) to benchmark(old)         |
+//+--------------------------------------------------------------------------------------+
+// export const isHigher = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
+//   const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
+//   const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+
+//   return arg1 > arg2;
+// };
+
+// const fibos = [
+//   { level: 0, percent: 0, state: "Root" },
+//   { level: 1, percent: 0.236, state: ["Rally", "Pullback"] },
+//   { level: 2, percent: 0.382, state: ["Rally", "Pullback"] },
+//   { level: 3, percent: 0.5, state: "Retrace" },
+//   { level: 4, percent: 0.618, state: "Retrace" },
+//   { level: 5, percent: 0.764, state: ["Correction", "Recovery"] },
+//   { level: 6, percent: 1, state: ["Breakout", "Reversal"] },
+//   { level: 7, percent: 1.618, state: "Extension" },
+//   { level: 8, percent: 2.618, state: "Extension" },
+//   { level: 9, percent: 3.618, state: "Extension" },
+//   { level: 10, percent: 4.236, state: "Extension" },
+//   { level: 11, percent: 8.236, state: "Extension" },
+// ];
+
+// const FiboLevel = (percent: number) => {
+//   const level = {};
+//   fibos
+//     .slice()
+//     .reverse()
+//     .some((fibo) => {
+//       console.log([isHigher(percent, fibo.percent, 3), percent, fibo.percent], fibo, "\n");
+//       //      if (isHigher(percent,fibo.percent,3)){
+//       if (percent > fibo.percent) {
+//         Object.assign(level, fibo);
+//         return true;
+//       }
+//     });
+//   return level;
+// };
+
+// console.log(FiboLevel(0.237));

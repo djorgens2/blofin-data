@@ -29,7 +29,7 @@ export enum Event {
   NewSegment, //-- Segment level event; aggregate of Ticks
   NewContraction,
   NewFractal, //-- Fractal Direction change
-  NewFibonacci, //-- Fibonacci Level change only
+  NewFibonacci, //-- Fibonacci event
   NewOrigin,
   NewTrend,
   NewTerm,
