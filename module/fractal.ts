@@ -175,8 +175,8 @@ const updateReport = () => {
     sma: { open: report.sma.open, close: report.sma.close },
     fractal: { timestamp: report.fractal.timestamp, price: report.fractal.price },
     breakout: { timestamp: report.breakout.timestamp, price: report.breakout.price },
-    extension: report.extension,
-    retracement: report.retracement,
+    extension: structuredClone(report.extension),
+    retracement: structuredClone(report.retracement),
   });
   Object.assign(report, { ...empty });
   report.extension.length = 0;
@@ -184,6 +184,7 @@ const updateReport = () => {
 };
 const publishReport = () => {
   //-- format csv line
+  const initial: IFractalEvent = { timestamp: 0, price: 0.0, level: 0, percent: 0.0, event: Event.NoEvent };
   const array: Array<any> = [];
   log.map((log) => {
     const line: Array<number | string> = [
@@ -199,8 +200,9 @@ const publishReport = () => {
       log.breakout.timestamp ? log.breakout.timestamp : "=na()",
       log.breakout.price ? log.breakout.price : "=na()",
     ];
-    const ext: Array<number | string> = log.extension.map((log) => (log.timestamp ? log.price : "=na()"));
-    const ret: Array<number | string> = log.retracement.map((log) => (log.timestamp ? log.price : "=na()"));
+    const ext: Array<number[] | string[]> = log.extension.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
+    const ret: Array<number[] | string[]> = log.retracement.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
+    /*@ts-ignore */    
     array.push(line.concat(ext, ret));
   });
 
@@ -379,7 +381,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     Bar.low = candle.low;
     Bar.close = candle.close;
 
-    Object.assign(report, { ohlc: { timestamp: Bar.timestamp, open: Bar.open, high: Bar.high, low: Bar.low, close: Bar.close } });
+    Object.assign(report, { bar: { timestamp: Bar.timestamp, open: Bar.open, high: Bar.high, low: Bar.low, close: Bar.close } });
   }
 
   //+--------------------------------------------------------------------------------------+
@@ -449,25 +451,26 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       //-- Handle New Breakout
       else if (Fractal.retrace!.level) {
         Fractal.state = State.Breakout;
-        Fractal.extension = { ...Fractal.extension!, timestamp: Bar.timestamp!, ...fibonacciLevel(Percent.Breakout), event: Event.NewBreakout };
+        Fractal.extension = { ...Fractal.extension!, timestamp: Bar.timestamp!, event: Event.NewBreakout };
         Object.assign(report, { breakout: { timestamp: Bar.timestamp, price: Fractal.extension.price } });
         event.set(Event.NewBreakout, Alert.Major);
       }
+
       //-- Handle New Extension
-      while (isHigher(fibonacciLevel(percent.extension.max).level, Fractal.extension!.level++, 3)) {
+      while (isHigher(fibonacciLevel(percent.extension.max).level, Fractal.extension!.level, 3)) {
         Fractal.state = State.Extension;
         Fractal.extension = {
           timestamp: Bar.timestamp!,
-          price: fibonacciPrice(Fractal.point!.root.price, Fractal.point!.base.price, fibonacci[Fractal.extension!.level].percent, digits),
+          price: fibonacciPrice(Fractal.point!.root.price, Fractal.point!.base.price, fibonacci[++Fractal.extension!.level].percent, digits),
           level: Fractal.extension!.level,
-          percent: Fractal.extension!.percent,
+          percent: fibonacci[Fractal.extension!.level].percent,
           event: Event.NewExtension,
         };
         report.extension.push(Fractal.extension!);
         event.set(Event.NewExtension, Alert.Minor);
       }
     }
-
+    
     //-- Handle Retrace
     if (isHigher(fibonacciLevel(percent.retrace.max).level, Fractal.retrace!.level, 3)) {
       const retrace: IFractalEvent = {

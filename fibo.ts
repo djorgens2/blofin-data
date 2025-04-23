@@ -1,6 +1,5 @@
 import { Event, CEvent } from "@module/event";
 import { format } from "@/lib/std.util";
-import * as evobj from "@module/event";
 
 interface IPrice {
   timestamp: number;
@@ -60,7 +59,7 @@ const fibonacciPrice = (root: number, expansion: number, percent: number): numbe
 const bar: IPrice = { timestamp: 1738016100, open: 3.0431, high: 3.0171, low: 2.9996, close: 3.0106 };
 // 1738017000	3.0105	3.0252	3.0082	3.0249	3.01105	3.01775	#N/A	#N/A	1738016100	2.9996
 
-const expansion: number = 11;
+const expansion: number = 9;
 const event: IFractalEvent = {
   timestamp: 1738016100,
   price: 2.9996,

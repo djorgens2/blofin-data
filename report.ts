@@ -70,8 +70,9 @@ const publishReport = () => {
       log.fractal.timestamp,
       log.fractal.price,
     ];
-    const ext: Array<number | string> = log.extension.map((log) => (log.timestamp ? log.price : "=na()"));
-    const ret: Array<number | string> = log.retracement.map((log) => (log.timestamp ? log.price : "=na()"));
+    const ext: Array<number[] | string[]> = log.extension.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()","=na()"]));
+    const ret: Array<number[] | string[]> = log.retracement.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()","=na()"]));
+    /*@ts-ignore */
     array.push(line.concat(ext, ret));
   });
 
