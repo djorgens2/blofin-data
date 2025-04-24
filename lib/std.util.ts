@@ -174,8 +174,8 @@ export const isEqual = (source: number | string, benchmark: number | string, dig
 //| Returns true on higher number|precision of the soruce(new) to benchmark(old)         |
 //+--------------------------------------------------------------------------------------+
 export const isHigher = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
-  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg1: number = Number(typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits));
+  const arg2: number = Number(typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits));
 
   return arg1 > arg2;
 };
@@ -184,8 +184,8 @@ export const isHigher = (source: number | string, benchmark: number | string, di
 //| Returns true on lower number|precision of the soruce(new) to benchmark(old)          |
 //+--------------------------------------------------------------------------------------+
 export const isLower = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
-  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
-  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg1: number = Number(typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits));
+  const arg2: number = Number(typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits));
 
   return arg1 < arg2;
 };

@@ -202,7 +202,7 @@ const publishReport = () => {
     ];
     const ext: Array<number[] | string[]> = log.extension.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
     const ret: Array<number[] | string[]> = log.retracement.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
-    /*@ts-ignore */    
+    /*@ts-ignore */
     array.push(line.concat(ext, ret));
   });
 
@@ -446,7 +446,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       if (event.isActive(Event.NewReversal)) {
         Fractal.state = State.Reversal;
         Fractal.extension = { timestamp: Bar.timestamp!, price: Fractal.point!.base.price, ...fibonacciLevel(Percent.Breakout), event: Event.NewReversal };
-        Object.assign(report, { breakout: Fractal.point!.base });
+        Object.assign(report, { breakout: { timestamp: Bar.timestamp, price: Fractal.point!.base.price }});
       }
       //-- Handle New Breakout
       else if (Fractal.retrace!.level) {
@@ -469,15 +469,23 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
         report.extension.push(Fractal.extension!);
         event.set(Event.NewExtension, Alert.Minor);
       }
-    }
-    
-    //-- Handle Retrace
-    if (isHigher(fibonacciLevel(percent.retrace.max).level, Fractal.retrace!.level, 3)) {
-      const retrace: IFractalEvent = {
-        ...fibonacciLevel(percent.retrace.max),
+      Fractal.retrace = {
         timestamp: Bar.timestamp!,
+        price: Fractal.point?.expansion.price!,
+        level: 0,
+        percent: 0,
+        event: Event.NewExtension,
+      };
+    }
+
+    //-- Handle Retrace
+    while (isHigher(fibonacciLevel(percent.retrace.max).level, Fractal.retrace!.level, 3)) {
+      const retrace: IFractalEvent = {
+        timestamp: Bar.timestamp!,
+        price: fibonacciPrice(Fractal.point!.expansion.price, Fractal.point!.root.price, ++Fractal.retrace!.level, digits),
+        level: Fractal.retrace!.level,
+        percent: fibonacci[Fractal.retrace!.level].percent,
         event: Event.NoEvent,
-        price: 0.0,
       };
 
       if (percent.retrace.max >= Percent.Correction) {
@@ -485,7 +493,6 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
           Fractal.state = State.Recovery;
           Fractal.retrace = {
             ...retrace,
-            price: fibonacciPrice(Fractal.point!.expansion.price, Fractal.point!.root.price, Percent.Consolidation, digits),
             event: Event.NewRecovery,
           };
 
@@ -494,7 +501,6 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
           Fractal.state = State.Correction;
           Fractal.retrace = {
             ...retrace,
-            price: fibonacciPrice(Fractal.point!.expansion.price, Fractal.point!.root.price, retrace.percent, digits),
             event: Event.NewCorrection,
           };
 
@@ -504,7 +510,6 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
         Fractal.state = State.Retrace;
         Fractal.retrace = {
           ...retrace,
-          price: fibonacciPrice(Fractal.point!.expansion.price, Fractal.point!.root.price, retrace.percent, digits),
           event: Event.NewRetrace,
         };
 
@@ -512,12 +517,12 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       } else if (percent.retrace.max >= Percent.Consolidation) {
         Fractal.retrace = {
           ...retrace,
-          price: fibonacciPrice(Fractal.point!.expansion.price, Fractal.point!.root.price, retrace.percent, digits),
           event: Fractal.direction === Direction.Up ? Event.NewPullback : Event.NewRally,
         };
 
-        event.set(Fractal.retrace!.event, Alert.Minor);
+        event.set(Fractal.retrace!.event, Alert.Nominal);
       }
+      report.retracement.push(Fractal.retrace!);
     }
   }
 
