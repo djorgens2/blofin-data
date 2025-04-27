@@ -17,9 +17,9 @@ import * as Instrument from "@db/interfaces/instrument";
 import * as Candle from "@db/interfaces/candle";
 
 async function init() {
-  const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch({ symbol: "XRP-USDT" });
-  const fractal = await CFractal(instrument);
-  const message: IMessage = clear({ state: "ready", symbol: "XRP-USDT", node: 0 });
+  const message: IMessage = clear({ state: "init", symbol: "XRP-USDT", node: 0 });
+  const [instrument]: Array<Partial<IInstrument>> = await Instrument.Fetch({ symbol: message.symbol });
+  const fractal = await CFractal(message, instrument);
   const update = await fractal.Update(message);
   const text = fractal.active();
 }

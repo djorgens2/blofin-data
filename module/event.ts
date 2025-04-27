@@ -135,17 +135,26 @@ export const CEvent = () => {
   };
 
   //+------------------------------------------------------------------+
-  //| MaxEvent - Returns the Highest active event based on alert       |
+  //| maxEvent - Returns the Highest active event based on alert       |
   //+------------------------------------------------------------------+
   const maxEvent = (): Event => {
     return MaxEvent;
   };
 
   //+------------------------------------------------------------------+
-  //| MaxAlert - Returns the Highest active event based on alert       |
+  //| mxAlert - Returns the Highest active event based on alert        |
   //+------------------------------------------------------------------+
   const maxAlert = (): Alert => {
     return MaxAlert;
+  };
+
+  //+------------------------------------------------------------------+
+  //| count - returns the count of active events;                      |
+  //+------------------------------------------------------------------+
+  const count = (): number => {
+    let sum: number = 0;
+    Events.forEach((event) => event && sum++);
+    return sum;
   };
 
   //+------------------------------------------------------------------+
@@ -162,5 +171,5 @@ export const CEvent = () => {
     return EventText[event];
   };
 
-  return { clear, set, isActive, isAnyActive, eventText, alertText, active, maxAlert, maxEvent };
+  return { clear, set, isActive, isAnyActive, active, maxAlert, maxEvent, count, eventText, alertText };
 };

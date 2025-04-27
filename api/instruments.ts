@@ -77,8 +77,8 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
         let updated: boolean = false;
 
         !isEqual(local.contract_value!, api[instrument].contractValue) && (updated = true);
-        !isEqual(local.list_timestamp!, api[instrument].listTime / 1000) && (updated = true);
-        !isEqual(local.expiry_timestamp!, api[instrument].expireTime / 1000) && (updated = true);
+        !isEqual(local.list_timestamp!, api[instrument].listTime / 1000, 0) && (updated = true);
+        !isEqual(local.expiry_timestamp!, api[instrument].expireTime / 1000, 0) && (updated = true);
         !isEqual(local.max_leverage!, api[instrument].maxLeverage) && (updated = true);
         !isEqual(local.min_size!, api[instrument].minSize) && (updated = true);
         !isEqual(local.lot_size!, api[instrument].lotSize) && (updated = true);

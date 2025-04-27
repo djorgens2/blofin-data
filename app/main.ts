@@ -21,7 +21,7 @@ export class CMain {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start() {
-    //    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ symbol: "ARC", state: State.Enabled });
+    //       const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ symbol: "XRP", state: State.Enabled });
     const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ state: State.Enabled });
 
     instruments.forEach((instrument, id) => {
@@ -29,19 +29,22 @@ export class CMain {
       const app = fork("./app/process.ts", [JSON.stringify(ipc)]);
 
       app.on("message", (message: IMessage) => {
-        console.log("main:", message);
+        //        console.log("main:", message);
         message.state === "init" && app.send({ ...message, state: "api" });
         message.state === "api" && app.send({ ...message, state: "update" });
         message.state === "update" && Object.assign(ipc, clear({ ...message, state: "ready" }));
       });
       app.on("exit", (code) => {
-        console.log(`4:[app] Symbol exit PID: [${process.pid}:${app.pid}] on code ${code}`);
+        //        console.log(`4:[app] Symbol exit PID: [${process.pid}:${app.pid}] on code ${code}`);
         app.disconnect();
       });
 
       setInterval(() => {
         console.log("clock:", ipc);
-        ipc.state === "ready" && app.send({ ...ipc, state: "api" });
+        if (ipc.state === "ready") {
+          Object.assign(ipc, { ...ipc, state: "api" });
+          app.send(ipc);
+        }
       }, 1000);
     });
   }

@@ -12,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "lightweight-charts": "^5.0.6",
     "mysql2": "^3.13.0",
     "nanoid": "^3.3.9"
   },

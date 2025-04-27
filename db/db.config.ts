@@ -2,7 +2,7 @@
 //|                                                     db.config.ts |
 //|                                 Copyright 2018, Dennis Jorgenson |
 //+------------------------------------------------------------------+
-"use strict"
+"use strict";
 
 import mysql from "mysql2/promise";
 

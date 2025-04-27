@@ -2,7 +2,7 @@
 //|                                                   query.utils.ts |
 //|                                 Copyright 2018, Dennis Jorgenson |
 //+------------------------------------------------------------------+
-"use strict"
+"use strict";
 
 import pool from "@db/db.config";
 
@@ -21,7 +21,7 @@ export type ResultType = {
   state: number;
   action: Operation;
   message: string;
-}
+};
 
 export async function Select<T>(query: string, fields: Array<any>): Promise<Partial<T>[]> {
   const [results] = await pool.execute(query, fields);

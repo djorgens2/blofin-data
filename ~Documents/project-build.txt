@@ -4,3 +4,4 @@ npm i -D typescript @types/node
 npx tsc --init
 npm install nanoid@^3.0.0 --save
 npm install -D tsx
+npm i lightweight-charts --save

@@ -95,30 +95,30 @@
 // Import();
 
 //-------------------------------- candles Import ---------------------------------------//
-import type { IMessage } from "@lib/std.util";
-import { clear } from "@lib/std.util";
-import { Import } from "./api/candles";
-import { State } from "./db/interfaces/trade_state";
-import * as Candles from "@db/interfaces/candle";
-import * as Periods from "@db/interfaces/instrument_period";
+// import type { IMessage } from "@lib/std.util";
+// import { clear } from "@lib/std.util";
+// import { Import } from "./api/candles";
+// import { State } from "./db/interfaces/trade_state";
+// import * as Candles from "@db/interfaces/candle";
+// import * as Periods from "@db/interfaces/instrument_period";
 
-async function importCandles() {
-  const instruments = await Periods.Fetch({ active_collection: true });
-  console.log("Fetch filtered period:", instruments);
+// async function importCandles() {
+//   const instruments = await Periods.Fetch({ active_collection: true });
+//   console.log("Fetch filtered period:", instruments);
 
-  instruments?.forEach((db, id) => {
-    const ipc = clear({ state: "init", symbol: db.symbol!, node: id });
-    const props: Candles.IKeyProps = {
-      instrument: db.instrument!,
-      symbol: db.symbol!,
-      period: db.period!,
-      timeframe: db.timeframe!,
-    };
-    Import(ipc, props, 1440);
-  });
-}
+//   instruments?.forEach((db, id) => {
+//     const ipc = clear({ state: "init", symbol: db.symbol!, node: id });
+//     const props: Candles.IKeyProps = {
+//       instrument: db.instrument!,
+//       symbol: db.symbol!,
+//       period: db.period!,
+//       timeframe: db.timeframe!,
+//     };
+//     Import(ipc, { ...props, limit: 1440});
+//   });
+// }
 
-importCandles();
+// importCandles();
 
 //------------------- Instrument fetch Test ---------------------------------------//
 // import { Fetch } from "./db/interfaces/instrument";
@@ -208,3 +208,135 @@ importCandles();
 // };
 
 // console.log(FiboLevel(0.237));
+
+//----------------------------- test synchronous forEach ------------------------------------------//
+interface IFibo {
+  level: number;
+  percent: number;
+  state: string | Array<string>;
+}
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+function delay2(ms: number) {
+  setTimeout(function () {
+    console.log("done");
+  }, ms);
+}
+const fibos: Array<IFibo> = [
+  { level: 0, percent: 0, state: "Root" },
+  { level: 1, percent: 0.236, state: ["Rally", "Pullback"] },
+  { level: 2, percent: 0.382, state: ["Rally", "Pullback"] },
+  { level: 3, percent: 0.5, state: "Retrace" },
+  { level: 4, percent: 0.618, state: "Retrace" },
+  { level: 5, percent: 0.764, state: ["Correction", "Recovery"] },
+  { level: 6, percent: 1, state: ["Breakout", "Reversal"] },
+  { level: 7, percent: 1.618, state: "Extension" },
+  { level: 8, percent: 2.618, state: "Extension" },
+  { level: 9, percent: 3.618, state: "Extension" },
+  { level: 10, percent: 4.236, state: "Extension" },
+  { level: 11, percent: 8.236, state: "Extension" },
+];
+
+// const test1 = () => {
+//   console.log('t1-start');
+//   const slow = async () => await new Promise(resolve => setTimeout(resolve, 10000));
+//   slow();
+//   console.log('t1-end');
+// }
+// const test2 = () => {
+//   console.log('t2-start');
+//   const slow = async () => await new Promise(resolve => setTimeout(resolve, 5000));
+//   slow();
+//   console.log('t2-end');
+// }
+// const test3 = () => {
+//   console.log('t3-start');
+//   const slow = async () => await new Promise(resolve => setTimeout(resolve, 2500));
+//   slow();
+//   console.log('t3-end');
+// }
+// const test4 = () => {
+//   console.log('t4-start');
+//   const slow = async () => await new Promise(resolve => setTimeout(resolve, 100));
+//   slow();
+//   console.log('t4-end');
+// }
+// const test1 = () => {
+//   console.log('t1-start');
+//   delay2(10000);
+//   console.log('t1-end');
+// }
+// const test2 = () => {
+//   console.log('t2-start');
+//   delay2(5000);
+//   console.log('t2-end');
+// }
+// const test3 = () => {
+//   console.log('t3-start');
+//   delay2(2500);
+//   console.log('t3-end');
+// }
+// const test4 = () => {
+//   console.log('t4-start');
+//   delay2(100);
+//   console.log('t4-end');
+// }
+const test1 = async (id: number) => {
+  console.log("t1-start", id);
+  await delay(10000);
+  console.log("t1-end");
+};
+const test2 = async (id: number) => {
+  console.log("t2-start", id);
+  await delay(5000);
+  console.log("t2-end");
+};
+const test3 = async (id: number) => {
+  console.log("t3-start", id);
+  await delay(2500);
+  console.log("t3-end");
+};
+const test4 = async (id: number) => {
+  console.log("t4-start", id);
+  await delay(100);
+  console.log("t4-end");
+};
+const update = async (fibo: IFibo) => {
+  await test1(fibo.level);
+  await test2(fibo.level);
+  await test3(fibo.level);
+  await test4(fibo.level);
+  console.log("Finished:", fibo);
+  console.log("-------------------- FINAL -------------------------------");
+};
+console.log("------------------- START --------------------------------");
+// fibos.forEach((fibo, id) => {
+//      update(id);
+// });
+
+// const test = async () => {
+//   for (const fibo in fibos) {
+//     await update(fibos[fibo]);
+//     console.log("Fibo:", fibos[fibo].level);
+//   }
+// };
+const test = async () => {
+  for (let index = fibos.length - 1; index >= 0; index--) {
+    await update(fibos[index]);
+    console.log("Fibo:", fibos[index].level);
+  }
+};
+async function wrapper() {
+  console.log("-------------------- Inner START ---------------------------------");
+  await test();
+  console.log("-------------------- Inner FINISHED ---------------------------------");
+}
+wrapper();
+console.log("-------------------- END ---------------------------------");
+// fibos.forEach(async (fibo) => {
+//    await test1()
+//   .then(async (result) => {await test2()})
+//   .then(async (result) => {await test3()})
+//   .then(async (result) => {await test4()})
+// })

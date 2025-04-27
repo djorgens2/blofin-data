@@ -9,28 +9,29 @@ import type { ICandleAPI } from "@/api/candles";
 
 import { Select, Modify } from "@db/query.utils";
 
-export interface ICandle extends IKeyProps, RowDataPacket {
-  bar_time: Date;
-  timestamp: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-  vol_currency: number;
-  vol_currency_quote: number;
-  completed: boolean;
-}
-
 export interface IKeyProps {
   instrument: Uint8Array;
   symbol: string;
+  period: Uint8Array;
+  timeframe: string;
+  timestamp?: number;
+  limit?: number;
+}
+
+export interface ICandle extends IKeyProps, RowDataPacket {
   base_currency?: Uint8Array;
   base_symbol?: string;
   quote_currency?: Uint8Array;
   quote_symbol?: string;
-  period: Uint8Array;
-  timeframe: string;
+  bar_time: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume?: number;
+  vol_currency?: number;
+  vol_currency_quote?: number;
+  completed: boolean;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -106,14 +107,13 @@ export async function Insert(missing: Array<ICandleAPI & IKeyProps>) {
 //+--------------------------------------------------------------------------------------+
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
-export function Fetch(props: IKeyProps, limit: number = 0): Promise<Array<Partial<ICandle>>> {
-  return Select<ICandle>(
-    `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
-     FROM vw_candles
-     WHERE instrument = ?	AND period = ?
-     ORDER BY	timestamp DESC LIMIT ${limit || 1}`,
-    [props.instrument, props.period]
-  );
+export function Fetch(props: IKeyProps): Promise<Array<Partial<ICandle>>> {
+  let sql: string = `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
+   FROM vw_candles
+   WHERE instrument = ?	AND period = ? and timestamp > ?
+   ORDER BY	timestamp DESC`;
+  sql += props.limit ? ` LIMIT ${props.limit || 1}` : ``;
+  return Select<ICandle>(sql, [props.instrument, props.period, props.timestamp || 0]);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -121,7 +121,9 @@ export function Fetch(props: IKeyProps, limit: number = 0): Promise<Array<Partia
 //+--------------------------------------------------------------------------------------+
 export async function First(props: IKeyProps): Promise<Partial<ICandle>> {
   const [candle] = await Select<ICandle>(
-    `SELECT * FROM vw_candles WHERE (instrument, period, bar_time) = (SELECT instrument, period, min(bar_time) FROM candle WHERE instrument = ? AND period = ?)`,
+    `SELECT * FROM vw_candles WHERE (instrument, period, bar_time) = 
+      (SELECT instrument, period, min(bar_time)
+       FROM candle WHERE instrument = ? AND period = ?)`,
     [props.instrument, props.period]
   );
   return candle;

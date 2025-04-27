@@ -24,18 +24,17 @@ export const CProcess = async () => {
     period: instrument.trade_period!,
     timeframe: instrument.trade_timeframe!,
   };
-  const Fractal = await CFractal(instrument);
-  const limit = instrument.interval_collection_rate!;
+  const Fractal = await CFractal(message!, instrument);
 
   process.on("message", (message: IMessage) => {
-    console.log("process:", message);
-    message.state === "init" && Candles.Import(message, props, instrument.bulk_collection_rate);
-    message.state === "api" && Candles.Import(message, props, limit);
+    //    console.log("process:", message);
+    message.state === "init" && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
+    message.state === "api" && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });
     message.state === "update" && Fractal.Update(message);
   });
 
   process.on("exit", (code) => {
-    console.log(`3:[symbol] Symbol process PID: ${process.pid} exited with code ${code}`);
+    console.log(`Exit:[symbol] Symbol process PID: ${process.pid} exited with code ${code}`);
   });
 
   process.send && process.send(message);

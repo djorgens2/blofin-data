@@ -12,7 +12,8 @@ import type { IMessage } from "@lib/std.util";
 import { CEvent, Event, Alert } from "@module/event";
 import { Direction, Bias, directionChanged } from "@lib/app.util"; //-- enums
 import { bias, direction } from "@lib/app.util"; //-- functions
-import { isBetween, isEqual, isHigher, isLower, fileWrite, format } from "@lib/std.util";
+import { isBetween, isHigher, isLower, format } from "@lib/std.util";
+import { UpdateReport, PublishReport, report } from "@module/report";
 
 import * as Candle from "@db/interfaces/candle";
 
@@ -135,85 +136,10 @@ const fibonacciPrice = (root: number, expansion: number, percent: number, digits
   return format((expansion - root) * percent + root, digits);
 };
 
-interface IReport {
-  bar: IPrice;
-  sma: { open: number; close: number };
-  fractal: IPoint;
-  breakout: IPoint;
-  extension: Array<IFractalEvent>;
-  retracement: Array<IFractalEvent>;
-}
-
-const log: Array<IReport> = [];
-const empty: IReport = {
-  bar: {
-    timestamp: 0,
-    open: 0,
-    high: 0,
-    low: 0,
-    close: 0,
-  },
-  sma: {
-    open: 0,
-    close: 0,
-  },
-  fractal: {
-    timestamp: 0,
-    price: 0,
-  },
-  breakout: {
-    timestamp: 0,
-    price: 0,
-  },
-  extension: [],
-  retracement: [],
-};
-const report: IReport = structuredClone(empty);
-const updateReport = () => {
-  log.push({
-    bar: { timestamp: report.bar.timestamp, open: report.bar.open, high: report.bar.high, low: report.bar.low, close: report.bar.close },
-    sma: { open: report.sma.open, close: report.sma.close },
-    fractal: { timestamp: report.fractal.timestamp, price: report.fractal.price },
-    breakout: { timestamp: report.breakout.timestamp, price: report.breakout.price },
-    extension: structuredClone(report.extension),
-    retracement: structuredClone(report.retracement),
-  });
-  Object.assign(report, { ...empty });
-  report.extension.length = 0;
-  report.retracement.length = 0;
-};
-const publishReport = () => {
-  //-- format csv line
-  const initial: IFractalEvent = { timestamp: 0, price: 0.0, level: 0, percent: 0.0, event: Event.NoEvent };
-  const array: Array<any> = [];
-  log.map((log) => {
-    const line: Array<number | string> = [
-      log.bar.timestamp,
-      log.bar.open,
-      log.bar.high,
-      log.bar.low,
-      log.bar.close,
-      log.sma.open,
-      log.sma.close,
-      log.fractal.timestamp ? log.fractal.timestamp : "=na()",
-      log.fractal.price ? log.fractal.price : "=na()",
-      log.breakout.timestamp ? log.breakout.timestamp : "=na()",
-      log.breakout.price ? log.breakout.price : "=na()",
-    ];
-    const ext: Array<number[] | string[]> = log.extension.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
-    const ret: Array<number[] | string[]> = log.retracement.map((log) => (log.timestamp ? [log.percent, log.price] : ["=na()", "=na()"]));
-    /*@ts-ignore */
-    array.push(line.concat(ext, ret));
-  });
-
-  //-- write report
-  fileWrite("ctest-reverse.log", array);
-};
-
 //+--------------------------------------------------------------------------------------+
 //| Module CFractal                                                                      |
 //+--------------------------------------------------------------------------------------+
-export const CFractal = async (instrument: Partial<IInstrument>) => {
+export const CFractal = async (message: IMessage, instrument: Partial<IInstrument>) => {
   const event = CEvent();
   const Bar: Partial<IBar> = {};
   const SMA: Partial<IBar> = {};
@@ -224,7 +150,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     period: instrument.trade_period!,
     timeframe: instrument.trade_timeframe!,
   };
-  const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, 10000); //-- limit will be added to instrument
+  const candles: Array<Partial<ICandle>> = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
   const start: Partial<ICandle> = structuredClone(candles[candles.length - 1]);
 
   //-- Work variables -------------------------------------------------------//
@@ -237,6 +163,13 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   const digits: number = instrument.digits!;
 
   //-- Utility functions ------------------------------------------------------------------------//
+
+  //+--------------------------------------------------------------------------------------+
+  //| lastProcessed returns the timestamp of the most recently processed completed bar;    |
+  //+--------------------------------------------------------------------------------------+
+  const lastProcessed = (): number => {
+    return price.length > 1 ? price[price.length - 1].timestamp : 0;
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| iBar - Returns bar index for supplied timestamp                                      |
@@ -296,19 +229,11 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
-  //| Main Update loop; processes bar, sma, fractal, events                                |
-  //+--------------------------------------------------------------------------------------+
-  const Update = async (message: IMessage) => {
-    const limit: number = 100; //-- derived from timestamp
-    const candles: Array<Partial<ICandle>> = await Candle.Fetch(props, limit);
-
-    process.send && process.send(message);
-  };
-
-  //+--------------------------------------------------------------------------------------+
   //| UpdateBar - Wraps up Bar processing                                                  |
   //+--------------------------------------------------------------------------------------+
-  function UpdateBar(candle: Partial<ICandle>) {
+  async function UpdateBar(candle: Partial<ICandle>) {
+    event.clear();
+
     //--- set Bias
     if (Bar.open !== candle.close!) {
       Bar.bias !== bias(direction(candle.close! - Bar.open!)) && event.set(Event.NewBias, Alert.Notify);
@@ -387,7 +312,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   //+--------------------------------------------------------------------------------------+
   //| UpdateSMA - Computes SMA measures, trend detail, values                              |
   //+--------------------------------------------------------------------------------------+
-  function UpdateSMA() {
+  async function UpdateSMA() {
     if (event.isActive(Event.NewBar)) {
       sma.open += Bar.open!;
       sma.close += Bar.close!;
@@ -417,6 +342,77 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
+  //| UpdateFractal - completes fractal calcs                                              |
+  //+--------------------------------------------------------------------------------------+
+  async function UpdateFractal() {
+    const resistance = iHigh();
+    const support = iLow();
+    const close = { timestamp: Bar.timestamp!, price: Bar.close! };
+    const rangeDirection = close.price < Fractal.support!.price ? Direction.Down : close.price > Fractal.resistance!.price ? Direction.Up : Direction.None;
+
+    //--- Handle Reversals
+    if (directionChanged(Fractal.direction!, rangeDirection)) {
+      Fractal.direction = rangeDirection;
+      Fractal.point!.base = Fractal.direction === Direction.Up ? Fractal.resistance! : Fractal.support!;
+      Fractal.point!.root = Fractal.point!.expansion;
+      Fractal.point!.origin = Fractal.point!.root;
+
+      Object.assign(report, { fractal: Fractal.point!.root });
+      event.set(Event.NewReversal, Alert.Major);
+    }
+
+    //--- Check for Upper Boundary changes
+    if (Fractal.direction === Direction.Up)
+      if (isHigher(Bar.high!, Fractal.point!.expansion.price, digits)) {
+        Fractal.extension!.price = Fractal.point!.expansion.price; // -- store prior value for fibo calc
+        Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.high! };
+        Fractal.point!.retrace = close;
+        Fractal.point!.recovery = close;
+
+        event.set(Event.NewExpansion, Alert.Minor);
+      } else if (event.isActive(Event.NewBoundary)) {
+        if (event.isActive(Event.NewLow)) {
+          if (Fractal.point!.retrace.price > Bar.low!) {
+            Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.low! };
+            Fractal.point!.recovery = close;
+          }
+        }
+        if (event.isActive(Event.NewHigh))
+          Fractal.point!.recovery.price < Bar.high! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.high! });
+      } else {
+        Fractal.point!.recovery.price < Bar.close! && (Fractal.point!.recovery = close);
+        Fractal.point!.retrace.price > Bar.close! && (Fractal.point!.retrace = close);
+      }
+    //--- Check for Lower Boundary changes
+    else if (isLower(Bar.low!, Fractal.point!.expansion.price, digits)) {
+      Fractal.extension!.price = Fractal.point!.expansion.price; // -- store prior value for fibo calc
+      Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.low! };
+      Fractal.point!.retrace = close;
+      Fractal.point!.recovery = close;
+
+      event.set(Event.NewExpansion, Alert.Minor);
+    } else if (event.isActive(Event.NewHigh)) {
+      if (Fractal.point!.retrace.price < Bar.high!) {
+        Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.high! };
+        Fractal.point!.recovery = close;
+      }
+    } else if (event.isActive(Event.NewLow))
+      Fractal.point!.recovery.price > Bar.low! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.low! });
+    else {
+      Fractal.point!.recovery.price > Bar.close! && (Fractal.point!.recovery = close);
+      Fractal.point!.retrace.price < Bar.close! && (Fractal.point!.retrace = close);
+    }
+
+    //-- wrap-up tasks
+    isLower(resistance.price - support.price, Fractal.range!) && event.set(Event.NewConsolidation, Alert.Nominal);
+
+    Fractal.range = format(resistance.price - support.price, digits);
+    Fractal.point!.close = close;
+    Fractal.support = support;
+    Fractal.resistance = resistance;
+  }
+
+  //+--------------------------------------------------------------------------------------+
   //| Fibonacci - Returns Calculated fibonacci %sequence's for the active Fractal          |
   //+--------------------------------------------------------------------------------------+
   function Fibonacci(): IFibonacci {
@@ -436,9 +432,9 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
   }
 
   //+--------------------------------------------------------------------------------------+
-  //| UpdateFibonacci - Updates and validates Fractal state, properties, events            |
+  //| UpdateFibonacci - Updates Fractal state, properties, events                          |
   //+--------------------------------------------------------------------------------------+
-  function UpdateFibonacci() {
+  async function UpdateFibonacci() {
     const percent = Fibonacci();
 
     if (event.isActive(Event.NewExpansion)) {
@@ -446,7 +442,7 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       if (event.isActive(Event.NewReversal)) {
         Fractal.state = State.Reversal;
         Fractal.extension = { timestamp: Bar.timestamp!, price: Fractal.point!.base.price, ...fibonacciLevel(Percent.Breakout), event: Event.NewReversal };
-        Object.assign(report, { breakout: { timestamp: Bar.timestamp, price: Fractal.point!.base.price }});
+        Object.assign(report, { breakout: { timestamp: Bar.timestamp, price: Fractal.point!.base.price } });
       }
       //-- Handle New Breakout
       else if (Fractal.retrace!.level) {
@@ -525,77 +521,36 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
       report.retracement.push(Fractal.retrace!);
     }
   }
-
   //+--------------------------------------------------------------------------------------+
-  //| UpdateFractal - completes fractal calcs                                              |
+  //| Main Update loop; processes bar, sma, fractal, events                                |
   //+--------------------------------------------------------------------------------------+
-  function UpdateFractal() {
-    const resistance = iHigh();
-    const support = iLow();
-    const close = { timestamp: Bar.timestamp!, price: Bar.close! };
-    const rangeDirection = close.price < Fractal.support!.price ? Direction.Down : close.price > Fractal.resistance!.price ? Direction.Up : Direction.None;
+  const Update = async (message: IMessage) => {
+    const candles: Array<Partial<ICandle>> = await Candle.Fetch({ ...props, timestamp: lastProcessed() });
 
-    //--- Handle Reversals
-    if (directionChanged(Fractal.direction!, rangeDirection)) {
-      Fractal.direction = rangeDirection;
-      Fractal.point!.base = Fractal.direction === Direction.Up ? Fractal.resistance! : Fractal.support!;
-      Fractal.point!.root = Fractal.point!.expansion;
-      Fractal.point!.origin = Fractal.point!.root;
-
-      Object.assign(report, { fractal: Fractal.point!.root });
-      event.set(Event.NewReversal, Alert.Major);
+    async function updating(candle: Partial<ICandle>) {
+      const bar = await UpdateBar(candle);
+      const sma = await UpdateSMA();
+      const fractal = await UpdateFractal();
+      const fibonacci = await UpdateFibonacci();
+      Object.assign(message, { ...message });
     }
 
-    //--- Check for Upper Boundary changes
-    if (Fractal.direction === Direction.Up)
-      if (isHigher(Bar.high!, Fractal.point!.expansion.price, digits)) {
-        Fractal.extension!.price = Fractal.point!.expansion.price; // -- store prior value for fibo calc
-        Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.high! };
-        Fractal.point!.retrace = close;
-        Fractal.point!.recovery = close;
-
-        event.set(Event.NewExpansion, Alert.Minor);
-      } else if (event.isActive(Event.NewBoundary)) {
-        if (event.isActive(Event.NewLow)) {
-          if (Fractal.point!.retrace.price > Bar.low!) {
-            Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.low! };
-            Fractal.point!.recovery = close;
-          }
-        }
-        if (event.isActive(Event.NewHigh))
-          Fractal.point!.recovery.price < Bar.high! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.high! });
-      } else {
-        Fractal.point!.recovery.price < Bar.close! && (Fractal.point!.recovery = close);
-        Fractal.point!.retrace.price > Bar.close! && (Fractal.point!.retrace = close);
+    async function processing() {
+      for (let candle = candles.length - 1; candle >= 0; candle--) {
+        await updating(candles[candle]);
+        candles[candle].completed && UpdateReport();
       }
-    //--- Check for Lower Boundary changes
-    else if (isLower(Bar.low!, Fractal.point!.expansion.price, digits)) {
-      Fractal.extension!.price = Fractal.point!.expansion.price; // -- store prior value for fibo calc
-      Fractal.point!.expansion = { timestamp: Bar.timestamp!, price: Bar.low! };
-      Fractal.point!.retrace = close;
-      Fractal.point!.recovery = close;
-
-      event.set(Event.NewExpansion, Alert.Minor);
-    } else if (event.isActive(Event.NewHigh)) {
-      if (Fractal.point!.retrace.price < Bar.high!) {
-        Fractal.point!.retrace = { timestamp: Bar.timestamp!, price: Bar.high! };
-        Fractal.point!.recovery = close;
-      }
-    } else if (event.isActive(Event.NewLow))
-      Fractal.point!.recovery.price > Bar.low! && (Fractal.point!.recovery = { timestamp: Bar.timestamp!, price: Bar.low! });
-    else {
-      Fractal.point!.recovery.price > Bar.close! && (Fractal.point!.recovery = close);
-      Fractal.point!.retrace.price < Bar.close! && (Fractal.point!.retrace = close);
     }
 
-    //-- wrap-up tasks
-    isLower(resistance.price - support.price, Fractal.range!) && event.set(Event.NewConsolidation, Alert.Nominal);
-
-    Fractal.range = format(resistance.price - support.price, digits);
-    Fractal.point!.close = close;
-    Fractal.support = support;
-    Fractal.resistance = resistance;
-  }
+    async function start() {
+      console.log("--------------------- Inner START ---------------------------------");
+      await processing();
+      PublishReport("./log/" + props.symbol + "-cycle.log");
+      process.send && process.send({ ...message, events: { fractal: event.count(), sma: 0 } });
+      console.log("-------------------- Inner FINISHED -------------------------------");
+    }
+    start();
+  };
 
   //-- initialization Section --------------------------------------------------------------//
 
@@ -632,27 +587,6 @@ export const CFractal = async (instrument: Partial<IInstrument>) => {
     support: { timestamp: Bar.timestamp, price: format(Bar.low!, digits) },
     resistance: { timestamp: Bar.timestamp, price: format(Bar.high!, digits) },
   });
-
-  candles
-    .slice()
-    .reverse()
-    .forEach((candle, id) => {
-      event.clear();
-
-      UpdateBar(candle);
-      UpdateSMA();
-      UpdateFractal();
-      UpdateFibonacci();
-      updateReport();
-      if (event.isActive(Event.NewExtension)) console.log(Fractal, log[id]);
-      //      event.isActive(Event.NewReversal) && console.log("rev:", { ...Fractal.extension, ...Fractal.point!.root });
-      //      event.isActive(Event.NewBreakout) && console.log("brk:",Fractal.extension);
-      //      event.isActive(Event.NewExtension) && console.log("ext:",Fractal.extension);
-      //      console.log(log[log.length - 1]);
-      //log.length < 60 && console.log(event.active());
-    });
-
-  publishReport();
 
   return { Update, active: event.active, isAnyActive: event.isAnyActive };
 };

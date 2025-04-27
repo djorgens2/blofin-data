@@ -14,6 +14,10 @@ import * as Instrument from "@db/interfaces/instrument";
 import * as ContractType from "@db/interfaces/contract_type";
 import * as InstrumentType from "@db/interfaces/instrument_type";
 
+export interface IKeyProps {
+  instrument?: Uint8Array;
+}
+
 export interface IInstrumentDetail extends IKeyProps, RowDataPacket {
   instrument_type: Uint8Array;
   contract_type: Uint8Array;
@@ -26,10 +30,6 @@ export interface IInstrumentDetail extends IKeyProps, RowDataPacket {
   max_market_size: number;
   list_time: number;
   expiry_time: number;
-}
-
-export interface IKeyProps {
-  instrument?: Uint8Array;
 }
 
 //+--------------------------------------------------------------------------------------+

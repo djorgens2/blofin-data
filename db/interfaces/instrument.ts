@@ -20,6 +20,8 @@ export interface IKeyProps {
   quote_symbol?: string;
   base_currency?: Uint8Array;
   quote_currency?: Uint8Array;
+  limit?: number;
+  fromSymbol?: string;
 }
 
 export interface IInstrument extends IKeyProps, RowDataPacket {
@@ -118,17 +120,17 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
 //+--------------------------------------------------------------------------------------+
 //| Retrieves all trading-related instrument details by Key;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps, filter?: { limit?: number; fromSymbol?: string }): Promise<Array<Partial<IInstrument>>> {
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument>>> {
   const instrument = await Key(props);
   const args = [];
   const sql: string =
     `select * FROM vw_instruments` +
     (instrument ? ` WHERE instrument = ?` : ``) +
-    (filter?.fromSymbol ? (instrument ? ` AND ` : ` WHERE `) : ``) +
-    (filter?.fromSymbol ? `symbol >= ? ORDER BY symbol LIMIT ${filter.limit || 1}` : ``);
+    (props.fromSymbol ? (instrument ? ` AND ` : ` WHERE `) : ``) +
+    (props.fromSymbol ? `symbol >= ? ORDER BY symbol LIMIT ${props.limit || 1}` : ``);
 
   instrument && args.push(instrument);
-  filter?.fromSymbol && args.push(filter.fromSymbol);
+  props.fromSymbol && args.push(props.fromSymbol);
 
   return Select<IInstrument>(sql, args);
 }

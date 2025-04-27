@@ -16,7 +16,7 @@ Instruments.Import();
 async function importCandles() {
   const instruments = await Periods.Fetch({ active_collection: true });
   console.log("Fetch filtered period:", instruments);
-  
+
   instruments?.forEach((db, id) => {
     const ipc = clear({ state: "start", symbol: db.symbol!, node: id });
     const props: Candles.IKeyProps = {
@@ -25,7 +25,7 @@ async function importCandles() {
       period: db.period!,
       timeframe: db.timeframe!,
     };
-    Import(ipc, props, 1440);
+    Import(ipc, { ...props, limit: db.bulk_collection_rate });
   });
 }
 
