@@ -4,3 +4,4 @@ typedefs/*
 .env*
 Documents
 .~*
+log/*

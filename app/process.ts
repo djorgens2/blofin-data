@@ -27,14 +27,13 @@ export const CProcess = async () => {
   const Fractal = await CFractal(message!, instrument);
 
   process.on("message", (message: IMessage) => {
-    //    console.log("process:", message);
     message.state === "init" && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
     message.state === "api" && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });
     message.state === "update" && Fractal.Update(message);
   });
 
   process.on("exit", (code) => {
-    console.log(`Exit:[symbol] Symbol process PID: ${process.pid} exited with code ${code}`);
+    console.log(`[process]  Symbol: [${message!.symbol}] exit; PID: ${process.pid} exited with code ${code}`);
   });
 
   process.send && process.send(message);

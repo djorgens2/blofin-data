@@ -543,11 +543,9 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     }
 
     async function start() {
-      console.log("--------------------- Inner START ---------------------------------");
       await processing();
-      PublishReport("./log/" + props.symbol + "-cycle.log");
+      event.isActive(Event.NewBar) && PublishReport("./log/" + props.symbol + ".process.log");
       process.send && process.send({ ...message, events: { fractal: event.count(), sma: 0 } });
-      console.log("-------------------- Inner FINISHED -------------------------------");
     }
     start();
   };
