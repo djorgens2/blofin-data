@@ -115,7 +115,6 @@ export function hexString(uint8Array: Uint8Array, length: number): string {
   const hex = Array.from(uint8Array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-
   return "0x" + hex.padStart(length, "0");
 }
 
@@ -126,13 +125,13 @@ export function bufferString(uint8Array: Uint8Array): string {
   const hex = Array.from(uint8Array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join(" ");
-  return `<buffer ${hex}>`;
+  return `<Buffer ${hex}>`;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Parses supplied string into a JSON|props object of <T> typically xfer'd via cli      |
 //+--------------------------------------------------------------------------------------+
-export function parse<T extends object>(arg: string): Required<T> | undefined {
+export function parseJSON<T extends object>(arg: string): Required<T> | undefined {
   try {
     const json = JSON.parse(arg);
 
@@ -141,9 +140,12 @@ export function parse<T extends object>(arg: string): Required<T> | undefined {
       return obj;
     }
   } catch (e) {
-    throw new Error(`something jacked up`);
+    //--- whitelist exceptions
+    if (arg === 'pong')
+      // @ts-ignore
+      return {event: 'pong'}
+    throw new Error(`Something jacked up; ${arg} is not a valid JSON;`);
   }
-
   return undefined;
 }
 

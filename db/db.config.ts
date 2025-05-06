@@ -6,14 +6,19 @@
 
 import mysql from "mysql2/promise";
 
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
+
 const pool = mysql.createPool({
-  host: "localhost",
-  user: "blofin_user",
-  password: "blofin123",
-  database: "blofin",
-  connectionLimit: 10,
-  maxIdle: 10,
-  connectTimeout: 100000,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  connectionLimit: parseInt(process.env.DB_CONNECTIONLIMIT!),
+  maxIdle: parseInt(process.env.DB_MAXIDLE!),
+  connectTimeout: parseInt(process.env.DB_CONNECTTIMEOUT!),
 });
 
 // port: process.env.DB_PORT,

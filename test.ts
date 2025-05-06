@@ -210,33 +210,33 @@
 // console.log(FiboLevel(0.237));
 
 //----------------------------- test synchronous forEach ------------------------------------------//
-interface IFibo {
-  level: number;
-  percent: number;
-  state: string | Array<string>;
-}
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-function delay2(ms: number) {
-  setTimeout(function () {
-    console.log("done");
-  }, ms);
-}
-const fibos: Array<IFibo> = [
-  { level: 0, percent: 0, state: "Root" },
-  { level: 1, percent: 0.236, state: ["Rally", "Pullback"] },
-  { level: 2, percent: 0.382, state: ["Rally", "Pullback"] },
-  { level: 3, percent: 0.5, state: "Retrace" },
-  { level: 4, percent: 0.618, state: "Retrace" },
-  { level: 5, percent: 0.764, state: ["Correction", "Recovery"] },
-  { level: 6, percent: 1, state: ["Breakout", "Reversal"] },
-  { level: 7, percent: 1.618, state: "Extension" },
-  { level: 8, percent: 2.618, state: "Extension" },
-  { level: 9, percent: 3.618, state: "Extension" },
-  { level: 10, percent: 4.236, state: "Extension" },
-  { level: 11, percent: 8.236, state: "Extension" },
-];
+// interface IFibo {
+//   level: number;
+//   percent: number;
+//   state: string | Array<string>;
+// }
+// function delay(ms: number) {
+//   return new Promise((resolve) => setTimeout(resolve, ms));
+// }
+// function delay2(ms: number) {
+//   setTimeout(function () {
+//     console.log("done");
+//   }, ms);
+// }
+// const fibos: Array<IFibo> = [
+//   { level: 0, percent: 0, state: "Root" },
+//   { level: 1, percent: 0.236, state: ["Rally", "Pullback"] },
+//   { level: 2, percent: 0.382, state: ["Rally", "Pullback"] },
+//   { level: 3, percent: 0.5, state: "Retrace" },
+//   { level: 4, percent: 0.618, state: "Retrace" },
+//   { level: 5, percent: 0.764, state: ["Correction", "Recovery"] },
+//   { level: 6, percent: 1, state: ["Breakout", "Reversal"] },
+//   { level: 7, percent: 1.618, state: "Extension" },
+//   { level: 8, percent: 2.618, state: "Extension" },
+//   { level: 9, percent: 3.618, state: "Extension" },
+//   { level: 10, percent: 4.236, state: "Extension" },
+//   { level: 11, percent: 8.236, state: "Extension" },
+// ];
 
 // const test1 = () => {
 //   console.log('t1-start');
@@ -282,35 +282,35 @@ const fibos: Array<IFibo> = [
 //   delay2(100);
 //   console.log('t4-end');
 // }
-const test1 = async (id: number) => {
-  console.log("t1-start", id);
-  await delay(10000);
-  console.log("t1-end");
-};
-const test2 = async (id: number) => {
-  console.log("t2-start", id);
-  await delay(5000);
-  console.log("t2-end");
-};
-const test3 = async (id: number) => {
-  console.log("t3-start", id);
-  await delay(2500);
-  console.log("t3-end");
-};
-const test4 = async (id: number) => {
-  console.log("t4-start", id);
-  await delay(100);
-  console.log("t4-end");
-};
-const update = async (fibo: IFibo) => {
-  await test1(fibo.level);
-  await test2(fibo.level);
-  await test3(fibo.level);
-  await test4(fibo.level);
-  console.log("Finished:", fibo);
-  console.log("-------------------- FINAL -------------------------------");
-};
-console.log("------------------- START --------------------------------");
+// const test1 = async (id: number) => {
+//   console.log("t1-start", id);
+//   await delay(10000);
+//   console.log("t1-end");
+// };
+// const test2 = async (id: number) => {
+//   console.log("t2-start", id);
+//   await delay(5000);
+//   console.log("t2-end");
+// };
+// const test3 = async (id: number) => {
+//   console.log("t3-start", id);
+//   await delay(2500);
+//   console.log("t3-end");
+// };
+// const test4 = async (id: number) => {
+//   console.log("t4-start", id);
+//   await delay(100);
+//   console.log("t4-end");
+// };
+// const update = async (fibo: IFibo) => {
+//   await test1(fibo.level);
+//   await test2(fibo.level);
+//   await test3(fibo.level);
+//   await test4(fibo.level);
+//   console.log("Finished:", fibo);
+//   console.log("-------------------- FINAL -------------------------------");
+// };
+// console.log("------------------- START --------------------------------");
 // fibos.forEach((fibo, id) => {
 //      update(id);
 // });
@@ -321,22 +321,82 @@ console.log("------------------- START --------------------------------");
 //     console.log("Fibo:", fibos[fibo].level);
 //   }
 // };
-const test = async () => {
-  for (let index = fibos.length - 1; index >= 0; index--) {
-    await update(fibos[index]);
-    console.log("Fibo:", fibos[index].level);
-  }
-};
-async function wrapper() {
-  console.log("-------------------- Inner START ---------------------------------");
-  await test();
-  console.log("-------------------- Inner FINISHED ---------------------------------");
-}
-wrapper();
-console.log("-------------------- END ---------------------------------");
+// const test = async () => {
+//   for (let index = fibos.length - 1; index >= 0; index--) {
+//     await update(fibos[index]);
+//     console.log("Fibo:", fibos[index].level);
+//   }
+// };
+// async function wrapper() {
+//   console.log("-------------------- Inner START ---------------------------------");
+//   await test();
+//   console.log("-------------------- Inner FINISHED ---------------------------------");
+// }
+// wrapper();
+// console.log("-------------------- END ---------------------------------");
 // fibos.forEach(async (fibo) => {
 //    await test1()
 //   .then(async (result) => {await test2()})
 //   .then(async (result) => {await test3()})
 //   .then(async (result) => {await test4()})
 // })
+
+// Main process
+
+// //----------------------------- test WebSocket with fork() ------------------------------------------//
+// //import { openWebSocket } from "@/module/websocket";
+// //const ws = openWebSocket("wss://demo-trading-openapi.blofin.com/ws/private");
+// const openSocket = (url: string) => {
+  
+//   const ws = new WebSocket("wss://demo-trading-openapi.blofin.com/ws/public");
+// }
+  
+// export const getMessages = () => {
+//   const { fork } = require("child_process");
+//   const children = [];
+
+//   ws.onopen = () => {
+//     console.log("Connected to WebSocket server");
+//     ws.send({ op: "subscribe", args: [{ channel: "candle1D", instId: "BTC-USDT" }] });
+//   };
+
+//   ws.onmessage = (message) => {
+//     // Determine which child process should handle the message
+//     // and send it accordingly
+//     const targetChild = children[0]; // Example: send to the first child
+//     targetChild.send({ type: "websocket-message", data: message.toString() });
+//     console.log("From ws:", message);
+//   };
+
+//   ws.onclose = () => {
+//     console.log("Disconnected from WebSocket server");
+//   };
+
+//   ws.onerror = () => {
+//     console.error("WebSocket error:", "???");
+//   };
+
+//   // Fork child processes
+//   for (let i = 0; i < 2; i++) {
+//     const child = fork("test-child.ts");
+//     children.push(child);
+
+//     child.on("message", (message) => {
+//       if (message.type === "child-message") {
+//         console.log("from child");
+//       }
+//     });
+//   }
+//   setInterval(() => {
+//     getMessages();
+//     if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+//       ws.send("ping");
+//     } else process.exit(1);
+//   }, 10000);
+// };
+
+// console.log("got here");
+
+
+
+

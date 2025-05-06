@@ -8,10 +8,15 @@ import type { IMessage } from "@lib/std.util";
 import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
 
 import { fork } from "child_process";
-import { clear } from "@lib/std.util";
+import { clear, parseJSON } from "@lib/std.util";
 import { State } from "@db/interfaces/trade_state";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
+import { openWebSocket } from "@/module/websocket";
+
+//const ws = openWebSocket("wss://demo-trading-openapi.blofin.com/ws/private");
+const ws = openWebSocket("wss://openapi.blofin.com/ws/private");
+//connectWebSocket("wss://openapi.blofin.com/ws/private");
 
 //+--------------------------------------------------------------------------------------+
 //| CMain - Master Processing Instantiator/Monitor Class for Enabled Instruments;        |
@@ -36,13 +41,18 @@ export class CMain {
       app.on("exit", (code) => {
         console.log(`[main] Symbol: [${ipc.symbol}] exit; PID: [${process.pid}:${app.pid}] with code ${code}`);
       });
-
-      setInterval(() => {
-        if (ipc.state === "ready") {
-          Object.assign(ipc, { ...ipc, state: "api" });
-          app.send(ipc);
-        }
-      }, 1000);
     });
+
+    setInterval(() => {
+      console.log('ping');
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send('ping')
+
+      }
+      // if (ipc.state === "ready") {
+      //   Object.assign(ipc, { ...ipc, state: "api" });
+      //   app.send(ipc);
+      // }
+    }, 10000);
   }
 }

@@ -5,7 +5,7 @@
 import type { IMessage } from "@lib/std.util";
 
 import { CFractal } from "@module/fractal";
-import { parse } from "@lib/std.util";
+import { parseJSON } from "@lib/std.util";
 
 import * as Candles from "@api/candles";
 import * as Candle from "@db/interfaces/candle";
@@ -16,7 +16,7 @@ import * as Instrument from "@db/interfaces/instrument";
 //+--------------------------------------------------------------------------------------+
 export const CProcess = async () => {
   const [cli_message] = process.argv.slice(2);
-  const message: IMessage | undefined = parse<IMessage>(cli_message);
+  const message: IMessage | undefined = parseJSON<IMessage>(cli_message);
   const [instrument]: Array<Partial<Instrument.IInstrument>> = await Instrument.Fetch({ symbol: message!.symbol });
   const props: Candle.IKeyProps = {
     instrument: instrument.instrument!,
@@ -25,7 +25,7 @@ export const CProcess = async () => {
     timeframe: instrument.trade_timeframe!,
   };
   const Fractal = await CFractal(message!, instrument);
-
+  
   process.on("message", (message: IMessage) => {
     message.state === "init" && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
     message.state === "api" && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });

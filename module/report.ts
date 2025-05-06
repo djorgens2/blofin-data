@@ -18,7 +18,7 @@ interface IReport {
   retracement: Array<IFractalEvent>;
 }
 
-//+---------------------------- Constant (var) declarations------------------------------------------+
+//+---------------------------- Variable declarations -----------------------------------------------+
 
 const log: Array<IReport> = [];
 const empty: IReport = {

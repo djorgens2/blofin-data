@@ -7,7 +7,7 @@ import * as Period from "@db/interfaces/period";
 import * as State from "@db/interfaces/trade_state";
 import * as Detail from "@db/interfaces/instrument_detail";
 import * as KeySet from "@db/interfaces/instrument_period";
-import { parse } from "@lib/std.util";
+import { parseJSON } from "@lib/std.util";
 
 enum Subject {
   Instrument = "-i",
@@ -26,56 +26,56 @@ async function show(subject: string, args: string): Promise<string> {
 
   switch (subject) {
     case Subject.Instrument: {
-      const props = args ? parse<Instrument.IKeyProps>(args) : {};
+      const props = args ? parseJSON<Instrument.IKeyProps>(args) : {};
       const row = await Instrument.Fetch(props!);
 
       console.log("Fetch Instrument", { props, row });
       return "ok";
     }
     case Subject.Contract: {
-      const props = parse<Contract.IKeyProps>(args);
+      const props = parseJSON<Contract.IKeyProps>(args);
       const key = await Contract.Key(props!);
       console.log("Fetch contract:", props, key);
       return "ok";
     }
     case Subject.Currency: {
-      const props = parse<Currency.IKeyProps>(args);
+      const props = parseJSON<Currency.IKeyProps>(args);
       const key = await Currency.Key(props!);
       console.log("Fetch currency:", props, key);
       return "ok";
     }
     case Subject.Type: {
-      const props = parse<Type.IKeyProps>(args);
+      const props = parseJSON<Type.IKeyProps>(args);
       const key = await Type.Key(props!);
       console.log("Fetch type:", props, key);
       return "ok";
     }
     case Subject.Period: {
-      const props = parse<Period.IKeyProps>(args);
+      const props = parseJSON<Period.IKeyProps>(args);
       const key = await Period.Key(props!);
       console.log("Fetch period:", props, key);
       return "ok";
     }
     case Subject.State: {
-      const props = parse<State.IKeyProps>(args);
+      const props = parseJSON<State.IKeyProps>(args);
       const key = await State.Key(props!);
       console.log("Fetch state:", props, key);
       return "ok";
     }
     case Subject.Detail: {
-      const props = parse<Detail.IKeyProps>(args);
+      const props = parseJSON<Detail.IKeyProps>(args);
       const key = await Detail.Key(props!);
       console.log("Fetch detail:", props, key);
       return "ok";
     }
     case Subject.KeySet: {
-      const props = parse<KeySet.IKeyProps>(args);
+      const props = parseJSON<KeySet.IKeyProps>(args);
       const key = await KeySet.Fetch(props!);
       console.log("Fetch filtered period:", props, key);
       return "ok";
     }
     case Subject.Bars: {
-      const props = parse<Candle.IKeyProps>(args);
+      const props = parseJSON<Candle.IKeyProps>(args);
       const instrument: Instrument.IKeyProps["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
       const period = await Period.Key({ timeframe: props!.timeframe });
       const bars = await Candle.Fetch({ ...props!, instrument: instrument!, period: period! });
