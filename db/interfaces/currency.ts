@@ -29,7 +29,7 @@ export async function Publish(symbol: string, suspense: boolean): Promise<IKeyPr
     const key = hex(UniqueKey(6), 3);
     const defaultImage: string = "./public/images/currency/no-image.png";
 
-    await Modify(`INSERT INTO currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`, [key, symbol, defaultImage, suspense]);
+    await Modify(`INSERT INTO blofin.currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`, [key, symbol, defaultImage, suspense]);
     return key;
   }
   return currency;
@@ -39,15 +39,16 @@ export async function Publish(symbol: string, suspense: boolean): Promise<IKeyPr
 //| Examines currency search methods in props; executes first in priority sequence;      |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["currency"] | undefined> {
+  const { currency, symbol } = props;
   const args = [];
 
-  let sql: string = `SELECT currency FROM currency WHERE `;
+  let sql: string = `SELECT currency FROM blofin.currency WHERE `;
 
-  if (props.currency) {
-    args.push(hex(props.currency, 3));
+  if (currency) {
+    args.push(hex(currency, 3));
     sql += `currency = ?`;
-  } else if (props.symbol) {
-    args.push(props.symbol);
+  } else if (symbol) {
+    args.push(symbol);
     sql += `symbol = ?`;
   } else return undefined;
 
@@ -60,15 +61,16 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["currency"] | und
 //+--------------------------------------------------------------------------------------+
 export async function Suspend(suspensions: Array<IKeyProps>) {
   for (const props of suspensions) {
+    const { currency, symbol } = props;
     const args = [];
 
-    let sql: string = `UPDATE currency SET suspense = true WHERE `;
+    let sql: string = `UPDATE blofin.currency SET suspense = true WHERE `;
 
-    if (props.currency) {
-      args.push(hex(props.currency, 3));
+    if (currency) {
+      args.push(hex(currency, 3));
       sql += `currency = ?`;
-    } else if (props.symbol) {
-      args.push(props.symbol);
+    } else if (symbol) {
+      args.push(symbol);
       sql += `symbol = ?`;
     } else return;
 

@@ -57,7 +57,7 @@ export function openWebSocket(url: string) {
     } else if (message!.arg!.channel! !== undefined)
       switch (message!.arg!.channel) {
         case "account": {
-          console.log("In message:", event);
+          console.log("In message:", message);
         }
       }
   };

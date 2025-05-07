@@ -35,12 +35,12 @@ export interface ICandle extends IKeyProps, RowDataPacket {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Updates instrument detail on all identified changes                                  |
+//| Updates all differences between local db and candle provider                         |
 //+--------------------------------------------------------------------------------------+
 export async function Update(modified: Array<ICandleAPI & IKeyProps>) {
   for (const update of modified) {
     await Modify(
-      `UPDATE candle 
+      `UPDATE blofin.candle 
             SET open = ?,
                 high = ?,
                 low = ?,
@@ -75,7 +75,7 @@ export async function Update(modified: Array<ICandleAPI & IKeyProps>) {
 export async function Insert(missing: Array<ICandleAPI & IKeyProps>) {
   for (const insert of missing) {
     await Modify(
-      `INSERT INTO candle 
+      `INSERT INTO blofin.candle 
             SET instrument = ?,
                 period = ?,
                 bar_time = FROM_UNIXTIME(?/1000),
@@ -108,23 +108,11 @@ export async function Insert(missing: Array<ICandleAPI & IKeyProps>) {
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
 export function Fetch(props: IKeyProps): Promise<Array<Partial<ICandle>>> {
+  const { instrument, period, timestamp, limit } = props;
   let sql: string = `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
-   FROM vw_candles
+   FROM blofin.vw_candles
    WHERE instrument = ?	AND period = ? and timestamp > ?
    ORDER BY	timestamp DESC`;
-  sql += props.limit ? ` LIMIT ${props.limit || 1}` : ``;
-  return Select<ICandle>(sql, [props.instrument, props.period, props.timestamp || 0]);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns all candles meeting the mandatory instrument/period requirements;            |
-//+--------------------------------------------------------------------------------------+
-export async function First(props: IKeyProps): Promise<Partial<ICandle>> {
-  const [candle] = await Select<ICandle>(
-    `SELECT * FROM vw_candles WHERE (instrument, period, bar_time) = 
-      (SELECT instrument, period, min(bar_time)
-       FROM candle WHERE instrument = ? AND period = ?)`,
-    [props.instrument, props.period]
-  );
-  return candle;
+  sql += limit ? ` LIMIT ${limit || 1}` : ``;
+  return Select<ICandle>(sql, [instrument, period, timestamp || 0]);
 }

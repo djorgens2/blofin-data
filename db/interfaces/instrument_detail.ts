@@ -47,7 +47,7 @@ export async function Publish(
   if (key === undefined) return key;
   if (confirm === undefined) {
     await Modify(
-      `INSERT INTO instrument_detail 
+      `INSERT INTO blofin.instrument_detail 
           SET instrument = ?,
               instrument_type = ?,
               contract_type = ?,
@@ -85,7 +85,7 @@ export async function Publish(
 export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | undefined> {
   const args = [];
 
-  let sql: string = `SELECT instrument FROM instrument_detail WHERE instrument = ?`;
+  let sql: string = `SELECT instrument FROM blofin.instrument_detail WHERE instrument = ?`;
 
   if (props.instrument) {
     args.push(hex(props.instrument, 3));
@@ -105,7 +105,7 @@ export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
 
     if (update.instrument) {
       await Modify(
-        `UPDATE instrument_detail 
+        `UPDATE blofin.instrument_detail 
             SET instrument_type = ?,
                 contract_type = ?,
                 contract_value = ?,

@@ -2,7 +2,10 @@ CREATE SCHEMA blofin;
 
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
-	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_broker UNIQUE ( description ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.contract_type ( 
@@ -37,14 +40,15 @@ CREATE  TABLE blofin.period (
 
 CREATE  TABLE blofin.role ( 
 	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
-	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_role UNIQUE ( title ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE blofin.trade_state ( 
-	trade_state          BINARY(3)    NOT NULL   PRIMARY KEY,
-	state                VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+CREATE  TABLE blofin.state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	status             VARCHAR(10)    NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_trade_state UNIQUE ( state ) 
+	CONSTRAINT ak_trade_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.user ( 
@@ -53,7 +57,7 @@ CREATE  TABLE blofin.user (
 	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
 	password             BINARY(16)    NOT NULL   ,
-	avatar_url           VARCHAR(256)  DEFAULT ('/avatar/no-image.png') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	avatar_url           VARCHAR(60)  DEFAULT ('./images/user/no-image.png') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
@@ -103,7 +107,7 @@ CREATE  TABLE blofin.instrument (
 	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT,
-	CONSTRAINT fk_i_trade_state FOREIGN KEY ( trade_state ) REFERENCES blofin.trade_state( trade_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
@@ -137,8 +141,8 @@ CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
 CREATE  TABLE blofin.instrument_period ( 
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
-	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
 	sma_factor           SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
 	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
 	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
 	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -177,7 +181,7 @@ CREATE  TABLE blofin.candle (
 
 CREATE INDEX fk_c_period ON blofin.candle ( period );
 
-CREATE OR REPLACE VIEW blofin.vw_instrument_periods AS
+CREATE VIEW blofin.vw_instrument_periods AS
 select
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -192,13 +196,13 @@ select
 	if((ip.bulk_collection_rate = 0), 0, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
 	ip.sma_factor AS sma_factor,
 	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits,
-	ts.trade_state AS trade_state,
-	ts.state AS state,
+	s.state AS trade_state,
+	s.status AS trade_status,
 	if((ip.bulk_collection_rate > 0), true, false) AS active_collection,
 	b.suspense AS suspense
 from
 	(((((((blofin.instrument i
-join blofin.trade_state ts)
+join blofin.state s)
 join blofin.instrument_period ip)
 join blofin.period p)
 join blofin.instrument_detail id)
@@ -219,12 +223,12 @@ where
 		and (ip.period = p.period)
 			and (ip.instrument = tps.instrument)
 				and (ip.period = tps.period)
-					and (tps.trade_state = ts.trade_state)
+					and (tps.trade_state = s.state)
 						and (i.instrument = id.instrument)
 							and (i.base_currency = b.currency)
 								and (i.quote_currency = q.currency));
 
-CREATE OR REPLACE VIEW blofin.vw_instruments AS
+CREATE VIEW blofin.vw_instruments AS
 select
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -252,8 +256,8 @@ select
 	unix_timestamp(id.list_time) AS list_timestamp,
 	id.expiry_time AS expiry_time,
 	unix_timestamp(id.expiry_time) AS expiry_timestamp,
-	ts.trade_state AS trade_state,
-	ts.state AS state,
+	s.state AS trade_state,
+	s.status AS trade_status,
 	b.suspense AS suspense
 from
 	((((((((blofin.instrument i
@@ -267,15 +271,15 @@ left join blofin.contract_type ct on
 	((id.contract_type = ct.contract_type)))
 left join blofin.period tp on
 	((i.trade_period = tp.period)))
-join blofin.trade_state ts)
+join blofin.state s)
 join blofin.currency b)
 join blofin.currency q)
 where
-	((i.trade_state = ts.trade_state)
+	((i.trade_state = s.state)
 		and (i.base_currency = b.currency)
 			and (i.quote_currency = q.currency));
 
-CREATE OR REPLACE VIEW blofin.vw_candles AS
+CREATE VIEW blofin.vw_candles AS
 select
 	blofin.i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -311,7 +315,7 @@ where
 					and (blofin.i.instrument = ip.instrument)
 						and (ip.period = pt.period));
 
-CREATE OR REPLACE VIEW blofin.vw_candle_audit AS
+CREATE VIEW blofin.vw_candle_audit AS
 select
 	blofin.vc.symbol AS symbol,
 	cast(date_format(blofin.vc.bar_time, '%Y-%m-%d %k:00:00') as datetime) AS hour,
@@ -326,4 +330,3 @@ having
 order by
 	blofin.vc.symbol,
 	hour desc;
-

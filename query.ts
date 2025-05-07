@@ -1,24 +1,29 @@
 import * as Candle from "@db/interfaces/candle";
 import * as Instrument from "@db/interfaces/instrument";
+import * as Broker from "@db/interfaces/broker";
+import * as Role from "@db/interfaces/role";
 import * as Contract from "@db/interfaces/contract_type";
 import * as Currency from "@db/interfaces/currency";
 import * as Type from "@db/interfaces/instrument_type";
 import * as Period from "@db/interfaces/period";
-import * as State from "@db/interfaces/trade_state";
+import * as State from "@db/interfaces/state";
 import * as Detail from "@db/interfaces/instrument_detail";
 import * as KeySet from "@db/interfaces/instrument_period";
+
 import { parseJSON } from "@lib/std.util";
 
 enum Subject {
   Instrument = "-i",
-  Contract = "-c",
+  Contract = "-ctype",
   Currency = "-$",
-  Type = "-t",
+  Type = "-itype",
   Period = "-p",
   Detail = "-d",
   State = "-s",
   KeySet = "-K",
-  Bars = "-b",
+  Bars = "-bars",
+  Broker = "-b",
+  Role = "-r",
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -30,6 +35,18 @@ async function show(subject: string, args: string): Promise<string> {
       const row = await Instrument.Fetch(props!);
 
       console.log("Fetch Instrument", { props, row });
+      return "ok";
+    }
+    case Subject.Broker: {
+      const props = parseJSON<Broker.IKeyProps>(args);
+      const key = await Broker.Key(props!);
+      console.log("Fetch Broker:", props, key);
+      return "ok";
+    }
+    case Subject.Role: {
+      const props = parseJSON<Role.IKeyProps>(args);
+      const key = await Role.Key(props!);
+      console.log("Fetch Role:", props, key);
       return "ok";
     }
     case Subject.Contract: {

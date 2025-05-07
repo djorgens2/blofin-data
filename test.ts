@@ -343,60 +343,25 @@
 
 // Main process
 
-// //----------------------------- test WebSocket with fork() ------------------------------------------//
-// //import { openWebSocket } from "@/module/websocket";
-// //const ws = openWebSocket("wss://demo-trading-openapi.blofin.com/ws/private");
-// const openSocket = (url: string) => {
-  
-//   const ws = new WebSocket("wss://demo-trading-openapi.blofin.com/ws/public");
-// }
-  
-// export const getMessages = () => {
-//   const { fork } = require("child_process");
-//   const children = [];
+//----------------------------- test type v enum conversion (Role) ------------------------------------------//
+//import * as State from "@db/interfaces/state"
+import * as Role from "@db/interfaces/role"
 
-//   ws.onopen = () => {
-//     console.log("Connected to WebSocket server");
-//     ws.send({ op: "subscribe", args: [{ channel: "candle1D", instId: "BTC-USDT" }] });
-//   };
+//State.Import();
+Role.Import();
 
-//   ws.onmessage = (message) => {
-//     // Determine which child process should handle the message
-//     // and send it accordingly
-//     const targetChild = children[0]; // Example: send to the first child
-//     targetChild.send({ type: "websocket-message", data: message.toString() });
-//     console.log("From ws:", message);
-//   };
+//----------------------------- create crypto hmac ------------------------------------------//
+// import * as dotenv from "dotenv";
+// import * as path from "path";
+// import { hex } from "./lib/std.util";
 
-//   ws.onclose = () => {
-//     console.log("Disconnected from WebSocket server");
-//   };
+// dotenv.config({ path: path.resolve(__dirname, ".env.local") });
+ 
+// console.log(process.env.BF_SECRET);
 
-//   ws.onerror = () => {
-//     console.error("WebSocket error:", "???");
-//   };
-
-//   // Fork child processes
-//   for (let i = 0; i < 2; i++) {
-//     const child = fork("test-child.ts");
-//     children.push(child);
-
-//     child.on("message", (message) => {
-//       if (message.type === "child-message") {
-//         console.log("from child");
-//       }
-//     });
-//   }
-//   setInterval(() => {
-//     getMessages();
-//     if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-//       ws.send("ping");
-//     } else process.exit(1);
-//   }, 10000);
-// };
-
-// console.log("got here");
-
-
-
+// //const position = Math.floor(Math.random() * 12 + 1);
+// const position = 12;
+// console.log(position)
+// console.log(hex(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`,3))
+// console.log(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`);
 

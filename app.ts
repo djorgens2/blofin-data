@@ -4,15 +4,19 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import * as Instruments from "@api/instruments";
+import * as Instrument from "@api/instruments";
 import * as Period from "@/db/interfaces/period";
-import * as TradeState from "@db/interfaces/trade_state";
+import * as State from "@db/interfaces/state";
+import * as Broker from "@db/interfaces/state";
+import * as Role from "@db/interfaces/state";
 
 import { CMain } from "@app/main";
 
-TradeState.Import();
+State.Import();
 Period.Import();
-Instruments.Import();
+Instrument.Import();
+Broker.Import();
+Role.Import();
 
 const app = new CMain();
 

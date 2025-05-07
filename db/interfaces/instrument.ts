@@ -5,13 +5,13 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
+import { Status } from "@db/interfaces/state";
 
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex, splitSymbol } from "@/lib/std.util";
-import { State } from "@db/interfaces/trade_state";
 
 import * as Currency from "@db/interfaces/currency";
-import * as TradeState from "@db/interfaces/trade_state";
+import * as State from "@db/interfaces/state";
 
 export interface IKeyProps {
   instrument?: Uint8Array;
@@ -46,7 +46,7 @@ export interface IInstrument extends IKeyProps, RowDataPacket {
   expiry_time: Date;
   expiry_timestamp: number;
   trade_state: Uint8Array;
-  state: string;
+  trade_status: Status;
   suspense: boolean;
 }
 
@@ -58,13 +58,13 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
 
   if (instrument === undefined) {
     const key = hex(UniqueKey(6), 3);
-    const trade_state = await TradeState.Key({ state: State.Disabled });
+    const state = await State.Key({ status: Status.Disabled });
 
-    await Modify(`INSERT INTO instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
+    await Modify(`INSERT INTO blofin.instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
       key,
       base_currency,
       quote_currency,
-      trade_state,
+      state,
     ]);
     return key;
   }
@@ -78,7 +78,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
   const keys: Array<Uint8Array | string> = [];
   const filters: Array<string> = [];
 
-  let sql = `SELECT instrument FROM vw_instruments`;
+  let sql = `SELECT instrument FROM blofin.vw_instruments`;
 
   if (props.instrument) {
     keys.push(hex(props.instrument, 3));
@@ -124,7 +124,7 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
   const instrument = await Key(props);
   const args = [];
   const sql: string =
-    `select * FROM vw_instruments` +
+    `SELECT * FROM blofin.vw_instruments` +
     (instrument ? ` WHERE instrument = ?` : ``) +
     (props.fromSymbol ? (instrument ? ` AND ` : ` WHERE `) : ``) +
     (props.fromSymbol ? `symbol >= ? ORDER BY symbol LIMIT ${props.limit || 1}` : ``);
@@ -136,10 +136,10 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
+//| Suspends provided currency(s) upon receipt of an 'unalive' state from Blofin;        |
 //+--------------------------------------------------------------------------------------+
 export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
-  const state = await TradeState.Key({ state: State.Suspended });
+  const state = await State.Key({ status: Status.Suspended });
 
   for (const suspense of suspensions) {
     const args = [state];
@@ -151,6 +151,6 @@ export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
       args.push(currency);
     } else return;
 
-    await Modify(`UPDATE instrument SET trade_state = ? WHERE base_currency = ?`, args);
+    await Modify(`UPDATE blofin.instrument SET trade_state = ? WHERE base_currency = ?`, args);
   }
 }

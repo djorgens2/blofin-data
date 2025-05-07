@@ -1,0 +1,76 @@
+//+---------------------------------------------------------------------------------------+
+//|                                                                              state.ts |
+//|                                                      Copyright 2018, Dennis Jorgenson |
+//+---------------------------------------------------------------------------------------+
+"use strict";
+
+import type { RowDataPacket } from "mysql2";
+
+import { Modify, Select, UniqueKey } from "@db/query.utils";
+import { hex } from "@/lib/std.util";
+
+export const Status = {
+  Enabled: "Enabled",
+  Disabled: "Disabled",
+  Halted: "Halted",
+  Restricted: "Restricted",
+  Suspended: "Suspended",
+} as const;
+export type Status = (typeof Status)[keyof typeof Status];
+export const States: Array<{ status: Status; description: string }> = [
+  { status: "Enabled", description: "Enabled for trading" },
+  { status: "Disabled", description: "Disabled from trading" },
+  { status: "Halted", description: "Adverse event halt" },
+  { status: "Restricted", description: "Restricted use" },
+  { status: "Suspended", description: "Suspended by broker" },
+];
+
+export interface IKeyProps {
+  state?: Uint8Array;
+  status?: Status;
+}
+
+export interface IState extends IKeyProps, RowDataPacket {
+  description: string;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Imports seed States to define accounts/trading operational status;                   |
+//+--------------------------------------------------------------------------------------+
+export const Import = () => States.forEach((state) => Publish(state));
+
+//+--------------------------------------------------------------------------------------+
+//| Adds new States to local database;                                                   |
+//+--------------------------------------------------------------------------------------+
+export async function Publish(props: { status: Status; description: string }): Promise<IKeyProps["state"]> {
+  const { status, description } = props;
+  const state = await Key({ status });
+
+  if (state === undefined) {
+    const key = hex(UniqueKey(6), 3);
+    await Modify(`INSERT INTO blofin.state VALUES (?, ?, ?)`, [key, status, description]);
+    return key;
+  }
+  return state;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//+--------------------------------------------------------------------------------------+
+export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefined> {
+  const { status, state } = props;
+  const args = [];
+
+  let sql: string = `SELECT state FROM blofin.state WHERE `;
+
+  if (state) {
+    args.push(hex(state, 3));
+    sql += `state = ?`;
+  } else if (status) {
+    args.push(status);
+    sql += `status = ?`;
+  } else return undefined;
+
+  const [key] = await Select<IState>(sql, args);
+  return key === undefined ? undefined : key.state;
+}

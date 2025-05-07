@@ -5,12 +5,13 @@
 "use strict";
 
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
+import type { Status } from "@db/interfaces/state";
 
 import { Select, Modify } from "@db/query.utils";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Period from "@db/interfaces/period";
-import * as TradeState from "@db/interfaces/trade_state";
+import * as State from "@db/interfaces/state";
 
 export interface IKeyProps {
   instrument?: Uint8Array | undefined;
@@ -21,7 +22,7 @@ export interface IKeyProps {
   timeframe?: string;
   active_collection?: boolean;
   trade_state?: Uint8Array | undefined;
-  state?: string;
+  trade_status?: Status;
 }
 
 export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {
@@ -40,12 +41,12 @@ export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 export async function Publish(): Promise<ResultSetHeader> {
   const result = await Modify(
-    `INSERT INTO instrument_period (instrument, period)
+    `INSERT INTO blofin.instrument_period (instrument, period)
        SELECT missing.instrument, missing.period
          FROM instrument_period ip
               RIGHT JOIN (
                 SELECT i.instrument, p.period
-                  FROM instrument i, period p ) missing
+                  FROM blofin.instrument i, blofin.period p ) missing
                     ON ip.instrument = missing.instrument
                    AND ip.period = missing.period
         WHERE ip.period IS NULL`,
@@ -63,11 +64,11 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
   const keys: Array<Uint8Array | string | number | boolean> = [];
   const filters: Array<string> = [];
 
-  let sql = `select * from vw_instrument_periods`;
+  let sql = `select * from blofin.vw_instrument_periods`;
 
   (props.symbol || props.base_currency || props.base_symbol || props.instrument) && (params.instrument = await Instrument.Key(props));
   (props.timeframe || props.period) && (params.period = await Period.Key(props));
-  (props.state || props.trade_state) && (params.trade_state = await TradeState.Key(props));
+  (props.trade_state || props.trade_status) && (params.trade_state = await State.Key({state: props.trade_state, status: props.trade_status}));
 
   if (params.instrument) {
     filters.push(`instrument`);

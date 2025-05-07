@@ -26,7 +26,7 @@ export async function Publish(source_ref: string): Promise<IKeyProps["contract_t
 
   if (contractType === undefined) {
     const key = hex(UniqueKey(6), 3);
-    await Modify(`INSERT INTO contract_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
+    await Modify(`INSERT INTO blofin.contract_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
 
     return key;
   }
@@ -37,15 +37,16 @@ export async function Publish(source_ref: string): Promise<IKeyProps["contract_t
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["contract_type"] | undefined> {
+  const { contract_type, source_ref } = props;
   const args = [];
 
-  let sql: string = `SELECT contract_type FROM contract_type WHERE `;
+  let sql: string = `SELECT contract_type FROM blofin.contract_type WHERE `;
 
-  if (props.contract_type) {
-    args.push(hex(props.contract_type, 3));
+  if (contract_type) {
+    args.push(hex(contract_type, 3));
     sql += `contract_type = ?`;
-  } else if (props.source_ref) {
-    args.push(props.source_ref);
+  } else if (source_ref) {
+    args.push(source_ref);
     sql += `source_ref = ?`;
   } else return undefined;
 

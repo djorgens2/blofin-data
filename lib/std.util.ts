@@ -91,7 +91,7 @@ export const hex = (key: string | number | object, length: number = 0): Uint8Arr
       ? key
       : typeof key === "string"
       ? key.slice(0, 2) === "0x"
-        ? parseInt(key, 16)
+        ? parseInt(key)
         : regex.test(key)
         ? parseInt(key, 16)
         : 0

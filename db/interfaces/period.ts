@@ -42,7 +42,8 @@ export interface IPeriod extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 export function Import() {
   Period.forEach((period) => {
-    Publish(period.timeframe, period.description, period.units);
+    const {timeframe, description, units} = period;
+    Publish(timeframe, description, units);
   });
 }
 
@@ -54,7 +55,7 @@ export async function Publish(timeframe: string, description: string, units: num
 
   if (period === undefined) {
     const key = hex(UniqueKey(6), 3);
-    await Modify(`INSERT INTO period VALUES (?, ?, ?, ?)`, [key, timeframe, description, units]);
+    await Modify(`INSERT INTO blofin.period VALUES (?, ?, ?, ?)`, [key, timeframe, description, units]);
 
     return key;
   }
@@ -65,15 +66,16 @@ export async function Publish(timeframe: string, description: string, units: num
 //| Examines contract type search methods in props; executes first in priority sequence; |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["period"] | undefined> {
+  const { period, timeframe } = props;
   const args = [];
 
-  let sql: string = `SELECT period FROM period WHERE `;
+  let sql: string = `SELECT period FROM blofin.period WHERE `;
 
-  if (props.period) {
-    args.push(hex(props.period, 3));
+  if (period) {
+    args.push(hex(period, 3));
     sql += `period = ?`;
-  } else if (props.timeframe) {
-    args.push(props.timeframe);
+  } else if (timeframe) {
+    args.push(timeframe);
     sql += `timeframe = ?`;
   } else return undefined;
 

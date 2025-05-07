@@ -1,16 +1,20 @@
 import { Import } from "@api/candles";
-import { State } from "./db/interfaces/trade_state";
 
-import * as TradeState from "@db/interfaces/trade_state";
+import * as State from "@db/interfaces/state";
 import * as Period from "@db/interfaces/period";
 import * as Instruments from "@api/instruments";
 import * as Candles from "@db/interfaces/candle";
 import * as Periods from "@db/interfaces/instrument_period";
+import * as Brokers from "@db/interfaces/broker";
+import * as Roles from "@db/interfaces/role";
+
 import { clear } from "./lib/std.util";
 
-TradeState.Import();
+State.Import();
 Period.Import();
 Instruments.Import();
+Brokers.Import();
+Roles.Import();
 
 //-------------------------------- candles Import ---------------------------------------//
 async function importCandles() {

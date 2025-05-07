@@ -9,14 +9,13 @@ import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
 
 import { fork } from "child_process";
 import { clear, parseJSON } from "@lib/std.util";
-import { State } from "@db/interfaces/trade_state";
+import { Status } from "@db/interfaces/state";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 import { openWebSocket } from "@/module/websocket";
 
 //const ws = openWebSocket("wss://demo-trading-openapi.blofin.com/ws/private");
 const ws = openWebSocket("wss://openapi.blofin.com/ws/private");
-//connectWebSocket("wss://openapi.blofin.com/ws/private");
 
 //+--------------------------------------------------------------------------------------+
 //| CMain - Master Processing Instantiator/Monitor Class for Enabled Instruments;        |
@@ -27,7 +26,7 @@ export class CMain {
   //+------------------------------------------------------------------------------------+
   async Start() {
     //       const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ symbol: "XRP", state: State.Enabled });
-    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ state: State.Enabled });
+    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ trade_status: Status.Enabled });
 
     instruments.forEach((instrument, id) => {
       const ipc = clear({ state: "init", symbol: instrument.symbol!, node: id });
@@ -44,7 +43,7 @@ export class CMain {
     });
 
     setInterval(() => {
-      console.log('ping');
+      // console.log('ping');
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send('ping')
 
@@ -53,6 +52,6 @@ export class CMain {
       //   Object.assign(ipc, { ...ipc, state: "api" });
       //   app.send(ipc);
       // }
-    }, 10000);
+    }, 29000);
   }
 }
