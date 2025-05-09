@@ -344,24 +344,88 @@
 // Main process
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-//import * as State from "@db/interfaces/state"
-import * as Role from "@db/interfaces/role"
+// //import * as State from "@db/interfaces/state"
+// import * as Role from "@db/interfaces/role"
 
-//State.Import();
-Role.Import();
+// //State.Import();
+// Role.Import();
 
 //----------------------------- create crypto hmac ------------------------------------------//
 // import * as dotenv from "dotenv";
 // import * as path from "path";
-// import { hex } from "./lib/std.util";
+// import { hex, parseJSON } from "./lib/std.util";
+// import { UniqueKey } from "./db/query.utils";
 
 // dotenv.config({ path: path.resolve(__dirname, ".env.local") });
- 
+
 // console.log(process.env.BF_SECRET);
 
-// //const position = Math.floor(Math.random() * 12 + 1);
-// const position = 12;
+// const position = Math.floor(Math.random() * 12 + 1);
 // console.log(position)
 // console.log(hex(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`,3))
 // console.log(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`);
 
+// const secret = process.env.BF_SECRET
+// const uuid = new Uint8Array(16);
+
+// for (let block=0; block*8<secret!.length; block++) {
+//     console.log(secret?.slice(block*8,(block*8)+8));
+//     uuid.set(hex(`0x${secret?.slice(block*8,(block*8)+8)}`,4),block*4);
+// }
+// console.log(uuid)
+
+// console.log(process.env.APP_ACCOUNT);
+// const json: Array<any> = process.env.APP_CONNECTIONS ? JSON.parse(process.env.APP_ACCOUNT!) : [``];//;
+// json.forEach((record) => {
+//     console.log(record)
+// })
+// // JSON String Representing an Array of Objects
+// const jsonStr = '[{"name": "Adams", "age": 30}, {"name": "Davis", "age": 25}, {"name": "Evans", "age": 35}]';
+
+// // Parse JSON string to array of objects
+// const jsonArray = JSON.parse(jsonStr);
+
+// // Output the array of objects
+// console.log(jsonArray);
+
+// export const newHashKey = (length: number = 32) => {
+//   if (length % 2 === 0) {
+//     const hashKey = new Uint8Array(length / 2);
+//     const key = UniqueKey(length).slice(2);
+
+//     for (let block = 0; block * 2 < length; block++) {
+//       console.log(key.slice(block * 2, block * 2 + 2));
+//       hashKey.set(hex(`0x${key?.slice(block * 2, block * 2 + 2)}`, 1), block);
+//     }
+//     console.log(key, hashKey);
+//   }
+//   return 0x00;
+// };
+
+// console.log(newHashKey(16))
+
+//----------------------------- user password new/verify ------------------------------------------//
+import { hashPassword, hashKey } from "./lib/crypto.util";
+import type { Role } from "@db/interfaces/role";
+
+import * as Users from "@db/interfaces/user";
+import * as Roles from "@db/interfaces/role";
+import { hex } from "./lib/std.util";
+import { UniqueKey } from "./db/query.utils";
+
+//Roles.Import();
+
+const username = "djorgens2";
+const email = "djorgens2@gmail.com";
+const password = "Ashley#01";
+const hash = hashKey();
+//console.log(hash)
+const encrypt = hashPassword({ username, email, password, hash });
+const title: Role = "Admin";
+const image_url: string = "";
+//console.log(hex(UniqueKey(32), 16));
+
+Users.Add({ username, email, password, title, image_url });
+
+//console.log(encrypt);
+//console.log(parseInt('3178096',16));

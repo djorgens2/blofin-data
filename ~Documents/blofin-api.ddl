@@ -2,10 +2,10 @@ CREATE SCHEMA blofin;
 
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
-	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_broker UNIQUE ( description ) 
+	CONSTRAINT ak_broker UNIQUE ( alias ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.contract_type ( 
@@ -56,8 +56,8 @@ CREATE  TABLE blofin.user (
 	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
-	password             BINARY(16)    NOT NULL   ,
-	avatar_url           VARCHAR(60)  DEFAULT ('./images/user/no-image.png') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	password             BINARY(32)    NOT NULL   ,
+	image_url            VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
@@ -70,6 +70,26 @@ CREATE INDEX fk_u_role ON blofin.user ( role );
 CREATE  TABLE blofin.account ( 
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
 	broker               BINARY(3)    NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	position             SMALLINT    NOT NULL   ,
+	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) ,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE  TABLE blofin.account_detail ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
 	currency             BINARY(3)    NOT NULL   ,
 	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	total_equity         DOUBLE    NOT NULL   ,
@@ -89,13 +109,11 @@ CREATE  TABLE blofin.account (
 	liability            DOUBLE    NOT NULL   ,
 	borrow_frozen        DOUBLE    NOT NULL   ,
 	update_time          DATETIME    NOT NULL   ,
-	CONSTRAINT fk_a_base_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ad_base_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_a_base_currency ON blofin.account ( currency );
-
-CREATE INDEX fk_a_broker ON blofin.account ( broker );
+CREATE INDEX fk_a_base_currency ON blofin.account_detail ( currency );
 
 CREATE  TABLE blofin.instrument ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -154,6 +172,7 @@ CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 CREATE  TABLE blofin.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
 	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT pk_user_account PRIMARY KEY ( user, account ),
 	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,

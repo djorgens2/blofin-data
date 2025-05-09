@@ -67,45 +67,33 @@ export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns a UIntArray on a valid hex value passed as a string|number; validates binary |
+//| Returns UintArray if supplied key is valid hex value and meets length req's          |
 //+--------------------------------------------------------------------------------------+
-export const hex = (key: string | number | object, length: number = 0): Uint8Array => {
+export const hex = (key: string | Uint8Array | object, length: number = 0): Uint8Array => {
   const regex = /^\d+$/;
-  const bytes = [];
+  const bytes = new Uint8Array(length / 2);
 
-  function dec(obj: object): number {
-    let hex: string = "";
-    "type" in obj && obj.type === "Buffer" && "data" in obj && Array.isArray(obj.data)
-      ? obj.data.forEach((val) => (hex += val.toString(16)))
-      : Object.values(obj).map((val) => (hex += val.toString(16)));
-    return parseInt(hex, 16);
-  }
+  let hex: string = "";
 
-  if (key instanceof Uint8Array) if (key.length === length || length === 0) return key;
-  if (typeof key === "string" && key.indexOf("Buffer") === 1) {
-    key = "0x" + key.slice(8, 15).split(" ").join("");
-  }
+  if (key instanceof Uint8Array && length && key.length === length ) return key;
 
-  let decimal: number =
-    typeof key === "number"
-      ? key
-      : typeof key === "string"
-      ? key.slice(0, 2) === "0x"
-        ? parseInt(key)
-        : regex.test(key)
-        ? parseInt(key, 16)
-        : 0
-      : typeof key === "object"
-      ? dec(key)
-      : 0;
+  if (typeof key === "object")
+    "type" in key && key.type === "Buffer" && "data" in key && Array.isArray(key.data)
+      ? key.data.forEach((val) => (hex += val.toString(16)))
+      : Object.values(key).map((val) => (hex += val.toString(16)));
+  
+  if (typeof key === "string")
+     key.indexOf("Buffer") === 1
+    ? hex = key.slice(8, 15).split(" ").join("")
+    : hex = key.slice(0, 2) === "0x" ? key.slice(0, 2) : key;
 
-  while (decimal > 0) {
-    bytes.unshift(decimal % 256);
-    decimal = Math.floor(decimal / 256);
-  }
+  if (regex.test(hex))
+    for (let byte = 0; byte * 2 < length; byte++) {
+      const parsed = parseInt(hex.slice(byte * 2, byte * 2 + 2,), 16);
+      bytes.set([parsed], byte);
+    }
 
-  while (bytes.length < length) bytes.unshift(0);
-  return Buffer.from(new Uint8Array(bytes.length <= Math.abs(length) || length === 0 ? bytes : []));
+    return bytes;
 };
 
 //+--------------------------------------------------------------------------------------+

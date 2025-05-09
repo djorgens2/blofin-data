@@ -9,13 +9,13 @@ import type { RowDataPacket } from "mysql2";
 import { Select, Modify, UniqueKey } from "@db/query.utils";
 import { hex } from "@/lib/std.util";
 
-const Broker: Array<{ description: string; image_url: string; website_url: string }> = [
-  { description: "Blofin", image_url: "./images/broker/no_image.png", website_url: "https://blofin.com/" },
+const Broker: Array<{ alias: string; image_url: string; website_url: string }> = [
+  { alias: "Blofin", image_url: "./images/broker/no_image.png", website_url: "https://blofin.com/" },
 ];
 
 export interface IKeyProps {
   broker?: Uint8Array;
-  description?: string;
+  alias?: string;
 }
 
 export interface IBroker extends IKeyProps, RowDataPacket {
@@ -28,21 +28,21 @@ export interface IBroker extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 export function Import() {
   Broker.forEach((broker) => {
-    const { description, image_url, website_url } = broker;
-    Publish({ description, image_url, website_url });
+    const { alias, image_url, website_url } = broker;
+    Publish({ alias, image_url, website_url });
   });
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Adds all new brokers recieved from ui or any internal source to the database;        |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: { description: string; image_url: string; website_url: string }): Promise<IKeyProps["broker"]> {
-  const { description, image_url, website_url } = props;
-  const broker = await Key({ description });
+export async function Publish(props: { alias: string; image_url: string; website_url: string }): Promise<IKeyProps["broker"]> {
+  const { alias, image_url, website_url } = props;
+  const broker = await Key({ alias });
 
   if (broker === undefined) {
     const key = hex(UniqueKey(6), 3);
-    await Modify(`INSERT INTO blofin.broker VALUES (?, ?, ?, ?)`, [key, description, image_url, website_url]);
+    await Modify(`INSERT INTO blofin.broker VALUES (?, ?, ?, ?)`, [key, alias, image_url, website_url]);
 
     return key;
   }
@@ -53,7 +53,7 @@ export async function Publish(props: { description: string; image_url: string; w
 //| Examines broker search methods in props; executes first in priority sequence;        |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undefined> {
-  const { broker, description } = props;
+  const { broker, alias } = props;
   const args = [];
 
   let sql: string = `SELECT broker FROM blofin.broker WHERE `;
@@ -61,11 +61,32 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
   if (broker) {
     args.push(hex(broker, 3));
     sql += `broker = ?`;
-  } else if (description) {
-    args.push(description);
-    sql += `description = ?`;
+  } else if (alias) {
+    args.push(alias);
+    sql += `alias = ?`;
   } else return undefined;
 
   const [key] = await Select<IBroker>(sql, args);
   return key === undefined ? undefined : key.broker;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//+--------------------------------------------------------------------------------------+
+export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefined> {
+  const { broker, alias } = props;
+  const args = [];
+
+  let sql: string = `SELECT role FROM blofin.role`;
+
+  if (broker) {
+    args.push(hex(broker, 3));
+    sql += ` WHERE broker = ?`;
+  } else if (alias) {
+    args.push(alias);
+    sql += ` WHERE alias = ?`;
+  }
+
+  const brokers = await Select<IBroker>(sql, args);
+  return brokers === undefined ? undefined : brokers;
 }
