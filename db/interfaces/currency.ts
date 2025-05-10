@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 export interface IKeyProps {
   currency?: Uint8Array;
@@ -26,7 +26,7 @@ export async function Publish(symbol: string, suspense: boolean): Promise<IKeyPr
   const currency = await Key({ symbol });
 
   if (currency === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     const defaultImage: string = "./public/images/currency/no-image.png";
 
     await Modify(`INSERT INTO blofin.currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`, [key, symbol, defaultImage, suspense]);
@@ -45,7 +45,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["currency"] | und
   let sql: string = `SELECT currency FROM blofin.currency WHERE `;
 
   if (currency) {
-    args.push(hex(currency, 3));
+    args.push(currency);
     sql += `currency = ?`;
   } else if (symbol) {
     args.push(symbol);
@@ -67,7 +67,7 @@ export async function Suspend(suspensions: Array<IKeyProps>) {
     let sql: string = `UPDATE blofin.currency SET suspense = true WHERE `;
 
     if (currency) {
-      args.push(hex(currency, 3));
+      args.push(currency);
       sql += `currency = ?`;
     } else if (symbol) {
       args.push(symbol);

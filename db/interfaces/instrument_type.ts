@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 export interface IKeyProps {
   instrument_type?: Uint8Array;
@@ -25,7 +25,7 @@ export async function Publish(source_ref: string): Promise<IKeyProps["instrument
   const instrument_type = await Key({ source_ref });
 
   if (instrument_type === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
 
     await Modify(`INSERT INTO blofin.instrument_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
 
@@ -44,7 +44,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument_type"
   let sql: string = `SELECT instrument_type FROM blofin.instrument_type WHERE `;
 
   if (instrument_type) {
-    args.push(hex(instrument_type, 3));
+    args.push(instrument_type);
     sql += `instrument_type = ?`;
   } else if (source_ref) {
     args.push(source_ref);

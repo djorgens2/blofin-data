@@ -7,11 +7,12 @@
 import type { RowDataPacket } from "mysql2";
 import { Status } from "@db/interfaces/state";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex, splitSymbol } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { splitSymbol } from "@/lib/std.util";
 
 import * as Currency from "@db/interfaces/currency";
 import * as State from "@db/interfaces/state";
+import { hashKey } from "@/lib/crypto.util";
 
 export interface IKeyProps {
   instrument?: Uint8Array;
@@ -57,7 +58,7 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
   const instrument = await Key({ base_currency, quote_currency });
 
   if (instrument === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     const state = await State.Key({ status: Status.Disabled });
 
     await Modify(`INSERT INTO blofin.instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
@@ -81,15 +82,15 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
   let sql = `SELECT instrument FROM blofin.vw_instruments`;
 
   if (props.instrument) {
-    keys.push(hex(props.instrument, 3));
+    keys.push(props.instrument);
     filters.push(`instrument`);
   } else if (props.base_currency || props.quote_currency) {
     if (props.base_currency) {
-      keys.push(hex(props.base_currency, 3));
+      keys.push(props.base_currency);
       filters.push(`base_currency`);
     }
     if (props.quote_currency) {
-      keys.push(hex(props.quote_currency, 3));
+      keys.push(props.quote_currency);
       filters.push(`quote_currency`);
     }
   } else if (props.base_symbol || props.quote_symbol) {
@@ -145,7 +146,7 @@ export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
     const args = [state];
 
     if (suspense.currency) {
-      args.push(hex(suspense.currency));
+      args.push(suspense.currency);
     } else if (suspense.symbol) {
       const currency = await Currency.Key({ symbol: suspense.symbol });
       args.push(currency);

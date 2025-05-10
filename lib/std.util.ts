@@ -67,36 +67,6 @@ export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns UintArray if supplied key is valid hex value and meets length req's          |
-//+--------------------------------------------------------------------------------------+
-export const hex = (key: string | Uint8Array | object, length: number = 0): Uint8Array => {
-  const regex = /^\d+$/;
-  const bytes = new Uint8Array(length / 2);
-
-  let hex: string = "";
-
-  if (key instanceof Uint8Array && length && key.length === length ) return key;
-
-  if (typeof key === "object")
-    "type" in key && key.type === "Buffer" && "data" in key && Array.isArray(key.data)
-      ? key.data.forEach((val) => (hex += val.toString(16)))
-      : Object.values(key).map((val) => (hex += val.toString(16)));
-  
-  if (typeof key === "string")
-     key.indexOf("Buffer") === 1
-    ? hex = key.slice(8, 15).split(" ").join("")
-    : hex = key.slice(0, 2) === "0x" ? key.slice(0, 2) : key;
-
-  if (regex.test(hex))
-    for (let byte = 0; byte * 2 < length; byte++) {
-      const parsed = parseInt(hex.slice(byte * 2, byte * 2 + 2,), 16);
-      bytes.set([parsed], byte);
-    }
-
-    return bytes;
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+
 export function hexString(uint8Array: Uint8Array, length: number): string {

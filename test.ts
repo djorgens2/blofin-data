@@ -405,27 +405,15 @@
 // console.log(newHashKey(16))
 
 //----------------------------- user password new/verify ------------------------------------------//
-import { hashPassword, hashKey } from "./lib/crypto.util";
 import type { Role } from "@db/interfaces/role";
 
 import * as Users from "@db/interfaces/user";
-import * as Roles from "@db/interfaces/role";
-import { hex } from "./lib/std.util";
-import { UniqueKey } from "./db/query.utils";
-
-//Roles.Import();
 
 const username = "djorgens2";
-const email = "djorgens2@gmail.com";
-const password = "Ashley#01";
-const hash = hashKey();
-//console.log(hash)
-const encrypt = hashPassword({ username, email, password, hash });
+const email = "whoaman@gmail.com";
+const password = "John 1:1";
 const title: Role = "Admin";
 const image_url: string = "";
-//console.log(hex(UniqueKey(32), 16));
+const userAdd = async () => await Users.Add({ username, email, password, title, image_url });
 
-Users.Add({ username, email, password, title, image_url });
-
-//console.log(encrypt);
-//console.log(parseInt('3178096',16));
+userAdd();

@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 const Period: Array<{ timeframe: string; description: string; units: number }> = [
   { timeframe: "1m", description: "1 Minute", units: 1 },
@@ -54,7 +54,7 @@ export async function Publish(timeframe: string, description: string, units: num
   const period = await Key({ timeframe });
 
   if (period === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     await Modify(`INSERT INTO blofin.period VALUES (?, ?, ?, ?)`, [key, timeframe, description, units]);
 
     return key;
@@ -72,7 +72,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["period"] | undef
   let sql: string = `SELECT period FROM blofin.period WHERE `;
 
   if (period) {
-    args.push(hex(period, 3));
+    args.push(period);
     sql += `period = ?`;
   } else if (timeframe) {
     args.push(timeframe);

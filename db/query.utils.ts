@@ -6,7 +6,6 @@
 
 import pool from "@db/db.config";
 
-import { customAlphabet } from "nanoid";
 import { ResultSetHeader } from "mysql2";
 
 export enum Operation {
@@ -32,8 +31,3 @@ export async function Modify(query: string, fields: Array<any>): Promise<ResultS
   const [results] = await pool.execute(query, fields);
   return results as ResultSetHeader;
 }
-
-export const UniqueKey = (length: number): string => {
-  const nanoid = customAlphabet("0123456789abcdef", length);
-  return "0x".concat(nanoid());
-};

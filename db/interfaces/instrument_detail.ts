@@ -8,7 +8,6 @@ import type { RowDataPacket } from "mysql2";
 import type { IInstrumentAPI } from "@/api/instruments";
 
 import { Modify, Select } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as ContractType from "@db/interfaces/contract_type";
@@ -88,7 +87,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
   let sql: string = `SELECT instrument FROM blofin.instrument_detail WHERE instrument = ?`;
 
   if (props.instrument) {
-    args.push(hex(props.instrument, 3));
+    args.push(props.instrument);
   } else return undefined;
 
   const [key] = await Select<IInstrumentDetail>(sql, args);

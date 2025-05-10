@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Modify, Select, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Modify, Select } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 export const Role = {
   Admin: "Admin",
@@ -35,7 +35,7 @@ export const Import = () => Roles.forEach((role) => Publish(role));
 export async function Publish(title: Role): Promise<IKeyProps["role"]> {
   const role = await Key({ title });
   if (role === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     await Modify(`INSERT INTO blofin.role VALUES (?, ?)`, [key, title]);
     return key;
   }
@@ -52,7 +52,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["role"] | undefin
   let sql: string = `SELECT role FROM blofin.role WHERE `;
 
   if (role) {
-    args.push(hex(role, 3));
+    args.push(role);
     sql += `role = ?`;
   } else if (title) {
     args.push(title);
@@ -73,7 +73,7 @@ export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefi
   let sql: string = `SELECT role FROM blofin.role`;
 
   if (role) {
-    args.push(hex(role, 3));
+    args.push(role);
     sql += ` WHERE role = ?`;
   } else if (title) {
     args.push(title);

@@ -8,9 +8,11 @@ import * as Type from "@db/interfaces/instrument_type";
 import * as Period from "@db/interfaces/period";
 import * as State from "@db/interfaces/state";
 import * as Detail from "@db/interfaces/instrument_detail";
+import * as User from "@db/interfaces/user";
 import * as KeySet from "@db/interfaces/instrument_period";
 
 import { parseJSON } from "@lib/std.util";
+import { hexify } from "./lib/crypto.util";
 
 enum Subject {
   Instrument = "-i",
@@ -24,59 +26,89 @@ enum Subject {
   Bars = "-bars",
   Broker = "-b",
   Role = "-r",
+  User = "-u",
+  Login = "-login",
 }
 
 async function show(subject: string, args: string): Promise<string> {
   console.log(subject, args);
 
   switch (subject) {
-    case Subject.Instrument: {
-      const props = args ? parseJSON<Instrument.IKeyProps>(args) : {};
-      const row = await Instrument.Fetch(props!);
-
-      console.log("Fetch Instrument", { props, row });
-      return "ok";
-    }
     case Subject.Broker: {
       const props = parseJSON<Broker.IKeyProps>(args);
+      props!.broker && (Object.assign(props!, { ...props, broker: hexify(props!.broker)}));
       const key = await Broker.Key(props!);
       console.log("Fetch Broker:", props, key);
       return "ok";
     }
-    case Subject.Role: {
-      const props = parseJSON<Role.IKeyProps>(args);
-      const key = await Role.Key(props!);
-      console.log("Fetch Role:", props, key);
+    case Subject.Bars: {
+      const props = parseJSON<Candle.IKeyProps>(args);
+      const instrument: Instrument.IKeyProps["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
+      const period = await Period.Key({ timeframe: props!.timeframe });
+      const bars = await Candle.Fetch({ ...props!, instrument: instrument!, period: period! });
+      console.log("Fetch filtered period:", props, bars);
       return "ok";
     }
     case Subject.Contract: {
       const props = parseJSON<Contract.IKeyProps>(args);
+      props!.contract_type && (Object.assign(props!, { ...props, contract_type: hexify(props!.contract_type)}));
       const key = await Contract.Key(props!);
       console.log("Fetch contract:", props, key);
       return "ok";
     }
     case Subject.Currency: {
       const props = parseJSON<Currency.IKeyProps>(args);
+      props!.currency && (Object.assign(props!, { ...props, currency: hexify(props!.currency)}));
       const key = await Currency.Key(props!);
       console.log("Fetch currency:", props, key);
       return "ok";
     }
+    case Subject.Instrument: {
+      const props = parseJSON<Instrument.IKeyProps>(args);
+      props!.instrument && (Object.assign(props!, { ...props, instrument: hexify(props!.instrument)}));
+      const row = await Instrument.Fetch(props!);
+      console.log("Fetch Instrument", { props, row });
+      return "ok";
+    }
     case Subject.Type: {
       const props = parseJSON<Type.IKeyProps>(args);
+      props!.instrument_type && (Object.assign(props!, { ...props, instrument_type: hexify(props!.instrument_type)}));
       const key = await Type.Key(props!);
       console.log("Fetch type:", props, key);
       return "ok";
     }
     case Subject.Period: {
       const props = parseJSON<Period.IKeyProps>(args);
+      props!.period && (Object.assign(props!, { ...props, period: hexify(props!.period)}));
       const key = await Period.Key(props!);
       console.log("Fetch period:", props, key);
       return "ok";
     }
+    case Subject.Role: {
+      const props = parseJSON<Role.IKeyProps>(args);
+      props!.role && (Object.assign(props!, { ...props, role: hexify(props!.role)}));
+      const key = await Role.Key(props!);
+      console.log("Fetch Role:", props, key);
+      return "ok";
+    }
     case Subject.State: {
       const props = parseJSON<State.IKeyProps>(args);
+      props!.state && (Object.assign(props!, { ...props, state: hexify(props!.state)}));
       const key = await State.Key(props!);
       console.log("Fetch state:", props, key);
+      return "ok";
+    }
+    case Subject.User: {
+      const props = parseJSON<User.IKeyProps>(args);
+      props!.user && (Object.assign(props!, { ...props, user: hexify(props!.user)}));
+      const key = await User.Key(props!);
+      console.log("Fetch User:", props, key);
+      return "ok";
+    }
+    case Subject.Login: {
+      const props = parseJSON<{ username: string; email: string; password: string; }>(args);
+      const logged = await User.Login(props!);
+      console.log("Fetch User:", props, logged, logged ? "Success" : "Error");
       return "ok";
     }
     case Subject.Detail: {
@@ -89,14 +121,6 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<KeySet.IKeyProps>(args);
       const key = await KeySet.Fetch(props!);
       console.log("Fetch filtered period:", props, key);
-      return "ok";
-    }
-    case Subject.Bars: {
-      const props = parseJSON<Candle.IKeyProps>(args);
-      const instrument: Instrument.IKeyProps["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
-      const period = await Period.Key({ timeframe: props!.timeframe });
-      const bars = await Candle.Fetch({ ...props!, instrument: instrument!, period: period! });
-      console.log("Fetch filtered period:", props, bars);
       return "ok";
     }
   }

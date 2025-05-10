@@ -61,7 +61,7 @@ CREATE  TABLE blofin.user (
 	role                 BINARY(3)    NOT NULL   ,
 	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
-	CONSTRAINT ak_instrument UNIQUE ( username, email ) ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
 	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 

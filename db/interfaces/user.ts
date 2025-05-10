@@ -38,14 +38,13 @@ export async function Add(props: { username: string; email: string; password: st
     const hash = hashKey(32);
     const encrypt = hashPassword({ username, email, password, hash });
     const role = await Roles.Key({ title });
-    const image = image_url ? image_url : './images/user/no-image.png';
+    const image = image_url ? image_url : "./images/user/no-image.png";
 
     await Modify(
       `INSERT INTO blofin.user ( user, username, email, role, hash, password, image_url) 
           VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [key, username, email, role, hash, encrypt, image]
     );
-
     return key;
   }
   return user;
@@ -75,19 +74,34 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["user"] | undefin
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefined> {
+export function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
   const { user, username, email } = props;
   const args = [];
 
-  let sql: string = `SELECT user FROM blofin.user`;
+  let sql: string = `SELECT * FROM blofin.user`;
 
   if (user) {
-    args.push(hashKey(6));
+    args.push(user);
     sql += ` WHERE user = ?`;
+  } else if (username && email) {
     args.push(username, email);
-    sql += `username = ? AND email = ?`;
+    sql += ` WHERE username = ? AND email = ?`;
   }
 
-  const users = await Select<IUser>(sql, args);
-  return users === undefined ? undefined : users;
+  return Select<IUser>(sql, args);
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Returns true|false if password hashes match on user supplied the text password;      |
+//+--------------------------------------------------------------------------------------+
+export async function Login(props: { username: string; email: string; password: string }): Promise<boolean> {
+  const { username, email, password } = props;
+  const [user] = await Fetch({ username, email });
+
+  if (user) {
+    const key = hashPassword({ username, email, password, hash: user.hash });
+    return Buffer.from(user.password!).toString("hex") === key.toString("hex");
+  }
+
+  return false;
 }

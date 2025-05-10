@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 export interface IKeyProps {
   contract_type?: Uint8Array;
@@ -25,7 +25,7 @@ export async function Publish(source_ref: string): Promise<IKeyProps["contract_t
   const contractType = await Key({ source_ref });
 
   if (contractType === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     await Modify(`INSERT INTO blofin.contract_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
 
     return key;
@@ -43,7 +43,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["contract_type"] 
   let sql: string = `SELECT contract_type FROM blofin.contract_type WHERE `;
 
   if (contract_type) {
-    args.push(hex(contract_type, 3));
+    args.push(contract_type);
     sql += `contract_type = ?`;
   } else if (source_ref) {
     args.push(source_ref);

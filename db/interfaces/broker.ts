@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 const Broker: Array<{ alias: string; image_url: string; website_url: string }> = [
   { alias: "Blofin", image_url: "./images/broker/no_image.png", website_url: "https://blofin.com/" },
@@ -41,7 +41,7 @@ export async function Publish(props: { alias: string; image_url: string; website
   const broker = await Key({ alias });
 
   if (broker === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     await Modify(`INSERT INTO blofin.broker VALUES (?, ?, ?, ?)`, [key, alias, image_url, website_url]);
 
     return key;
@@ -56,10 +56,11 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
   const { broker, alias } = props;
   const args = [];
 
+  console.log(typeof props.broker, props.broker)
   let sql: string = `SELECT broker FROM blofin.broker WHERE `;
 
   if (broker) {
-    args.push(hex(broker, 3));
+    args.push(broker);
     sql += `broker = ?`;
   } else if (alias) {
     args.push(alias);
@@ -73,20 +74,19 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefined> {
+export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
   const { broker, alias } = props;
   const args = [];
 
   let sql: string = `SELECT role FROM blofin.role`;
 
   if (broker) {
-    args.push(hex(broker, 3));
+    args.push(broker);
     sql += ` WHERE broker = ?`;
   } else if (alias) {
     args.push(alias);
     sql += ` WHERE alias = ?`;
   }
 
-  const brokers = await Select<IBroker>(sql, args);
-  return brokers === undefined ? undefined : brokers;
+  return Select<IBroker>(sql, args);
 }

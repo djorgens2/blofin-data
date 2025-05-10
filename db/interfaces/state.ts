@@ -6,8 +6,8 @@
 
 import type { RowDataPacket } from "mysql2";
 
-import { Modify, Select, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Modify, Select } from "@db/query.utils";
+import { hashKey } from "@/lib/crypto.util";
 
 export const Status = {
   Enabled: "Enabled",
@@ -47,7 +47,7 @@ export async function Publish(props: { status: Status; description: string }): P
   const state = await Key({ status });
 
   if (state === undefined) {
-    const key = hex(UniqueKey(6), 3);
+    const key = hashKey(6);
     await Modify(`INSERT INTO blofin.state VALUES (?, ?, ?)`, [key, status, description]);
     return key;
   }
@@ -64,7 +64,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefi
   let sql: string = `SELECT state FROM blofin.state WHERE `;
 
   if (state) {
-    args.push(hex(state, 3));
+    args.push(state);
     sql += `state = ?`;
   } else if (status) {
     args.push(status);

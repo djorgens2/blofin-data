@@ -7,8 +7,7 @@
 import type { RowDataPacket } from "mysql2";
 import { Status } from "@db/interfaces/state";
 
-import { Select, Modify, UniqueKey } from "@db/query.utils";
-import { hex } from "@/lib/std.util";
+import { Select, Modify } from "@db/query.utils";
 
 import * as Brokers from "@db/interfaces/broker";
 import * as Users from "@db/interfaces/user";
@@ -47,13 +46,13 @@ export async function Import(props: IKeyProps) {
       let found = false;
 
       db?.forEach((Account) => {
-        if (hex(`0x${account.key.slice(Account.position! * 2, Account.position! * 2 + 6)}`)) found = true;
+        if (parseInt(account.key.slice(Account.position! * 2, Account.position! * 2 + 6), 16)) found = true;
       });
 
       if (!found) {
         if (account.alias) {
           const position = Math.floor(Math.random() * 12 + 1);
-          const key = hex(`0x${account.key.slice(position * 2, position * 2 + 6)}`, 3);
+          const key = parseInt(account.key.slice(position * 2, position * 2 + 6), 16);
 
           Publish({
             account: key,
@@ -74,7 +73,7 @@ export async function Import(props: IKeyProps) {
 //+--------------------------------------------------------------------------------------+
 //@ts-ignore
 export async function Publish(props): Promise<IKeyProps["account"]> {
-  const { account, alias, broker, owner, state, position} = props;
+  const { account, alias, broker, owner, state, position } = props;
   const key = await Key({ alias });
 
   if (key === undefined) {
@@ -95,7 +94,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["account"] | unde
   let sql: string = `SELECT account FROM blofin.account WHERE `;
 
   if (account) {
-    args.push(hex(account, 3));
+    args.push(account);
     sql += `account = ?`;
   } else if (alias) {
     args.push(alias);
@@ -116,7 +115,7 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IAccount>> 
   let sql: string = `SELECT account FROM blofin.account`;
 
   if (account) {
-    args.push(hex(account, 3));
+    args.push(account);
     sql += ` WHERE account = ?`;
   } else if (alias) {
     args.push(alias);
