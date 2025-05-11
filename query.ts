@@ -10,6 +10,7 @@ import * as State from "@db/interfaces/state";
 import * as Detail from "@db/interfaces/instrument_detail";
 import * as User from "@db/interfaces/user";
 import * as KeySet from "@db/interfaces/instrument_period";
+import * as Area from "@db/interfaces/subject";
 
 import { parseJSON } from "@lib/std.util";
 import { hexify } from "./lib/crypto.util";
@@ -28,6 +29,7 @@ enum Subject {
   Role = "-r",
   User = "-u",
   Login = "-login",
+  Area = "-area",
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -96,6 +98,13 @@ async function show(subject: string, args: string): Promise<string> {
       props!.state && (Object.assign(props!, { ...props, state: hexify(props!.state)}));
       const key = await State.Key(props!);
       console.log("Fetch state:", props, key);
+      return "ok";
+    }
+    case Subject.Area: {
+      const props = parseJSON<Area.IKeyProps>(args);
+      props!.subject && (Object.assign(props!, { ...props, subject: hexify(props!.subject)}));
+      const key = await Area.Fetch(props!);
+      console.log("Fetch Subject:", props, key);
       return "ok";
     }
     case Subject.User: {

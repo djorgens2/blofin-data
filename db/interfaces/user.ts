@@ -29,7 +29,7 @@ export interface IUser extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Adds new Users to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Add(props: { username: string; email: string; password: string; title: Role; image_url: string }): Promise<IKeyProps["user"]> {
+export async function Add(props: { username: string; email: string; password: string; title: Role; image_url?: string }): Promise<IKeyProps["user"]> {
   const { username, email, password, title, image_url } = props;
   const user = await Key({ username, email });
 

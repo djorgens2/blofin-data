@@ -94,6 +94,13 @@
 // import { Import } from "./api/instruments";
 // Import();
 
+//----------------------------- Role/Privs Import ---------------------------------------//
+import * as Authority from "@db/interfaces/authority";
+import * as Subject from "@/db/interfaces/subject";
+
+Authority.Import();
+Subject.Import();
+
 //-------------------------------- candles Import ---------------------------------------//
 // import type { IMessage } from "@lib/std.util";
 // import { clear } from "@lib/std.util";
@@ -405,15 +412,17 @@
 // console.log(newHashKey(16))
 
 //----------------------------- user password new/verify ------------------------------------------//
-import type { Role } from "@db/interfaces/role";
+// import type { Role } from "@db/interfaces/role";
 
-import * as Users from "@db/interfaces/user";
+// import * as Users from "@db/interfaces/user";
 
-const username = "djorgens2";
-const email = "whoaman@gmail.com";
-const password = "John 1:1";
-const title: Role = "Admin";
-const image_url: string = "";
-const userAdd = async () => await Users.Add({ username, email, password, title, image_url });
+// const username = "djorgens2";
+// const email = "whoaman@gmail.com";
+// const password = "John 1:1";
+// const title: Role = "Admin";
+// const image_url: string = "";
+// const userAdd = async () => await Users.Add({ username, email, password, title, image_url });
 
-userAdd();
+// //userAdd();
+// const login = async () => await Users.Login({ username, email: "djorgens2@gmail.com", password: "Ashley#01"})
+// console.log(login ? 'success' : 'error');

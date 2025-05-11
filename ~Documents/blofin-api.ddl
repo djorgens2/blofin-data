@@ -1,5 +1,10 @@
 CREATE SCHEMA blofin;
 
+CREATE  TABLE blofin.authority ( 
+	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
 	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -46,19 +51,38 @@ CREATE  TABLE blofin.role (
 
 CREATE  TABLE blofin.state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
-	status             VARCHAR(10)    NOT NULL   ,
+	status             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_trade_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject ( 
+	subject              BINARY(3)    NOT NULL   PRIMARY KEY,
+	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject_role_authority ( 
+	subject              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) ,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
 
 CREATE  TABLE blofin.user ( 
 	user               BINARY(3)    NOT NULL   PRIMARY KEY,
 	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
 	password             BINARY(32)    NOT NULL   ,
-	image_url            VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	role                 BINARY(3)    NOT NULL   ,
+	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
 	CONSTRAINT ak_user UNIQUE ( username, email ) ,
@@ -77,9 +101,9 @@ CREATE  TABLE blofin.account (
 	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_broker UNIQUE ( alias ) ,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_a_user ON blofin.account ( owner );
@@ -109,11 +133,11 @@ CREATE  TABLE blofin.account_detail (
 	liability            DOUBLE    NOT NULL   ,
 	borrow_frozen        DOUBLE    NOT NULL   ,
 	update_time          DATETIME    NOT NULL   ,
-	CONSTRAINT fk_ad_base_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_a_base_currency ON blofin.account_detail ( currency );
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
 
 CREATE  TABLE blofin.instrument ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -124,15 +148,15 @@ CREATE  TABLE blofin.instrument (
 	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
 	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT,
-	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
 
 CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
 
-CREATE INDEX fk_i_trade_state ON blofin.instrument ( trade_state );
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
 
 CREATE  TABLE blofin.instrument_detail ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,

@@ -66,7 +66,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["role"] | undefin
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefined> {
+export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
   const { role, title } = props;
   const args = [];
 
@@ -80,6 +80,5 @@ export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps> | undefi
     sql += ` WHERE title = ?`;
   }
 
-  const roles = await Select<IRole>(sql, args);
-  return roles === undefined ? undefined : roles;
+  return Select<IRole>(sql, args);
 }
