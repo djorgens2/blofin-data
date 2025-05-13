@@ -95,11 +95,13 @@
 // Import();
 
 //----------------------------- Role/Privs Import ---------------------------------------//
-import * as Authority from "@db/interfaces/authority";
-import * as Subject from "@/db/interfaces/subject";
+//import * as Authority from "@db/interfaces/authority";
+//import * as Subject from "@/db/interfaces/subject";
+//import * as Activity from "@db/interfaces/activity";
 
-Authority.Import();
-Subject.Import();
+// Authority.Import();
+// Subject.Import();
+//Activity.Import();
 
 //-------------------------------- candles Import ---------------------------------------//
 // import type { IMessage } from "@lib/std.util";
@@ -357,6 +359,22 @@ Subject.Import();
 // //State.Import();
 // Role.Import();
 
+//----------------------------- test type v enum conversion (Role) ------------------------------------------//
+// import * as SubjectRoleAuthority from "@db/interfaces/subject_role_authority";
+
+// const imports = async () => {
+//   const inserts = await SubjectRoleAuthority.Import({ enabled: false });
+//   console.log("Rows Inserted:", inserts);
+//   const updates = await SubjectRoleAuthority.Enable({ title: "Admin" });
+//   console.log("Rows updated:", updates);
+// };
+// const enable = async () => {
+//   const count = await SubjectRoleAuthority.Enable({ title: "Admin" });
+//   console.log("Rows updated:", count);
+// };
+// const step1 = imports();
+//const step2 = enable();
+
 //----------------------------- create crypto hmac ------------------------------------------//
 // import * as dotenv from "dotenv";
 // import * as path from "path";
@@ -424,5 +442,22 @@ Subject.Import();
 // const userAdd = async () => await Users.Add({ username, email, password, title, image_url });
 
 // //userAdd();
-// const login = async () => await Users.Login({ username, email: "djorgens2@gmail.com", password: "Ashley#01"})
+// const login = async () => await Users.Login({ username, email: "junk", password: "junk"})
 // console.log(login ? 'success' : 'error');
+
+//----------------------------- pulling prompt options when keyed Uint8array ------------------------//
+const callApples = () => console.log('Apples');
+const callBananas = () => console.log('Bananas');
+const callOranges = () => console.log('Oranges');
+
+interface IType {name: Uint8Array; quantity: number; func: Function}
+const inventory: Array<IType> = [
+    {name: Buffer.from([0,0,1]), quantity: 2, func: callOranges},
+    {name: Buffer.from([0,0,2]), quantity: 0, func: callBananas},
+    {name: Buffer.from([0,0,3]), quantity: 5, func: callApples},
+];
+
+const result = inventory.find( ({name}) => name.toString() === Buffer.from([0,0,2]).toString());
+result?.func();
+
+console.log(result);

@@ -10,6 +10,7 @@ import { TextEncoder } from "node:util";
 
 import * as dotenv from "dotenv";
 import * as path from "path";
+import * as User from "@db/interfaces/user";
 
 export interface IKeyProps {
   method: string;
@@ -73,10 +74,10 @@ export const hexify = (key: string | Uint8Array | object): Uint8Array | undefine
   if (typeof key === "string") {
     key.slice(0, 2) === "0x" && (key = key.slice(2));
     key.slice(0, 7) === "<Buffer" && (key = key.slice(8, 15).split(" ").join(""));
-    
+
     const regex = /^[0-9A-Fa-f]+$/;
     const bytes = new Uint8Array(key.length / 2);
-    
+
     if (regex.test(key)) {
       for (let byte = 0; byte < bytes.length; byte++) {
         bytes.set([parseInt(key?.slice(byte * 2, byte * 2 + 2), 16)], byte);
@@ -104,7 +105,7 @@ export const hashKey = (length: number = 32): Uint8Array => {
 //+--------------------------------------------------------------------------------------+
 //| Given user properties identify the user, validates against a local hash;             |
 //+--------------------------------------------------------------------------------------+
-export const hashPassword = (props: { username: string; email: string; password: string; hash: Uint8Array | undefined }) => {
+export const hashPassword = (props: User.IKeyProps) => {
   const length = 64;
   const message = JSON.stringify(props);
   const key = createHash("sha256").update(message).digest("hex");

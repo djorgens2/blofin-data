@@ -9,31 +9,27 @@ import type { RowDataPacket } from "mysql2";
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@/lib/crypto.util";
 
-export const Role = {
-  Admin: "Admin",
-  Editor: "Editor",
-  Operator: "Operator",
-  Viewer: "Viewer",
-} as const;
-export type Role = (typeof Role)[keyof typeof Role];
-export const Roles: Array<Role> = ["Admin", "Editor", "Operator", "Viewer"];
-
 export interface IKeyProps {
   role?: Uint8Array;
-  title?: Role;
+  title?: string;
 }
 export interface IRole extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed Role data to define user access privileges;                             |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => Roles.forEach((role) => Publish(role));
+export const Import = () => {
+  const Roles: Array<string> = ["Admin", "Editor", "Operator", "Viewer"];
+
+  Roles.forEach((role) => Publish({ title: role }));
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new Roles to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(title: Role): Promise<IKeyProps["role"]> {
-  const role = await Key({ title });
+export async function Publish(props: IKeyProps): Promise<IKeyProps["role"]> {
+  const { role, title } = props;
+  role === undefined && title && (await Key({ title }));
   if (role === undefined) {
     const key = hashKey(6);
     await Modify(`INSERT INTO blofin.role VALUES (?, ?)`, [key, title]);

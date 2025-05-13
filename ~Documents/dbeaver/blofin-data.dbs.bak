@@ -79,10 +79,21 @@
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
+		<table name="activity" prior="acti" >
+			<column name="activity" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<index name="pk_activity" unique="PRIMARY_KEY" >
+				<column name="activity" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
 		<table name="authority" prior="privilege" row_count="6" spec="" >
 			<column name="authority" prior="privilege" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="privilege" prior="name" type="VARCHAR" length="16" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
+			</column>
+			<column name="priority" type="SMALLINT" jt="5" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
 			</column>
 			<index name="pk_privilege" unique="PRIMARY_KEY" >
 				<column name="authority" />
@@ -514,24 +525,25 @@
 		<entity schema="blofin" name="vw_candles" color="BED3F4" x="60" y="480" />
 		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="260" y="1000" />
 		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="340" y="100" />
-		<entity schema="blofin" name="account_detail" color="C7F4BE" x="1420" y="1120" />
-		<entity schema="blofin" name="account" color="C7F4BE" x="1160" y="1220" />
-		<entity schema="blofin" name="broker" color="C7F4BE" x="920" y="1380" />
-		<entity schema="blofin" name="user_account" color="C7F4BE" x="940" y="1220" />
-		<entity schema="blofin" name="contract_type" color="F4DDBE" x="1780" y="1180" />
-		<entity schema="blofin" name="currency" color="C7F4BE" x="1460" y="840" />
-		<entity schema="blofin" name="instrument" color="F4DDBE" x="2040" y="760" />
-		<entity schema="blofin" name="instrument_type" color="F4DDBE" x="1780" y="1040" />
-		<entity schema="blofin" name="candle" color="F4DDBE" x="2380" y="860" />
-		<entity schema="blofin" name="period" color="F4DDBE" x="2340" y="640" />
-		<entity schema="blofin" name="instrument_detail" color="F4DDBE" x="2080" y="1020" />
+		<entity schema="blofin" name="contract_type" color="F4DDBE" x="1700" y="1160" />
+		<entity schema="blofin" name="instrument" color="F4DDBE" x="1960" y="740" />
+		<entity schema="blofin" name="instrument_type" color="F4DDBE" x="1700" y="1020" />
+		<entity schema="blofin" name="instrument_detail" color="F4DDBE" x="2000" y="1000" />
 		<entity schema="blofin" name="state" color="C7F4BE" x="1280" y="720" />
-		<entity schema="blofin" name="user" color="C7F4BE" x="1040" y="880" />
-		<entity schema="blofin" name="role" color="C7F4BE" x="1080" y="700" />
-		<entity schema="blofin" name="subject" color="BEBEF4" x="1120" y="280" />
-		<entity schema="blofin" name="authority" color="BEBEF4" x="880" y="500" />
-		<entity schema="blofin" name="subject_role_authority" color="BEBEF4" x="1100" y="480" />
-		<entity schema="blofin" name="instrument_period" color="F4DDBE" x="2000" y="520" />
+		<entity schema="blofin" name="subject" color="BEBEF4" x="920" y="260" />
+		<entity schema="blofin" name="subject_role_authority" color="BEBEF4" x="900" y="460" />
+		<entity schema="blofin" name="broker" color="C7F4BE" x="1200" y="1320" />
+		<entity schema="blofin" name="account_detail" color="C7F4BE" x="1420" y="1060" />
+		<entity schema="blofin" name="account" color="C7F4BE" x="1180" y="1000" />
+		<entity schema="blofin" name="currency" color="C7F4BE" x="1460" y="800" />
+		<entity schema="blofin" name="candle" color="F4DDBE" x="2260" y="880" />
+		<entity schema="blofin" name="period" color="F4DDBE" x="2240" y="660" />
+		<entity schema="blofin" name="instrument_period" color="F4DDBE" x="1900" y="520" />
+		<entity schema="blofin" name="user" color="C7F4BE" x="900" y="860" />
+		<entity schema="blofin" name="user_account" color="C7F4BE" x="900" y="1160" />
+		<entity schema="blofin" name="authority" color="BEBEF4" x="1220" y="500" />
+		<entity schema="blofin" name="activity" color="C1D8EE" x="1220" y="320" />
+		<entity schema="blofin" name="role" color="BEBEF4" x="720" y="520" />
 		<group name="views" color="ECF0F7" >
 			<entity schema="blofin" name="vw_candle_audit" />
 			<entity schema="blofin" name="vw_instrument_periods" />
@@ -540,27 +552,28 @@
 		</group>
 		<group name="privilege" color="ECECF7" >
 			<entity schema="blofin" name="subject" />
-			<entity schema="blofin" name="authority" />
 			<entity schema="blofin" name="subject_role_authority" />
+			<entity schema="blofin" name="authority" />
+			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role" />
 		</group>
 		<group name="contract_type" color="F7F2EC" >
 			<entity schema="blofin" name="contract_type" />
 			<entity schema="blofin" name="instrument" />
 			<entity schema="blofin" name="instrument_type" />
+			<entity schema="blofin" name="instrument_detail" />
 			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="period" />
-			<entity schema="blofin" name="instrument_detail" />
 			<entity schema="blofin" name="instrument_period" />
 		</group>
 		<group name="broker" color="EEF7EC" >
+			<entity schema="blofin" name="state" />
+			<entity schema="blofin" name="broker" />
 			<entity schema="blofin" name="account_detail" />
 			<entity schema="blofin" name="account" />
-			<entity schema="blofin" name="broker" />
-			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="currency" />
-			<entity schema="blofin" name="state" />
 			<entity schema="blofin" name="user" />
-			<entity schema="blofin" name="role" />
+			<entity schema="blofin" name="user_account" />
 		</group>
 		<script name="SQL_Editor" id="d6c238c4-acad-4080-b0a6-62d765df1708" language="SQL" >
 			<string><![CDATA[CREATE SCHEMA blofin;
@@ -1470,6 +1483,689 @@ CREATE  TABLE blofin.instrument_period (
 	period               BINARY(3)    NOT NULL   ,
 	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
 	sma_factor           SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
+	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
+	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+CREATE  TABLE blofin.user_account ( 
+	`user`               BINARY(3)    NOT NULL   ,
+	account              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT pk_user_account PRIMARY KEY ( `user`, account ),
+	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_user FOREIGN KEY ( `user` ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE  TABLE blofin.candle ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	bar_time             DATETIME    NOT NULL   ,
+	open                 DOUBLE    NOT NULL   ,
+	high                 DOUBLE    NOT NULL   ,
+	low                  DOUBLE    NOT NULL   ,
+	close                DOUBLE    NOT NULL   ,
+	volume               INT    NOT NULL   ,
+	vol_currency         INT    NOT NULL   ,
+	vol_currency_quote   INT    NOT NULL   ,
+	completed            BOOLEAN    NOT NULL   ,
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
+	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_instrument_periods AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if((`ip`.`bulk_collection_rate` = 0),0,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,if((`ip`.`bulk_collection_rate` > 0),true,false) AS `active_collection`,`b`.`suspense` AS `suspense` from (((((((`blofin`.`instrument` `i` join `blofin`.`state` `s`) join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `p`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join (select `ipts`.`instrument` AS `instrument`,`ipts`.`period` AS `period`,if((`its`.`trade_period` = `ipts`.`period`),`its`.`trade_state`,0x1697fe) AS `trade_state` from (`blofin`.`instrument_period` `ipts` join `blofin`.`instrument` `its`) where (`ipts`.`instrument` = `its`.`instrument`)) `tps`) where ((`ip`.`instrument` = `i`.`instrument`) and (`ip`.`period` = `p`.`period`) and (`ip`.`instrument` = `tps`.`instrument`) and (`ip`.`period` = `tps`.`period`) and (`tps`.`trade_state` = `s`.`state`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_instruments AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`it`.`source_ref` AS `instrument_type`,`ct`.`source_ref` AS `contract_type`,`tp`.`period` AS `trade_period`,`tp`.`timeframe` AS `trade_timeframe`,`tp`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if(((`ip`.`bulk_collection_rate` = 0) or (`ip`.`bulk_collection_rate` is null)),NULL,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,`id`.`contract_value` AS `contract_value`,`id`.`max_leverage` AS `max_leverage`,`id`.`min_size` AS `min_size`,`id`.`lot_size` AS `lot_size`,`id`.`tick_size` AS `tick_size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`id`.`max_limit_size` AS `max_limit_size`,`id`.`max_market_size` AS `max_market_size`,`id`.`list_time` AS `list_time`,unix_timestamp(`id`.`list_time`) AS `list_timestamp`,`id`.`expiry_time` AS `expiry_time`,unix_timestamp(`id`.`expiry_time`) AS `expiry_timestamp`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,`b`.`suspense` AS `suspense` from ((((((((`blofin`.`instrument` `i` left join `blofin`.`instrument_period` `ip` on(((`i`.`trade_period` = `ip`.`period`) and (`i`.`instrument` = `ip`.`instrument`)))) left join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) left join `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) left join `blofin`.`contract_type` `ct` on((`id`.`contract_type` = `ct`.`contract_type`))) left join `blofin`.`period` `tp` on((`i`.`trade_period` = `tp`.`period`))) join `blofin`.`state` `s`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) where ((`i`.`trade_state` = `s`.`state`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_candles AS select `blofin`.`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`pt`.`period` AS `period`,`pt`.`timeframe` AS `timeframe`,`c`.`bar_time` AS `bar_time`,unix_timestamp(`c`.`bar_time`) AS `timestamp`,`c`.`open` AS `open`,`c`.`high` AS `high`,`c`.`low` AS `low`,`c`.`close` AS `close`,`c`.`volume` AS `volume`,`c`.`vol_currency` AS `vol_currency`,`c`.`vol_currency_quote` AS `vol_currency_quote`,`blofin`.`i`.`digits` AS `digits`,`c`.`completed` AS `completed` from (((((`blofin`.`vw_instruments` `i` join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `pt`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`candle` `c`) where ((`c`.`instrument` = `blofin`.`i`.`instrument`) and (`c`.`period` = `pt`.`period`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`) and (`blofin`.`i`.`instrument` = `ip`.`instrument`) and (`ip`.`period` = `pt`.`period`));
+
+CREATE VIEW blofin.vw_candle_audit AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc;
+]]></string>
+		</script>
+		<script name="SQL_Editor_004" id="0cc1aa3a-d4ef-41f5-9b0b-80a46fe95cc5" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
+
+CREATE  TABLE blofin.authority ( 
+	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.broker ( 
+	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.contract_type ( 
+	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_contract_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.currency ( 
+	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
+	symbol               VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(300)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	suspense             BOOLEAN       ,
+	CONSTRAINT ak_currency UNIQUE ( symbol ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.instrument_type ( 
+	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.period ( 
+	period               BINARY(3)    NOT NULL   PRIMARY KEY,
+	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	timeframe_units      INT    NOT NULL   ,
+	CONSTRAINT ak_period UNIQUE ( timeframe ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.role ( 
+	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
+	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_role UNIQUE ( title ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	`status`             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_trade_state UNIQUE ( `status` ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject ( 
+	subject              BINARY(3)    NOT NULL   PRIMARY KEY,
+	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject_role_authority ( 
+	subject              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) ,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
+
+CREATE  TABLE blofin.`user` ( 
+	`user`               BINARY(3)    NOT NULL   PRIMARY KEY,
+	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	hash                 BINARY(16)    NOT NULL   ,
+	password             BINARY(32)    NOT NULL   ,
+	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
+	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
+
+CREATE  TABLE blofin.account ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	broker               BINARY(3)    NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	position             SMALLINT    NOT NULL   ,
+	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) ,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE  TABLE blofin.account_detail ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	currency             BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	total_equity         DOUBLE    NOT NULL   ,
+	isolated_equity      DOUBLE    NOT NULL   ,
+	equity               DOUBLE    NOT NULL   ,
+	available            DOUBLE    NOT NULL   ,
+	balance              DOUBLE    NOT NULL   ,
+	equity_usd           DOUBLE    NOT NULL   ,
+	available_equity     DOUBLE    NOT NULL   ,
+	frozen               DOUBLE    NOT NULL   ,
+	order_frozen         DOUBLE    NOT NULL   ,
+	unrealized_pnl       DOUBLE    NOT NULL   ,
+	isolated_unrealized_pnl DOUBLE    NOT NULL   ,
+	coin_usd_price       DOUBLE    NOT NULL   ,
+	margin_ratio         DOUBLE    NOT NULL   ,
+	spot_available       DOUBLE    NOT NULL   ,
+	liability            DOUBLE    NOT NULL   ,
+	borrow_frozen        DOUBLE    NOT NULL   ,
+	update_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE  TABLE blofin.instrument ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	base_currency        BINARY(3)    NOT NULL   ,
+	quote_currency       BINARY(3)    NOT NULL   ,
+	trade_period         BINARY(3)       ,
+	trade_state          BINARY(3)  DEFAULT (0x1697FE)  NOT NULL   ,
+	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
+	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE  TABLE blofin.instrument_detail ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	contract_type        BINARY(3)    NOT NULL   ,
+	contract_value       DECIMAL(17,5)    NOT NULL   ,
+	max_leverage         INT    NOT NULL   ,
+	min_size             DECIMAL(5,3)    NOT NULL   ,
+	lot_size             DECIMAL(5,3)    NOT NULL   ,
+	tick_size            DOUBLE    NOT NULL   ,
+	max_limit_size       DECIMAL(13,2)    NOT NULL   ,
+	max_market_size      DECIMAL(13,2)    NOT NULL   ,
+	list_time            DATETIME    NOT NULL   ,
+	expiry_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
+
+CREATE  TABLE blofin.instrument_period ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	sma_factor           SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
+	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
+	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+CREATE  TABLE blofin.user_account ( 
+	`user`               BINARY(3)    NOT NULL   ,
+	account              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT pk_user_account PRIMARY KEY ( `user`, account ),
+	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_user FOREIGN KEY ( `user` ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE  TABLE blofin.candle ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	bar_time             DATETIME    NOT NULL   ,
+	open                 DOUBLE    NOT NULL   ,
+	high                 DOUBLE    NOT NULL   ,
+	low                  DOUBLE    NOT NULL   ,
+	close                DOUBLE    NOT NULL   ,
+	volume               INT    NOT NULL   ,
+	vol_currency         INT    NOT NULL   ,
+	vol_currency_quote   INT    NOT NULL   ,
+	completed            BOOLEAN    NOT NULL   ,
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
+	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_instrument_periods AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if((`ip`.`bulk_collection_rate` = 0),0,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,if((`ip`.`bulk_collection_rate` > 0),true,false) AS `active_collection`,`b`.`suspense` AS `suspense` from (((((((`blofin`.`instrument` `i` join `blofin`.`state` `s`) join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `p`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join (select `ipts`.`instrument` AS `instrument`,`ipts`.`period` AS `period`,if((`its`.`trade_period` = `ipts`.`period`),`its`.`trade_state`,0x1697fe) AS `trade_state` from (`blofin`.`instrument_period` `ipts` join `blofin`.`instrument` `its`) where (`ipts`.`instrument` = `its`.`instrument`)) `tps`) where ((`ip`.`instrument` = `i`.`instrument`) and (`ip`.`period` = `p`.`period`) and (`ip`.`instrument` = `tps`.`instrument`) and (`ip`.`period` = `tps`.`period`) and (`tps`.`trade_state` = `s`.`state`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_instruments AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`it`.`source_ref` AS `instrument_type`,`ct`.`source_ref` AS `contract_type`,`tp`.`period` AS `trade_period`,`tp`.`timeframe` AS `trade_timeframe`,`tp`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if(((`ip`.`bulk_collection_rate` = 0) or (`ip`.`bulk_collection_rate` is null)),NULL,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,`id`.`contract_value` AS `contract_value`,`id`.`max_leverage` AS `max_leverage`,`id`.`min_size` AS `min_size`,`id`.`lot_size` AS `lot_size`,`id`.`tick_size` AS `tick_size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`id`.`max_limit_size` AS `max_limit_size`,`id`.`max_market_size` AS `max_market_size`,`id`.`list_time` AS `list_time`,unix_timestamp(`id`.`list_time`) AS `list_timestamp`,`id`.`expiry_time` AS `expiry_time`,unix_timestamp(`id`.`expiry_time`) AS `expiry_timestamp`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,`b`.`suspense` AS `suspense` from ((((((((`blofin`.`instrument` `i` left join `blofin`.`instrument_period` `ip` on(((`i`.`trade_period` = `ip`.`period`) and (`i`.`instrument` = `ip`.`instrument`)))) left join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) left join `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) left join `blofin`.`contract_type` `ct` on((`id`.`contract_type` = `ct`.`contract_type`))) left join `blofin`.`period` `tp` on((`i`.`trade_period` = `tp`.`period`))) join `blofin`.`state` `s`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) where ((`i`.`trade_state` = `s`.`state`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_candles AS select `blofin`.`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`pt`.`period` AS `period`,`pt`.`timeframe` AS `timeframe`,`c`.`bar_time` AS `bar_time`,unix_timestamp(`c`.`bar_time`) AS `timestamp`,`c`.`open` AS `open`,`c`.`high` AS `high`,`c`.`low` AS `low`,`c`.`close` AS `close`,`c`.`volume` AS `volume`,`c`.`vol_currency` AS `vol_currency`,`c`.`vol_currency_quote` AS `vol_currency_quote`,`blofin`.`i`.`digits` AS `digits`,`c`.`completed` AS `completed` from (((((`blofin`.`vw_instruments` `i` join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `pt`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`candle` `c`) where ((`c`.`instrument` = `blofin`.`i`.`instrument`) and (`c`.`period` = `pt`.`period`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`) and (`blofin`.`i`.`instrument` = `ip`.`instrument`) and (`ip`.`period` = `pt`.`period`));
+
+CREATE VIEW blofin.vw_candle_audit AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc;
+]]></string>
+		</script>
+		<script name="SQL_Editor_005" id="08a7903b-e725-4339-8bfa-bdc8508f6498" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
+
+CREATE TABLE blofin.authority ( authority BINARY(3) NOT NULL PRIMARY KEY, privilege VARCHAR(16) COLLATE utf8mb4_0900_as_cs NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.broker ( broker BINARY(3) NOT NULL PRIMARY KEY, alias VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , image_url VARCHAR(60) DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL , website_url VARCHAR(60) COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_broker UNIQUE ( alias ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.contract_type ( contract_type BINARY(3) NOT NULL PRIMARY KEY, source_ref VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_contract_type UNIQUE ( source_ref ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.currency ( currency BINARY(3) NOT NULL PRIMARY KEY, symbol VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , image_url VARCHAR(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs , suspense BOOLEAN , CONSTRAINT ak_currency UNIQUE ( symbol ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.instrument_type ( instrument_type BINARY(3) NOT NULL PRIMARY KEY, source_ref VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.period ( period BINARY(3) NOT NULL PRIMARY KEY, timeframe VARCHAR(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , timeframe_units INT NOT NULL , CONSTRAINT ak_period UNIQUE ( timeframe ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.role ( role BINARY(3) NOT NULL PRIMARY KEY, title VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_role UNIQUE ( title ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.state ( state BINARY(3) NOT NULL PRIMARY KEY,
+	`status`             VARCHAR(10) COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_trade_state UNIQUE ( `status` ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.subject ( subject BINARY(3) NOT NULL PRIMARY KEY, area VARCHAR(60) COLLATE utf8mb4_0900_as_cs NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.subject_role_authority ( subject BINARY(3) NOT NULL , role BINARY(3) NOT NULL , authority BINARY(3) NOT NULL , CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) , CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
+
+CREATE TABLE blofin.`user` ( 
+	`user`               BINARY(3) NOT NULL PRIMARY KEY, username VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , email VARCHAR(80) COLLATE utf8mb4_0900_as_cs NOT NULL , role BINARY(3) NOT NULL , hash BINARY(16) NOT NULL , password BINARY(32) NOT NULL , image_url VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , create_time DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL , update_time DATETIME DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL , CONSTRAINT ak_user UNIQUE ( username, email ) , CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
+
+CREATE TABLE blofin.account ( account BINARY(3) NOT NULL PRIMARY KEY, broker BINARY(3) NOT NULL , owner BINARY(3) NOT NULL , state BINARY(3) NOT NULL , alias VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , position SMALLINT NOT NULL , websocket_url VARCHAR(100) COLLATE utf8mb4_0900_as_cs , rest_api_url VARCHAR(100) COLLATE utf8mb4_0900_as_cs , CONSTRAINT ak_broker UNIQUE ( alias ) , CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE TABLE blofin.account_detail ( account BINARY(3) NOT NULL PRIMARY KEY, currency BINARY(3) NOT NULL , description VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , total_equity DOUBLE NOT NULL , isolated_equity DOUBLE NOT NULL , equity DOUBLE NOT NULL , available DOUBLE NOT NULL , balance DOUBLE NOT NULL , equity_usd DOUBLE NOT NULL , available_equity DOUBLE NOT NULL , frozen DOUBLE NOT NULL , order_frozen DOUBLE NOT NULL , unrealized_pnl DOUBLE NOT NULL , isolated_unrealized_pnl DOUBLE NOT NULL , coin_usd_price DOUBLE NOT NULL , margin_ratio DOUBLE NOT NULL , spot_available DOUBLE NOT NULL , liability DOUBLE NOT NULL , borrow_frozen DOUBLE NOT NULL , update_time DATETIME NOT NULL , CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE TABLE blofin.instrument ( instrument BINARY(3) NOT NULL PRIMARY KEY, base_currency BINARY(3) NOT NULL , quote_currency BINARY(3) NOT NULL , trade_period BINARY(3) , trade_state BINARY(3) DEFAULT (0x1697FE) NOT NULL , CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) , CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE TABLE blofin.instrument_detail ( instrument BINARY(3) NOT NULL PRIMARY KEY, instrument_type BINARY(3) NOT NULL , contract_type BINARY(3) NOT NULL , contract_value DECIMAL(17,5) NOT NULL , max_leverage INT NOT NULL , min_size DECIMAL(5,3) NOT NULL , lot_size DECIMAL(5,3) NOT NULL , tick_size DOUBLE NOT NULL , max_limit_size DECIMAL(13,2) NOT NULL , max_market_size DECIMAL(13,2) NOT NULL , list_time DATETIME NOT NULL , expiry_time DATETIME NOT NULL , CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );]]></string>
+		</script>
+		<script name="SQL_Editor_006" id="b6e11ebd-1b21-4b7e-93fb-a7ddcc8b227c" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
+
+CREATE TABLE blofin.authority ( authority BINARY(3) NOT NULL PRIMARY KEY, privilege VARCHAR(16) COLLATE utf8mb4_0900_as_cs NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.broker ( broker BINARY(3) NOT NULL PRIMARY KEY, alias VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , image_url VARCHAR(60) DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL , website_url VARCHAR(60) COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_broker UNIQUE ( alias ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.contract_type ( contract_type BINARY(3) NOT NULL PRIMARY KEY, source_ref VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_contract_type UNIQUE ( source_ref ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.currency ( currency BINARY(3) NOT NULL PRIMARY KEY, symbol VARCHAR(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , image_url VARCHAR(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs , suspense BOOLEAN , CONSTRAINT ak_currency UNIQUE ( symbol ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.instrument_type ( instrument_type BINARY(3) NOT NULL PRIMARY KEY, source_ref VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.period ( period BINARY(3) NOT NULL PRIMARY KEY, timeframe VARCHAR(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , timeframe_units INT NOT NULL , CONSTRAINT ak_period UNIQUE ( timeframe ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.role ( role BINARY(3) NOT NULL PRIMARY KEY, title VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_role UNIQUE ( title ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.state ( state BINARY(3) NOT NULL PRIMARY KEY,
+	`status`             VARCHAR(10) COLLATE utf8mb4_0900_as_cs NOT NULL , description VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT ak_trade_state UNIQUE ( `status` ) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.subject ( subject BINARY(3) NOT NULL PRIMARY KEY, area VARCHAR(60) COLLATE utf8mb4_0900_as_cs NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE TABLE blofin.subject_role_authority ( subject BINARY(3) NOT NULL , role BINARY(3) NOT NULL , authority BINARY(3) NOT NULL , CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) , CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
+
+CREATE TABLE blofin.`user` ( 
+	`user`               BINARY(3) NOT NULL PRIMARY KEY, username VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , email VARCHAR(80) COLLATE utf8mb4_0900_as_cs NOT NULL , role BINARY(3) NOT NULL , hash BINARY(16) NOT NULL , password BINARY(32) NOT NULL , image_url VARCHAR(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , create_time DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL , update_time DATETIME DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL , CONSTRAINT ak_user UNIQUE ( username, email ) , CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
+
+CREATE TABLE blofin.account ( account BINARY(3) NOT NULL PRIMARY KEY, broker BINARY(3) NOT NULL , owner BINARY(3) NOT NULL , state BINARY(3) NOT NULL , alias VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL , position SMALLINT NOT NULL , websocket_url VARCHAR(100) COLLATE utf8mb4_0900_as_cs , rest_api_url VARCHAR(100) COLLATE utf8mb4_0900_as_cs , CONSTRAINT ak_broker UNIQUE ( alias ) , CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE TABLE blofin.account_detail ( account BINARY(3) NOT NULL PRIMARY KEY, currency BINARY(3) NOT NULL , description VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , total_equity DOUBLE NOT NULL , isolated_equity DOUBLE NOT NULL , equity DOUBLE NOT NULL , available DOUBLE NOT NULL , balance DOUBLE NOT NULL , equity_usd DOUBLE NOT NULL , available_equity DOUBLE NOT NULL , frozen DOUBLE NOT NULL , order_frozen DOUBLE NOT NULL , unrealized_pnl DOUBLE NOT NULL , isolated_unrealized_pnl DOUBLE NOT NULL , coin_usd_price DOUBLE NOT NULL , margin_ratio DOUBLE NOT NULL , spot_available DOUBLE NOT NULL , liability DOUBLE NOT NULL , borrow_frozen DOUBLE NOT NULL , update_time DATETIME NOT NULL , CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE TABLE blofin.instrument ( instrument BINARY(3) NOT NULL PRIMARY KEY, base_currency BINARY(3) NOT NULL , quote_currency BINARY(3) NOT NULL , trade_period BINARY(3) , trade_state BINARY(3) DEFAULT (0x1697FE) NOT NULL , CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) , CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE TABLE blofin.instrument_detail ( instrument BINARY(3) NOT NULL PRIMARY KEY, instrument_type BINARY(3) NOT NULL , contract_type BINARY(3) NOT NULL , contract_value DECIMAL(17,5) NOT NULL , max_leverage INT NOT NULL , min_size DECIMAL(5,3) NOT NULL , lot_size DECIMAL(5,3) NOT NULL , tick_size DOUBLE NOT NULL , max_limit_size DECIMAL(13,2) NOT NULL , max_market_size DECIMAL(13,2) NOT NULL , list_time DATETIME NOT NULL , expiry_time DATETIME NOT NULL , CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
+
+CREATE TABLE blofin.instrument_period ( instrument BINARY(3) NOT NULL , period BINARY(3) NOT NULL , sma_factor SMALLINT DEFAULT ('0') NOT NULL , bulk_collection_rate SMALLINT DEFAULT ('0') NOT NULL , interval_collection_rate SMALLINT DEFAULT (0) NOT NULL , CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ), CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+CREATE TABLE blofin.user_account ( 
+	`user`               BINARY(3) NOT NULL , account BINARY(3) NOT NULL , role BINARY(3) NOT NULL , description VARCHAR(30) COLLATE utf8mb4_0900_as_cs NOT NULL , CONSTRAINT pk_user_account PRIMARY KEY ( `user`, account ), CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_ua_user FOREIGN KEY ( `user` ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE TABLE blofin.candle ( instrument BINARY(3) NOT NULL , period BINARY(3) NOT NULL , bar_time DATETIME NOT NULL , open DOUBLE NOT NULL , high DOUBLE NOT NULL , low DOUBLE NOT NULL , close DOUBLE NOT NULL , volume INT NOT NULL , vol_currency INT NOT NULL , vol_currency_quote INT NOT NULL , completed BOOLEAN NOT NULL , CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ), CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_instrument_periods AS
+select
+    `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if((`ip`.`bulk_collection_rate` = 0),0,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,if((`ip`.`bulk_collection_rate` > 0),true,false) AS `active_collection`,`b`.`suspense` AS `suspense` 
+from
+   (((((((`blofin`.`instrument` `i` join
+                         `blofin`.`state` `s`) join
+                      `blofin`.`instrument_period` `ip`) join
+                   `blofin`.`period` `p`) join
+                `blofin`.`instrument_detail` `id`) join
+             `blofin`.`currency` `b`) join
+          `blofin`.`currency` `q`) join
+      (
+      select
+          `ipts`.`instrument` AS `instrument`,`ipts`.`period` AS `period`,if((`its`.`trade_period` = `ipts`.`period`),`its`.`trade_state`,0x1697fe) AS `trade_state` 
+      from
+         (`blofin`.`instrument_period` `ipts` join
+             `blofin`.`instrument` `its`)
+      where
+         (`ipts`.`instrument` = `its`.`instrument`)) `tps`)
+where
+   ((`ip`.`instrument` = `i`.`instrument`)
+      and (`ip`.`period` = `p`.`period`)
+      and (`ip`.`instrument` = `tps`.`instrument`)
+      and (`ip`.`period` = `tps`.`period`)
+      and (`tps`.`trade_state` = `s`.`state`)
+      and (`i`.`instrument` = `id`.`instrument`)
+      and (`i`.`base_currency` = `b`.`currency`)
+      and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_instruments AS
+select
+    `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`it`.`source_ref` AS `instrument_type`,`ct`.`source_ref` AS `contract_type`,`tp`.`period` AS `trade_period`,`tp`.`timeframe` AS `trade_timeframe`,`tp`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if(((`ip`.`bulk_collection_rate` = 0)
+         or (`ip`.`bulk_collection_rate` is null)),NULL,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,`id`.`contract_value` AS `contract_value`,`id`.`max_leverage` AS `max_leverage`,`id`.`min_size` AS `min_size`,`id`.`lot_size` AS `lot_size`,`id`.`tick_size` AS `tick_size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`id`.`max_limit_size` AS `max_limit_size`,`id`.`max_market_size` AS `max_market_size`,`id`.`list_time` AS `list_time`,unix_timestamp(`id`.`list_time`) AS `list_timestamp`,`id`.`expiry_time` AS `expiry_time`,unix_timestamp(`id`.`expiry_time`) AS `expiry_timestamp`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,`b`.`suspense` AS `suspense` 
+from
+   ((((((((`blofin`.`instrument` `i` left join
+                            `blofin`.`instrument_period` `ip` on(((`i`.`trade_period` = `ip`.`period`)
+                                 and (`i`.`instrument` = `ip`.`instrument`)))) left join
+                         `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) left join
+                      `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) left join
+                   `blofin`.`contract_type` `ct` on((`id`.`contract_type` = `ct`.`contract_type`))) left join
+                `blofin`.`period` `tp` on((`i`.`trade_period` = `tp`.`period`))) join
+             `blofin`.`state` `s`) join
+          `blofin`.`currency` `b`) join
+       `blofin`.`currency` `q`)
+where
+   ((`i`.`trade_state` = `s`.`state`)
+      and (`i`.`base_currency` = `b`.`currency`)
+      and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_candles AS
+select
+    `blofin`.`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`pt`.`period` AS `period`,`pt`.`timeframe` AS `timeframe`,`c`.`bar_time` AS `bar_time`,unix_timestamp(`c`.`bar_time`) AS `timestamp`,`c`.`open` AS `open`,`c`.`high` AS `high`,`c`.`low` AS `low`,`c`.`close` AS `close`,`c`.`volume` AS `volume`,`c`.`vol_currency` AS `vol_currency`,`c`.`vol_currency_quote` AS `vol_currency_quote`,`blofin`.`i`.`digits` AS `digits`,`c`.`completed` AS `completed` 
+from
+   (((((`blofin`.`vw_instruments` `i` join
+                   `blofin`.`instrument_period` `ip`) join
+                `blofin`.`period` `pt`) join
+             `blofin`.`currency` `b`) join
+          `blofin`.`currency` `q`) join
+       `blofin`.`candle` `c`)
+where
+   ((`c`.`instrument` = `blofin`.`i`.`instrument`)
+      and (`c`.`period` = `pt`.`period`)
+      and (`blofin`.`i`.`base_currency` = `b`.`currency`)
+      and (`blofin`.`i`.`quote_currency` = `q`.`currency`)
+      and (`blofin`.`i`.`instrument` = `ip`.`instrument`)
+      and (`ip`.`period` = `pt`.`period`));
+
+CREATE VIEW blofin.vw_candle_audit AS
+select
+    `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` 
+from
+    `blofin`.`vw_candles` `vc` 
+group by
+    `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime)
+having
+   (count(0) < 4)
+order by
+    `blofin`.`vc`.`symbol`,`hour` desc;
+]]></string>
+		</script>
+		<script name="SQL_Editor_007" id="72166df3-7958-4866-b016-c44066e6c789" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
+
+CREATE  TABLE blofin.authority ( 
+	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.broker ( 
+	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.contract_type ( 
+	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_contract_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.currency ( 
+	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
+	symbol               VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(300)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	suspense             BOOLEAN       ,
+	CONSTRAINT ak_currency UNIQUE ( symbol ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.instrument_type ( 
+	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.period ( 
+	period               BINARY(3)    NOT NULL   PRIMARY KEY,
+	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	timeframe_units      INT    NOT NULL   ,
+	CONSTRAINT ak_period UNIQUE ( timeframe ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.role ( 
+	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
+	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_role UNIQUE ( title ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	`status`             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_trade_state UNIQUE ( `status` ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject ( 
+	subject              BINARY(3)    NOT NULL   PRIMARY KEY,
+	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject_role_authority ( 
+	subject              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) ,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
+
+CREATE  TABLE blofin.`user` ( 
+	`user`               BINARY(3)    NOT NULL   PRIMARY KEY,
+	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	hash                 BINARY(16)    NOT NULL   ,
+	password             BINARY(32)    NOT NULL   ,
+	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
+	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
+
+CREATE  TABLE blofin.account ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	broker               BINARY(3)    NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	position             SMALLINT    NOT NULL   ,
+	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) ,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE  TABLE blofin.account_detail ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	currency             BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	total_equity         DOUBLE    NOT NULL   ,
+	isolated_equity      DOUBLE    NOT NULL   ,
+	equity               DOUBLE    NOT NULL   ,
+	available            DOUBLE    NOT NULL   ,
+	balance              DOUBLE    NOT NULL   ,
+	equity_usd           DOUBLE    NOT NULL   ,
+	available_equity     DOUBLE    NOT NULL   ,
+	frozen               DOUBLE    NOT NULL   ,
+	order_frozen         DOUBLE    NOT NULL   ,
+	unrealized_pnl       DOUBLE    NOT NULL   ,
+	isolated_unrealized_pnl DOUBLE    NOT NULL   ,
+	coin_usd_price       DOUBLE    NOT NULL   ,
+	margin_ratio         DOUBLE    NOT NULL   ,
+	spot_available       DOUBLE    NOT NULL   ,
+	liability            DOUBLE    NOT NULL   ,
+	borrow_frozen        DOUBLE    NOT NULL   ,
+	update_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE  TABLE blofin.instrument ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	base_currency        BINARY(3)    NOT NULL   ,
+	quote_currency       BINARY(3)    NOT NULL   ,
+	trade_period         BINARY(3)       ,
+	trade_state          BINARY(3)  DEFAULT (0x1697FE)  NOT NULL   ,
+	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
+	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE  TABLE blofin.instrument_detail ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	contract_type        BINARY(3)    NOT NULL   ,
+	contract_value       DECIMAL(17,5)    NOT NULL   ,
+	max_leverage         INT    NOT NULL   ,
+	min_size             DECIMAL(5,3)    NOT NULL   ,
+	lot_size             DECIMAL(5,3)    NOT NULL   ,
+	tick_size            DOUBLE    NOT NULL   ,
+	max_limit_size       DECIMAL(13,2)    NOT NULL   ,
+	max_market_size      DECIMAL(13,2)    NOT NULL   ,
+	list_time            DATETIME    NOT NULL   ,
+	expiry_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
+
+CREATE  TABLE blofin.instrument_period ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	sma_factor           SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
 	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
 	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
 	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,

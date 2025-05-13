@@ -2,7 +2,8 @@ CREATE SCHEMA blofin;
 
 CREATE  TABLE blofin.authority ( 
 	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
-	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	priority             SMALLINT  DEFAULT (0)  NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.broker ( 
@@ -65,6 +66,7 @@ CREATE  TABLE blofin.subject_role_authority (
 	subject              BINARY(3)    NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	authority            BINARY(3)    NOT NULL   ,
+	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
 	CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) ,
 	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -139,6 +141,15 @@ CREATE  TABLE blofin.account_detail (
 
 CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
 
+CREATE  TABLE blofin.activity ( 
+	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
+	task                 VARCHAR(60)    NOT NULL   ,
+	subject              BINARY(3)       ,
+	CONSTRAINT fk_activity_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_activity_subject ON blofin.activity ( subject );
+
 CREATE  TABLE blofin.instrument ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
 	base_currency        BINARY(3)    NOT NULL   ,
@@ -183,7 +194,7 @@ CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
 CREATE  TABLE blofin.instrument_period ( 
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
-	sma_factor           SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	sma_factor           SMALLINT  DEFAULT (_utf8mb4'0')  NOT NULL   ,
 	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
 	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
 	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
@@ -223,6 +234,31 @@ CREATE  TABLE blofin.candle (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_authorized_role_tasks AS
+select
+	r.role AS role,
+	r.title AS title,
+	s.subject AS subject,
+	s.area AS area,
+	a.task AS task
+from
+	blofin.activity a
+join blofin.subject s
+join blofin.role r
+join (
+	select
+		blofin.subject_role_authority.subject AS subject,
+		blofin.subject_role_authority.role AS role
+	from
+		blofin.subject_role_authority
+	group by
+		blofin.subject_role_authority.subject,
+		blofin.subject_role_authority.role) sra
+where
+	((sra.subject = a.subject)
+		and (sra.subject = s.subject)
+			and (sra.role = r.role));
 
 CREATE VIEW blofin.vw_instrument_periods AS
 select

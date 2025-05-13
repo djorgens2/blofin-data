@@ -9,36 +9,30 @@ import type { RowDataPacket } from "mysql2";
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@/lib/crypto.util";
 
-export const Privilege = {
-  Edit: "Edit",
-  Create: "Create",
-  Delete: "Delete",
-  View: "View",
-  Configure: "Configure",
-  Operate: "Operate",
-} as const;
-export type Privilege = (typeof Privilege)[keyof typeof Privilege];
-export const Privileges: Array<Privilege> = ["Edit", "Create", "Delete", "View", "Configure", "Operate"];
-
 export interface IKeyProps {
   authority?: Uint8Array;
-  privilege?: Privilege;
+  privilege?: string;
+  priority?: number;
 }
 export interface IAuthority extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed Privilege data to define user access privileges;                             |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => Privileges.forEach((privilege) => Publish(privilege));
+export const Import = () => {
+  const Privileges: Array<string> = ["View", "Edit", "Create", "Delete", "Operate", "Configure"];
+  Privileges.forEach((privilege, priority) => Publish({ privilege, priority }));
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new Privileges to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(privilege: Privilege): Promise<IKeyProps["authority"]> {
+export async function Publish(props: IKeyProps): Promise<IKeyProps["authority"]> {
+  const { privilege, priority } = props;
   const authority = await Key({ privilege });
   if (authority === undefined) {
     const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.authority VALUES (?, ?)`, [key, privilege]);
+    await Modify(`INSERT INTO blofin.authority VALUES (?, ?, ?)`, [key, privilege, priority]);
     return key;
   }
   return authority;

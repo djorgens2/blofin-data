@@ -5,23 +5,23 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
-import type { Role } from "@/db/interfaces/role";
 
 import { Modify, Select } from "@db/query.utils";
-import { hashKey, hashPassword } from "@/lib/crypto.util";
+import { hashKey, hashPassword, hexify } from "@/lib/crypto.util";
 
 import * as Roles from "@db/interfaces/role";
 
 export interface IKeyProps {
   user?: Uint8Array;
-  username?: string;
-  email?: string;
+  username: string;
+  email: string;
+  password?: string | Uint8Array;
+  role?: Uint8Array;
+  title?: string;
+  hash?: Uint8Array;
+  image_url?: string;
 }
 export interface IUser extends IKeyProps, RowDataPacket {
-  role: Uint8Array;
-  hash: Uint8Array;
-  password: Uint8Array;
-  image_url?: string;
   create_time?: Date;
   update_time?: Date;
 }
@@ -29,21 +29,21 @@ export interface IUser extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Adds new Users to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Add(props: { username: string; email: string; password: string; title: Role; image_url?: string }): Promise<IKeyProps["user"]> {
-  const { username, email, password, title, image_url } = props;
+export async function Add(props: IKeyProps): Promise<IKeyProps["user"]> {
+  const { username, email, password, title } = props;
   const user = await Key({ username, email });
 
   if (user === undefined) {
     const key = hashKey(6);
     const hash = hashKey(32);
     const encrypt = hashPassword({ username, email, password, hash });
-    const role = await Roles.Key({ title });
-    const image = image_url ? image_url : "./images/user/no-image.png";
+    const role = props.role ? props.role : await Roles.Key({ title });
+    const image_url = props.image_url ? props.image_url : "./images/user/no-image.png";
 
     await Modify(
       `INSERT INTO blofin.user ( user, username, email, role, hash, password, image_url) 
           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [key, username, email, role, hash, encrypt, image]
+      [key, username, email, role, hash, encrypt, image_url]
     );
     return key;
   }
@@ -94,14 +94,24 @@ export function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
 //+--------------------------------------------------------------------------------------+
 //| Returns true|false if password hashes match on user supplied the text password;      |
 //+--------------------------------------------------------------------------------------+
-export async function Login(props: { username: string; email: string; password: string }): Promise<boolean> {
-  const { username, email, password } = props;
+export async function Login(props: IKeyProps): Promise<Partial<IUser> | undefined> {
+  const { username, email } = props;
   const [user] = await Fetch({ username, email });
+  const { password, hash } = user;
 
-  if (user) {
-    const key = hashPassword({ username, email, password, hash: user.hash });
-    return Buffer.from(user.password!).toString("hex") === key.toString("hex");
+  if (password instanceof Uint8Array) {
+    const encrypt = Buffer.from(password);
+    const key = hashPassword({ username, email, password: props.password, hash });
+    if (encrypt.toString("hex") === key.toString("hex")) return user;
   }
 
-  return false;
+  return undefined;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Returns the number of existing users; used to determine if app requires initializing; |
+//+--------------------------------------------------------------------------------------+
+export const Count = async (): Promise<number> => {
+  const [count] = await Select<number>("SELECT count(*) AS count FROM blofin.user", []);
+  return count;
+};

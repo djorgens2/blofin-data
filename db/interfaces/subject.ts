@@ -9,7 +9,7 @@ import type { RowDataPacket } from "mysql2";
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@/lib/crypto.util";
 
-export const Subject = {
+export const SubjectArea = {
   Period: "Period",
   Instrument: "Instrument",
   Currency: "Currency",
@@ -19,24 +19,24 @@ export const Subject = {
   Account: "Account",
   User: "User",
 } as const;
-export type Subject = (typeof Subject)[keyof typeof Subject];
-export const Subjects: Array<Subject> = ["Period", "Instrument", "Currency", "State", "Contract", "Broker", "Account", "User"];
+export type SubjectArea = (typeof SubjectArea)[keyof typeof SubjectArea];
+export const SubjectAreas: Array<SubjectArea> = ["Period", "Instrument", "Currency", "State", "Contract", "Broker", "Account", "User"];
 
 export interface IKeyProps {
   subject?: Uint8Array;
-  area?: Subject;
+  area?: SubjectArea;
 }
 export interface ISubject extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed Subject data to define user access privileges;                             |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => Subjects.forEach((area) => Publish(area));
+export const Import = () => SubjectAreas.forEach((area) => Publish(area));
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new subjects to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(area: Subject): Promise<IKeyProps["subject"]> {
+export async function Publish(area: SubjectArea): Promise<IKeyProps["subject"]> {
   const subject = await Key({ area });
   if (subject === undefined) {
     const key = hashKey(6);
@@ -68,9 +68,9 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["subject"] | unde
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
+//| Fetches subject area by key/area; returns all when requesting an empty prop set {};  |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<ISubject>>> {
   const { subject, area } = props;
   const args = [];
 
