@@ -1,4 +1,11 @@
-import prompts from "prompts";
+//+--------------------------------------------------------------------------------------+
+//|                                                                           app-cli.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
+"use server"
+"use strict"
+
+import prompts, { Falsy, PromptObject, PromptType } from "prompts";
 
 import type { IBroker } from "@db/interfaces/broker";
 import type { IRole } from "@db/interfaces/role";
@@ -12,7 +19,14 @@ import * as Role from "@db/interfaces/role";
 import * as User from "@db/interfaces/user";
 import * as Action from "@db/interfaces/activity";
 import * as Subject from "./db/interfaces/subject";
-import * as sra from "@db/interfaces/subject_role_authority";
+import * as RoleAuth from "@/db/interfaces/role_authority";
+
+export interface ILogon {
+  username: string;
+  role: Uint8Array;
+  error: number;
+  message: string;
+}
 
 interface IOption {
   title: string;
@@ -20,18 +34,19 @@ interface IOption {
   menu: Array<IOption>;
 }
 
-interface PromptOptions {
-  type: "text" | "select" | "multiselect" | "number" | "confirm" | "toggle" | "password";
-  name: string;
-  message: string;
-  initial?: boolean;
-  active?: string;
-  inactive?: string;
-  choices?: Array<IOption>;
+//+--------------------------------------------------------------------------------------+
+//| Generic prompt runner;                                                               |
+//+--------------------------------------------------------------------------------------+
+async function runPrompt(options: PromptObject[]) {
+  const response = await prompts(options);
+  return response;
 }
 
+//+--------------------------------------------------------------------------------------+
+//| Generic toggle prompt; Binary responses; wip: supply act/inact resps;                |
+//+--------------------------------------------------------------------------------------+
 const choice = (message: string) => {
-  const option: PromptOptions[] = [
+  const option: PromptObject[] = [
     {
       type: "toggle",
       name: "value",
@@ -44,13 +59,11 @@ const choice = (message: string) => {
   return option;
 };
 
-async function runPrompt(options: PromptOptions[]) {
-  const response = await prompts(options);
-  return response;
-}
-
+//+--------------------------------------------------------------------------------------+
+//| Login script                                                                         |
+//+--------------------------------------------------------------------------------------+
 const loginOptions = () => {
-  const option: PromptOptions[] = [
+  const option: PromptObject[] = [
     {
       type: "text",
       name: "username",
@@ -70,8 +83,11 @@ const loginOptions = () => {
   return option;
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Password confirmation script; new users; existing user password resets               |
+//+--------------------------------------------------------------------------------------+
 const confirmPassword = () => {
-  const option: PromptOptions[] = [
+  const option: PromptObject[] = [
     {
       type: "password",
       name: "password",
@@ -81,12 +97,15 @@ const confirmPassword = () => {
   return option;
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Main menu script runner;                                                             |
+//+--------------------------------------------------------------------------------------+
 async function runSelect(username: string, choices: Array<IOption>) {
   console.clear();
   console.log("Logged in:", new Date().toLocaleDateString(), "User:", green(username));
   console.log("");
 
-  const options: PromptOptions[] = [
+  const options: PromptObject[] = [
     {
       type: "select",
       name: "response",
@@ -101,12 +120,15 @@ async function runSelect(username: string, choices: Array<IOption>) {
   return [key, select];
 }
 
+//+--------------------------------------------------------------------------------------+
+//| Main menu setup/config script;                                                       |
+//+--------------------------------------------------------------------------------------+
 const mainMenu = async (role: Uint8Array) => {
-  const menu = await sra.FetchSubjects({ role });
+  const menu = await RoleAuth.FetchSubjects({ role });
   const choices: Array<IOption> = [];
   for (let key = 0; key < menu.length; key++) {
     const { role, subject, area } = menu[key];
-    const privs = await sra.FetchPrivileges({ role, subject, enabled: true });
+    const privs = await RoleAuth.FetchPrivileges({ role, subject, enabled: true });
     const submenu = privs.map((priv) => ({
       title: priv.privilege!,
       value: priv.authority!,
@@ -118,12 +140,9 @@ const mainMenu = async (role: Uint8Array) => {
   return choices;
 };
 
-export interface ILogon {
-  username: string;
-  role: Uint8Array;
-  error: number;
-  message: string;
-}
+//+--------------------------------------------------------------------------------------+
+//| Login validator and configuration script;                                            |
+//+--------------------------------------------------------------------------------------+
 const runLogon = async (): Promise<ILogon> => {
   const anyUserExists = await User.Count();
   const response: ILogon = {username: ``, role: Buffer.from([0,0,0]), error: 0, message: 'ok'};
@@ -170,6 +189,9 @@ const runLogon = async (): Promise<ILogon> => {
   return response;
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Main application loop;                                                               |
+//+--------------------------------------------------------------------------------------+
 const start = async () => {
   const { username, role, error, message } = await runLogon();
   if (error) {
@@ -196,4 +218,5 @@ const start = async () => {
   }
 };
 
+//--  start me up --//
 start();

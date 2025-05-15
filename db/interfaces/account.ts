@@ -5,8 +5,8 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
-import { Status } from "@db/interfaces/state";
 
+import { Status } from "@db/interfaces/state";
 import { Select, Modify } from "@db/query.utils";
 
 import * as Brokers from "@db/interfaces/broker";

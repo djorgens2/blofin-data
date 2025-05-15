@@ -1,5 +1,5 @@
 //+---------------------------------------------------------------------------------------+
-//|                                                             subject_role_authority.ts |
+//|                                                                     role_authority.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
@@ -10,13 +10,12 @@ import type { SubjectArea } from "@db/interfaces/subject";
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@/lib/crypto.util";
 
-import * as Subject from "@db/interfaces/subject";
 import * as Role from "@db/interfaces/role";
 import * as Authority from "@db/interfaces/authority";
+import * as Subject from "@db/interfaces/subject";
 
-export interface ISubjectRoleAuthority extends IKeyProps, RowDataPacket {}
 export interface IKeyProps {
-  subject_role_authority?: Uint8Array;
+  role_authority?: Uint8Array;
   subject?: Uint8Array;
   role?: Uint8Array;
   authority?: Uint8Array;
@@ -25,6 +24,7 @@ export interface IKeyProps {
   privilege?: string;
   enabled?: boolean;
 }
+export interface IRoleAuthority extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports all role access privileges with the supplied state; ** Admin Use Only;       |
@@ -32,9 +32,9 @@ export interface IKeyProps {
 export const Import = async (props: { enabled: boolean }) => {
   const imports = await Select<IKeyProps>(`SELECT subject, role, authority FROM blofin.subject, blofin.role, blofin.authority`, []);
   for (let key = 0; key < imports.length; key++) {
-    Object.assign(imports[key], { ...imports[key], subject_role_authority: hashKey(6), ...props });
-    const { subject_role_authority, subject, role, authority, enabled } = imports[key];
-    await Modify(`INSERT IGNORE INTO blofin.subject_role_authority VALUES ( ?, ?, ?, ?, ?)`, [subject_role_authority, subject, role, authority, enabled]);
+    Object.assign(imports[key], { ...imports[key], role_authority: hashKey(6), ...props });
+    const { role_authority, subject, role, authority, enabled } = imports[key];
+    await Modify(`INSERT IGNORE INTO blofin.role_authority VALUES ( ?, ?, ?, ?, ?)`, [role_authority, subject, role, authority, enabled]);
   }
 };
 
@@ -43,7 +43,7 @@ export const Import = async (props: { enabled: boolean }) => {
 //+--------------------------------------------------------------------------------------+
 export async function Disable(props: IKeyProps): Promise<number> {
   const { where, args } = await setWhere(props);
-  const sql = `UPDATE blofin.subject_role_authority SET enabled = false`.concat(where);
+  const sql = `UPDATE blofin.role_authority SET enabled = false`.concat(where);
   const result = await Modify(sql, args);
   return result.affectedRows;
 }
@@ -53,7 +53,7 @@ export async function Disable(props: IKeyProps): Promise<number> {
 //+--------------------------------------------------------------------------------------+
 export async function Enable(props: IKeyProps): Promise<number> {
   const { where, args } = await setWhere(props);
-  const sql = `UPDATE blofin.subject_role_authority SET enabled = true`.concat(where);
+  const sql = `UPDATE blofin.role_authority SET enabled = true`.concat(where);
   const result = await Modify(sql, args);
   return result.affectedRows;
 }
@@ -61,10 +61,10 @@ export async function Enable(props: IKeyProps): Promise<number> {
 //+--------------------------------------------------------------------------------------+
 //| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<Partial<ISubjectRoleAuthority>>> {
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
   const { where, args } = await setWhere(props);
-  const sql = `SELECT * FROM blofin.subject_role_authority`.concat(where);
-  return Select<ISubjectRoleAuthority>(sql, args);
+  const sql = `SELECT * FROM blofin.role_authority`.concat(where);
+  return Select<IRoleAuthority>(sql, args);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -79,16 +79,15 @@ const setWhere = async (props: IKeyProps) => {
   const args = [];
   const filters = [];
 
-  if (subject) {
-    args.push(subject);
-    filters.push(`subject = ?`);
-  }
-
   if (role) {
     args.push(role);
     filters.push(`role = ?`);
   }
-  role;
+
+  if (subject) {
+    args.push(subject);
+    filters.push(`subject = ?`);
+  }
 
   if (authority) {
     args.push(authority);
@@ -97,7 +96,7 @@ const setWhere = async (props: IKeyProps) => {
 
   if (enabled) {
     args.push(enabled);
-    filters.push(`enabled = ?`)
+    filters.push(`enabled = ?`);
   }
   let where: string = "";
   filters.forEach((filter, id) => (where += (id ? " AND " : " WHERE ") + filter));
@@ -110,17 +109,17 @@ const setWhere = async (props: IKeyProps) => {
 //+--------------------------------------------------------------------------------------+
 //| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function FetchSubjects(props: IKeyProps): Promise<Array<Partial<ISubjectRoleAuthority>>> {
+export async function FetchSubjects(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
   const { where, args } = await setWhere(props);
   const sql = `SELECT * FROM blofin.vw_role_subjects`.concat(where);
-  return Select<ISubjectRoleAuthority>(sql, args);
+  return Select<IRoleAuthority>(sql, args);
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function FetchPrivileges(props: IKeyProps): Promise<Array<Partial<ISubjectRoleAuthority>>> {
+export async function FetchPrivileges(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
   const { where, args } = await setWhere(props);
   const sql = `SELECT * FROM blofin.vw_role_privileges`.concat(where);
-  return Select<ISubjectRoleAuthority>(sql, args);
+  return Select<IRoleAuthority>(sql, args);
 }

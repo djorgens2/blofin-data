@@ -1,5 +1,15 @@
 import { parseJSON } from "@/lib/std.util";
-import { IResponseProps, signMessage } from "@lib/crypto.util";
+import { signMessage } from "@/lib/crypto.util";
+
+export interface IResponseProps {
+  event: string;
+  code: string;
+  arg: {
+    channel: string;
+    instId: string;
+  };
+  data: Array<string>;
+}
 
 export const wsStatus = {
   connected: "connected",

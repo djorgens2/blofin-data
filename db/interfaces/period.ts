@@ -42,7 +42,7 @@ export interface IPeriod extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 export function Import() {
   Period.forEach((period) => {
-    const {timeframe, description, units} = period;
+    const { timeframe, description, units } = period;
     Publish(timeframe, description, units);
   });
 }

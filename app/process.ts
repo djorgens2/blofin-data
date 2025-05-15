@@ -2,7 +2,7 @@
 //|                                                                           process.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-import type { IMessage } from "@lib/std.util";
+import type { IMessage } from "@lib/app.util";
 
 import { CFractal } from "@module/fractal";
 import { parseJSON } from "@lib/std.util";
@@ -25,7 +25,7 @@ export const CProcess = async () => {
     timeframe: instrument.trade_timeframe!,
   };
   const Fractal = await CFractal(message!, instrument);
-  
+
   process.on("message", (message: IMessage) => {
     message.state === "init" && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
     message.state === "api" && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });

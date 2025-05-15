@@ -13,10 +13,11 @@ CREATE  TABLE blofin.authority (
 
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
-	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(60)    NOT NULL   ,
 	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_broker UNIQUE ( alias ) 
+	CONSTRAINT ak_broker UNIQUE ( name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.contract_type ( 
@@ -67,34 +68,6 @@ CREATE  TABLE blofin.subject (
 	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE blofin.subject_role_authority ( 
-	subject_role_authority BINARY(3)    NOT NULL   PRIMARY KEY,
-	subject              BINARY(3)    NOT NULL   ,
-	role                 BINARY(3)    NOT NULL   ,
-	authority            BINARY(3)    NOT NULL   ,
-	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
-	CONSTRAINT ak_subject_role_authority UNIQUE ( subject, role, authority ) ,
-	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_sra_subject ON blofin.subject_role_authority ( subject );
-
-CREATE INDEX fk_sra_role ON blofin.subject_role_authority ( role );
-
-CREATE INDEX fk_sra_authority ON blofin.subject_role_authority ( authority );
-
-CREATE  TABLE blofin.task_authority ( 
-	subject_role_authority BINARY(3)    NOT NULL   ,
-	activity             BINARY(3)    NOT NULL   ,
-	CONSTRAINT pk_task_authority PRIMARY KEY ( subject_role_authority, activity ),
-	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ta_subject_role_authority FOREIGN KEY ( subject_role_authority ) REFERENCES blofin.subject_role_authority( subject_role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
-
 CREATE  TABLE blofin.user ( 
 	user               BINARY(3)    NOT NULL   PRIMARY KEY,
 	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -102,14 +75,18 @@ CREATE  TABLE blofin.user (
 	role                 BINARY(3)    NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
 	password             BINARY(32)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
 	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
 	CONSTRAINT ak_user UNIQUE ( username, email ) ,
-	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_u_role ON blofin.user ( role );
+
+CREATE INDEX fk_u_state ON blofin.user ( state );
 
 CREATE  TABLE blofin.account ( 
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -213,6 +190,34 @@ CREATE  TABLE blofin.instrument_period (
 
 CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 
+CREATE  TABLE blofin.role_authority ( 
+	role_authority       BINARY(3)    NOT NULL   PRIMARY KEY,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	subject              BINARY(3)    NOT NULL   ,
+	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
+	CONSTRAINT ak_role_authority UNIQUE ( role, authority, subject ) ,
+	CONSTRAINT fk_ra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ra_subject ON blofin.role_authority ( subject );
+
+CREATE INDEX fk_ra_role ON blofin.role_authority ( role );
+
+CREATE INDEX fk_ra_authority ON blofin.role_authority ( authority );
+
+CREATE  TABLE blofin.task_authority ( 
+	role_authority       BINARY(3)    NOT NULL   ,
+	activity             BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_task_authority PRIMARY KEY ( role_authority, activity ),
+	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ta_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
+
 CREATE  TABLE blofin.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
@@ -243,31 +248,6 @@ CREATE  TABLE blofin.candle (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_c_period ON blofin.candle ( period );
-
-CREATE VIEW blofin.vw_authorized_role_tasks AS
-select
-	r.role AS role,
-	r.title AS title,
-	s.subject AS subject,
-	s.area AS area,
-	a.task AS task
-from
-	blofin.activity a
-join blofin.subject s
-join blofin.role r
-join (
-	select
-		blofin.subject_role_authority.subject AS subject,
-		blofin.subject_role_authority.role AS role
-	from
-		blofin.subject_role_authority
-	group by
-		blofin.subject_role_authority.subject,
-		blofin.subject_role_authority.role) sra
-where
-	((sra.subject = a.subject)
-		and (sra.subject = s.subject)
-			and (sra.role = r.role));
 
 CREATE VIEW blofin.vw_instrument_periods AS
 select
@@ -366,6 +346,70 @@ where
 	((i.trade_state = s.state)
 		and (i.base_currency = b.currency)
 			and (i.quote_currency = q.currency));
+
+CREATE VIEW blofin.vw_role_privileges AS
+select
+	ra.role_authority AS role_authority,
+	r.role AS role,
+	r.title AS title,
+	s.subject AS subject,
+	s.area AS area,
+	auth.authority AS authority,
+	auth.privilege AS privilege,
+	auth.priority AS priority,
+	ra.enabled AS enabled
+from
+	blofin.role r
+join blofin.subject s
+join blofin.authority auth
+join blofin.role_authority ra
+where
+	((ra.subject = s.subject)
+		and (ra.role = r.role)
+			and (ra.authority = auth.authority));
+
+CREATE VIEW blofin.vw_role_subjects AS
+select
+	r.role AS role,
+	r.title AS title,
+	s.subject AS subject,
+	s.area AS area
+from
+	blofin.role r
+join blofin.subject s
+join blofin.authority auth
+join blofin.role_authority ra
+where
+	((ra.subject = s.subject)
+		and (ra.role = r.role)
+			and (ra.authority = auth.authority))
+group by
+	r.role,
+	r.title,
+	s.subject,
+	s.area
+order by
+	s.area;
+
+CREATE VIEW blofin.vw_users AS
+select
+	u.user AS user,
+	u.username AS username,
+	u.email AS email,
+	u.role AS role,
+	r.title AS title,
+	u.state AS state,
+	s.status AS status,
+	u.image_url AS image_url,
+	u.create_time AS create_time,
+	u.update_time AS update_time
+from
+	blofin.user u
+join blofin.role r
+join blofin.state s
+where
+	((u.role = r.role)
+		and (u.state = s.state));
 
 CREATE VIEW blofin.vw_candles AS
 select

@@ -6,8 +6,7 @@
 
 import type { IInstrument } from "@db/interfaces/instrument";
 import type { ICandle } from "@db/interfaces/candle";
-import type { IMeasure } from "@lib/app.util"; //-- types
-import type { IMessage } from "@lib/std.util";
+import type { IMeasure, IMessage } from "@lib/app.util"; //-- types
 
 import { CEvent, Event, Alert } from "@module/event";
 import { Direction, Bias, directionChanged } from "@lib/app.util"; //-- enums

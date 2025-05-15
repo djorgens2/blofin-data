@@ -467,9 +467,9 @@
 // console.log(result);
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-import * as authority from "@db/interfaces/subject_role_authority";
+import * as authority from "@/db/interfaces/role_authority";
 
- function measureTime(func: Function) {
+function measureTime(func: Function) {
   const startTime = performance.now();
   func();
   const endTime = performance.now();

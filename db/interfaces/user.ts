@@ -7,18 +7,22 @@
 import type { RowDataPacket } from "mysql2";
 
 import { Modify, Select } from "@db/query.utils";
-import { hashKey, hashPassword, hexify } from "@/lib/crypto.util";
+import { hashKey, hashPassword } from "@/lib/crypto.util";
+import { Status } from "@db/interfaces/state";
 
 import * as Roles from "@db/interfaces/role";
+import * as States from "@db/interfaces/state";
 
 export interface IKeyProps {
   user?: Uint8Array;
   username: string;
   email: string;
   password?: string | Uint8Array;
+  hash?: Uint8Array;
   role?: Uint8Array;
   title?: string;
-  hash?: Uint8Array;
+  state?: Uint8Array;
+  status?: Status;
   image_url?: string;
 }
 export interface IUser extends IKeyProps, RowDataPacket {
@@ -39,11 +43,12 @@ export async function Add(props: IKeyProps): Promise<IKeyProps["user"]> {
     const encrypt = hashPassword({ username, email, password, hash });
     const role = props.role ? props.role : await Roles.Key({ title });
     const image_url = props.image_url ? props.image_url : "./images/user/no-image.png";
+    const state = props.state ? props.state : await States.Key({ status: Status.Disabled });
 
     await Modify(
-      `INSERT INTO blofin.user ( user, username, email, role, hash, password, image_url) 
-          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [key, username, email, role, hash, encrypt, image_url]
+      `INSERT INTO blofin.user ( user, username, email, role, hash, password, state, image_url) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [key, username, email, role, hash, encrypt, state, image_url]
     );
     return key;
   }
@@ -74,9 +79,10 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["user"] | undefin
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
-  const { user, username, email } = props;
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
   const args = [];
+  const { user, username, email } = props;
+  const state = props.state ? props.state! : await States.Key({ status: props.status });
 
   let sql: string = `SELECT * FROM blofin.user`;
 
@@ -86,6 +92,9 @@ export function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
   } else if (username && email) {
     args.push(username, email);
     sql += ` WHERE username = ? AND email = ?`;
+  } else if (state) {
+    args.push(state);
+    sql += ` WHERE state = ?`;
   }
 
   return Select<IUser>(sql, args);

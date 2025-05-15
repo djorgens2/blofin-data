@@ -14,14 +14,14 @@ import * as Period from "@db/interfaces/period";
 import * as State from "@db/interfaces/state";
 
 export interface IKeyProps {
-  instrument?: Uint8Array | undefined;
+  instrument?: Uint8Array;
   symbol?: string;
   base_symbol?: string;
   base_currency?: Uint8Array;
-  period?: Uint8Array | undefined;
+  period?: Uint8Array;
   timeframe?: string;
   active_collection?: boolean;
-  trade_state?: Uint8Array | undefined;
+  trade_state?: Uint8Array;
   trade_status?: Status;
 }
 
@@ -68,7 +68,7 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
 
   (props.symbol || props.base_currency || props.base_symbol || props.instrument) && (params.instrument = await Instrument.Key(props));
   (props.timeframe || props.period) && (params.period = await Period.Key(props));
-  (props.trade_state || props.trade_status) && (params.trade_state = await State.Key({state: props.trade_state, status: props.trade_status}));
+  (props.trade_state || props.trade_status) && (params.trade_state = await State.Key({ state: props.trade_state, status: props.trade_status }));
 
   if (params.instrument) {
     filters.push(`instrument`);

@@ -4,68 +4,6 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-//-- IPC message header
-export interface IMessage {
-  state: string; //-- may convert to enum
-  symbol: string;
-  node: number;
-  code?: number;
-  success?: boolean;
-  text?: string;
-  timestamp?: EpochTimeStamp;
-  db?: {
-    insert?: number;
-    update?: number;
-  };
-  events?: {
-    fractal?: number;
-    sma?: number;
-  };
-  account?: {
-    open?: number;
-    close?: number;
-  };
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns initialized Message header (clone) with identity retention (symbol);         |
-//+--------------------------------------------------------------------------------------+
-export function clear(message: IMessage): IMessage {
-  return {
-    state: message.state,
-    symbol: message.symbol,
-    node: message.node,
-    code: 0,
-    success: true,
-    text: "",
-    timestamp: Date.now(),
-    db: {
-      insert: 0,
-      update: 0,
-    },
-    events: {
-      fractal: 0,
-      sma: 0,
-    },
-    account: {
-      open: 0,
-      close: 0,
-    },
-  };
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
-//+--------------------------------------------------------------------------------------+
-export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
-  const symbols: Array<string> = typeof symbol === "string" ? symbol.split("-") : typeof Array.isArray(symbol) ? symbol[0].split("-") : [];
-
-  symbols.length === 1 && symbols.push("USDT");
-  symbols[1].length === 0 && symbols.splice(1, 1, "USDT");
-
-  return symbols.slice(0, 2);
-};
-
 //+--------------------------------------------------------------------------------------+
 //| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+
@@ -99,9 +37,9 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
     }
   } catch (e) {
     //--- whitelist exceptions
-    if (arg === 'pong')
+    if (arg === "pong")
       // @ts-ignore
-      return {event: 'pong'}
+      return { event: "pong" };
     throw new Error(`Something jacked up; ${arg} is not a valid JSON;`);
   }
   return undefined;

@@ -8,7 +8,7 @@ import * as Periods from "@db/interfaces/instrument_period";
 import * as Brokers from "@db/interfaces/broker";
 import * as Roles from "@db/interfaces/role";
 
-import { clear } from "./lib/std.util";
+import { clear } from "./lib/app.util";
 
 State.Import();
 Period.Import();

@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IMessage } from "@lib/std.util";
+import type { IMessage } from "@lib/app.util";
 import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
 
+import { openWebSocket } from "@/module/websocket";
 import { fork } from "child_process";
-import { clear, parseJSON } from "@lib/std.util";
+import { clear } from "@lib/app.util";
 import { Status } from "@db/interfaces/state";
 
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
-import { openWebSocket } from "@/module/websocket";
 
 //const ws = openWebSocket("wss://demo-trading-openapi.blofin.com/ws/private");
 const ws = openWebSocket("wss://openapi.blofin.com/ws/private");
@@ -45,8 +45,7 @@ export class CMain {
     setInterval(() => {
       // console.log('ping');
       if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send('ping')
-
+        ws.send("ping");
       }
       // if (ipc.state === "ready") {
       //   Object.assign(ipc, { ...ipc, state: "api" });

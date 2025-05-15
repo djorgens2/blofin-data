@@ -21,7 +21,7 @@ export interface IKeyProps {
   website_url?: string;
 }
 
-export interface IBroker extends IKeyProps, RowDataPacket {};
+export interface IBroker extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports 'known' brokers from seed data to the database;                              |
@@ -56,7 +56,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
   const { broker, name } = props;
   const args = [];
 
-  console.log(typeof props.broker, props.broker)
+  console.log(typeof props.broker, props.broker);
   let sql: string = `SELECT broker FROM blofin.broker WHERE `;
 
   if (broker) {

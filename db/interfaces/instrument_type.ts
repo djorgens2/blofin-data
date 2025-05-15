@@ -38,7 +38,7 @@ export async function Publish(source_ref: string): Promise<IKeyProps["instrument
 //| Examines instrument type search methods in props; executes first in priority sequence; |
 //+----------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["instrument_type"] | undefined> {
-  const {instrument_type, source_ref} = props;
+  const { instrument_type, source_ref } = props;
   const args = [];
 
   let sql: string = `SELECT instrument_type FROM blofin.instrument_type WHERE `;

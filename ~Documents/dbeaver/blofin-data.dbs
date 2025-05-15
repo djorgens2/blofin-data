@@ -328,6 +328,42 @@
 			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
+		<table name="role_authority" prior="subject_role_authority" row_count="0" spec="" >
+			<column name="role_authority" prior="subject_role_authority" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="role" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="authority" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="subject" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="enabled" type="BOOLEAN" jt="16" mandatory="y" >
+				<defo><![CDATA[true]]></defo>
+			</column>
+			<index name="pk_role_authority" unique="PRIMARY_KEY" >
+				<column name="role_authority" />
+			</index>
+			<index name="fk_ra_subject" unique="NORMAL" >
+				<column name="subject" />
+			</index>
+			<index name="fk_ra_role" unique="NORMAL" >
+				<column name="role" />
+			</index>
+			<index name="fk_ra_authority" unique="NORMAL" >
+				<column name="authority" />
+			</index>
+			<index name="ak_role_authority" unique="UNIQUE_KEY" >
+				<column name="role" />
+				<column name="authority" />
+				<column name="subject" />
+			</index>
+			<fk name="fk_ra_authority" to_schema="blofin" to_table="authority" options="" >
+				<fk_column name="authority" pk="authority" />
+			</fk>
+			<fk name="fk_ra_role" to_schema="blofin" to_table="role" options="" >
+				<fk_column name="role" pk="role" />
+			</fk>
+			<fk name="fk_ra_subject" to_schema="blofin" to_table="subject" options="" >
+				<fk_column name="subject" pk="subject" />
+			</fk>
+			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
+		</table>
 		<table name="state" row_count="4" spec="" >
 			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="status" type="VARCHAR" length="10" jt="12" mandatory="y" >
@@ -354,47 +390,11 @@
 			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
-		<table name="subject_role_authority" row_count="0" spec="" >
-			<column name="subject_role_authority" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="subject" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="role" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="authority" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="enabled" type="BOOLEAN" jt="16" mandatory="y" >
-				<defo><![CDATA[true]]></defo>
-			</column>
-			<index name="pk_subject_role_authority" unique="PRIMARY_KEY" >
-				<column name="subject_role_authority" />
-			</index>
-			<index name="ak_subject_role_authority" unique="UNIQUE_KEY" >
-				<column name="subject" />
-				<column name="role" />
-				<column name="authority" />
-			</index>
-			<index name="fk_sra_subject" unique="NORMAL" >
-				<column name="subject" />
-			</index>
-			<index name="fk_sra_role" unique="NORMAL" >
-				<column name="role" />
-			</index>
-			<index name="fk_sra_authority" unique="NORMAL" >
-				<column name="authority" />
-			</index>
-			<fk name="fk_sra_authority" to_schema="blofin" to_table="authority" options="" >
-				<fk_column name="authority" pk="authority" />
-			</fk>
-			<fk name="fk_sra_role" to_schema="blofin" to_table="role" options="" >
-				<fk_column name="role" pk="role" />
-			</fk>
-			<fk name="fk_sra_subject" to_schema="blofin" to_table="subject" options="" >
-				<fk_column name="subject" pk="subject" />
-			</fk>
-			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
-		</table>
 		<table name="task_authority" row_count="0" spec="" >
-			<column name="subject_role_authority" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="role_authority" prior="subject_role_authority" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="activity" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<index name="pk_task_authority" unique="PRIMARY_KEY" >
-				<column name="subject_role_authority" />
+				<column name="role_authority" />
 				<column name="activity" />
 			</index>
 			<index name="fk_ta_activity" unique="NORMAL" >
@@ -403,8 +403,8 @@
 			<fk name="fk_ta_activity" to_schema="blofin" to_table="activity" options="" >
 				<fk_column name="activity" pk="activity" />
 			</fk>
-			<fk name="fk_ta_subject_role_authority" to_schema="blofin" to_table="subject_role_authority" options="" >
-				<fk_column name="subject_role_authority" pk="subject_role_authority" />
+			<fk name="fk_ta_subject_role_authority" to_schema="blofin" to_table="role_authority" options="" >
+				<fk_column name="role_authority" pk="role_authority" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -419,6 +419,7 @@
 			<column name="role" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="hash" type="BINARY" length="16" jt="-2" mandatory="y" />
 			<column name="password" type="BINARY" length="32" jt="-2" mandatory="y" />
+			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="image_url" type="VARCHAR" length="60" jt="12" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -439,8 +440,14 @@
 			<index name="fk_u_role" unique="NORMAL" >
 				<column name="role" />
 			</index>
+			<index name="fk_u_state" unique="NORMAL" >
+				<column name="state" />
+			</index>
 			<fk name="fk_u_role" to_schema="blofin" to_table="role" options="" >
 				<fk_column name="role" pk="role" />
+			</fk>
+			<fk name="fk_u_state" to_schema="blofin" to_table="state" >
+				<fk_column name="state" pk="state" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -554,55 +561,96 @@
 			<column name="trade_status" type="VARCHAR" />
 			<column name="suspense" type="BIT" />
 		</view>
+		<view name="vw_role_privileges" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `sra`.`subject_role_authority` AS `subject_role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`sra`.`enabled` AS `enabled` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`authority` = `auth`.`authority`))]]></view_script>
+			<column name="subject_role_authority" type="BINARY" />
+			<column name="role" type="BINARY" />
+			<column name="title" type="VARCHAR" />
+			<column name="subject" type="BINARY" />
+			<column name="area" type="VARCHAR" />
+			<column name="authority" type="BINARY" />
+			<column name="privilege" type="VARCHAR" />
+			<column name="priority" type="SMALLINT" />
+			<column name="enabled" type="BIT" />
+		</view>
+		<view name="vw_role_subjects" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`enabled` = true)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`]]></view_script>
+			<column name="role" type="BINARY" />
+			<column name="title" type="VARCHAR" />
+			<column name="subject" type="BINARY" />
+			<column name="area" type="VARCHAR" />
+		</view>
+		<view name="vw_users" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from `blofin`.`user` `u` join `blofin`.`role` `r` join `blofin`.`state` `s` where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`))]]></view_script>
+			<column name="user" type="BINARY" />
+			<column name="username" type="VARCHAR" />
+			<column name="email" type="VARCHAR" />
+			<column name="role" type="BINARY" />
+			<column name="title" type="VARCHAR" />
+			<column name="state" type="BINARY" />
+			<column name="status" type="VARCHAR" />
+			<column name="image_url" type="VARCHAR" />
+			<column name="create_time" type="DATETIME" />
+			<column name="update_time" type="DATETIME" />
+		</view>
 	</schema>
 	<layout name="Main Diagram" id="a93ce9b7-571d-435d-94d1-3e25b793b144" show_relation="columns" >
-		<entity schema="blofin" name="currency" color="BEBEF4" x="1440" y="820" />
-		<entity schema="blofin" name="instrument" color="BEBEF4" x="1720" y="760" />
-		<entity schema="blofin" name="instrument_detail" color="BEBEF4" x="1720" y="980" />
-		<entity schema="blofin" name="contract_type" color="BEBEF4" x="1440" y="980" />
-		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="1440" y="1120" />
-		<entity schema="blofin" name="period" color="BEBEF4" x="2000" y="680" />
-		<entity schema="blofin" name="account" color="F4DDBE" x="880" y="700" />
-		<entity schema="blofin" name="account_detail" color="F4DDBE" x="1140" y="820" />
-		<entity schema="blofin" name="state" color="F4DDBE" x="1140" y="660" />
-		<entity schema="blofin" name="subject" color="C7F4BE" x="740" y="360" />
-		<entity schema="blofin" name="instrument_period" color="BEBEF4" x="1820" y="440" />
-		<entity schema="blofin" name="candle" color="BEBEF4" x="2020" y="900" />
-		<entity schema="blofin" name="role" color="C7F4BE" x="600" y="360" />
-		<entity schema="blofin" name="task_authority" color="C7F4BE" x="1160" y="100" />
-		<entity schema="blofin" name="activity" color="C7F4BE" x="1200" y="300" />
-		<entity schema="blofin" name="authority" color="C7F4BE" x="940" y="200" />
-		<entity schema="blofin" name="vw_candles" color="BED3F4" x="60" y="340" />
-		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="60" y="800" />
-		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="300" y="340" />
-		<entity schema="blofin" name="vw_authorized_role_tasks" color="BED3F4" x="300" y="1000" />
-		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="340" y="1080" />
-		<entity schema="blofin" name="user" color="F4DDBE" x="600" y="580" />
-		<entity schema="blofin" name="user_account" color="F4DDBE" x="600" y="860" />
-		<entity schema="blofin" name="broker" color="F4DDBE" x="880" y="1020" />
-		<entity schema="blofin" name="subject_role_authority" color="C7F4BE" x="600" y="120" />
+		<entity schema="blofin" name="currency" color="BEBEF4" x="1540" y="820" />
+		<entity schema="blofin" name="instrument" color="BEBEF4" x="1820" y="760" />
+		<entity schema="blofin" name="instrument_detail" color="BEBEF4" x="1820" y="980" />
+		<entity schema="blofin" name="contract_type" color="BEBEF4" x="1540" y="980" />
+		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="1540" y="1120" />
+		<entity schema="blofin" name="period" color="BEBEF4" x="2100" y="680" />
+		<entity schema="blofin" name="account_detail" color="F4DDBE" x="1220" y="820" />
+		<entity schema="blofin" name="instrument_period" color="BEBEF4" x="1920" y="440" />
+		<entity schema="blofin" name="candle" color="BEBEF4" x="2120" y="900" />
+		<entity schema="blofin" name="broker" color="F4DDBE" x="960" y="1020" />
+		<entity schema="blofin" name="role" color="C7F4BE" x="680" y="340" />
+		<entity schema="blofin" name="user_account" color="F4DDBE" x="680" y="880" />
+		<entity schema="blofin" name="account" color="F4DDBE" x="960" y="720" />
+		<entity schema="blofin" name="state" color="F4DDBE" x="1220" y="660" />
+		<entity schema="blofin" name="user" color="F4DDBE" x="680" y="580" />
+		<entity schema="blofin" name="vw_authorized_role_tasks" color="BED3F4" x="60" y="1220" />
+		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="60" y="820" />
+		<entity schema="blofin" name="vw_candles" color="BED3F4" x="60" y="360" />
+		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="60" y="100" />
+		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="460" y="100" />
+		<entity schema="blofin" name="vw_users" color="3986C1" x="300" y="100" />
+		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="300" y="380" />
+		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="300" y="1040" />
+		<entity schema="blofin" name="subject" color="C7F4BE" x="800" y="340" />
+		<entity schema="blofin" name="activity" color="C7F4BE" x="1320" y="240" />
+		<entity schema="blofin" name="authority" color="C7F4BE" x="1040" y="240" />
+		<entity schema="blofin" name="task_authority" color="C7F4BE" x="1280" y="100" />
+		<entity schema="blofin" name="role_authority" color="C7F4BE" x="680" y="100" />
 		<group name="views" color="ECF0F7" >
-			<entity schema="blofin" name="vw_candles" />
-			<entity schema="blofin" name="vw_instrument_periods" />
-			<entity schema="blofin" name="vw_instruments" />
 			<entity schema="blofin" name="vw_authorized_role_tasks" />
+			<entity schema="blofin" name="vw_instrument_periods" />
+			<entity schema="blofin" name="vw_candles" />
+			<entity schema="blofin" name="vw_role_privileges" />
+			<entity schema="blofin" name="vw_role_subjects" />
+			<entity schema="blofin" name="vw_users" />
+			<entity schema="blofin" name="vw_instruments" />
 			<entity schema="blofin" name="vw_candle_audit" />
 		</group>
 		<group name="account" color="F7F2EC" >
-			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="account_detail" />
+			<entity schema="blofin" name="broker" />
+			<entity schema="blofin" name="user_account" />
+			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="state" />
 			<entity schema="blofin" name="user" />
-			<entity schema="blofin" name="user_account" />
-			<entity schema="blofin" name="broker" />
 		</group>
 		<group name="user" color="EEF7EC" >
-			<entity schema="blofin" name="subject" />
 			<entity schema="blofin" name="role" />
-			<entity schema="blofin" name="task_authority" />
+			<entity schema="blofin" name="subject" />
 			<entity schema="blofin" name="activity" />
 			<entity schema="blofin" name="authority" />
-			<entity schema="blofin" name="subject_role_authority" />
+			<entity schema="blofin" name="task_authority" />
+			<entity schema="blofin" name="role_authority" />
 		</group>
 		<group name="instrument" color="ECECF7" >
 			<entity schema="blofin" name="currency" />
@@ -614,12 +662,279 @@
 			<entity schema="blofin" name="instrument_period" />
 			<entity schema="blofin" name="candle" />
 		</group>
+		<script name="SQL_Editor" id="83a216df-0798-4c91-9a26-a2c00fd76951" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
+
+CREATE  TABLE blofin.activity ( 
+	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
+	task                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.authority ( 
+	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	priority             SMALLINT  DEFAULT (0)  NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.broker ( 
+	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
+	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(60)    NOT NULL   ,
+	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_broker UNIQUE ( name ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.contract_type ( 
+	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_contract_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.currency ( 
+	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
+	symbol               VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(300)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	suspense             BOOLEAN       ,
+	CONSTRAINT ak_currency UNIQUE ( symbol ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.instrument_type ( 
+	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.period ( 
+	period               BINARY(3)    NOT NULL   PRIMARY KEY,
+	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	timeframe_units      INT    NOT NULL   ,
+	CONSTRAINT ak_period UNIQUE ( timeframe ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.role ( 
+	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
+	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_role UNIQUE ( title ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	`status`             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_trade_state UNIQUE ( `status` ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.subject ( 
+	subject              BINARY(3)    NOT NULL   PRIMARY KEY,
+	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.`user` ( 
+	`user`               BINARY(3)    NOT NULL   PRIMARY KEY,
+	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	hash                 BINARY(16)    NOT NULL   ,
+	password             BINARY(32)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
+	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
+
+CREATE INDEX fk_u_state ON blofin.`user` ( state );
+
+CREATE  TABLE blofin.account ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	broker               BINARY(3)    NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	position             SMALLINT    NOT NULL   ,
+	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	CONSTRAINT ak_broker UNIQUE ( alias ) ,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_user ON blofin.account ( owner );
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE  TABLE blofin.account_detail ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	currency             BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	total_equity         DOUBLE    NOT NULL   ,
+	isolated_equity      DOUBLE    NOT NULL   ,
+	equity               DOUBLE    NOT NULL   ,
+	available            DOUBLE    NOT NULL   ,
+	balance              DOUBLE    NOT NULL   ,
+	equity_usd           DOUBLE    NOT NULL   ,
+	available_equity     DOUBLE    NOT NULL   ,
+	frozen               DOUBLE    NOT NULL   ,
+	order_frozen         DOUBLE    NOT NULL   ,
+	unrealized_pnl       DOUBLE    NOT NULL   ,
+	isolated_unrealized_pnl DOUBLE    NOT NULL   ,
+	coin_usd_price       DOUBLE    NOT NULL   ,
+	margin_ratio         DOUBLE    NOT NULL   ,
+	spot_available       DOUBLE    NOT NULL   ,
+	liability            DOUBLE    NOT NULL   ,
+	borrow_frozen        DOUBLE    NOT NULL   ,
+	update_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE  TABLE blofin.instrument ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	base_currency        BINARY(3)    NOT NULL   ,
+	quote_currency       BINARY(3)    NOT NULL   ,
+	trade_period         BINARY(3)       ,
+	trade_state          BINARY(3)  DEFAULT (0x1697FE)  NOT NULL   ,
+	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
+	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE  TABLE blofin.instrument_detail ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	contract_type        BINARY(3)    NOT NULL   ,
+	contract_value       DECIMAL(17,5)    NOT NULL   ,
+	max_leverage         INT    NOT NULL   ,
+	min_size             DECIMAL(5,3)    NOT NULL   ,
+	lot_size             DECIMAL(5,3)    NOT NULL   ,
+	tick_size            DOUBLE    NOT NULL   ,
+	max_limit_size       DECIMAL(13,2)    NOT NULL   ,
+	max_market_size      DECIMAL(13,2)    NOT NULL   ,
+	list_time            DATETIME    NOT NULL   ,
+	expiry_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
+
+CREATE  TABLE blofin.instrument_period ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	sma_factor           SMALLINT  DEFAULT (_utf8mb4'0')  NOT NULL   ,
+	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
+	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
+	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+CREATE  TABLE blofin.role_authority ( 
+	role_authority       BINARY(3)    NOT NULL   PRIMARY KEY,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	subject              BINARY(3)    NOT NULL   ,
+	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
+	CONSTRAINT ak_role_authority UNIQUE ( role, authority, subject ) ,
+	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ra_subject ON blofin.role_authority ( subject );
+
+CREATE INDEX fk_ra_role ON blofin.role_authority ( role );
+
+CREATE INDEX fk_ra_authority ON blofin.role_authority ( authority );
+
+CREATE  TABLE blofin.task_authority ( 
+	role_authority       BINARY(3)    NOT NULL   ,
+	activity             BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_task_authority PRIMARY KEY ( role_authority, activity ),
+	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ta_subject_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
+
+CREATE  TABLE blofin.user_account ( 
+	`user`               BINARY(3)    NOT NULL   ,
+	account              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT pk_user_account PRIMARY KEY ( `user`, account ),
+	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_user FOREIGN KEY ( `user` ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE  TABLE blofin.candle ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	bar_time             DATETIME    NOT NULL   ,
+	open                 DOUBLE    NOT NULL   ,
+	high                 DOUBLE    NOT NULL   ,
+	low                  DOUBLE    NOT NULL   ,
+	close                DOUBLE    NOT NULL   ,
+	volume               INT    NOT NULL   ,
+	vol_currency         INT    NOT NULL   ,
+	vol_currency_quote   INT    NOT NULL   ,
+	completed            BOOLEAN    NOT NULL   ,
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
+	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_authorized_role_tasks AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`a`.`task` AS `task` from `blofin`.`activity` `a` join `blofin`.`subject` `s` join `blofin`.`role` `r` join (select `blofin`.`subject_role_authority`.`subject` AS `subject`,`blofin`.`subject_role_authority`.`role` AS `role` from `blofin`.`subject_role_authority` group by `blofin`.`subject_role_authority`.`subject`,`blofin`.`subject_role_authority`.`role`) `sra` where ((`sra`.`subject` = `a`.`subject`) and (`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`));
+
+CREATE VIEW blofin.vw_instrument_periods AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if((`ip`.`bulk_collection_rate` = 0),0,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,if((`ip`.`bulk_collection_rate` > 0),true,false) AS `active_collection`,`b`.`suspense` AS `suspense` from (((((((`blofin`.`instrument` `i` join `blofin`.`state` `s`) join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `p`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join (select `ipts`.`instrument` AS `instrument`,`ipts`.`period` AS `period`,if((`its`.`trade_period` = `ipts`.`period`),`its`.`trade_state`,0x1697fe) AS `trade_state` from (`blofin`.`instrument_period` `ipts` join `blofin`.`instrument` `its`) where (`ipts`.`instrument` = `its`.`instrument`)) `tps`) where ((`ip`.`instrument` = `i`.`instrument`) and (`ip`.`period` = `p`.`period`) and (`ip`.`instrument` = `tps`.`instrument`) and (`ip`.`period` = `tps`.`period`) and (`tps`.`trade_state` = `s`.`state`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_instruments AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`it`.`source_ref` AS `instrument_type`,`ct`.`source_ref` AS `contract_type`,`tp`.`period` AS `trade_period`,`tp`.`timeframe` AS `trade_timeframe`,`tp`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if(((`ip`.`bulk_collection_rate` = 0) or (`ip`.`bulk_collection_rate` is null)),NULL,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,`id`.`contract_value` AS `contract_value`,`id`.`max_leverage` AS `max_leverage`,`id`.`min_size` AS `min_size`,`id`.`lot_size` AS `lot_size`,`id`.`tick_size` AS `tick_size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`id`.`max_limit_size` AS `max_limit_size`,`id`.`max_market_size` AS `max_market_size`,`id`.`list_time` AS `list_time`,unix_timestamp(`id`.`list_time`) AS `list_timestamp`,`id`.`expiry_time` AS `expiry_time`,unix_timestamp(`id`.`expiry_time`) AS `expiry_timestamp`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,`b`.`suspense` AS `suspense` from ((((((((`blofin`.`instrument` `i` left join `blofin`.`instrument_period` `ip` on(((`i`.`trade_period` = `ip`.`period`) and (`i`.`instrument` = `ip`.`instrument`)))) left join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) left join `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) left join `blofin`.`contract_type` `ct` on((`id`.`contract_type` = `ct`.`contract_type`))) left join `blofin`.`period` `tp` on((`i`.`trade_period` = `tp`.`period`))) join `blofin`.`state` `s`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) where ((`i`.`trade_state` = `s`.`state`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_role_privileges AS select `sra`.`subject_role_authority` AS `subject_role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`sra`.`enabled` AS `enabled` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`authority` = `auth`.`authority`));
+
+CREATE VIEW blofin.vw_role_subjects AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`enabled` = true)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`;
+
+CREATE VIEW blofin.vw_users AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from `blofin`.`user` `u` join `blofin`.`role` `r` join `blofin`.`state` `s` where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`));
+
+CREATE VIEW blofin.vw_candles AS select `blofin`.`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`pt`.`period` AS `period`,`pt`.`timeframe` AS `timeframe`,`c`.`bar_time` AS `bar_time`,unix_timestamp(`c`.`bar_time`) AS `timestamp`,`c`.`open` AS `open`,`c`.`high` AS `high`,`c`.`low` AS `low`,`c`.`close` AS `close`,`c`.`volume` AS `volume`,`c`.`vol_currency` AS `vol_currency`,`c`.`vol_currency_quote` AS `vol_currency_quote`,`blofin`.`i`.`digits` AS `digits`,`c`.`completed` AS `completed` from (((((`blofin`.`vw_instruments` `i` join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `pt`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`candle` `c`) where ((`c`.`instrument` = `blofin`.`i`.`instrument`) and (`c`.`period` = `pt`.`period`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`) and (`blofin`.`i`.`instrument` = `ip`.`instrument`) and (`ip`.`period` = `pt`.`period`));
+
+CREATE VIEW blofin.vw_candle_audit AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc;
+]]></string>
+		</script>
 	</layout>
 	<layout name="~Diagram with Sample Tools" id="e782eacf-da59-401d-8a22-3c0ebac87703" show_column_type="y" show_relation="columns" >
 		<entity schema="blofin" name="account" color="F4DDBE" x="1500" y="580" />
 		<entity schema="blofin" name="account_detail" color="F4DDBE" x="1860" y="320" />
-		<entity schema="blofin" name="activity" color="C7F4BE" x="1780" y="1960" />
-		<entity schema="blofin" name="authority" color="C7F4BE" x="2080" y="1960" />
 		<entity schema="blofin" name="broker" color="F4DDBE" x="1520" y="60" />
 		<entity schema="blofin" name="candle" color="BEBEF4" x="740" y="2120" />
 		<entity schema="blofin" name="contract_type" color="BEBEF4" x="400" y="1880" />
@@ -629,18 +944,20 @@
 		<entity schema="blofin" name="instrument_period" color="BEBEF4" x="340" y="2120" />
 		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="740" y="1880" />
 		<entity schema="blofin" name="period" color="BEBEF4" x="60" y="1860" />
-		<entity schema="blofin" name="role" color="C7F4BE" x="1500" y="2180" />
 		<entity schema="blofin" name="state" color="F4DDBE" x="1860" y="60" />
-		<entity schema="blofin" name="subject" color="C7F4BE" x="1780" y="2180" />
-		<entity schema="blofin" name="subject_role_authority" color="C7F4BE" x="2080" y="1680" />
-		<entity schema="blofin" name="task_authority" color="C7F4BE" x="2400" y="1960" />
-		<entity schema="blofin" name="user" color="C7F4BE" x="1740" y="1600" />
-		<entity schema="blofin" name="user_account" color="C7F4BE" x="2400" y="2200" />
 		<entity schema="blofin" name="vw_authorized_role_tasks" color="BED3F4" x="820" y="820" />
 		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="1140" y="820" />
 		<entity schema="blofin" name="vw_candles" color="BED3F4" x="460" y="440" />
 		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="760" y="1000" />
 		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="820" y="60" />
+		<entity schema="blofin" name="user" color="C7F4BE" x="1740" y="1600" />
+		<entity schema="blofin" name="role_authority" color="C7F4BE" x="2080" y="1680" />
+		<entity schema="blofin" name="activity" color="C7F4BE" x="1780" y="1960" />
+		<entity schema="blofin" name="authority" color="C7F4BE" x="2080" y="1960" />
+		<entity schema="blofin" name="task_authority" color="C7F4BE" x="2400" y="1960" />
+		<entity schema="blofin" name="subject" color="C7F4BE" x="1780" y="2180" />
+		<entity schema="blofin" name="role" color="C7F4BE" x="1500" y="2180" />
+		<entity schema="blofin" name="user_account" color="C7F4BE" x="2400" y="2200" />
 		<script name="SQL Editor" id="c303e5fe-457a-4c93-86a9-79cc57defac1" language="SQL" >
 			<string><![CDATA[SELECT
 	instrument, base_currency, quote_currency, trade_period, trade_state
@@ -648,11 +965,14 @@ FROM
 	blofin.instrument t;]]></string>
 		</script>
 		<browser id="59aae410-935f-465b-9b5d-30bd0b8d588a" name="Relational Data Editor" confirm_updates="y" >
-			<browse_table schema="blofin" entity="instrument" fk_out="n" x="20" y="20" width="270" height="-60" >
-				<browse_table schema="blofin" entity="candle" fk="fk_c_instrument" fk_out="y" x="310" y="20" width="500" height="350" >
-					<browse_table schema="blofin" entity="period" fk="fk_c_period" fk_out="n" x="830" y="20" width="500" height="350" record_view="y" />
-				</browse_table>
-			</browse_table>
+			<browse_table schema="blofin" entity="user" fk_out="n" x="1926" y="54" width="336" height="484" />
+			<browse_table schema="blofin" entity="role_authority" fk_out="n" x="1671" y="342" width="392" height="582" />
+			<browse_table schema="blofin" entity="activity" fk_out="n" x="293" y="66" width="289" height="423" />
+			<browse_table schema="blofin" entity="authority" fk_out="n" x="426" y="388" width="310" height="461" />
+			<browse_table schema="blofin" entity="task_authority" fk_out="n" x="1409" y="72" width="359" height="405" />
+			<browse_table schema="blofin" entity="subject" fk_out="n" x="877" y="385" width="515" height="428" />
+			<browse_table schema="blofin" entity="role" fk_out="n" x="2443" y="85" width="376" height="561" />
+			<browse_table schema="blofin" entity="user_account" fk_out="n" x="673" y="47" width="328" height="391" />
 		</browser>
 		<query id="42712232-0019-42a5-a150-d3d2a32ffffb" name="Query Builder" >
 			<query_table schema="blofin" name="instrument" alias="i" x="60" y="60" >
