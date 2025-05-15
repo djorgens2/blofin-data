@@ -97,14 +97,16 @@ export function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
 export async function Login(props: IKeyProps): Promise<Partial<IUser> | undefined> {
   const { username, email } = props;
   const [user] = await Fetch({ username, email });
-  const { password, hash } = user;
 
-  if (password instanceof Uint8Array) {
-    const encrypt = Buffer.from(password);
-    const key = hashPassword({ username, email, password: props.password, hash });
-    if (encrypt.toString("hex") === key.toString("hex")) return user;
+  if (user) {
+    const { password, hash } = user;
+
+    if (password instanceof Uint8Array) {
+      const encrypt = Buffer.from(password);
+      const key = hashPassword({ username, email, password: props.password, hash });
+      if (encrypt.toString("hex") === key.toString("hex")) return user;
+    }
   }
-
   return undefined;
 }
 

@@ -9,40 +9,40 @@ import type { RowDataPacket } from "mysql2";
 import { Select, Modify } from "@db/query.utils";
 import { hashKey } from "@/lib/crypto.util";
 
-const Broker: Array<{ alias: string; image_url: string; website_url: string }> = [
-  { alias: "Blofin", image_url: "./images/broker/no_image.png", website_url: "https://blofin.com/" },
+const Broker: Array<IKeyProps> = [
+  { name: "Blofin", description: "Blofin Production", image_url: "./images/broker/blofin.png", website_url: "https://blofin.com/" },
 ];
 
 export interface IKeyProps {
   broker?: Uint8Array;
-  alias?: string;
+  name?: string;
+  description?: string;
+  image_url?: string;
+  website_url?: string;
 }
 
-export interface IBroker extends IKeyProps, RowDataPacket {
-  image_url: string;
-  website_url: string;
-}
+export interface IBroker extends IKeyProps, RowDataPacket {};
 
 //+--------------------------------------------------------------------------------------+
 //| Imports 'known' brokers from seed data to the database;                              |
 //+--------------------------------------------------------------------------------------+
 export function Import() {
   Broker.forEach((broker) => {
-    const { alias, image_url, website_url } = broker;
-    Publish({ alias, image_url, website_url });
+    const { name, description, image_url, website_url } = broker;
+    Publish({ name, description, image_url, website_url });
   });
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Adds all new brokers recieved from ui or any internal source to the database;        |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: { alias: string; image_url: string; website_url: string }): Promise<IKeyProps["broker"]> {
-  const { alias, image_url, website_url } = props;
-  const broker = await Key({ alias });
+export async function Publish(props: IKeyProps): Promise<IKeyProps["broker"]> {
+  const { name, description, image_url, website_url } = props;
+  const broker = await Key({ name });
 
   if (broker === undefined) {
     const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.broker VALUES (?, ?, ?, ?)`, [key, alias, image_url, website_url]);
+    await Modify(`INSERT INTO blofin.broker VALUES (?, ?, ?, ?, ?)`, [key, name, description, image_url, website_url]);
 
     return key;
   }
@@ -53,7 +53,7 @@ export async function Publish(props: { alias: string; image_url: string; website
 //| Examines broker search methods in props; executes first in priority sequence;        |
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undefined> {
-  const { broker, alias } = props;
+  const { broker, name } = props;
   const args = [];
 
   console.log(typeof props.broker, props.broker)
@@ -62,9 +62,9 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
   if (broker) {
     args.push(broker);
     sql += `broker = ?`;
-  } else if (alias) {
-    args.push(alias);
-    sql += `alias = ?`;
+  } else if (name) {
+    args.push(name);
+    sql += `name = ?`;
   } else return undefined;
 
   const [key] = await Select<IBroker>(sql, args);
@@ -74,18 +74,18 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["broker"] | undef
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { broker, alias } = props;
+export async function Fetch(props: IKeyProps): Promise<Array<Partial<IBroker>>> {
+  const { broker, name } = props;
   const args = [];
 
-  let sql: string = `SELECT role FROM blofin.role`;
+  let sql: string = `SELECT * FROM blofin.broker`;
 
   if (broker) {
     args.push(broker);
     sql += ` WHERE broker = ?`;
-  } else if (alias) {
-    args.push(alias);
-    sql += ` WHERE alias = ?`;
+  } else if (name) {
+    args.push(name);
+    sql += ` WHERE name = ?`;
   }
 
   return Select<IBroker>(sql, args);

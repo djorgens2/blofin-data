@@ -1,5 +1,10 @@
 CREATE SCHEMA blofin;
 
+CREATE  TABLE blofin.activity ( 
+	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
+	task                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
 CREATE  TABLE blofin.authority ( 
 	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
 	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -63,19 +68,32 @@ CREATE  TABLE blofin.subject (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.subject_role_authority ( 
+	subject_role_authority BINARY(3)    NOT NULL   PRIMARY KEY,
 	subject              BINARY(3)    NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	authority            BINARY(3)    NOT NULL   ,
 	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
-	CONSTRAINT pk_subject_role_authority UNIQUE ( subject, role, authority ) ,
-	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT ak_subject_role_authority UNIQUE ( subject, role, authority ) ,
 	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_srp_role ON blofin.subject_role_authority ( role );
+CREATE INDEX fk_sra_subject ON blofin.subject_role_authority ( subject );
 
-CREATE INDEX fk_srp_privilege ON blofin.subject_role_authority ( authority );
+CREATE INDEX fk_sra_role ON blofin.subject_role_authority ( role );
+
+CREATE INDEX fk_sra_authority ON blofin.subject_role_authority ( authority );
+
+CREATE  TABLE blofin.task_authority ( 
+	subject_role_authority BINARY(3)    NOT NULL   ,
+	activity             BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_task_authority PRIMARY KEY ( subject_role_authority, activity ),
+	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ta_subject_role_authority FOREIGN KEY ( subject_role_authority ) REFERENCES blofin.subject_role_authority( subject_role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
 
 CREATE  TABLE blofin.user ( 
 	user               BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -140,15 +158,6 @@ CREATE  TABLE blofin.account_detail (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
-
-CREATE  TABLE blofin.activity ( 
-	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
-	task                 VARCHAR(60)    NOT NULL   ,
-	subject              BINARY(3)       ,
-	CONSTRAINT fk_activity_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
-
-CREATE INDEX fk_activity_subject ON blofin.activity ( subject );
 
 CREATE  TABLE blofin.instrument ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,

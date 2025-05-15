@@ -446,18 +446,39 @@
 // console.log(login ? 'success' : 'error');
 
 //----------------------------- pulling prompt options when keyed Uint8array ------------------------//
-const callApples = () => console.log('Apples');
-const callBananas = () => console.log('Bananas');
-const callOranges = () => console.log('Oranges');
+// const callApples = () => console.log("Apples");
+// const callBananas = () => console.log("Bananas");
+// const callOranges = () => console.log("Oranges");
 
-interface IType {name: Uint8Array; quantity: number; func: Function}
-const inventory: Array<IType> = [
-    {name: Buffer.from([0,0,1]), quantity: 2, func: callOranges},
-    {name: Buffer.from([0,0,2]), quantity: 0, func: callBananas},
-    {name: Buffer.from([0,0,3]), quantity: 5, func: callApples},
-];
+// interface IType {
+//   name: Uint8Array;
+//   quantity: number;
+//   func: Function;
+// }
+// const inventory: Array<IType> = [
+//   { name: Buffer.from([0, 0, 1]), quantity: 2, func: callOranges },
+//   { name: Buffer.from([0, 0, 2]), quantity: 0, func: callBananas },
+//   { name: Buffer.from([0, 0, 3]), quantity: 5, func: callApples },
+// ];
 
-const result = inventory.find( ({name}) => name.toString() === Buffer.from([0,0,2]).toString());
-result?.func();
+// const result = inventory.find(({ name }) => name.toString() === Buffer.from([0, 0, 2]).toString());
+// result?.func();
 
-console.log(result);
+// console.log(result);
+
+//----------------------------- test type v enum conversion (Role) ------------------------------------------//
+import * as authority from "@db/interfaces/subject_role_authority";
+
+ function measureTime(func: Function) {
+  const startTime = performance.now();
+  func();
+  const endTime = performance.now();
+  return endTime - startTime;
+}
+
+const get = async () => {
+  const inserts = await authority.Import({ enabled: true });
+  console.log("Authorities inserted:", inserts);
+};
+const executionTime = measureTime(get);
+console.log(`Execution time: ${executionTime} milliseconds`);
