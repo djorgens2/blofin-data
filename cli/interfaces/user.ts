@@ -8,6 +8,8 @@
 import Prompt from "@cli/modules/Prompts";
 import { Answers } from "prompts";
 import * as Users from "@db/interfaces/user";
+import { setHeader } from "@cli/modules/Header";
+import { green, red, yellow, cyan, bold } from "console-log-colors";
 
 interface IUserToken {
   username: string;
@@ -68,4 +70,42 @@ export const setPassword = async (props: { username: string; email: string; veri
   }
 };
 
+export const menuViewUser = async () => {
+  setHeader("View Users");
+  console.log(
+    `\n✔️`,
+    `${bold("User Name".padEnd(16, " "))}`,
+    `${bold("E-Mail Address".padEnd(24, " "))}`,
+    `${bold("Title".padEnd(10, " "))}`,
+    `${bold("Status".padEnd(12, " "))}`,
+    `${bold("Image Location".padEnd(36," "))}`,
+    `${bold("Created".padEnd(12, " "))}`,
+    `${bold("Updated".padEnd(12, " "))}`
+  );
+  (await Users.Fetch({})).forEach((user) => {
+    const { username, email, title, status, image_url, create_time, update_time } = user;
+    console.log(
+      `${status! === 'Enabled' ? '🔹' : '🔸'}`,
+      `${username!.padEnd(16, " ")}`,
+      `${email!.padEnd(24, " ")}`,
+      `${title!.padEnd(10, " ")}`,
+      `${status === 'Enabled'? cyan(status!.padEnd(12, " ")) : status === 'Disabled' ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
+      `${image_url!.padEnd(36, " ")}`,
+      `${create_time!.toLocaleDateString().padEnd(12, " ")}`,
+      `${update_time!.toLocaleDateString().padEnd(12, " ")}`
+    );
+  });
+  console.log(``);
+  const { choice } = await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
+};
+
+export const menuCreateUser = async () => {
+  setHeader("Create User");
+};
+export const menuEditUser = async () => {
+  setHeader("Edit User");
+};
+export const menuDropUser = async () => {
+  setHeader("Drop User");
+};
 export default UserToken;

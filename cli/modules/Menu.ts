@@ -23,7 +23,7 @@ export const setMenu = async () => {
       title: priv.privilege!,
       value: priv.authority!,
       choices: [],
-      func: `${priv.privilege?.concat(area!)}()`,
+      func: `menu${priv.privilege}('${area!}')`,
     }));
 
     submenu.push({ title: "Back", value: Buffer.from([0, 0, 0]), choices: [], func: `` });
