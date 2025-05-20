@@ -5,9 +5,9 @@
 "use strict";
 
 import type { ICandle, IKeyProps } from "@db/interfaces/candle";
-import type { IMessage } from "@/lib/std.util";
+import type { IMessage } from "@lib/app.util";
 
-import { isEqual } from "@/lib/std.util";
+import { isEqual } from "@lib/std.util";
 
 import * as Candle from "@db/interfaces/candle";
 

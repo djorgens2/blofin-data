@@ -5,7 +5,7 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
-import type { ICandleAPI } from "@/api/candles";
+import type { ICandleAPI } from "@api/candles";
 
 import { Select, Modify } from "@db/query.utils";
 

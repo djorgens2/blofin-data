@@ -8,7 +8,7 @@ import type { RowDataPacket } from "mysql2";
 import type { SubjectArea } from "@db/interfaces/subject";
 
 import { Modify, Select } from "@db/query.utils";
-import { hashKey } from "@/lib/crypto.util";
+import { hashKey } from "@lib/crypto.util";
 
 import * as Subject from "@db/interfaces/subject";
 

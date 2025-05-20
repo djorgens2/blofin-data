@@ -5,7 +5,7 @@
 "use strict";
 
 import * as Instrument from "@api/instruments";
-import * as Period from "@/db/interfaces/period";
+import * as Period from "@db/interfaces/period";
 import * as State from "@db/interfaces/state";
 import * as Broker from "@db/interfaces/state";
 import * as Role from "@db/interfaces/state";

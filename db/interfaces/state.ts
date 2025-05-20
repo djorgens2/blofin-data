@@ -7,7 +7,7 @@
 import type { RowDataPacket } from "mysql2";
 
 import { Modify, Select } from "@db/query.utils";
-import { hashKey } from "@/lib/crypto.util";
+import { hashKey } from "@lib/crypto.util";
 
 export const Status = {
   Enabled: "Enabled",

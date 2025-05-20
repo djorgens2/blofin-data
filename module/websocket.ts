@@ -1,5 +1,5 @@
-import { parseJSON } from "@/lib/std.util";
-import { signMessage } from "@/lib/crypto.util";
+import { parseJSON } from "lib/std.util";
+import { signMessage } from "@lib/crypto.util";
 
 export interface IResponseProps {
   event: string;

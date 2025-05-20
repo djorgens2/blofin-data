@@ -8,11 +8,11 @@ import type { RowDataPacket } from "mysql2";
 import { Status } from "@db/interfaces/state";
 
 import { Select, Modify } from "@db/query.utils";
-import { splitSymbol } from "@/lib/std.util";
+import { splitSymbol } from "@lib/app.util";
 
 import * as Currency from "@db/interfaces/currency";
 import * as State from "@db/interfaces/state";
-import { hashKey } from "@/lib/crypto.util";
+import { hashKey } from "@lib/crypto.util";
 
 export interface IKeyProps {
   instrument?: Uint8Array;

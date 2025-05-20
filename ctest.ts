@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrument } from "@/db/interfaces/instrument";
+import type { IInstrument } from "@db/interfaces/instrument";
 import type { IMessage } from "@lib/app.util"; //-- types
 
 import { CFractal } from "@module/fractal";

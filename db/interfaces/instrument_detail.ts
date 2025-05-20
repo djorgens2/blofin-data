@@ -5,7 +5,7 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
-import type { IInstrumentAPI } from "@/api/instruments";
+import type { IInstrumentAPI } from "@api/instruments";
 
 import { Modify, Select } from "@db/query.utils";
 

@@ -96,7 +96,7 @@
 
 //----------------------------- Role/Privs Import ---------------------------------------//
 //import * as Authority from "@db/interfaces/authority";
-//import * as Subject from "@/db/interfaces/subject";
+//import * as Subject from "@db/interfaces/subject";
 //import * as Activity from "@db/interfaces/activity";
 
 // Authority.Import();
@@ -467,18 +467,97 @@
 // console.log(result);
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-import * as authority from "@/db/interfaces/role_authority";
+// import * as authority from "@db/interfaces/role_authority";
 
-function measureTime(func: Function) {
-  const startTime = performance.now();
-  func();
-  const endTime = performance.now();
-  return endTime - startTime;
+// function measureTime(func: Function) {
+//   const startTime = performance.now();
+//   func();
+//   const endTime = performance.now();
+//   return endTime - startTime;
+// }
+
+// const get = async () => {
+//   const inserts = await authority.Import({ enabled: true });
+//   console.log("Authorities inserted:", inserts);
+// };
+// const executionTime = measureTime(get);
+// console.log(`Execution time: ${executionTime} milliseconds`);
+
+//----------------------------- dynamic function handler ------------------------------------------//
+// function t1() {console.log('in t1')};
+// function t2(name:string) {console.log(`in t2 with ${name}`)};
+// const func = "t2('dennis')";
+// eval(func);
+
+// const funcy = `console.log("in t2 with the fam!");`
+// const fn = Function(funcy);
+// fn();
+
+// const fn1 = Function(`t1();`);
+// //fn1();
+
+// t1();
+
+//----------------------------- dynamic function handler ------------------------------------------//
+// const myObject = {
+//     name: 'John',
+//     age: 30,
+//     city: 'New York'
+//   };
+
+//   const keys = Object.keys(myObject);
+
+//   for (const key of keys) {
+//     console.log(key);
+//   }
+
+//   for (const [key, value] of Object.entries(myObject)) {
+//     console.log(`{${key}:"${value}"}`);
+//   }
+
+//----------------------------- dynamic key:value copier ------------------------------------------//
+// function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+//     const result: Partial<Pick<T, K>> = {};
+//     for (const key of keys) {
+//       if (obj.hasOwnProperty(key)) {
+//         result[key] = obj[key];
+//       }
+//     }
+//     return result as Pick<T, K>;
+//   }
+
+//   // Example
+//   const sourceObject = { a: 1, b: 'hello', c: true, d: { nested: 'value' } };
+//   const selectedKeys = ['a', 'c'];
+//   const newObject = pick(sourceObject, selectedKeys);
+//   console.log(newObject); // Output: { a: 1, c: true }
+
+//----------------------------- user update test ------------------------------------------//
+// import * as Users from "@db/interfaces/user";
+
+// const update = async () => {
+//  const user = await Users.Add({username: 'xforce', email: 'xforce@x.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
+//   const user = await Users.Add({username: 'x', email: 'x@x.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
+//   const update = await Users.Update({ username: "x", email: "x@x.com", image_url: "./images/users/thexman", status: 'Enabled' });
+//   const setpass = await Users.SetPassword({ username: "x", email: "x@x.com", password: "yyy" });
+//   const login = await Users.Login({ username: "x", email: "x@x.com", password: "yyy" });
+//  console.log([user, update, setpass, login]);
+//   console.log([login]);
+// };
+
+// update();
+
+//----------------------------- select list population test ------------------------------------------//
+interface fruitbasket {
+    id: number;
+    type: string;
 }
+interface fruits {
+    type: string;
+    user: string;
+    choices: fruitbasket;
+}
+const list = {type: `select`, user: 'dj'} 
+const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
+console.log(Object.assign(list, {...list, choices}))
 
-const get = async () => {
-  const inserts = await authority.Import({ enabled: true });
-  console.log("Authorities inserted:", inserts);
-};
-const executionTime = measureTime(get);
-console.log(`Execution time: ${executionTime} milliseconds`);

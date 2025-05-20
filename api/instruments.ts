@@ -4,7 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { isEqual, splitSymbol } from "@/lib/std.util";
+import { isEqual } from "@lib/std.util";
+import { splitSymbol } from "@lib/app.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Currency from "@db/interfaces/currency";

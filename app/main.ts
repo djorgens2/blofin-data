@@ -5,9 +5,9 @@
 "use strict";
 
 import type { IMessage } from "@lib/app.util";
-import type { IInstrumentPeriod } from "@/db/interfaces/instrument_period";
+import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 
-import { openWebSocket } from "@/module/websocket";
+import { openWebSocket } from "@module/websocket";
 import { fork } from "child_process";
 import { clear } from "@lib/app.util";
 import { Status } from "@db/interfaces/state";

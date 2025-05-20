@@ -401,6 +401,8 @@ select
 	u.state AS state,
 	s.status AS status,
 	u.image_url AS image_url,
+	u.password AS password,
+	u.hash AS hash,
 	u.create_time AS create_time,
 	u.update_time AS update_time
 from

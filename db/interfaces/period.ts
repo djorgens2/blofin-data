@@ -7,7 +7,7 @@
 import type { RowDataPacket } from "mysql2";
 
 import { Select, Modify } from "@db/query.utils";
-import { hashKey } from "@/lib/crypto.util";
+import { hashKey } from "lib/crypto.util";
 
 const Period: Array<{ timeframe: string; description: string; units: number }> = [
   { timeframe: "1m", description: "1 Minute", units: 1 },

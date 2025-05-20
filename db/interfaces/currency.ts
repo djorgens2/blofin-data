@@ -7,7 +7,7 @@
 import type { RowDataPacket } from "mysql2";
 
 import { Select, Modify } from "@db/query.utils";
-import { hashKey } from "@/lib/crypto.util";
+import { hashKey } from "@lib/crypto.util";
 
 export interface IKeyProps {
   currency?: Uint8Array;
