@@ -53,6 +53,7 @@ CREATE  TABLE blofin.period (
 CREATE  TABLE blofin.role ( 
 	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
 	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	auth_rank            SMALLINT    NOT NULL   ,
 	CONSTRAINT ak_role UNIQUE ( title ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
@@ -91,7 +92,6 @@ CREATE INDEX fk_u_state ON blofin.user ( state );
 CREATE  TABLE blofin.account ( 
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
 	broker               BINARY(3)    NOT NULL   ,
-	owner                BINARY(3)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	position             SMALLINT    NOT NULL   ,
@@ -99,11 +99,8 @@ CREATE  TABLE blofin.account (
 	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_broker UNIQUE ( alias ) ,
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_user FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_a_user ON blofin.account ( owner );
 
 CREATE INDEX fk_a_state ON blofin.account ( state );
 
@@ -221,7 +218,7 @@ CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
 CREATE  TABLE blofin.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
-	role                 BINARY(3)    NOT NULL   ,
+	owner                BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT pk_user_account PRIMARY KEY ( user, account ),
 	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,

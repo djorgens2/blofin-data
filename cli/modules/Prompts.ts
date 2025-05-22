@@ -18,7 +18,7 @@ interface IOptions {
   message?: string;
   active?: string;
   inactive?: string;
-  initial?: boolean;
+  initial?: boolean | string | number;
 }
 
 export interface IOption {
@@ -63,6 +63,7 @@ const __prompts: Array<PromptObject> = [
     type: "password",
     name: "confirm",
     message: "  Confirm Password:",
+    validate: (value) => (value.length > 0 ? true : `Passwords do not match.`),
   },
   {
     type: "toggle",
@@ -77,6 +78,11 @@ const __prompts: Array<PromptObject> = [
     name: "select",
     message: "Select an option:",
     choices: [],
+  },
+  {
+    type: "text",
+    name: "text",
+    message: "  ?:",
   },
 ];
 

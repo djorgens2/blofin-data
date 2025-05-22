@@ -12,6 +12,7 @@ import { hashKey } from "lib/crypto.util";
 export interface IKeyProps {
   role?: Uint8Array;
   title?: string;
+  auth_rank?: number;
 }
 export interface IRole extends IKeyProps, RowDataPacket {}
 
@@ -19,20 +20,25 @@ export interface IRole extends IKeyProps, RowDataPacket {}
 //| Imports seed Role data to define user access privileges;                             |
 //+--------------------------------------------------------------------------------------+
 export const Import = () => {
-  const Roles: Array<string> = ["Admin", "Editor", "Operator", "Viewer"];
+  const Roles: Array<Partial<IKeyProps>> = [
+    { title: "Admin", auth_rank: 40, },
+    { title: "Editor", auth_rank: 20 },
+    { title: "Operator", auth_rank: 30 },
+    { title: "Viewer", auth_rank: 10 },
+  ];
 
-  Roles.forEach((role) => Publish({ title: role }));
+  Roles.forEach((role) => Publish(role));
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new Roles to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: IKeyProps): Promise<IKeyProps["role"]> {
-  const { role, title } = props;
+export async function Publish(props: Partial<IKeyProps>): Promise<IKeyProps["role"]> {
+  const { role, title, auth_rank } = props;
   role === undefined && title && (await Key({ title }));
   if (role === undefined) {
     const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.role VALUES (?, ?)`, [key, title]);
+    await Modify(`INSERT INTO blofin.role VALUES (?, ?, ?)`, [key, title, auth_rank]);
     return key;
   }
   return role;
@@ -66,7 +72,7 @@ export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
   const { role, title } = props;
   const args = [];
 
-  let sql: string = `SELECT role FROM blofin.role`;
+  let sql: string = `SELECT * FROM blofin.role`;
 
   if (role) {
     args.push(role);

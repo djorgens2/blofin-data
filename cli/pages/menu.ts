@@ -88,7 +88,7 @@ export const Menu = async () => {
     setHeader(`Main Menu`);
 
     const menu: Array<IOption> = await setMenu();
-    const { select } = await Prompt(["select"], { choices: menu });
+    const { select } = await Prompt(["select"], { message: " Main Menu:",choices: menu });
     const key = select ? select : Buffer.from([0, 0, 0]);
     const option = menu.find(({ value }) => value.toString() === key.toString());
 
@@ -100,7 +100,7 @@ export const Menu = async () => {
       }
 
       default: {
-        const { select } = await Prompt(["select"], { choices: option?.choices });
+        const { select } = await Prompt(["select"], { message: " Authorized options:", choices: option?.choices });
         const key = select ? select : Buffer.from([0, 0, 0]);
         const suboption = option?.choices!.find(({ value }) => value.toString() === key.toString());
         suboption?.func && (await eval(suboption?.func));

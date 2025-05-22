@@ -26,16 +26,16 @@ export const setHeader = (heading: string) => {
       : ``;
 
   console.clear();
-  console.log(`+----------------------------------------------------------------------------------------+`);
+  console.log(`${'+'.padEnd(132,'-')}+`);
   console.log(`|`);
   console.log(`|`, cyan(page));
   console.log(`|`);
   console.log(`|    `, bold(`Log Time:`), dim(new Date().toLocaleString()));
   username.length === 0 ? console.log(`|`) : console.log(`|        User: ${green(username)}`);
-  title && title.length === 0 ? console.log(`|`) : console.log(`|        Role: ${green(title)}`);
+  title.length === 0 ? console.log(`|`) : console.log(`|        Role: ${green(title)}`);
   console.log(`|`);
   console.log(`|     ${color} ${message}`);
   console.log(`|`);
-  console.log(`+----------------------------------------------------------------------------------------+`);
+  console.log(`${'+'.padEnd(132,'-')}+`);
   console.log(``);
 };

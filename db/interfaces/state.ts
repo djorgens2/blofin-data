@@ -15,6 +15,7 @@ export const Status = {
   Halted: "Halted",
   Restricted: "Restricted",
   Suspended: "Suspended",
+  Deleted: "Deleted"
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 export const States: Array<{ status: Status; description: string }> = [
@@ -23,6 +24,7 @@ export const States: Array<{ status: Status; description: string }> = [
   { status: "Halted", description: "Adverse event halt" },
   { status: "Restricted", description: "Restricted use" },
   { status: "Suspended", description: "Suspended by broker" },
+  { status: "Deleted", description: "Deleted pending removal" },
 ];
 
 export interface IKeyProps {
@@ -73,4 +75,24 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefi
 
   const [key] = await Select<IState>(sql, args);
   return key === undefined ? undefined : key.state;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//+--------------------------------------------------------------------------------------+
+export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
+  const { state, status } = props;
+  const args = [];
+
+  let sql: string = `SELECT * FROM blofin.state`;
+
+  if (state) {
+    args.push(state);
+    sql += ` WHERE state = ?`;
+  } else if (status) {
+    args.push(status);
+    sql += ` WHERE status = ?`;
+  }
+
+  return Select<IState>(sql, args);
 }

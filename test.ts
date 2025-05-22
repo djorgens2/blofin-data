@@ -353,10 +353,10 @@
 // Main process
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-// //import * as State from "@db/interfaces/state"
+import * as State from "@db/interfaces/state"
 // import * as Role from "@db/interfaces/role"
 
-// //State.Import();
+State.Import();
 // Role.Import();
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
@@ -548,16 +548,29 @@
 // update();
 
 //----------------------------- select list population test ------------------------------------------//
-interface fruitbasket {
-    id: number;
-    type: string;
-}
-interface fruits {
-    type: string;
-    user: string;
-    choices: fruitbasket;
-}
-const list = {type: `select`, user: 'dj'} 
-const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
-console.log(Object.assign(list, {...list, choices}))
+// interface fruitbasket {
+//     id: number;
+//     type: string;
+// }
+// interface fruits {
+//     type: string;
+//     user: string;
+//     choices: fruitbasket;
+// }
+// const list = {type: `select`, user: 'dj'} 
+// const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
+// console.log(Object.assign(list, {...list, choices}))
 
+//----------------------------- select list population test(2) ------------------------------------------//
+// interface fruitbasket {
+//     id: number;
+//     type: string;
+// }
+// interface fruits {
+//     type: string;
+//     user: string;
+//     choices: fruitbasket;
+// }
+// const list = {type: `select`, user: 'dj'} 
+// const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
+// console.log(Object.assign(list, {...list, choices}))

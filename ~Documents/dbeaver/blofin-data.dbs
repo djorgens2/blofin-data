@@ -4,7 +4,6 @@
 		<table name="account" row_count="0" spec="" >
 			<column name="account" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="broker" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="owner" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="alias" type="VARCHAR" length="30" jt="12" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
@@ -22,9 +21,6 @@
 			<index name="ak_broker" unique="UNIQUE_KEY" >
 				<column name="alias" />
 			</index>
-			<index name="fk_a_user" unique="NORMAL" >
-				<column name="owner" />
-			</index>
 			<index name="fk_a_state" unique="NORMAL" >
 				<column name="state" />
 			</index>
@@ -36,9 +32,6 @@
 			</fk>
 			<fk name="fk_a_state" to_schema="blofin" to_table="state" options="" >
 				<fk_column name="state" pk="state" />
-			</fk>
-			<fk name="fk_a_user" to_schema="blofin" to_table="user" options="" >
-				<fk_column name="owner" pk="user" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -320,6 +313,7 @@
 			<column name="title" type="VARCHAR" length="30" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
+			<column name="auth_rank" prior="rank_auth" type="SMALLINT" jt="5" mandatory="y" />
 			<index name="pk_role" unique="PRIMARY_KEY" >
 				<column name="role" />
 			</index>
@@ -403,7 +397,7 @@
 			<fk name="fk_ta_activity" to_schema="blofin" to_table="activity" options="" >
 				<fk_column name="activity" pk="activity" />
 			</fk>
-			<fk name="fk_ta_subject_role_authority" to_schema="blofin" to_table="role_authority" options="" >
+			<fk name="fk_ta_role_authority" to_schema="blofin" to_table="role_authority" options="" >
 				<fk_column name="role_authority" pk="role_authority" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
@@ -454,7 +448,9 @@
 		<table name="user_account" row_count="0" spec="" >
 			<column name="user" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="account" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="role" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="owner" type="BOOLEAN" jt="16" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+			</column>
 			<column name="description" type="VARCHAR" length="30" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -473,10 +469,6 @@
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
-		<view name="vw_authorized_role_tasks" >
-			<comment><![CDATA[View 'blofin.vw_authorized_role_tasks' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`a`.`task` AS `task` from `blofin`.`activity` `a` join `blofin`.`subject` `s` join `blofin`.`role` `r` join (select `blofin`.`subject_role_authority`.`subject` AS `subject`,`blofin`.`subject_role_authority`.`role` AS `role` from `blofin`.`subject_role_authority` group by `blofin`.`subject_role_authority`.`subject`,`blofin`.`subject_role_authority`.`role`) `sra` where ((`sra`.`subject` = `a`.`subject`) and (`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`))]]></view_script>
-		</view>
 		<view name="vw_candle_audit" >
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc]]></view_script>
@@ -563,8 +555,7 @@
 		</view>
 		<view name="vw_role_privileges" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `sra`.`subject_role_authority` AS `subject_role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`sra`.`enabled` AS `enabled` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`authority` = `auth`.`authority`))]]></view_script>
-			<column name="subject_role_authority" type="BINARY" />
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ra`.`role_authority` AS `role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`ra`.`enabled` AS `enabled` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`role_authority` `ra` where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`))]]></view_script>
 			<column name="role" type="BINARY" />
 			<column name="title" type="VARCHAR" />
 			<column name="subject" type="BINARY" />
@@ -573,10 +564,11 @@
 			<column name="privilege" type="VARCHAR" />
 			<column name="priority" type="SMALLINT" />
 			<column name="enabled" type="BIT" />
+			<column name="role_authority" type="BINARY" />
 		</view>
 		<view name="vw_role_subjects" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`subject_role_authority` `sra` where ((`sra`.`subject` = `s`.`subject`) and (`sra`.`role` = `r`.`role`) and (`sra`.`enabled` = true)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`role_authority` `ra` where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`]]></view_script>
 			<column name="role" type="BINARY" />
 			<column name="title" type="VARCHAR" />
 			<column name="subject" type="BINARY" />
@@ -584,7 +576,7 @@
 		</view>
 		<view name="vw_users" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from `blofin`.`user` `u` join `blofin`.`role` `r` join `blofin`.`state` `s` where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`password` AS `password`,`u`.`hash` AS `hash`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from `blofin`.`user` `u` join `blofin`.`role` `r` join `blofin`.`state` `s` where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`))]]></view_script>
 			<column name="user" type="BINARY" />
 			<column name="username" type="VARCHAR" />
 			<column name="email" type="VARCHAR" />
@@ -593,64 +585,64 @@
 			<column name="state" type="BINARY" />
 			<column name="status" type="VARCHAR" />
 			<column name="image_url" type="VARCHAR" />
+			<column name="password" type="BINARY" />
+			<column name="hash" type="BINARY" />
 			<column name="create_time" type="DATETIME" />
 			<column name="update_time" type="DATETIME" />
 		</view>
 	</schema>
 	<layout name="Main Diagram" id="a93ce9b7-571d-435d-94d1-3e25b793b144" show_relation="columns" >
-		<entity schema="blofin" name="currency" color="BEBEF4" x="1540" y="820" />
-		<entity schema="blofin" name="instrument" color="BEBEF4" x="1820" y="760" />
-		<entity schema="blofin" name="instrument_detail" color="BEBEF4" x="1820" y="980" />
-		<entity schema="blofin" name="contract_type" color="BEBEF4" x="1540" y="980" />
-		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="1540" y="1120" />
-		<entity schema="blofin" name="period" color="BEBEF4" x="2100" y="680" />
-		<entity schema="blofin" name="account_detail" color="F4DDBE" x="1220" y="820" />
-		<entity schema="blofin" name="instrument_period" color="BEBEF4" x="1920" y="440" />
-		<entity schema="blofin" name="candle" color="BEBEF4" x="2120" y="900" />
+		<entity schema="blofin" name="currency" color="BEBEF4" x="1540" y="840" />
+		<entity schema="blofin" name="instrument" color="BEBEF4" x="1820" y="780" />
+		<entity schema="blofin" name="instrument_detail" color="BEBEF4" x="1820" y="1000" />
+		<entity schema="blofin" name="contract_type" color="BEBEF4" x="1540" y="1000" />
+		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="1540" y="1140" />
+		<entity schema="blofin" name="period" color="BEBEF4" x="2100" y="700" />
+		<entity schema="blofin" name="instrument_period" color="BEBEF4" x="1920" y="460" />
+		<entity schema="blofin" name="candle" color="BEBEF4" x="2120" y="920" />
 		<entity schema="blofin" name="broker" color="F4DDBE" x="960" y="1020" />
-		<entity schema="blofin" name="role" color="C7F4BE" x="680" y="340" />
-		<entity schema="blofin" name="user_account" color="F4DDBE" x="680" y="880" />
-		<entity schema="blofin" name="account" color="F4DDBE" x="960" y="720" />
-		<entity schema="blofin" name="state" color="F4DDBE" x="1220" y="660" />
 		<entity schema="blofin" name="user" color="F4DDBE" x="680" y="580" />
-		<entity schema="blofin" name="vw_authorized_role_tasks" color="BED3F4" x="60" y="1220" />
 		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="60" y="820" />
 		<entity schema="blofin" name="vw_candles" color="BED3F4" x="60" y="360" />
 		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="60" y="100" />
-		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="460" y="100" />
-		<entity schema="blofin" name="vw_users" color="3986C1" x="300" y="100" />
-		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="300" y="380" />
-		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="300" y="1040" />
-		<entity schema="blofin" name="subject" color="C7F4BE" x="800" y="340" />
-		<entity schema="blofin" name="activity" color="C7F4BE" x="1320" y="240" />
-		<entity schema="blofin" name="authority" color="C7F4BE" x="1040" y="240" />
-		<entity schema="blofin" name="task_authority" color="C7F4BE" x="1280" y="100" />
 		<entity schema="blofin" name="role_authority" color="C7F4BE" x="680" y="100" />
+		<entity schema="blofin" name="task_authority" color="C7F4BE" x="1280" y="100" />
+		<entity schema="blofin" name="user_account" color="F4DDBE" x="680" y="900" />
+		<entity schema="blofin" name="account" color="F4DDBE" x="960" y="760" />
+		<entity schema="blofin" name="state" color="F4DDBE" x="1260" y="700" />
+		<entity schema="blofin" name="account_detail" color="F4DDBE" x="1220" y="840" />
+		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="460" y="1160" />
+		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="300" y="1160" />
+		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="340" y="420" />
+		<entity schema="blofin" name="subject" color="C7F4BE" x="940" y="240" />
+		<entity schema="blofin" name="authority" color="C7F4BE" x="1120" y="180" />
+		<entity schema="blofin" name="activity" color="C7F4BE" x="1320" y="320" />
+		<entity schema="blofin" name="vw_users" color="3986C1" x="340" y="100" />
+		<entity schema="blofin" name="role" color="C7F4BE" x="680" y="340" />
 		<group name="views" color="ECF0F7" >
-			<entity schema="blofin" name="vw_authorized_role_tasks" />
 			<entity schema="blofin" name="vw_instrument_periods" />
 			<entity schema="blofin" name="vw_candles" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_role_subjects" />
-			<entity schema="blofin" name="vw_users" />
-			<entity schema="blofin" name="vw_instruments" />
 			<entity schema="blofin" name="vw_candle_audit" />
+			<entity schema="blofin" name="vw_instruments" />
+			<entity schema="blofin" name="vw_users" />
 		</group>
 		<group name="account" color="F7F2EC" >
-			<entity schema="blofin" name="account_detail" />
 			<entity schema="blofin" name="broker" />
+			<entity schema="blofin" name="user" />
 			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="state" />
-			<entity schema="blofin" name="user" />
+			<entity schema="blofin" name="account_detail" />
 		</group>
 		<group name="user" color="EEF7EC" >
-			<entity schema="blofin" name="role" />
-			<entity schema="blofin" name="subject" />
-			<entity schema="blofin" name="activity" />
-			<entity schema="blofin" name="authority" />
-			<entity schema="blofin" name="task_authority" />
 			<entity schema="blofin" name="role_authority" />
+			<entity schema="blofin" name="task_authority" />
+			<entity schema="blofin" name="subject" />
+			<entity schema="blofin" name="authority" />
+			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role" />
 		</group>
 		<group name="instrument" color="ECECF7" >
 			<entity schema="blofin" name="currency" />
@@ -945,7 +937,6 @@ CREATE VIEW blofin.vw_candle_audit AS select `blofin`.`vc`.`symbol` AS `symbol`,
 		<entity schema="blofin" name="instrument_type" color="BEBEF4" x="740" y="1880" />
 		<entity schema="blofin" name="period" color="BEBEF4" x="60" y="1860" />
 		<entity schema="blofin" name="state" color="F4DDBE" x="1860" y="60" />
-		<entity schema="blofin" name="vw_authorized_role_tasks" color="BED3F4" x="820" y="820" />
 		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="1140" y="820" />
 		<entity schema="blofin" name="vw_candles" color="BED3F4" x="460" y="440" />
 		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="760" y="1000" />

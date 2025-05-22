@@ -5,11 +5,15 @@
 "use server";
 "use strict";
 
-import Prompt from "@cli/modules/Prompts";
-import { Answers } from "prompts";
-import * as Users from "@db/interfaces/user";
+import Prompt, { IOption } from "@cli/modules/Prompts";
+
 import { setHeader } from "@cli/modules/Header";
 import { green, red, yellow, cyan, bold } from "console-log-colors";
+import { Answers } from "prompts";
+
+import * as Users from "@db/interfaces/user";
+import * as Roles from "@db/interfaces/role";
+import * as States from "@db/interfaces/state";
 
 interface IUserToken {
   username: string;
@@ -19,7 +23,7 @@ interface IUserToken {
   message: string;
 }
 
-export const userToken: IUserToken = { username: ``, title: ``, role: Buffer.from([0, 0, 0]), error: 0, message: `` };
+const userToken: IUserToken = { username: ``, title: ``, role: Buffer.from([0, 0, 0]), error: 0, message: `` };
 export const UserToken = () => {
   return userToken;
 };
@@ -32,64 +36,155 @@ export const setUserToken = (token: Partial<IUserToken>) => {
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Retrieves the authorized role assignments in prompt format;                          |
+//+--------------------------------------------------------------------------------------+
+const setFields = async <T extends Answers<string>>(props: T) => {
+  const roles = await setRole(props);
+  const { role, title } = roles!;
+
+  const states = await setState(props);
+  const { state, status } = states!;
+
+  const images = props?.image_url && (await Prompt(["text"], { message: "Edit image?", initial: props?.image_url }));
+  const image_url = images?.value ? images.value : ``;
+
+  return { role, title, state, status, image_url };
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieves the authorized role assignments in prompt format;                          |
+//+--------------------------------------------------------------------------------------+
+const setRole = async <T extends Answers<string>>(props: T) => {
+  const roles = await Roles.Fetch({});
+  const choices: Array<IOption> = [];
+
+  if (roles) {
+    const userAuth = userToken.title || "Admin";
+    const roleAuth = roles.find(({ title }) => title === userAuth);
+
+    if (props?.role) return roles.find(({ role }) => role!.toString() === props.role.toString());
+    if (props?.title) return roles.find(({ title }) => title === props.title);
+
+    if (roleAuth) {
+      roles.forEach((option) => {
+        if (roleAuth.auth_rank! >= option.auth_rank!) {
+          choices.push({
+            title: option.title!,
+            value: option.role!,
+          });
+        }
+      });
+      const { select } = await Prompt(["select"], { message: "  Select a Role:", choices });
+      const choice = choices.find(({ value }) => value.toString() === select.toString());
+
+      return { role: choice!.value, title: choice!.title };
+    }
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieves state assignments in prompt format;                                        |
+//+--------------------------------------------------------------------------------------+
+const setState = async <T extends Answers<string>>(props: T) => {
+  const states = await States.Fetch({});
+  const choices: Array<IOption> = [];
+
+  if (states) {
+    if (props?.state) return states.find(({ state }) => state!.toString() === props.state.toString());
+    if (props?.status) return states.find(({ status }) => status === props.status);
+
+    states.forEach((option) => {
+      choices.push({
+        title: option.status!,
+        value: option.state!,
+      });
+    });
+
+    const { select } = await Prompt(["select"], { message: "  Select a State:", choices });
+    const choice = choices.find(({ value }) => value.toString() === select.toString());
+
+    return { state: choice!.value, status: choice!.title };
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Performs light validation on prompted user credentials; more tightening expected;    |
 //+--------------------------------------------------------------------------------------+
-export const setCredentials = <T extends Answers<string>>(props: T) => {
-  let { username, email, password } = props;
+export const setCredentials = async (newUser: boolean = false, props?: Partial<Users.IKeyProps>) => {
+  const credentials = await Prompt(["username", "email"]);
 
-  if (username.indexOf("@") > 0) {
-    email = username;
-    username = username.slice(0, username.indexOf("@"));
+  let { username, email } = credentials;
+
+  if (username) {
+    if (username.indexOf("@") > 0) {
+      email = username;
+      username = username.slice(0, username.indexOf("@"));
+    }
+
+    if (email) {
+      const fields = newUser && (await setFields(props!));
+
+      Object.assign(credentials, { username, email, verify: newUser });
+      const { password, verified } = await setPassword(credentials);
+
+      if (newUser && verified) {
+        Object.assign(credentials, { ...credentials, ...fields });
+        const result = await Users.Add({ ...credentials, password });
+        setUserToken(result);
+      }
+
+      await Prompt(["choice"], { message: "Just checking?", active: "Yes", inactive: "No", initial: true });
+      return verified;
+    }
   }
-  return { username, email, password };
+  setUserToken({ error: 401, message: "Operation canceled." });
+  return false;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Password dialogue handler; strong confirmation checks on adds/sets/resets;           |
 //+--------------------------------------------------------------------------------------+
-export const setPassword = async (props: { username: string; email: string; verify: boolean }) => {
-  const { username, email, verify } = props;
-
-  if (verify)
+export const setPassword = async <T extends Answers<string>>(props: T) => {
+  const { username, email } = props;
+  if (props.verify)
     do {
       const { password, confirm } = await Prompt(["password", "confirm"]);
       if (password === confirm) return { password, verified: true };
 
-      const { choice } = await Prompt(["choice"], { message: "Passwords are not the same. Try again?", active: "No", inactive: "Yes", initial: false });
+      const { choice } = await Prompt(["choice"], { message: "  Passwords are not the same. Try again?", active: "No", inactive: "Yes", initial: false });
       if (choice) {
         setUserToken({ error: 303, message: "Invalid user credentials." });
-        return { password, verified: false };
+        return { verified: false };
       }
     } while (true);
   else {
     const { password } = await Prompt(["password"]);
     const result = await Users.Login({ username, email, password });
     setUserToken(result);
-
-    return { result };
+    return { verified: true };
   }
 };
 
 export const menuViewUser = async () => {
   setHeader("View Users");
   console.log(
-    `\n✔️`,
+    `\n✔️ `,
     `${bold("User Name".padEnd(16, " "))}`,
     `${bold("E-Mail Address".padEnd(24, " "))}`,
     `${bold("Title".padEnd(10, " "))}`,
     `${bold("Status".padEnd(12, " "))}`,
-    `${bold("Image Location".padEnd(36," "))}`,
+    `${bold("Image Location".padEnd(36, " "))}`,
     `${bold("Created".padEnd(12, " "))}`,
     `${bold("Updated".padEnd(12, " "))}`
   );
   (await Users.Fetch({})).forEach((user) => {
     const { username, email, title, status, image_url, create_time, update_time } = user;
     console.log(
-      `${status! === 'Enabled' ? '🔹' : '🔸'}`,
+      `${status! === "Enabled" ? "🔹" : "🔸"}`,
       `${username!.padEnd(16, " ")}`,
       `${email!.padEnd(24, " ")}`,
       `${title!.padEnd(10, " ")}`,
-      `${status === 'Enabled'? cyan(status!.padEnd(12, " ")) : status === 'Disabled' ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
+      `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
       `${image_url!.padEnd(36, " ")}`,
       `${create_time!.toLocaleDateString().padEnd(12, " ")}`,
       `${update_time!.toLocaleDateString().padEnd(12, " ")}`
@@ -101,6 +196,7 @@ export const menuViewUser = async () => {
 
 export const menuCreateUser = async () => {
   setHeader("Create User");
+  await setCredentials(true);
 };
 export const menuEditUser = async () => {
   setHeader("Edit User");
