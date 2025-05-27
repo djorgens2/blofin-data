@@ -11,13 +11,18 @@ import { setHeader } from "@cli/modules/Header";
 import { Menu } from "@cli/pages/menu";
 import { Logon } from "@cli/pages/logon";
 
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
+
 //+--------------------------------------------------------------------------------------+
 //| Main application loop;                                                               |
 //+--------------------------------------------------------------------------------------+
 const start = async () => {
   do {
     await Logon();
-    UserToken().error === 0 ? await Menu() : setHeader("Error");
+    UserToken().error ? setHeader("Error") : await Menu();
     process.exit(UserToken().error);
   } while (true);
 };

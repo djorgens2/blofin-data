@@ -28,10 +28,10 @@ export interface IOption {
   func?: string;
 }
 
-const runDialogue = async (options: Array<string>, props?: IOptions | Partial<IOption> ) => {
+const runDialogue = async (options: Array<string>, props?: Partial<PromptObject>) => {
   __dialogue.length = 0;
   options.forEach((option) => {
-    const __prompt = __prompts.find(({ name }) => name === option);
+    const __prompt = __prompts.find(({ name }) => name === option) ? __prompts.find(({ name }) => name === option) : { type: "text" };
     props && Object.assign(__prompt!, { ...__prompt, ...props });
     __prompt && __dialogue.push(__prompt);
   });
@@ -39,7 +39,7 @@ const runDialogue = async (options: Array<string>, props?: IOptions | Partial<IO
   return response;
 };
 
-const __dialogue: Array<PromptObject> = [];
+const __dialogue: Array<any> = [];
 const __prompts: Array<PromptObject> = [
   {
     type: "text",

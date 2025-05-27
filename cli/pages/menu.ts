@@ -11,6 +11,7 @@ import { setHeader } from "@cli/modules/Header";
 import { setMenu } from "@cli/modules/Menu";
 
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "@cli/interfaces/user";
+import { menuCreateAccount, menuEditAccount, menuViewAccount, menuDropAccount } from "@cli/interfaces/account";
 
 //+--------------------------------------------------------------------------------------+
 //| View menu; displays the rows for the supplied subject area;                          |
@@ -19,6 +20,10 @@ export const menuView = async (area: string) => {
   switch (area) {
     case "User":
       await menuViewUser();
+      break;
+    case "Account":
+      await menuViewAccount();
+      break;
     default:
       console.log(`${area} not enabled.`);
   }
@@ -43,6 +48,10 @@ export const menuCreate = async (area: string) => {
   switch (area) {
     case "User":
       await menuCreateUser();
+      break;
+    case "Account":
+      await menuCreateAccount();
+      break;
     default:
       console.log(`${area} not enabled.`);
   }
@@ -88,7 +97,7 @@ export const Menu = async () => {
     setHeader(`Main Menu`);
 
     const menu: Array<IOption> = await setMenu();
-    const { select } = await Prompt(["select"], { message: " Main Menu:",choices: menu });
+    const { select } = await Prompt(["select"], { message: " Main Menu:", choices: menu });
     const key = select ? select : Buffer.from([0, 0, 0]);
     const option = menu.find(({ value }) => value.toString() === key.toString());
 

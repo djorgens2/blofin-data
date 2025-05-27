@@ -1,5 +1,5 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                              User.ts |
+//|                                                                              user.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use server";
@@ -7,13 +7,14 @@
 
 import Prompt, { IOption } from "@cli/modules/Prompts";
 
-import { setHeader } from "@cli/modules/Header";
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 import { Answers } from "prompts";
 
+import { setState} from "@cli/modules/State";
+import { setHeader } from "@cli/modules/Header";
+
 import * as Users from "@db/interfaces/user";
 import * as Roles from "@db/interfaces/role";
-import * as States from "@db/interfaces/state";
 
 interface IUserToken {
   username: string;
@@ -52,6 +53,28 @@ const setFields = async <T extends Answers<string>>(props: T) => {
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Retrieves users in prompt format;                                                    |
+//+--------------------------------------------------------------------------------------+
+export const setUser = async (props: Users.IKeyProps) => {
+  const users = await Users.Fetch(props);
+  const choices: Array<IOption> = [];
+
+  if (users) {
+    users.forEach((option) => {
+      choices.push({
+        title: option?.username!,
+        value: option?.user!,
+      });
+    });
+
+    const { select } = await Prompt(["select"], { message: "  Who owns the account?", choices });
+    const choice = choices.find(({ value }) => value.toString() === select.toString());
+
+    return { user: choice!.value, username: choice!.title };
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Retrieves the authorized role assignments in prompt format;                          |
 //+--------------------------------------------------------------------------------------+
 const setRole = async <T extends Answers<string>>(props: T) => {
@@ -83,31 +106,6 @@ const setRole = async <T extends Answers<string>>(props: T) => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieves state assignments in prompt format;                                        |
-//+--------------------------------------------------------------------------------------+
-const setState = async <T extends Answers<string>>(props: T) => {
-  const states = await States.Fetch({});
-  const choices: Array<IOption> = [];
-
-  if (states) {
-    if (props?.state) return states.find(({ state }) => state!.toString() === props.state.toString());
-    if (props?.status) return states.find(({ status }) => status === props.status);
-
-    states.forEach((option) => {
-      choices.push({
-        title: option.status!,
-        value: option.state!,
-      });
-    });
-
-    const { select } = await Prompt(["select"], { message: "  Select a State:", choices });
-    const choice = choices.find(({ value }) => value.toString() === select.toString());
-
-    return { state: choice!.value, status: choice!.title };
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Performs light validation on prompted user credentials; more tightening expected;    |
 //+--------------------------------------------------------------------------------------+
 export const setCredentials = async (newUser: boolean = false, props?: Partial<Users.IKeyProps>) => {
@@ -133,7 +131,6 @@ export const setCredentials = async (newUser: boolean = false, props?: Partial<U
         setUserToken(result);
       }
 
-      await Prompt(["choice"], { message: "Just checking?", active: "Yes", inactive: "No", initial: true });
       return verified;
     }
   }
@@ -165,6 +162,9 @@ export const setPassword = async <T extends Answers<string>>(props: T) => {
   }
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Presents the user view;                                                              |
+//+--------------------------------------------------------------------------------------+
 export const menuViewUser = async () => {
   setHeader("View Users");
   console.log(
@@ -194,14 +194,26 @@ export const menuViewUser = async () => {
   const { choice } = await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Presents the user view;                                                              |
+//+--------------------------------------------------------------------------------------+
 export const menuCreateUser = async () => {
   setHeader("Create User");
   await setCredentials(true);
 };
+
+//+--------------------------------------------------------------------------------------+
+//| Presents the user view;                                                              |
+//+--------------------------------------------------------------------------------------+
 export const menuEditUser = async () => {
   setHeader("Edit User");
 };
+
+//+--------------------------------------------------------------------------------------+
+//| Presents the user view;                                                              |
+//+--------------------------------------------------------------------------------------+
 export const menuDropUser = async () => {
   setHeader("Drop User");
 };
+
 export default UserToken;

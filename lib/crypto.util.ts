@@ -50,6 +50,17 @@ export const signMessage = async (keys: IKeyProps) => {
 };
 
 //+--------------------------------------------------------------------------------------+
+//| returns a fully rendered hmac encryption key specifically for Blofin;                |
+//+--------------------------------------------------------------------------------------+
+export const hashHmac = async (keys: Array<any>) => {
+  const key = keys.join('');
+  const encoded = new TextEncoder().encode(key);
+  const hmac = createHmac("sha256", secret).update(encoded).digest("hex");
+  const hex = Buffer.from(hmac).toString("hex");
+  return Buffer.from(hex, "hex").toString("base64");
+};
+
+//+--------------------------------------------------------------------------------------+
 //| returns a randomly generated (nanoid) hex 'unique' string; generally used for PKs    |
 //+--------------------------------------------------------------------------------------+
 export const uniqueKey = (length: number): string => {

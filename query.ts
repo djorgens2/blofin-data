@@ -11,11 +11,14 @@ import * as Detail from "@db/interfaces/instrument_detail";
 import * as User from "@db/interfaces/user";
 import * as KeySet from "@db/interfaces/instrument_period";
 import * as Area from "@db/interfaces/subject";
+import * as Environ from "@db/interfaces/environment";
+import * as Account from "@db/interfaces/account";
 
 import { parseJSON } from "@lib/std.util";
 import { hexify } from "./lib/crypto.util";
 
 enum Subject {
+  Account = "-a",
   Instrument = "-i",
   Contract = "-ctype",
   Currency = "-$",
@@ -30,6 +33,7 @@ enum Subject {
   User = "-u",
   Login = "-login",
   Area = "-area",
+  Environ = '-e',
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -107,6 +111,13 @@ async function show(subject: string, args: string): Promise<string> {
       console.log("Fetch Subject:", props, key);
       return "ok";
     }
+    case Subject.Environ: {
+      const props = parseJSON<Environ.IKeyProps>(args);
+      props!.environment && Object.assign(props!, { ...props, environment: hexify(props!.environment) });
+      const key = await Environ.Fetch(props!);
+      console.log("Fetch Environments:", props, key);
+      return "ok";
+    }
     case Subject.User: {
       const props = parseJSON<User.IKeyProps>(args);
       props!.user && Object.assign(props!, { ...props, user: hexify(props!.user) });
@@ -118,6 +129,12 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<{ username: string; email: string; password: string }>(args);
       const logged = await User.Login(props!);
       console.log("Fetch User:", props, logged, logged ? "Success" : "Error");
+      return "ok";
+    }
+    case Subject.Account: {
+      const props = parseJSON< Account.IKeyProps >(args);
+      const key = await Account.Key(props!);
+      console.log("Fetch Account:", props, key);
       return "ok";
     }
     case Subject.Detail: {

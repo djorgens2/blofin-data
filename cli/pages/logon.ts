@@ -27,8 +27,10 @@ export const Logon = async () => {
     setUserToken({ error: 201, message: "This procedure will create an Administrator account." });
     setHeader("Application Setup");
 
-    if (await Prompt(["choice"], { message: "Administrator account not found. Create one now?", active: "Yes", inactive: "No", initial: true })) {
-      if (await setCredentials(true,  { title: "Admin", status: "Enabled" })) {
+    const { choice } = await Prompt(["choice"], { message: "Administrator account not found. Create one now?", active: "Yes", inactive: "No", initial: true });
+
+    if (choice) {
+      if (await setCredentials(true, { title: "Admin", status: "Enabled" })) {
         setUserToken({ error: 101, message: "User added. Application restart required." });
       } else setUserToken({ error: 401, message: "Operation canceled." });
 

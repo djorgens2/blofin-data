@@ -4,6 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import Prompt from '@cli/modules/Prompts';
+
+//+--------------------------------------------------------------------------------------+
+//| Pauses console app execution;                                                        |
+//+--------------------------------------------------------------------------------------+
+export async function Pause( message: string) {
+  const { choice } = await Prompt(["choice"], { message, active: "continue", inactive: "exit", initial: true });
+  if (!choice) process.exit(0);
+}
+
 //+--------------------------------------------------------------------------------------+
 //| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+

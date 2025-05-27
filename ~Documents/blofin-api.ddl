@@ -14,7 +14,6 @@ CREATE  TABLE blofin.authority (
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
 	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	description          VARCHAR(60)    NOT NULL   ,
 	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_broker UNIQUE ( name ) 
@@ -34,6 +33,11 @@ CREATE  TABLE blofin.currency (
 	suspense             BOOLEAN       ,
 	CONSTRAINT ak_currency UNIQUE ( symbol ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.environment ( 
+	environment          BINARY(3)    NOT NULL   PRIMARY KEY,
+	environ              VARCHAR(15)    NOT NULL   
+ ) engine=InnoDB;
 
 CREATE  TABLE blofin.instrument_type ( 
 	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -93,18 +97,19 @@ CREATE  TABLE blofin.account (
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
 	broker               BINARY(3)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
-	alias                VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	position             SMALLINT    NOT NULL   ,
-	websocket_url        VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	environment          BINARY(3)    NOT NULL   ,
+	wss_url              VARCHAR(100)       ,
 	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
-	CONSTRAINT ak_broker UNIQUE ( alias ) ,
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES blofin.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_a_state ON blofin.account ( state );
 
 CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE INDEX fk_a_environment ON blofin.account ( environment );
 
 CREATE  TABLE blofin.account_detail ( 
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -218,14 +223,18 @@ CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
 CREATE  TABLE blofin.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
-	owner                BOOLEAN  DEFAULT (false)  NOT NULL   ,
-	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT pk_user_account PRIMARY KEY ( user, account ),
+	CONSTRAINT ak_account_owner UNIQUE ( account, owner ) ,
 	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ua_user FOREIGN KEY ( user ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ua_user FOREIGN KEY ( user ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_owner FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE INDEX fk_ua_owner ON blofin.user_account ( owner );
 
 CREATE  TABLE blofin.candle ( 
 	instrument           BINARY(3)    NOT NULL   ,
@@ -245,6 +254,63 @@ CREATE  TABLE blofin.candle (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE VIEW blofin.vw_accounts AS
+select
+	a.broker AS broker,
+	a.alias AS alias,
+	a.state AS state,
+	e.environ AS environ,
+	a.wss_url AS wss_url,
+	a.rest_api_url AS rest_api_url,
+	b.name AS broker_name,
+	b.image_url AS broker_image_url,
+	b.website_url AS broker_website_url,
+	u.username AS owner_name,
+	u.email AS owner_email,
+	u.image_url AS owner_image_url,
+	ad.account AS account,
+	ad.currency AS currency,
+	ad.description AS description,
+	ad.total_equity AS total_equity,
+	ad.isolated_equity AS isolated_equity,
+	ad.equity AS equity,
+	ad.available AS available,
+	ad.balance AS balance,
+	ad.equity_usd AS equity_usd,
+	ad.available_equity AS available_equity,
+	ad.frozen AS frozen,
+	ad.order_frozen AS order_frozen,
+	ad.unrealized_pnl AS unrealized_pnl,
+	ad.isolated_unrealized_pnl AS isolated_unrealized_pnl,
+	ad.coin_usd_price AS coin_usd_price,
+	ad.margin_ratio AS margin_ratio,
+	ad.spot_available AS spot_available,
+	ad.liability AS liability,
+	ad.borrow_frozen AS borrow_frozen,
+	ad.update_time AS update_time,
+	c.symbol AS symbol,
+	c.image_url AS currency_image_url,
+	c.suspense AS currency_suspended,
+	s.status AS status,
+	ua.short_name AS user_account_name
+from
+	(((((((blofin.account a
+left join blofin.account_detail ad on
+	((a.account = ad.account)))
+left join blofin.currency c on
+	((ad.currency = c.currency)))
+left join blofin.user_account ua on
+	((a.account = ua.account)))
+left join blofin.user u on
+	((u.user = ua.owner)))
+join blofin.environment e)
+join blofin.broker b)
+join blofin.state s)
+where
+	((a.broker = b.broker)
+		and (a.environment = e.environment)
+			and (a.state = s.state));
 
 CREATE VIEW blofin.vw_instrument_periods AS
 select

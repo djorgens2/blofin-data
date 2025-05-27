@@ -353,16 +353,17 @@
 // Main process
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-import * as State from "@db/interfaces/state"
+//import * as Environs from "@db/interfaces/environment"
+//import * as State from "@db/interfaces/state"
 // import * as Role from "@db/interfaces/role"
 
-State.Import();
+//Environs.Import();
 // Role.Import();
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
 // import * as SubjectRoleAuthority from "@db/interfaces/subject_role_authority";
 
-// const imports = async () => {
+// const imported = async () => {
 //   const inserts = await SubjectRoleAuthority.Import({ enabled: false });
 //   console.log("Rows Inserted:", inserts);
 //   const updates = await SubjectRoleAuthority.Enable({ title: "Admin" });
@@ -378,29 +379,24 @@ State.Import();
 //----------------------------- create crypto hmac ------------------------------------------//
 // import * as dotenv from "dotenv";
 // import * as path from "path";
-// import { hex, parseJSON } from "./lib/std.util";
-// import { UniqueKey } from "./db/query.utils";
+// import { parseJSON } from "./lib/std.util";
+// import { hexify, hashKey } from "./lib/crypto.util"
 
 // dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
-// console.log(process.env.BF_SECRET);
+// // ----- working ----- //
+// // console.log(process.env.BF_SECRET);
 
-// const position = Math.floor(Math.random() * 12 + 1);
-// console.log(position)
-// console.log(hex(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`,3))
-// console.log(`0x${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`);
+// // const position = Math.floor(Math.random() * 12 + 1);
+// // console.log(position)
+// // console.log(hexify(`${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`))
+// // console.log(`${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`);
 
-// const secret = process.env.BF_SECRET
-// const uuid = new Uint8Array(16);
-
-// for (let block=0; block*8<secret!.length; block++) {
-//     console.log(secret?.slice(block*8,(block*8)+8));
-//     uuid.set(hex(`0x${secret?.slice(block*8,(block*8)+8)}`,4),block*4);
-// }
-// console.log(uuid)
+// // const key = hexify(`${process.env.BF_SECRET!.slice(position*2,(position*2)+6)}`);
+// // console.log(key?.toString());
 
 // console.log(process.env.APP_ACCOUNT);
-// const json: Array<any> = process.env.APP_CONNECTIONS ? JSON.parse(process.env.APP_ACCOUNT!) : [``];//;
+// const json: Array<any> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
 // json.forEach((record) => {
 //     console.log(record)
 // })
@@ -557,7 +553,7 @@ State.Import();
 //     user: string;
 //     choices: fruitbasket;
 // }
-// const list = {type: `select`, user: 'dj'} 
+// const list = {type: `select`, user: 'dj'}
 // const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
 // console.log(Object.assign(list, {...list, choices}))
 
@@ -571,6 +567,92 @@ State.Import();
 //     user: string;
 //     choices: fruitbasket;
 // }
-// const list = {type: `select`, user: 'dj'} 
+// const list = {type: `select`, user: 'dj'}
 // const choices: Array<fruitbasket> = [{id:1, type: `oranges`},{id:2, type: `apples`},{id:3, type: `bananas`},{id:4, type: `lemons`},{id:5, type: `kumquats`},];
 // console.log(Object.assign(list, {...list, choices}))
+
+//----------------------------- check web/site availability test ------------------------------------------//
+// async function checkURL(url: string) {
+//     try {
+//         const response = await fetch(url, { mode: 'no-cors' });
+//         if (response.status === 200) {
+//             console.log(`URL "${url}" is online.`);
+//         } else {
+//             console.log(`URL "${url}" is online but returned status ${response.status}.`);
+//         }
+//     } catch (error) {
+//         console.log(`URL "${url}" is offline or an error occurred:`, error);
+//     }
+// }
+
+// // checkURL('https://www.google.com');
+// // checkURL('https://google.com');
+// checkURL('https://blofin.com/')
+
+//checkURL('https://invalid-url');
+
+//----------------------------- Prompts testing -------------------------------------------------------//
+// import Prompts from "@cli/modules/Prompts";
+// import * as Accounts from "@db/interfaces/account";
+// const imports = [
+//   {
+//     name: "Blofin",
+//     api: "6d25db314497499987681bafa75f4bf0",
+//     key: "8a964e2c76a54791822504eac9838c53",
+//     phrase: "BlofinOnSteroids",
+//     wss: "wss://openapi.blofin.com/ws/private",
+//     rest_api: "https://openapi.blofin.com/api/v1/",
+//   },
+// ];
+// const imported = imports[0];
+// const newAccount: Partial<Accounts.IAccount> = {};
+// const getAccount = async <T>(props: T) => {
+//     const name = await Prompts(['text'],{ message: "   Name:", initial: 'Your first name'});
+//     return {name}
+// }
+// Object.assign(newAccount, {
+//   ...newAccount,
+//   name: imported.name,
+//   api_key: imported.api,
+//   key: imported.key,
+//   phrase: imported.phrase,
+//   websocket_url: imported.wss,
+//   rest_api_url: imported.rest_api,
+// });
+
+// async function get() {
+// console.log(await getAccount(newAccount));
+// }
+
+// get();
+
+//----------------------------- Copy defined elements -------------------------------------------------------//
+export function copyDefined<T extends object>( source: T, target: Partial<T>) {
+  for (const key in source) {
+    if (source[key] !== undefined) {
+      target[key] = source[key];
+    }
+  }
+}
+
+// Example usage:
+const sourceObject = { a: 1, b: undefined, c: 3 };
+const targetObject: Partial<{ a: number; b: number; c: number }> = {};
+
+// @ts-ignore
+copyDefined(sourceObject, targetObject);
+
+console.log(targetObject); // Output: { a: 1, c: 3 }
+
+function copyDefinedElements<T extends object>(source: T, target: Partial<T>): void {
+  for (const key in source) {
+    if (source[key] !== undefined) {
+      target[key] = source[key];
+    }
+  }
+}
+
+// @ts-ignore
+copyDefinedElements(sourceObject, targetObject);
+
+console.log(targetObject); // Output: { a: 1, c: 3 }
