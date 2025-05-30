@@ -15,7 +15,8 @@ export const Status = {
   Halted: "Halted",
   Restricted: "Restricted",
   Suspended: "Suspended",
-  Deleted: "Deleted"
+  Deleted: "Deleted",
+  Expired: "Expired",
 } as const;
 export type Status = (typeof Status)[keyof typeof Status];
 export const States: Array<{ status: Status; description: string }> = [
@@ -25,11 +26,12 @@ export const States: Array<{ status: Status; description: string }> = [
   { status: "Restricted", description: "Restricted use" },
   { status: "Suspended", description: "Suspended by broker" },
   { status: "Deleted", description: "Deleted pending removal" },
+  { status: "Expired", description: "Expired" },
 ];
 
 export interface IKeyProps {
   state?: Uint8Array;
-  status?: Status;
+  status?: string | Status;
 }
 
 export interface IState extends IKeyProps, RowDataPacket {

@@ -1,15 +1,29 @@
-import { parseJSON } from "lib/std.util";
-import { signMessage } from "@lib/crypto.util";
+//+--------------------------------------------------------------------------------------+
+//|                                                                         websocket.ts |
+//|                                                     Copyright 2018, Dennis Jorgenson |
+//+--------------------------------------------------------------------------------------+
+"use server";
+"use strict";
 
-export interface IResponseProps {
+import { parseJSON } from "lib/std.util";
+import { uniqueKey } from "@lib/crypto.util";
+import { createHmac } from "node:crypto";
+import { TextEncoder } from "node:util";
+
+import * as Accounts from "@api/accounts";
+import { IKeyProps } from "@db/interfaces/account";
+
+export type IResponseProps = {
   event: string;
   code: string;
+  msg: string;
+  action?: string;
   arg: {
     channel: string;
     instId: string;
   };
-  data: Array<string>;
-}
+  data: any;
+};
 
 export const wsStatus = {
   connected: "connected",
@@ -22,16 +36,37 @@ export type wsStatus = (typeof wsStatus)[keyof typeof wsStatus];
 
 let state: wsStatus = "closed";
 
-export function openWebSocket(url: string) {
-  const ws = new WebSocket(url);
+//+--------------------------------------------------------------------------------------+
+//| returns a fully rendered hmac encryption key specifically for Blofin;                |
+//+--------------------------------------------------------------------------------------+
+export const signLogon = async (key: string) => {
+  const timestamp = String(Date.now());
+  const nonce = uniqueKey(32);
+  const method = "GET";
+  const path = "/users/self/verify";
+  const prehash = `${path}${method}${timestamp}${nonce}`;
+  const messageEncoded = new TextEncoder().encode(prehash);
+  const hmac = createHmac("sha256", key).update(messageEncoded).digest("hex");
+  const hexEncoded = Buffer.from(hmac).toString("hex");
+  const sign = Buffer.from(hexEncoded, "hex").toString("base64");
+
+  return [sign, timestamp, nonce];
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Opens the ws to Blofin and establishes com channels/listeners;                       |
+//+--------------------------------------------------------------------------------------+
+export function openWebSocket(props: Partial<IKeyProps>) {
+  const { account, api, key, phrase, wss_url } = props;
+  const ws = new WebSocket(wss_url!);
 
   ws.onopen = () => {
     const login = async () => {
-      const [apiKey, passphrase, sign, timestamp, nonce] = await signMessage({ method: "GET", path: "/users/self/verify" });
+      const [sign, timestamp, nonce] = await signLogon(key!);
       ws.send(
         JSON.stringify({
           op: "login",
-          args: [{ apiKey, passphrase, timestamp, sign, nonce }],
+          args: [{ apiKey: api, passphrase: phrase, timestamp, sign, nonce }],
         })
       );
     };
@@ -41,6 +76,7 @@ export function openWebSocket(url: string) {
 
   ws.onclose = () => {
     state = "closed";
+    console.log("socket closed");
   };
 
   ws.onerror = (error) => {
@@ -50,8 +86,7 @@ export function openWebSocket(url: string) {
 
   ws.onmessage = (event) => {
     const message = parseJSON<IResponseProps>(event.data);
-    console.log(message);
-    //    if (event.type === 'message') return;
+
     if (message!.event === "pong") {
       state = "connected";
     } else if (message!.event === "login") {
@@ -64,12 +99,14 @@ export function openWebSocket(url: string) {
         );
         state = "connected";
       } else state = "error";
-    } else if (message!.arg!.channel! !== undefined)
-      switch (message!.arg!.channel) {
-        case "account": {
-          console.log("In message:", message);
-        }
-      }
+    } else if (message!.event === "subscribe") {
+      // do something?
+    } else if (message!.arg?.channel) {
+      console.log("Channel message:", message!.data!);
+      message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account! });
+      message!.arg.channel === "orders" && console.log("orders");
+      message!.arg.channel === "positions" && console.log("positions");
+    } else console.log("Unhandled message:", message!.arg!);
   };
 
   setInterval(() => {

@@ -626,6 +626,59 @@
 
 // get();
 
+//----------------------------- Key/Value element Extraction -------------------------------------------------------//
+import * as Accounts from "@db/interfaces/account";
+import { hexify } from "@lib/crypto.util";
+
+const account = hexify("0x044e54");
+const currency = hexify("0x044e54");
+Accounts.UpdateDetail({
+  account,
+  currency,
+  balance: 100,
+  equity: 100,
+  isolated_equity: 100,
+  available: 100,
+  available_equity: 100,
+  equity_usd: 100,
+  frozen: 100,
+  order_frozen: 100,
+  borrow_frozen: 100,
+  unrealized_pnl: 100,
+  isolated_unrealized_pnl: 100,
+  coin_usd_price: 100,
+  margin_ratio: 100,
+  spot_available: 3,
+  liability: 2,
+  update_time: 1,
+});
+
+// function parseObject<T extends Record<string, any>>(obj: T) {
+//   const fields = [];
+//   const args:Array<any> = []
+
+//   for (const key in obj) {
+//     if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
+//       fields.push(key);
+//       args.push(obj[key]);
+//     }
+//   }
+
+//   return [fields, args];
+// }
+
+// interface IRec {
+//   field1: string;
+//   field2: string;
+//   field3: number;
+//   field4: Uint8Array;
+// }
+
+// const rec1 = { field1: 'ABC', field3: 123 };
+
+// console.log(parseObject<IRec>(rec1))
+
+/*
 //----------------------------- Copy defined elements -------------------------------------------------------//
 export function copyDefined<T extends object>( source: T, target: Partial<T>) {
   for (const key in source) {
@@ -656,3 +709,4 @@ function copyDefinedElements<T extends object>(source: T, target: Partial<T>): v
 copyDefinedElements(sourceObject, targetObject);
 
 console.log(targetObject); // Output: { a: 1, c: 3 }
+*/

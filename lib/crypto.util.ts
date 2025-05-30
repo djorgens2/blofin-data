@@ -2,6 +2,7 @@
 //|                                                                        crypto.util.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
+"use strict";
 "use server";
 
 import { createHmac, createHash } from "node:crypto";
@@ -12,42 +13,11 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import * as User from "@db/interfaces/user";
 
-export interface IKeyProps {
-  method: string;
-  path: string;
-  body?: string;
-}
-
-export interface IConfigProps {
-  name: string;
-  api: string;
-  key: string;
-  phrase: string;
-}
 
 dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
-const apiKey = process.env.BF_APIKEY ? process.env.BF_APIKEY : ``;
 const secret = process.env.BF_SECRET ? process.env.BF_SECRET : ``;
-const passphrase = process.env.BF_PASSPHRASE ? process.env.BF_PASSPHRASE : ``;
-const config: Array<IConfigProps> = process.env.APP_CONNECTIONS ? JSON.parse(process.env.APP_CONNECTIONS) : ``;
 
-//+--------------------------------------------------------------------------------------+
-//| returns a fully rendered hmac encryption key specifically for Blofin;                |
-//+--------------------------------------------------------------------------------------+
-export const signMessage = async (keys: IKeyProps) => {
-  const { method, path, body } = keys;
-
-  const timestamp = String(Date.now());
-  const nonce = uniqueKey(32);
-  const message = body ? `${path}${method}${timestamp}${nonce}${body}` : `${path}${method}${timestamp}${nonce}`;
-  const messageEncoded = new TextEncoder().encode(message);
-  const hmac = createHmac("sha256", secret).update(messageEncoded).digest("hex");
-  const hexEncoded = Buffer.from(hmac).toString("hex");
-  const sign = Buffer.from(hexEncoded, "hex").toString("base64");
-
-  return [apiKey, passphrase, sign, timestamp, nonce];
-};
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |

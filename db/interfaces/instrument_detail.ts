@@ -45,6 +45,16 @@ export async function Publish(
 
   if (key === undefined) return key;
   if (confirm === undefined) {
+    const contractValue = parseFloat(api.contractValue);
+    const maxLeverage = parseInt(api.maxLeverage);
+    const minSize = parseFloat(api.minSize);
+    const lotSize = parseFloat(api.lotSize);
+    const tickSize = parseFloat(api.tickSize);
+    const maxLimitSize = parseFloat(api.maxLimitSize);
+    const maxMarketSize = parseFloat(api.maxMarketSize);
+    const listTime = parseInt(api.listTime);
+    const expireTime = parseInt(api.expireTime);
+
     await Modify(
       `INSERT INTO blofin.instrument_detail 
           SET instrument = ?,
@@ -63,15 +73,15 @@ export async function Publish(
         instrument,
         instrument_type,
         contract_type,
-        api.contractValue,
-        api.maxLeverage,
-        api.minSize,
-        api.lotSize,
-        api.tickSize,
-        api.maxLimitSize,
-        api.maxMarketSize,
-        api.listTime,
-        api.expireTime,
+        contractValue,
+        maxLeverage,
+        minSize,
+        lotSize,
+        tickSize,
+        maxLimitSize,
+        maxMarketSize,
+        listTime,
+        expireTime,
       ]
     );
   }
@@ -99,8 +109,18 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
 //+--------------------------------------------------------------------------------------+
 export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
   for (const update of updates) {
+    const instrument = update.instrument;
     const contract_type = await ContractType.Key({ source_ref: update.contractType });
     const instrument_type = await InstrumentType.Key({ source_ref: update.instType });
+    const contractValue = parseFloat(update.contractValue);
+    const maxLeverage = parseInt(update.maxLeverage);
+    const minSize = parseFloat(update.minSize);
+    const lotSize = parseFloat(update.lotSize);
+    const tickSize = parseFloat(update.tickSize);
+    const maxLimitSize = parseFloat(update.maxLimitSize);
+    const maxMarketSize = parseFloat(update.maxMarketSize);
+    const listTime = parseInt(update.listTime);
+    const expireTime = parseInt(update.expireTime);
 
     if (update.instrument) {
       await Modify(
@@ -120,16 +140,16 @@ export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
         [
           instrument_type,
           contract_type,
-          update.contractValue,
-          update.maxLeverage,
-          update.minSize,
-          update.lotSize,
-          update.tickSize,
-          update.maxLimitSize,
-          update.maxMarketSize,
-          update.listTime,
-          update.expireTime,
-          update.instrument,
+          contractValue,
+          maxLeverage,
+          minSize,
+          lotSize,
+          tickSize,
+          maxLimitSize,
+          maxMarketSize,
+          listTime,
+          expireTime,
+          instrument,
         ]
       );
     }

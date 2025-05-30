@@ -18,17 +18,17 @@ export interface IInstrumentAPI {
   instId: string;
   baseCurrency: string;
   quoteCurrency: string;
-  contractValue: number;
-  listTime: number;
-  expireTime: number;
-  maxLeverage: number;
-  minSize: number;
-  lotSize: number;
-  tickSize: number;
+  contractValue: string;
+  listTime: string;
+  expireTime: string;
+  maxLeverage: string;
+  minSize: string;
+  lotSize: string;
+  tickSize: string;
   instType: string;
   contractType: string;
-  maxLimitSize: number;
-  maxMarketSize: number;
+  maxLimitSize: string;
+  maxMarketSize: string;
   state: string;
 }
 
@@ -62,7 +62,6 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
   const instruments = await Instrument.Fetch({});
   const modified: Array<IInstrumentAPI> = [];
   const suspense: Array<Currency.IKeyProps> = [];
-
   const db: Array<Partial<Instrument.IInstrument>> = instruments.sort((a, b) => {
     return a.symbol! < b.symbol! ? -1 : a.symbol! > b.symbol! ? 1 : 0;
   });
@@ -78,8 +77,8 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
         let updated: boolean = false;
 
         !isEqual(local.contract_value!, api[instrument].contractValue) && (updated = true);
-        !isEqual(local.list_timestamp!, api[instrument].listTime / 1000, 0) && (updated = true);
-        !isEqual(local.expiry_timestamp!, api[instrument].expireTime / 1000, 0) && (updated = true);
+        !isEqual(local.list_timestamp!, parseInt(api[instrument].listTime) / 1000, 0) && (updated = true);
+        !isEqual(local.expiry_timestamp!, parseInt(api[instrument].expireTime) / 1000, 0) && (updated = true);
         !isEqual(local.max_leverage!, api[instrument].maxLeverage) && (updated = true);
         !isEqual(local.min_size!, api[instrument].minSize) && (updated = true);
         !isEqual(local.lot_size!, api[instrument].lotSize) && (updated = true);

@@ -28,6 +28,9 @@ export interface IOption {
   func?: string;
 }
 
+//+--------------------------------------------------------------------------------------+
+//| Runs the prompt/prompts (if chained);                                                |
+//+--------------------------------------------------------------------------------------+
 const runDialogue = async (options: Array<string>, props?: Partial<PromptObject>) => {
   __dialogue.length = 0;
   options.forEach((option) => {
