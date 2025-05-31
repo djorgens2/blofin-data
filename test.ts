@@ -626,32 +626,32 @@
 
 // get();
 
-//----------------------------- Key/Value element Extraction -------------------------------------------------------//
-import * as Accounts from "@db/interfaces/account";
-import { hexify } from "@lib/crypto.util";
+// //----------------------------- Key/Value element Extraction -------------------------------------------------------//
+// import * as Accounts from "@db/interfaces/account";
+// import { hexify } from "@lib/crypto.util";
 
-const account = hexify("0x044e54");
-const currency = hexify("0x044e54");
-Accounts.UpdateDetail({
-  account,
-  currency,
-  balance: 100,
-  equity: 100,
-  isolated_equity: 100,
-  available: 100,
-  available_equity: 100,
-  equity_usd: 100,
-  frozen: 100,
-  order_frozen: 100,
-  borrow_frozen: 100,
-  unrealized_pnl: 100,
-  isolated_unrealized_pnl: 100,
-  coin_usd_price: 100,
-  margin_ratio: 100,
-  spot_available: 3,
-  liability: 2,
-  update_time: 1,
-});
+// const account = hexify("0x044e54");
+// const currency = hexify("0x044e54");
+// Accounts.UpdateDetail({
+//   account,
+//   currency,
+//   balance: 100,
+//   equity: 100,
+//   isolated_equity: 100,
+//   available: 100,
+//   available_equity: 100,
+//   equity_usd: 100,
+//   frozen: 100,
+//   order_frozen: 100,
+//   borrow_frozen: 100,
+//   unrealized_pnl: 100,
+//   isolated_unrealized_pnl: 100,
+//   coin_usd_price: 100,
+//   margin_ratio: 100,
+//   spot_available: 3,
+//   liability: 2,
+//   update_time: 1,
+// });
 
 // function parseObject<T extends Record<string, any>>(obj: T) {
 //   const fields = [];
@@ -710,3 +710,11 @@ copyDefinedElements(sourceObject, targetObject);
 
 console.log(targetObject); // Output: { a: 1, c: 3 }
 */
+
+//----------------------------- load refs generic -------------------------------------------------------//
+import { Import } from "@db/interfaces/load_refs";
+
+const load = async () => {
+  Import();
+};
+load();

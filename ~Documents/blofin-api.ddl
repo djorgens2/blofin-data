@@ -1,5 +1,9 @@
 CREATE SCHEMA blofin;
 
+CREATE  TABLE blofin.action ( 
+	action               CHAR(4)    NOT NULL   PRIMARY KEY
+ ) engine=InnoDB;
+
 CREATE  TABLE blofin.activity ( 
 	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
 	task                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
@@ -11,6 +15,10 @@ CREATE  TABLE blofin.authority (
 	priority             SMALLINT  DEFAULT (0)  NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE blofin.bias ( 
+	bias                 CHAR(5)    NOT NULL   PRIMARY KEY
+ ) engine=InnoDB;
+
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
 	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -18,6 +26,21 @@ CREATE  TABLE blofin.broker (
 	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_broker UNIQUE ( name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.cancel ( 
+	cancel               BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)    NOT NULL   ,
+	source               VARCHAR(12)    NOT NULL   ,
+	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
+
+CREATE  TABLE blofin.category ( 
+	category             BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(20)    NOT NULL   ,
+	description          VARCHAR(30)    NOT NULL   ,
+	trigger_type         BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	CONSTRAINT ak_category UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
 
 CREATE  TABLE blofin.contract_type ( 
 	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -46,6 +69,25 @@ CREATE  TABLE blofin.instrument_type (
 	CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE blofin.margin_mode ( 
+	margin_mode          VARCHAR(10)    NOT NULL   PRIMARY KEY,
+	description          VARCHAR(30)       
+ ) engine=InnoDB;
+
+CREATE  TABLE blofin.order_state ( 
+	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(20)    NOT NULL   ,
+	status             VARCHAR(30)    NOT NULL   ,
+	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
+
+CREATE  TABLE blofin.order_type ( 
+	order_type           BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)    NOT NULL   ,
+	description          VARCHAR(30)       ,
+	CONSTRAINT ak_order_type UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
+
 CREATE  TABLE blofin.period ( 
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
 	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -53,6 +95,11 @@ CREATE  TABLE blofin.period (
 	timeframe_units      INT    NOT NULL   ,
 	CONSTRAINT ak_period UNIQUE ( timeframe ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.price_type ( 
+	price_type           CHAR(5)    NOT NULL   PRIMARY KEY,
+	description          VARCHAR(16)       
+ ) engine=InnoDB;
 
 CREATE  TABLE blofin.role ( 
 	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -194,6 +241,62 @@ CREATE  TABLE blofin.instrument_period (
 
 CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 
+CREATE  TABLE blofin.orders ( 
+	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
+	account              BINARY(3)    NOT NULL   ,
+	instrument           BINARY(3)    NOT NULL   ,
+	order_id             BIGINT    NOT NULL   ,
+	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	price                DOUBLE    NOT NULL   ,
+	size                 DOUBLE    NOT NULL   ,
+	order_type           BINARY(3)    NOT NULL   ,
+	action               CHAR(4)    NOT NULL   ,
+	bias                 CHAR(5)    NOT NULL   ,
+	margin_mode          VARCHAR(10)    NOT NULL   ,
+	filled_size          DOUBLE       ,
+	filled_amount        DOUBLE       ,
+	average_price        DOUBLE       ,
+	state                BINARY(3)    NOT NULL   ,
+	leverage             INT       ,
+	fee                  DOUBLE       ,
+	pnl                  DOUBLE       ,
+	cancel_source        BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)    NOT NULL   ,
+	reduce_only          BOOLEAN       ,
+	create_time          DATE  DEFAULT (CURRENT_DATE)  NOT NULL   ,
+	update_time          DATE  DEFAULT (CURRENT_DATE)  NOT NULL   ,
+	CONSTRAINT ak_orders UNIQUE ( account, instrument, order_id ) ,
+	CONSTRAINT fk_o_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_bias FOREIGN KEY ( bias ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_category FOREIGN KEY ( order_category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_cancel FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel( cancel ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_o_instrument ON blofin.orders ( instrument );
+
+CREATE INDEX fk_o_instrument_type ON blofin.orders ( instrument_type );
+
+CREATE INDEX fk_o_order_type ON blofin.orders ( order_type );
+
+CREATE INDEX fk_o_action ON blofin.orders ( action );
+
+CREATE INDEX fk_o_bias ON blofin.orders ( bias );
+
+CREATE INDEX fk_o_margin_mode ON blofin.orders ( margin_mode );
+
+CREATE INDEX fk_o_order_state ON blofin.orders ( state );
+
+CREATE INDEX fk_o_category ON blofin.orders ( order_category );
+
+CREATE INDEX fk_o_cancel ON blofin.orders ( cancel_source );
+
 CREATE  TABLE blofin.role_authority ( 
 	role_authority       BINARY(3)    NOT NULL   PRIMARY KEY,
 	role                 BINARY(3)    NOT NULL   ,
@@ -221,6 +324,22 @@ CREATE  TABLE blofin.task_authority (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
+
+CREATE  TABLE blofin.triggers ( 
+	client_order_id      BINARY(3)    NOT NULL   ,
+	category             BINARY(3)    NOT NULL   ,
+	trigger_price        DOUBLE    NOT NULL   ,
+	order_price          DOUBLE    NOT NULL   ,
+	price_type           CHAR(5)    NOT NULL   ,
+	CONSTRAINT pk_triggers PRIMARY KEY ( client_order_id, category ),
+	CONSTRAINT fk_t_orders FOREIGN KEY ( client_order_id ) REFERENCES blofin.orders( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_t_category FOREIGN KEY ( category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_t_price_type FOREIGN KEY ( price_type ) REFERENCES blofin.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_t_category ON blofin.triggers ( category );
+
+CREATE INDEX fk_t_price_type ON blofin.triggers ( price_type );
 
 CREATE  TABLE blofin.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
@@ -530,3 +649,38 @@ having
 order by
 	blofin.vc.symbol,
 	hour desc;
+
+ALTER TABLE blofin.action COMMENT 'buy
+sell';
+
+ALTER TABLE blofin.bias COMMENT 'Position side
+Default net for One-way Mode
+long or short for Hedge Mode. It must be sent in Hedge Mode.';
+
+ALTER TABLE blofin.cancel COMMENT 'not_canceled
+user_canceled
+system_canceled';
+
+ALTER TABLE blofin.category COMMENT 'normal
+full_liquidation
+partial_liquidation
+adl
+tp
+sl';
+
+ALTER TABLE blofin.margin_mode COMMENT 'Margin mode
+cross
+isolated';
+
+ALTER TABLE blofin.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
+
+ALTER TABLE blofin.order_type COMMENT 'market: market order
+limit: limit order
+post_only: Post-only order
+fok: Fill-or-kill order
+ioc: Immediate-or-cancel order';
+
+ALTER TABLE blofin.price_type COMMENT 'Trigger price type.
+last: last price
+index: index price
+mark: mark price';

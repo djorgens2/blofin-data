@@ -213,7 +213,6 @@ export async function Update(props: Partial<IKeyProps>): Promise<number | undefi
 
     if (fields) {
       const sql = `UPDATE blofin.account SET ${fields.join(" = ?, ")}= FROM_UNIXTIME(?/1000) WHERE account = ?`;
-      console.log(fields, args);
       args.push(account);
       await Modify(sql, args);
       setUserToken({ error: 0, message: `Account update applied.` });

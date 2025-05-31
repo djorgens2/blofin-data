@@ -94,18 +94,17 @@ export function openWebSocket(props: Partial<IKeyProps>) {
         ws.send(
           JSON.stringify({
             op: "subscribe",
-            args: [{ channel: "account" }],
+            args: [{ channel: "account" }, { channel: "positions" }, { channel: "orders" }],
           })
         );
         state = "connected";
       } else state = "error";
     } else if (message!.event === "subscribe") {
-      // do something?
+      console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      console.log("Channel message:", message!.data!);
       message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account! });
-      message!.arg.channel === "orders" && console.log("orders");
-      message!.arg.channel === "positions" && console.log("positions");
+      message!.arg.channel === "orders" && console.log("Orders:", message!.data);
+      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
     } else console.log("Unhandled message:", message!.arg!);
   };
 
