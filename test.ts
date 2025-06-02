@@ -712,9 +712,109 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 */
 
 //----------------------------- load refs generic -------------------------------------------------------//
-import { Import } from "@db/interfaces/load_refs";
+// import { Import } from "@db/interfaces/reference";
 
-const load = async () => {
-  Import();
+// const load = async () => {
+//   Import();
+// };
+// load();
+
+//----------------------------- order test  -------------------------------------------------------//
+import { hexify } from "@lib/crypto.util";
+import * as Order from "@db/interfaces/order";
+import * as Refs from "@db/interfaces/reference";
+import * as Instruments from "@db/interfaces/instrument";
+
+const order_request = {
+  instId: "BTC-USDT",
+  marginMode: "cross",
+  side: "buy",
+  orderType: "limit",
+  price: (95000.1).toFixed(1),
+  size: "0.1",
+  leverage: "3",
+  positionSide: "long",
 };
-load();
+
+const request: Partial<Order.IRequest> = {
+  client_order_id: undefined!,
+  order_state: undefined!,
+  account: hexify("305954")!,
+  instrument: hexify("4e3e8a")!,
+  margin_mode: "cross",
+  bias: "long",
+  action: "buy",
+  order_type: "limit",
+  price: 93000.1,
+  size: 0.1,
+  leverage: 10,
+  tp_trigger: undefined!,
+  sl_trigger: undefined!,
+  reduce_only: undefined!,
+  expiry_time: new Date(),
+};
+
+const req = Order.Request(request);
+//const exec = Order.Execute();
+
+//----------------------------------------- Generic fetch v. CRUD fetch performance test (hmmm...)------------------------------//
+// *-------------------------- round 1 --------------------------*
+// From Interface Fetch returned in 0.11948900000004414ms
+// From Generic Fetch returned in 0.44306899999997995ms
+// *-------------------------- round 2 --------------------------*
+// From Interface Fetch returned in 0.0050420000000030996ms
+// From Generic Fetch returned in 0.43795299999999315ms
+// *-------------------------- round 3 --------------------------*
+// From Interface Fetch returned in 0.009750999999994292ms
+// From Generic Fetch returned in 0.5313919999999825ms
+
+// const getRef = async (table: string, props: object) => {
+//   const data = await Refs.Fetch(table, props);
+//   console.log(data)
+// };
+
+// const getInst = async (props: object) => {
+//   const data = await Instruments.Fetch(props);
+//   console.log(data)
+// };
+
+// //getRef("category", { source_ref: `tp`, trigger_type: });
+// getRef("category", { trigger_type: true});
+
+// let st
+// let et
+
+// console.log('*-------------------------- round 1 --------------------------*')
+// st = performance.now();
+// getInst( { fromSymbol: 'BTC-USDT', limit: 1});
+// et = performance.now();
+// console.log(`From Interface Fetch returned in ${et - st}ms`);
+
+// st = performance.now();
+// getRef("vw_instruments", { symbol: 'BTC-USDT'});
+// et = performance.now();
+// console.log(`From Generic Fetch returned in ${et - st}ms`);
+
+// console.log('*-------------------------- round 2 --------------------------*')
+// st = performance.now();
+// getInst( { fromSymbol: 'BTC-USDT', limit: 1});
+// et = performance.now();
+// console.log(`From Interface Fetch returned in ${et - st}ms`);
+
+// st = performance.now();
+// getRef("vw_instruments", { symbol: 'BTC-USDT'});
+// et = performance.now();
+// console.log(`From Generic Fetch returned in ${et - st}ms`);
+
+// console.log('*-------------------------- round 3 --------------------------*')
+// st = performance.now();
+// getInst( { fromSymbol: 'BTC-USDT', limit: 1});
+// et = performance.now();
+// console.log(`From Interface Fetch returned in ${et - st}ms`);
+
+// st = performance.now();
+// getRef("vw_instruments", { symbol: 'BTC-USDT'});
+// et = performance.now();
+// console.log(`From Generic Fetch returned in ${et - st}ms`);
+
+

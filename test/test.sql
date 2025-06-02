@@ -1,73 +1,83 @@
-CREATE VIEW
-    vw_instruments AS
+create or replace view blofin.vw_orders as
 select
-    i.instrument AS instrument,
-    concat (b.symbol, '-', q.symbol) AS currency_pair,
-    b.currency AS base_currency,
-    b.symbol AS base_symbol,
-    q.currency AS quote_currency,
-    q.symbol AS quote_symbol,
-    tp.period AS trade_period,
-    tp.timeframe AS trade_timeframe,
-    tp.units AS units,
-    ti.period AS interval_period,
-    ti.timeframe AS interval_timeframe,
-    ip.bulk_collection_rate AS bulk_collection_rate,
-    ip.interval_collection_rate AS interval_collection_rate,
-    ip.sma_factor AS sma_factor,
-    id.contract_value AS contract_value,
-    id.max_leverage AS max_leverage,
-    id.min_size AS min_size,
-    id.lot_size AS lot_size,
-    id.tick_size AS tick_size,
-    (
-        length (
-            substring_index (
-                cast(id.tick_size as char charset utf8mb4),
-                '.',
-                - (1)
-            )
-        ) + 1
-    ) AS digits,
-    id.max_limit_size AS max_limit_size,
-    id.max_market_size AS max_market_size,
-    ts.trade_state AS trade_state,
-    ts.state AS state,
-    b.suspense AS suspense
+o.client_order_id as client_order_id,
+o.account as account,
+o.instrument as instrument,
+o.order_id as order_id,
+o.price as price,
+o.size as size,
+ot.source_ref as order_type,
+o.action as action,
+o.bias as bias,
+o.margin_mode as margin_mode,
+o.filled_size as filled_size,
+o.filled_amount as filled_amount,
+o.average_price as average_price,
+os.source_ref as state,
+o.leverage as leverage,
+o.fee as fee,
+o.pnl as pnl,
+can.source_ref as cancel_source,
+cat.source_ref as order_category,
+o.create_time as create_time,
+o.update_time as update_time,
+o.reduce_only as reduce_only,
+o.broker_id as broker_id,
+	tp.trigger_price as tp_trigger_price,
+	tp.order_price as tp_order_price,
+	tp.price_type as tp_price_type,
+	sl.trigger_price as sl_trigger_price,
+	sl.order_price as sl_order_price,
+	sl.price_type as sl_price_type,
+i.symbol as symbol,
+i.base_currency as base_currency,
+i.base_symbol as base_symbol,
+i.quote_currency as quote_currency,
+i.quote_symbol as quote_symbol,
+i.instrument_type as instrument_type,
+i.contract_type as contract_type,
+i.trade_period as trade_period,
+i.trade_timeframe as trade_timeframe,
+i.timeframe_units as timeframe_units,
+i.bulk_collection_rate as bulk_collection_rate,
+i.interval_collection_rate as interval_collection_rate,
+i.sma_factor as sma_factor,
+i.contract_value as contract_value,
+i.max_leverage as max_leverage,
+i.min_size as min_size,
+i.lot_size as lot_size,
+i.tick_size as tick_size,
+i.digits as digits,
+i.max_limit_size as max_limit_size,
+i.max_market_size as max_market_size,
+i.list_time as list_time,
+i.list_timestamp as list_timestamp,
+i.expiry_time as expiry_time,
+i.expiry_timestamp as expiry_timestamp,
+i.trade_state as trade_state,
+i.trade_status as trade_status,
+i.suspense as suspense
 from
-    (
-        (
-            (
-                (
-                    (
-                        (
-                            (
-                                (
-                                    blofin.instrument i
-                                    left join blofin.instrument_period bip on (
-                                        (
-                                            (i.trade_period = ip.period)
-                                            and (i.instrument = ip.instrument)
-                                        )
-                                    )
-                                )
-                            )
-                            left join blofin.period tp on ((i.trade_period = tp.period))
-                        )
-                        left join blofin.period ti on ((i.interval_period = ti.period))
-                    )
-                    join blofin.instrument_detail id
-                )
-                join blofin.trade_state ts
-            )
-            join blofin.currency b
-        )
-        join blofin.currency q
-    )
+	blofin.orders o
+       left join blofin.triggers tp on
+	     (o.client_order_id = tp.client_order_id)
+       left join blofin.category ctp on
+        (tp.category = ctp.category
+		  AND ctp.source_ref = 'tp')
+left join blofin.triggers sl on
+	(o.client_order_id = sl.client_order_id)
+left join blofin.category csl on
+	(sl.category = csl.category
+		AND csl.source_ref = 'sl')
+join blofin.order_type ot
+join blofin.order_state os
+join blofin.cancel can
+join blofin.category cat
+join blofin.vw_instruments i
 where
-    (
-        (i.instrument = id.instrument)
-        and (i.trade_state = ts.trade_state)
-        and (i.base_currency = b.currency)
-        and (i.quote_currency = q.currency)
-    )
+	o.order_type = ot.order_type
+	and o.instrument = i.instrument
+	and o.state = os.order_state
+	and o.cancel_source = can.cancel
+	and o.order_category = cat.category;
+

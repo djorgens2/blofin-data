@@ -1,5 +1,5 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                         websocket.ts |
+//|                                                                           session.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use server";
@@ -11,7 +11,7 @@ import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 
 import * as Accounts from "@api/accounts";
-import { IKeyProps } from "@db/interfaces/account";
+import * as Orders from "@db/interfaces/order";
 
 export type IResponseProps = {
   event: string;
@@ -25,16 +25,51 @@ export type IResponseProps = {
   data: any;
 };
 
-export const wsStatus = {
-  connected: "connected",
-  disconnected: "diconnected",
-  connecting: "connecting",
-  error: "error",
-  closed: "closed",
-} as const;
-export type wsStatus = (typeof wsStatus)[keyof typeof wsStatus];
+export type TState = "disconnected" | "connected" | "connecting" | "error" | "closed";
+export type TSession = {
+  account: Uint8Array;
+  alias: string;
+  state: TState;
+  api: string;
+  secret: string;
+  phrase: string;
+  wss_url: string;
+  rest_api_url: string;
+  wss_public_url: string;
+};
 
-let state: wsStatus = "closed";
+const session: Partial<TSession> = {};
+
+export const Session = () => {
+  return session;
+};
+export const setSession = (props: Partial<TSession>) => {
+  // @ts-ignore
+  //  Object.keys(props).forEach((key) => props[key] === undefined && delete props[key]);
+  Object.assign(session, { ...session, ...props });
+};
+
+//+--------------------------------------------------------------------------------------+
+//| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
+//+--------------------------------------------------------------------------------------+
+export const signRequest = async (method: string, path: string, body: string) => {
+  // console.log(method, path, props, Session());
+  const { secret } = Session();
+  const timestamp = String(Date.now());
+  const nonce = uniqueKey(32);
+  const prehash = `${path}${method}${timestamp}${nonce}${body}`;
+  const messageEncoded = new TextEncoder().encode(prehash);
+
+  console.log("\n\nThe key:", secret, path, method, prehash, messageEncoded, timestamp);
+  console.log("\n\nThe packages:", Session());
+  console.log("\n\nThe JSON:", body);
+
+  const hmac = createHmac("sha256", secret!).update(messageEncoded).digest("hex");
+  const hexEncoded = Buffer.from(hmac).toString("hex");
+  const sign = Buffer.from(hexEncoded, "hex").toString("base64");
+
+  return { sign, timestamp, nonce };
+};
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |
@@ -50,19 +85,21 @@ export const signLogon = async (key: string) => {
   const hexEncoded = Buffer.from(hmac).toString("hex");
   const sign = Buffer.from(hexEncoded, "hex").toString("base64");
 
-  return [sign, timestamp, nonce];
+  return { sign, timestamp, nonce };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Opens the ws to Blofin and establishes com channels/listeners;                       |
 //+--------------------------------------------------------------------------------------+
-export function openWebSocket(props: Partial<IKeyProps>) {
-  const { account, api, key, phrase, wss_url } = props;
+export function openWebSocket(props: Partial<TSession>) {
+  const { account, api, secret, phrase, wss_url, rest_api_url, wss_public_url } = props;
   const ws = new WebSocket(wss_url!);
+
+  setSession({ account, state: "connecting", api, secret, phrase, wss_url, rest_api_url, wss_public_url });
 
   ws.onopen = () => {
     const login = async () => {
-      const [sign, timestamp, nonce] = await signLogon(key!);
+      const { sign, timestamp, nonce } = await signLogon(secret!);
       ws.send(
         JSON.stringify({
           op: "login",
@@ -75,12 +112,12 @@ export function openWebSocket(props: Partial<IKeyProps>) {
   };
 
   ws.onclose = () => {
-    state = "closed";
+    setSession({ state: "closed" });
     console.log("socket closed");
   };
 
   ws.onerror = (error) => {
-    state = "error";
+    setSession({ state: "error" });
     console.error("WebSocket error:", error);
   };
 
@@ -88,7 +125,7 @@ export function openWebSocket(props: Partial<IKeyProps>) {
     const message = parseJSON<IResponseProps>(event.data);
 
     if (message!.event === "pong") {
-      state = "connected";
+      setSession({ state: "connected" });
     } else if (message!.event === "login") {
       if (message!.code === "0") {
         ws.send(
@@ -97,21 +134,24 @@ export function openWebSocket(props: Partial<IKeyProps>) {
             args: [{ channel: "account" }, { channel: "positions" }, { channel: "orders" }],
           })
         );
-        state = "connected";
-      } else state = "error";
+        setSession({ account, state: "connected", api, secret, phrase, wss_url, rest_api_url, wss_public_url });
+      } else setSession({ state: "error" });
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
+      console.log("message pre-process", message!.arg?.channel);
       message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account! });
-      message!.arg.channel === "orders" && console.log("Orders:", message!.data);
-      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
-    } else console.log("Unhandled message:", message!.arg!);
+      // message!.arg.channel === "orders" && console.log("Orders:", message!.data, api, secret);
+      // message!.arg.channel === "positions" && console.log("Positions:", message!.data);
+    } else console.log("Unhandled message:", message!, Session());
   };
 
   setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send("ping");
     }
+    if (ws.readyState === WebSocket.CONNECTING) console.log("Websocket trying to connect...");
+    Orders.Execute();
   }, 29000);
   return ws;
 }

@@ -1,100 +1,87 @@
 //+---------------------------------------------------------------------------------------+
-//|                                                                              state.ts |
+//|                                                                              order.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
+import type { IRequestAPI } from "@api/orders";
+import { Modify, parseColumns, Select } from "@db/query.utils";
+import { hashKey, hexify } from "@lib/crypto.util";
+import { hexString } from "@lib/std.util";
 
-import { Modify, Select } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import * as Refs from "@db/interfaces/reference";
+import * as OrderAPI from "@api/orders";
 
-export const Status = {
-  Enabled: "Enabled",
-  Disabled: "Disabled",
-  Halted: "Halted",
-  Restricted: "Restricted",
-  Suspended: "Suspended",
-  Deleted: "Deleted",
-  Expired: "Expired",
-} as const;
-export type Status = (typeof Status)[keyof typeof Status];
-export const States: Array<{ status: Status; description: string }> = [
-  { status: "Enabled", description: "Enabled for trading" },
-  { status: "Disabled", description: "Disabled from trading" },
-  { status: "Halted", description: "Adverse event halt" },
-  { status: "Restricted", description: "Restricted use" },
-  { status: "Suspended", description: "Suspended by broker" },
-  { status: "Deleted", description: "Deleted pending removal" },
-  { status: "Expired", description: "Expired" },
-];
-
-export interface IKeyProps {
-  state?: Uint8Array;
-  status?: string | Status;
+export interface IRequest {
+  client_order_id: Uint8Array;
+  order_state: Uint8Array;
+  account: Uint8Array;
+  instrument: Uint8Array;
+  symbol: string;
+  margin_mode: "cross" | "isolated" | undefined;
+  bias: "short" | "long" | "net" | undefined;
+  action: "buy" | "sell" | undefined;
+  order_type: Uint8Array | "limit" | "market" | undefined;
+  price: number;
+  size: number;
+  leverage: number;
+  tp_trigger: string;
+  sl_trigger: string;
+  reduce_only: boolean;
+  memo: string;
+  broker_id: string;
+  expiry_time: Date;
+}
+export interface IOrder extends IRequest, RowDataPacket {
+  broker_id: string;
+  create_time: Date;
+  update_time: Date;
 }
 
-export interface IState extends IKeyProps, RowDataPacket {
-  description: string;
+//+--------------------------------------------------------------------------------------+
+//| Set-up/Configure order requests locally prior to posting request to broker;          |
+//+--------------------------------------------------------------------------------------+
+export async function Request(props: Partial<IRequest>): Promise<IRequest["client_order_id"] | undefined> {
+  const key = hexify(hashKey(6));
+  const [{ order_state }] = await Refs.Fetch("order_state", { order_state: undefined, source_ref: "live" });
+  const [{ order_type }] = await Refs.Fetch("order_type", { order_type: undefined, source_ref: props.order_type });
+
+  const [fields, args] = parseColumns({ ...props, client_order_id: key, order_state, order_type }, "");
+  const sql = `INSERT INTO blofin.requests ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
+  await Modify(sql, args);
+  console.log(sql, args, props);
+  return key;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Imports seed States to define accounts/trading operational status;                   |
+//| Formats and emits order requests to broker for execution;                            |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => States.forEach((state) => Publish(state));
+export async function Execute(): Promise<number> {
+  const requests = await Refs.Fetch<Partial<IRequestAPI>>("vw_api_requests", { orderState: "live" });
 
-//+--------------------------------------------------------------------------------------+
-//| Adds new States to local database;                                                   |
-//+--------------------------------------------------------------------------------------+
-export async function Publish(props: { status: Status; description: string }): Promise<IKeyProps["state"]> {
-  const { status, description } = props;
-  const state = await Key({ status });
+  for (let id in requests) {
+    const request = requests[id];
+    const custKey = hexify(request.clientOrderId!);
+    const api: IRequestAPI = {
+      instId: request.instId!,
+      marginMode: request.marginMode!,
+      positionSide: request.positionSide!,
+      side: request.side!,
+      orderType: request.orderType!,
+      price: request.price!,
+      size: request.size!,
+      leverage: request.leverage!,
+      reduceOnly: request.reduceOnly!,
+      clientOrderId: hexString(custKey!, 3),
+      tpTriggerPrice: request.tpTriggerPrice ? request.tpTriggerPrice : undefined,
+      tpOrderPrice: request.tpOrderPrice! ? request.tpTriggerPrice : undefined,
+      slTriggerPrice: request.slTriggerPrice! ? request.tpTriggerPrice : undefined,
+      slOrderPrice: request.slOrderPrice! ? request.tpTriggerPrice : undefined,
+      brokerId: request.brokerId ? request.brokerId : undefined,
+    };
 
-  if (state === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.state VALUES (?, ?, ?)`, [key, status, description]);
-    return key;
+    await OrderAPI.Submit(api)
   }
-  return state;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefined> {
-  const { status, state } = props;
-  const args = [];
-
-  let sql: string = `SELECT state FROM blofin.state WHERE `;
-
-  if (state) {
-    args.push(state);
-    sql += `state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += `status = ?`;
-  } else return undefined;
-
-  const [key] = await Select<IState>(sql, args);
-  return key === undefined ? undefined : key.state;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { state, status } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.state`;
-
-  if (state) {
-    args.push(state);
-    sql += ` WHERE state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += ` WHERE status = ?`;
-  }
-
-  return Select<IState>(sql, args);
+  return requests.length;
 }

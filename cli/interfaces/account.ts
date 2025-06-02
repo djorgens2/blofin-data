@@ -69,25 +69,25 @@ export const menuViewAccount = async () => {
   setHeader("View Accounts");
   console.log(
     `\n✔️ `,
-    `${bold("Broker".padEnd(16, " "))}`,
+    `${bold("Job Name".padEnd(16, " "))}`,
     `${bold("Account Holder".padEnd(20, " "))}`,
     `${bold("Environment".padEnd(16, " "))}`,
     `${bold("Status".padEnd(12, " "))}`,
-    `${bold("Web Socket Address".padEnd(40, " "))}`,
-    `${bold("REST API Address".padEnd(40, " "))}`,
+    `${bold("Web Socket Address".padEnd(52, " "))}`,
+    `${bold("REST API Address".padEnd(52, " "))}`,
     `${bold("Available".padEnd(12, " "))}`
   );
   (await Accounts.Fetch({})).forEach((account) => {
-    const { broker_name, owner_name, environ, status, wss_url, rest_api_url } = account;
+    const { alias, owner_name, environ, status, wss_url, rest_api_url } = account;
     const available = "No";
     console.log(
       `${status! === "Enabled" ? "🔹" : "🔸"} `,
-      `${broker_name!.padEnd(16, " ")}`,
+      `${alias!.padEnd(16, " ")}`,
       `${owner_name.padEnd(20, " ")}`,
       `${environ!.padEnd(16, " ")}`,
       `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
-      `${wss_url!.padEnd(40, " ")}`,
-      `${rest_api_url!.padEnd(40, " ")}`,
+      `${wss_url!.padEnd(52, " ")}`,
+      `${rest_api_url!.padEnd(52, " ")}`,
       `   ${available.padEnd(12, " ")}`
     );
   });

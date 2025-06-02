@@ -31,9 +31,9 @@ async def trading_example():
     """Complete trading workflow example."""
     try:
         # Example credentials (replace with your own)
-        api_key = "YOUR_API_KEY"
-        secret = "YOUR_SECRET"
-        passphrase = "YOUR_PASSPHRASE"
+        api_key = "6d25db314497499987681bafa75f4bf0"
+        secret = "8a964e2c76a54791822504eac9838c53"
+        passphrase = "BlofinOnSteroids"
         
         # 1. Get order book price
         response = requests.get(
@@ -77,7 +77,7 @@ async def trading_example():
             "price": str(limit_price),
             "size": "0.1",  # See /api/v1/market/instruments for contract sizes
             "leverage": "3",
-            "positionSide": "net"
+            "positionSide": "long"
         }
         # order_request["brokerId"] = "your broker id" #if needed
         # Generate signature for REST API
@@ -86,6 +86,7 @@ async def trading_example():
         path = "/api/v1/trade/order"
         method = "POST"
         msg = f"{path}{method}{timestamp}{nonce}{json.dumps(order_request)}"
+        print('msg:', msg)
         hex_signature = hmac.new(
             secret.encode('utf-8'),
             msg.encode('utf-8'),

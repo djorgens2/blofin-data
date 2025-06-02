@@ -5,7 +5,9 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
+import type { TSession } from "@module/session";
 
+import { Session } from "@module/session";
 import { Status } from "@db/interfaces/state";
 import { Select, Modify, parseColumns } from "@db/query.utils";
 
@@ -17,9 +19,6 @@ import * as Environments from "@db/interfaces/environment";
 
 export interface IKeyProps {
   account: Uint8Array | undefined;
-  api: string;
-  key: string;
-  phrase: string;
   currency: Uint8Array | undefined;
   alias: string;
   owner: Uint8Array;
@@ -30,8 +29,6 @@ export interface IKeyProps {
   status: string | Status;
   environment: Uint8Array;
   environ: string;
-  wss_url: string;
-  rest_api_url: string;
   total_equity: number;
   isolated_equity: number;
   balance: number;
@@ -51,13 +48,18 @@ export interface IKeyProps {
   update_time: number;
 }
 
-export interface IAccount extends IKeyProps, RowDataPacket {}
+export interface IAccount extends IKeyProps, RowDataPacket {
+  wss_url?: string | undefined;
+  rest_api_url?: string | undefined;
+  wss_public_url?: string | undefined;
+}
 
 type TMutableProps = {
   state?: Uint8Array | undefined;
   environment?: Uint8Array | undefined;
   wss_url?: string | undefined;
   rest_api_url?: string | undefined;
+  wss_public_url?: string | undefined;
   total_equity?: number | undefined;
   isolated_equity?: number | undefined;
   balance?: number | undefined;
@@ -81,13 +83,13 @@ type TMutableProps = {
 //| Returns an array of 'verified new' accounts from .env ready for publishing;          |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const keys: Array<Partial<IAccount>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
-  const imports: Array<Partial<IAccount>> = [];
+  const keys: Array<Partial<TSession>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
+  const imports: Array<Partial<TSession>> = [];
 
   for (let id in keys) {
-    const { api, key, phrase } = keys[id];
+    const { api, secret, phrase } = keys[id];
 
-    (await Key({ api, key, phrase })) === undefined && imports.push(keys[id]);
+    (await Key({ api, secret, phrase })) === undefined && imports.push(keys[id]);
   }
   return imports;
 };
@@ -96,11 +98,13 @@ export const Import = async () => {
 //| Adds all new accounts recieved from ui or any internal source to the database;       |
 //+--------------------------------------------------------------------------------------+
 export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account"]> {
-  const { api, key, phrase, user, broker, state, environment, alias, wss_url, rest_api_url } = props;
-  const result = await Key(props);
+  const { user, broker, state, environment, alias } = props;
+  const { api, secret, phrase, wss_url, rest_api_url, wss_public_url } = Session();
 
-  if (result === undefined) {
-    const hmac = await hashHmac([api, key, phrase]);
+  const key = await Key({ api, secret, phrase });
+
+  if (key === undefined) {
+    const hmac = await hashHmac([api, secret, phrase]);
     const position = Math.floor(Math.random() * 82 + 1);
     const hash = Buffer.from([position, hmac.charCodeAt(position), hmac.charCodeAt(position + 1)]);
 
@@ -111,6 +115,7 @@ export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account
       environment,
       wss_url,
       rest_api_url,
+      wss_public_url,
     ]);
     await Modify(`INSERT INTO blofin.user_account VALUES (?, ?, ?, ?)`, [user, hash, user, alias]);
 
@@ -123,20 +128,18 @@ export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account
 //+--------------------------------------------------------------------------------------+
 //| Examines account search methods in props; executes first in priority sequence;        |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: Partial<IKeyProps>): Promise<IKeyProps["account"] | undefined> {
-  const { account, api, key, phrase } = props;
+export async function Key(props: Partial<TSession>): Promise<IKeyProps["account"] | undefined> {
+  const { account, api, secret, phrase } = props;
   const args = [];
-
-  let sql: string = `SELECT account FROM blofin.account WHERE account = ?`;
 
   if (account) {
     args.push(account);
-  } else if (api && key && phrase) {
+  } else if (api && secret && phrase) {
     const accounts = await Fetch({});
 
     for (let match in accounts) {
       const { account } = accounts[match];
-      const hmac = await hashHmac([api, key, phrase]);
+      const hmac = await hashHmac([api, secret, phrase]);
       const slot = parseInt(account![0].toFixed(), 10);
       const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
 
@@ -145,7 +148,7 @@ export async function Key(props: Partial<IKeyProps>): Promise<IKeyProps["account
     return undefined;
   } else return undefined;
 
-  const [result] = await Select<IAccount>(sql, args);
+  const [result] = await Select<IAccount>(`SELECT account FROM blofin.account WHERE account = ?`, args);
   return result === undefined ? undefined : result.account;
 }
 
@@ -196,7 +199,7 @@ export async function FetchDetail(props: Partial<IKeyProps>): Promise<Array<Part
 //| Updates the account (master) from the API (select fields) or the UI;                 |
 //+--------------------------------------------------------------------------------------+
 export async function Update(props: Partial<IKeyProps>): Promise<number | undefined> {
-  const account = await Key(props);
+  const account = await Key(Session());
 
   if (account) {
     const update: TMutableProps = {
@@ -204,8 +207,9 @@ export async function Update(props: Partial<IKeyProps>): Promise<number | undefi
       environment: props?.environment ? props.environment : props?.environ ? await Environments.Key({ environ: props.environ }) : undefined,
       total_equity: props?.total_equity,
       isolated_equity: props?.isolated_equity,
-      wss_url: props?.wss_url,
-      rest_api_url: props?.rest_api_url,
+      wss_url: Session().wss_url,
+      rest_api_url: Session().rest_api_url,
+      wss_public_url: Session().wss_public_url,
       update_time: props?.update_time,
     };
 

@@ -73,60 +73,26 @@ export const Import = async () => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Adds seed references for fk's to local database;                                     |
+//| Adds seed references for fk's/referential integrity to local database;               |
 //+--------------------------------------------------------------------------------------+
 export async function Add(table: string, data: object) {
   const [fields, args] = parseColumns(data, "");
-  const values = [" ?", " ?", " ?", " ?"];
 
   if (fields) {
     args[0] === 0 && (args[0] = hashKey(6));
-    const sql = `INSERT IGNORE INTO blofin.${table} ( ${fields.join(", ")} ) VALUES (${values.slice(0, args.length)} )`;
+    const sql = `INSERT IGNORE INTO blofin.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
     await Modify(sql, args);
     return args[0];
   }
   return undefined;
 }
 
-/*
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefined> {
-  const { status, state } = props;
-  const args = [];
-
-  let sql: string = `SELECT state FROM blofin.state WHERE `;
-
-  if (state) {
-    args.push(state);
-    sql += `state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += `status = ?`;
-  } else return undefined;
-
-  const [key] = await Select<IState>(sql, args);
-  return key === undefined ? undefined : key.state;
+export async function Fetch<T extends object> (table: string, props: T ): Promise<Array<Partial<T>>> {
+  const [fields, args] = parseColumns(props);
+  const sql: string = `SELECT * FROM blofin.${table} WHERE ${fields.join(" AND ")}`;
+  return Select<T>(sql, args);
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { state, status } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.state`;
-
-  if (state) {
-    args.push(state);
-    sql += ` WHERE state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += ` WHERE status = ?`;
-  }
-
-  return Select<IState>(sql, args);
-}
-*/

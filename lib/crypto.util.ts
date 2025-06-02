@@ -16,7 +16,7 @@ import * as User from "@db/interfaces/user";
 
 dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
-const secret = process.env.BF_SECRET ? process.env.BF_SECRET : ``;
+const secret = process.env.USER_SECRET ? process.env.USER_SECRET : ``;
 
 
 //+--------------------------------------------------------------------------------------+
