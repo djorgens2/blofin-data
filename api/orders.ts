@@ -9,6 +9,7 @@ import type { TSession } from "@module/session";
 
 import { parseColumns } from "@db/query.utils";
 import { Session, signRequest } from "@module/session";
+import { error } from "node:console";
 
 export interface IRequestAPI {
   instId: string;
@@ -91,16 +92,8 @@ export async function Submit(props: Partial<IRequestAPI>) {
     body,
   })
     .then((response) => response.json())
-    .then((json) => console.log(json));
-
-  // # Place order
-  // response = requests.post(
-  //     "https://openapi.blofin.com/api/v1/trade/order",
-  //     headers=headers,
-  //     json=order_request
-  // )
-  // response.raise_for_status()
-  // order_response = response.json()
+    .then((json) => console.log(json))
+    .catch((error) => console.log(error));
 
   // # Verify response format and success
   // if not isinstance(order_response, dict):

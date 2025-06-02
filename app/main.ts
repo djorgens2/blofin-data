@@ -32,8 +32,7 @@ export class CMain {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start(service: string) {
-    //       const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ symbol: "XRP", state: State.Enabled });
-    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: Status.Halted });
+    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: Status.Enabled });
     const wss = await this.setService(service);
 
     instruments.forEach((instrument, id) => {

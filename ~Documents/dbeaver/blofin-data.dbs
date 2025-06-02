@@ -560,9 +560,9 @@ mark: mark price]]></comment>
 		</table>
 		<table name="requests" prior="requsts" >
 			<column name="client_order_id" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="order_state" type="BINARY" length="3" jt="-2" />
 			<column name="account" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="state" type="BINARY" length="3" jt="-2" />
 			<column name="margin_mode" type="VARCHAR" length="10" jt="12" mandatory="y" />
 			<column name="bias" type="CHAR" length="5" jt="1" mandatory="y" />
 			<column name="action" type="CHAR" length="4" jt="1" mandatory="y" />
@@ -606,8 +606,8 @@ mark: mark price]]></comment>
 			<index name="fk_r_instrument" unique="NORMAL" >
 				<column name="instrument" />
 			</index>
-			<index name="fk_r_order_state" unique="NORMAL" >
-				<column name="order_state" />
+			<index name="unq_requests_create_time" unique="UNIQUE_KEY" >
+				<column name="create_time" />
 			</index>
 			<fk name="fk_r_action" to_schema="blofin" to_table="action" >
 				<fk_column name="action" pk="action" />
@@ -627,8 +627,8 @@ mark: mark price]]></comment>
 			<fk name="fk_r_instrument" to_schema="blofin" to_table="instrument" >
 				<fk_column name="instrument" pk="instrument" />
 			</fk>
-			<fk name="fk_r_order_state" to_schema="blofin" to_table="order_state" >
-				<fk_column name="order_state" pk="order_state" />
+			<fk name="fk_requests_state" to_schema="blofin" to_table="state" >
+				<fk_column name="state" pk="state" />
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
@@ -1098,37 +1098,13 @@ mark: mark price]]></comment>
 		</view>
 	</schema>
 	<layout name="Diagram" id="a6121fdd-a8e7-4dee-9e3b-c4f99ff04962" show_relation="columns" >
-		<entity schema="blofin" name="user_account" color="994D00" x="1000" y="1060" />
-		<entity schema="blofin" name="user" color="1A4D1A" x="1060" y="580" />
-		<entity schema="blofin" name="authority" color="1A4D1A" x="1300" y="740" />
-		<entity schema="blofin" name="triggers" color="AE5285" x="2760" y="540" />
-		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1320" y="480" />
-		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1300" y="220" />
-		<entity schema="blofin" name="role" color="1A4D1A" x="980" y="400" />
-		<entity schema="blofin" name="state" color="994D00" x="1160" y="960" />
-		<entity schema="blofin" name="category" color="AE5285" x="2720" y="320" />
-		<entity schema="blofin" name="activity" color="1A4D1A" x="1560" y="220" />
-		<entity schema="blofin" name="subject" color="1A4D1A" x="1560" y="520" />
-		<entity schema="blofin" name="broker" color="994D00" x="980" y="1360" />
 		<entity schema="blofin" name="vw_users" color="3986C1" x="540" y="100" />
 		<entity schema="blofin" name="vw_accounts" color="3986C1" x="300" y="100" />
 		<entity schema="blofin" name="vw_instruments" color="3986C1" x="60" y="100" />
-		<entity schema="blofin" name="environment" color="994D00" x="980" y="1220" />
-		<entity schema="blofin" name="order_state" color="AE5285" x="2300" y="180" />
-		<entity schema="blofin" name="price_type" color="AE5285" x="2780" y="180" />
-		<entity schema="blofin" name="orders" color="AE5285" x="2400" y="360" />
-		<entity schema="blofin" name="cancel" color="AE5285" x="2540" y="120" />
-		<entity schema="blofin" name="action" color="CCCC33" x="1840" y="780" />
-		<entity schema="blofin" name="instrument" color="331A80" x="1720" y="960" />
-		<entity schema="blofin" name="currency" color="331A80" x="1760" y="1360" />
 		<entity schema="blofin" name="period" color="331A80" x="2040" y="1060" />
 		<entity schema="blofin" name="candle" color="331A80" x="2340" y="1020" />
 		<entity schema="blofin" name="instrument_period" color="331A80" x="2020" y="1280" />
 		<entity schema="blofin" name="contract_type" color="331A80" x="2760" y="1400" />
-		<entity schema="blofin" name="order_type" color="AE5285" x="2140" y="400" />
-		<entity schema="blofin" name="margin_mode" color="AE5285" x="2120" y="540" />
-		<entity schema="blofin" name="bias" color="CCCC33" x="2000" y="620" />
-		<entity schema="blofin" name="instrument_detail" color="331A80" x="2740" y="980" />
 		<entity schema="blofin" name="instrument_type" color="AE5285" x="2740" y="720" />
 		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="540" y="400" />
 		<entity schema="blofin" name="vw_candles" color="3986C1" x="300" y="940" />
@@ -1137,45 +1113,69 @@ mark: mark price]]></comment>
 		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="540" y="640" />
 		<entity schema="blofin" name="vw_requests" color="3986C1" x="540" y="1160" />
 		<entity schema="blofin" name="vw_orders" color="3986C1" x="720" y="100" />
-		<entity schema="blofin" name="account" color="994D00" x="1220" y="1180" />
-		<entity schema="blofin" name="requests" color="CCCC33" x="1720" y="220" />
 		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="540" y="780" />
 		<entity schema="blofin" name="account_detail" color="994D00" x="1460" y="1100" />
+		<entity schema="blofin" name="user" color="1A4D1A" x="1060" y="540" />
+		<entity schema="blofin" name="cancel" color="AE5285" x="2500" y="100" />
+		<entity schema="blofin" name="price_type" color="AE5285" x="2780" y="100" />
+		<entity schema="blofin" name="instrument_detail" color="331A80" x="2740" y="980" />
+		<entity schema="blofin" name="instrument" color="331A80" x="1720" y="940" />
+		<entity schema="blofin" name="action" color="CCCC33" x="1840" y="760" />
+		<entity schema="blofin" name="authority" color="1A4D1A" x="1300" y="680" />
+		<entity schema="blofin" name="activity" color="1A4D1A" x="980" y="200" />
+		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1280" y="420" />
+		<entity schema="blofin" name="role" color="1A4D1A" x="1060" y="360" />
+		<entity schema="blofin" name="order_state" color="AE5285" x="2300" y="100" />
+		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1260" y="200" />
+		<entity schema="blofin" name="orders" color="AE5285" x="2400" y="320" />
+		<entity schema="blofin" name="category" color="AE5285" x="2700" y="280" />
+		<entity schema="blofin" name="triggers" color="AE5285" x="2740" y="520" />
+		<entity schema="blofin" name="currency" color="331A80" x="1760" y="1320" />
+		<entity schema="blofin" name="order_type" color="AE5285" x="2140" y="360" />
+		<entity schema="blofin" name="margin_mode" color="AE5285" x="2120" y="500" />
+		<entity schema="blofin" name="bias" color="CCCC33" x="2000" y="600" />
+		<entity schema="blofin" name="requests" color="CCCC33" x="1720" y="200" />
+		<entity schema="blofin" name="account" color="994D00" x="1220" y="960" />
+		<entity schema="blofin" name="environment" color="994D00" x="1260" y="1360" />
+		<entity schema="blofin" name="state" color="994D00" x="1460" y="900" />
+		<entity schema="blofin" name="broker" color="994D00" x="980" y="1160" />
+		<entity schema="blofin" name="user_account" color="994D00" x="1000" y="980" />
+		<entity schema="blofin" name="subject" color="1A4D1A" x="1560" y="400" />
 		<group name="orders" color="AE5285" >
-			<entity schema="blofin" name="triggers" />
-			<entity schema="blofin" name="category" />
-			<entity schema="blofin" name="order_state" />
-			<entity schema="blofin" name="price_type" />
-			<entity schema="blofin" name="orders" />
+			<entity schema="blofin" name="instrument_type" />
 			<entity schema="blofin" name="cancel" />
+			<entity schema="blofin" name="price_type" />
+			<entity schema="blofin" name="order_state" />
+			<entity schema="blofin" name="orders" />
+			<entity schema="blofin" name="category" />
+			<entity schema="blofin" name="triggers" />
 			<entity schema="blofin" name="order_type" />
 			<entity schema="blofin" name="margin_mode" />
-			<entity schema="blofin" name="instrument_type" />
 		</group>
 		<group name="instruments" color="331A80" >
-			<entity schema="blofin" name="instrument" />
-			<entity schema="blofin" name="currency" />
 			<entity schema="blofin" name="period" />
 			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="instrument_period" />
 			<entity schema="blofin" name="contract_type" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="instrument" />
+			<entity schema="blofin" name="currency" />
 		</group>
 		<group name="accounts" color="994D00" >
-			<entity schema="blofin" name="user_account" />
+			<entity schema="blofin" name="account_detail" />
+			<entity schema="blofin" name="account" />
+			<entity schema="blofin" name="environment" />
 			<entity schema="blofin" name="state" />
 			<entity schema="blofin" name="broker" />
-			<entity schema="blofin" name="environment" />
-			<entity schema="blofin" name="account" />
-			<entity schema="blofin" name="account_detail" />
+			<entity schema="blofin" name="user_account" />
 		</group>
 		<group name="users/privileges" color="1A4D1A" >
 			<entity schema="blofin" name="user" />
 			<entity schema="blofin" name="authority" />
-			<entity schema="blofin" name="role_authority" />
-			<entity schema="blofin" name="task_authority" />
-			<entity schema="blofin" name="role" />
 			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role_authority" />
+			<entity schema="blofin" name="role" />
+			<entity schema="blofin" name="task_authority" />
 			<entity schema="blofin" name="subject" />
 		</group>
 		<group name="views" color="C4E0F9" >
