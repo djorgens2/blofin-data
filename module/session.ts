@@ -43,17 +43,12 @@ const session: Partial<TSession> = {};
 export const Session = () => {
   return session;
 };
-export const setSession = (props: Partial<TSession>) => {
-  // @ts-ignore
-  //  Object.keys(props).forEach((key) => props[key] === undefined && delete props[key]);
-  Object.assign(session, { ...session, ...props });
-};
+export const setSession = (props: Partial<TSession>) => Object.assign(session, { ...session, ...props });
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
 //+--------------------------------------------------------------------------------------+
 export const signRequest = async (method: string, path: string, body: string) => {
-  // console.log(method, path, props, Session());
   const { secret } = Session();
   const timestamp = String(Date.now());
   const nonce = uniqueKey(32);

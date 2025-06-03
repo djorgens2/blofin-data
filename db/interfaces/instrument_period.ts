@@ -5,7 +5,7 @@
 "use strict";
 
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
-import type { Status } from "@db/interfaces/state";
+import type { System } from "@db/interfaces/state";
 
 import { Select, Modify } from "@db/query.utils";
 
@@ -22,7 +22,7 @@ export interface IKeyProps {
   timeframe?: string;
   active_collection?: boolean;
   trade_state?: Uint8Array;
-  trade_status?: Status;
+  trade_status?: System;
 }
 
 export interface IInstrumentPeriod extends IKeyProps, RowDataPacket {

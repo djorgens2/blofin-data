@@ -59,13 +59,13 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
 
   if (instrument === undefined) {
     const key = hashKey(6);
-    const state = await State.Key({ status: Status.Disabled });
+    const disabled = await State.Key({ status: "Disabled" });
 
     await Modify(`INSERT INTO blofin.instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
       key,
       base_currency,
       quote_currency,
-      state,
+      disabled
     ]);
     return key;
   }
@@ -140,10 +140,10 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument
 //| Suspends provided currency(s) upon receipt of an 'unalive' state from Blofin;        |
 //+--------------------------------------------------------------------------------------+
 export async function Suspend(suspensions: Array<Currency.IKeyProps>) {
-  const state = await State.Key({ status: Status.Suspended });
+  const suspend = await State.Key({ status: "Suspended" });
 
   for (const suspense of suspensions) {
-    const args = [state];
+    const args = [suspend];
 
     if (suspense.currency) {
       args.push(suspense.currency);

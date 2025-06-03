@@ -73,25 +73,27 @@ export async function Submit(props: Partial<IRequestAPI>) {
   Object.keys(props).forEach((key) => props[key] === undefined && delete props[key]);
   const method = "POST";
   const path = "/api/v1/trade/order";
-  const { api, phrase, rest_api_url } = Session();
   const body = JSON.stringify(props);
+  const { api, phrase, rest_api_url } = Session();
   const { sign, timestamp, nonce } = await signRequest(method, path, body);
+  
+  const headers = {
+    "ACCESS-KEY": api!,
+    "ACCESS-SIGN": sign!,
+    "ACCESS-TIMESTAMP": timestamp!,
+    "ACCESS-NONCE": nonce!,
+    "ACCESS-PASSPHRASE": phrase!,
+    "Content-Type": "application/json",
+  };
 
-  console.log(props);
   fetch(rest_api_url!.concat(path), {
-    method: "POST",
-    headers: {
-      "ACCESS-KEY": api!,
-      "ACCESS-SIGN": sign!,
-      "ACCESS-TIMESTAMP": timestamp!,
-      "ACCESS-NONCE": nonce!,
-      "ACCESS-PASSPHRASE": phrase!,
-      "Content-Type": "application/json",
-    },
+    method,
+    headers,
     body,
   })
     .then((response) => response.json())
-    .then((json) => console.log(json));
+    .then((json) => console.log(json))
+    .catch((error) => console.log(error));
 
   // # Place order
   // response = requests.post(

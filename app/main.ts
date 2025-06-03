@@ -11,7 +11,7 @@ import type { TSession } from "@module/session";
 import { openWebSocket } from "@module/session";
 import { fork } from "child_process";
 import { clear } from "@lib/app.util";
-import { Status } from "@db/interfaces/state";
+import { System } from "@db/interfaces/state";
 
 import * as InstrumentPeriods from "@db/interfaces/instrument_period";
 import * as Accounts from "@db/interfaces/account";
@@ -33,7 +33,7 @@ export class CMain {
   //+------------------------------------------------------------------------------------+
   async Start(service: string) {
     //       const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriod.Fetch({ symbol: "XRP", state: State.Enabled });
-    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: Status.Halted });
+    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: 'Halted' });
     const wss = await this.setService(service);
 
     instruments.forEach((instrument, id) => {

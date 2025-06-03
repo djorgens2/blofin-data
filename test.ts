@@ -738,11 +738,11 @@ const order_request = {
 
 const request: Partial<Order.IRequest> = {
   client_order_id: undefined!,
-  order_state: undefined!,
+  state: undefined!,
   account: hexify("305954")!,
   instrument: hexify("4e3e8a")!,
   margin_mode: "cross",
-  bias: "long",
+  position: "long",
   action: "buy",
   order_type: "limit",
   price: 93000.1,

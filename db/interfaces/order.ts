@@ -15,12 +15,12 @@ import * as OrderAPI from "@api/orders";
 
 export interface IRequest {
   client_order_id: Uint8Array;
-  order_state: Uint8Array;
+  state: Uint8Array;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
   margin_mode: "cross" | "isolated" | undefined;
-  bias: "short" | "long" | "net" | undefined;
+  position: "short" | "long" | "net" | undefined;
   action: "buy" | "sell" | undefined;
   order_type: Uint8Array | "limit" | "market" | undefined;
   price: number;
@@ -29,12 +29,11 @@ export interface IRequest {
   tp_trigger: string;
   sl_trigger: string;
   reduce_only: boolean;
-  memo: string;
   broker_id: string;
   expiry_time: Date;
 }
 export interface IOrder extends IRequest, RowDataPacket {
-  broker_id: string;
+  memo: string;
   create_time: Date;
   update_time: Date;
 }
@@ -44,13 +43,13 @@ export interface IOrder extends IRequest, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 export async function Request(props: Partial<IRequest>): Promise<IRequest["client_order_id"] | undefined> {
   const key = hexify(hashKey(6));
-  const [{ order_state }] = await Refs.Fetch("order_state", { order_state: undefined, source_ref: "live" });
+  const [{ state }] = await Refs.Fetch("state", { state: undefined, status: "Queued" });
   const [{ order_type }] = await Refs.Fetch("order_type", { order_type: undefined, source_ref: props.order_type });
-
-  const [fields, args] = parseColumns({ ...props, client_order_id: key, order_state, order_type }, "");
+  const [fields, args] = parseColumns({ ...props, client_order_id: key, state, order_type }, "");
   const sql = `INSERT INTO blofin.requests ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
+
   await Modify(sql, args);
-  console.log(sql, args, props);
+
   return key;
 }
 

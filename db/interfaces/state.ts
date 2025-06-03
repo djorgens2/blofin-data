@@ -9,25 +9,8 @@ import type { RowDataPacket } from "mysql2";
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-export const Status = {
-  Enabled: "Enabled",
-  Disabled: "Disabled",
-  Halted: "Halted",
-  Restricted: "Restricted",
-  Suspended: "Suspended",
-  Deleted: "Deleted",
-  Expired: "Expired",
-} as const;
-export type Status = (typeof Status)[keyof typeof Status];
-export const States: Array<{ status: Status; description: string }> = [
-  { status: "Enabled", description: "Enabled for trading" },
-  { status: "Disabled", description: "Disabled from trading" },
-  { status: "Halted", description: "Adverse event halt" },
-  { status: "Restricted", description: "Restricted use" },
-  { status: "Suspended", description: "Suspended by broker" },
-  { status: "Deleted", description: "Deleted pending removal" },
-  { status: "Expired", description: "Expired" },
-];
+export type System = "Enabled" | "Disabled" | "Halted";
+export type Status = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed" | undefined;
 
 export interface IKeyProps {
   state?: Uint8Array;
@@ -41,12 +24,27 @@ export interface IState extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Imports seed States to define accounts/trading operational status;                   |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => States.forEach((state) => Publish(state));
+export const Import = () =>
+  [
+    { status: "Enabled", description: "Enabled for trading" },
+    { status: "Disabled", description: "Disabled from trading" },
+    { status: "Halted", description: "Adverse event halt" },
+    { status: "Restricted", description: "Restricted use" },
+    { status: "Suspended", description: "Suspended by broker" },
+    { status: "Deleted", description: "Deleted pending removal" },
+    { status: "Expired", description: "Expired; order requests, tokens, keys, et al" },
+    { status: "Queued", description: "Queued; request queued for handling" },
+    { status: "Pending", description: "Pending; request is live/pending" },
+    { status: "Fulfilled", description: "Fulfilled; order fullfilled; check orders for completion" },
+    { status: "Rejected", description: "Rejected; request denied; check error log" },
+    { status: "Canceled", description: "Canceled; request canceled;" },
+    { status: "Closed", description: "Closed; request is closed;" },
+  ].forEach((state) => Publish(state));
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: { status: Status; description: string }): Promise<IKeyProps["state"]> {
+export async function Publish(props: { status: string; description: string }): Promise<IKeyProps["state"]> {
   const { status, description } = props;
   const state = await Key({ status });
 
