@@ -5,27 +5,25 @@
 "use server";
 "use strict";
 
+import type { System } from "@db/interfaces/state";
 import Prompt, { IOption } from "@cli/modules/Prompts";
-import { Answers } from "prompts";
-
 import * as States from "@db/interfaces/state";
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieves state assignments in prompt format;                                        |
+//| Retrieves state values (filtered) in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
-export const setState = async <T extends Answers<string>>(props: T) => {
+export const setState = async () => {
   const states = await States.Fetch({});
+  const options = ["Disabled", "Enabled"];
   const choices: Array<IOption> = [];
 
   if (states) {
-    if (props?.state) return states.find(({ state }) => state!.toString() === props.state.toString());
-    if (props?.status) return states.find(({ status }) => status === props.status);
-
     states.forEach((option) => {
-      choices.push({
-        title: option.status!,
-        value: option.state!,
-      });
+      if (options.includes(option.status!))
+        choices.push({
+          title: option.status!,
+          value: option.state!,
+        });
     });
 
     const { select } = await Prompt(["select"], { message: "  Select a State:", choices });
@@ -34,4 +32,3 @@ export const setState = async <T extends Answers<string>>(props: T) => {
     return { state: choice!.value, status: choice!.title };
   }
 };
-

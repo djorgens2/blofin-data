@@ -29,7 +29,7 @@ CREATE  TABLE blofin.broker (
 
 CREATE  TABLE blofin.cancel ( 
 	cancel               BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(10)    NOT NULL   ,
+	source_ref           VARCHAR(15)    NOT NULL   ,
 	source               VARCHAR(12)    NOT NULL   ,
 	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
  ) engine=InnoDB;
@@ -75,8 +75,9 @@ CREATE  TABLE blofin.margin_mode (
  ) engine=InnoDB;
 
 CREATE  TABLE blofin.order_state ( 
-	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(20)    NOT NULL   ,
+	map_ref              VARCHAR(10)       ,
 	status             VARCHAR(30)    NOT NULL   ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
  ) engine=InnoDB;
@@ -111,7 +112,7 @@ CREATE  TABLE blofin.role (
 CREATE  TABLE blofin.state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
 	status             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_trade_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
@@ -244,11 +245,11 @@ CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 
 CREATE  TABLE blofin.requests ( 
 	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
-	order_state          BINARY(3)       ,
 	account              BINARY(3)    NOT NULL   ,
 	instrument           BINARY(3)    NOT NULL   ,
+	state                BINARY(3)       ,
 	margin_mode          VARCHAR(10)    NOT NULL   ,
-	bias                 CHAR(5)    NOT NULL   ,
+	position             CHAR(5)    NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
 	order_type           BINARY(3)    NOT NULL   ,
 	price                DOUBLE  DEFAULT (0)  NOT NULL   ,
@@ -261,17 +262,17 @@ CREATE  TABLE blofin.requests (
 	broker_id            VARCHAR(16)       ,
 	expiry_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
-	CONSTRAINT unq_requests_action UNIQUE ( action ) ,
-	CONSTRAINT fk_r_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_bias FOREIGN KEY ( bias ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
+	CONSTRAINT fk_r_bias FOREIGN KEY ( position ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_order_state FOREIGN KEY ( order_state ) REFERENCES blofin.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) engine=InnoDB;
 
-CREATE INDEX fk_r_bias ON blofin.requests ( bias );
+CREATE INDEX fk_r_bias ON blofin.requests ( position );
 
 CREATE INDEX fk_r_order_type ON blofin.requests ( order_type );
 
@@ -281,7 +282,9 @@ CREATE INDEX fk_r_account ON blofin.requests ( account );
 
 CREATE INDEX fk_r_instrument ON blofin.requests ( instrument );
 
-CREATE INDEX fk_r_order_state ON blofin.requests ( order_state );
+CREATE INDEX fk_r_state ON blofin.requests ( state );
+
+CREATE INDEX fk_r_action ON blofin.requests ( action );
 
 CREATE  TABLE blofin.role_authority ( 
 	role_authority       BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -353,8 +356,8 @@ CREATE  TABLE blofin.orders (
 	price                DOUBLE    NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	order_type           BINARY(3)    NOT NULL   ,
+	position             CHAR(5)    NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
-	bias                 CHAR(5)    NOT NULL   ,
 	margin_mode          VARCHAR(10)    NOT NULL   ,
 	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
 	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
@@ -373,8 +376,8 @@ CREATE  TABLE blofin.orders (
 	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_bias FOREIGN KEY ( bias ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_position FOREIGN KEY ( position ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_category FOREIGN KEY ( order_category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_cancel FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel( cancel ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -387,7 +390,7 @@ CREATE INDEX fk_o_order_type ON blofin.orders ( order_type );
 
 CREATE INDEX fk_o_action ON blofin.orders ( action );
 
-CREATE INDEX fk_o_bias ON blofin.orders ( bias );
+CREATE INDEX fk_o_bias ON blofin.orders ( position );
 
 CREATE INDEX fk_o_margin_mode ON blofin.orders ( margin_mode );
 
@@ -575,8 +578,8 @@ select
 	r.account AS account,
 	r.instrument AS instrument,
 	o.order_id AS order_id,
+	o.position AS position,
 	o.action AS action,
-	o.bias AS bias,
 	o.price AS price,
 	o.size AS size,
 	o.leverage AS leverage,
@@ -648,19 +651,19 @@ where
 	((r.client_order_id = o.client_order_id)
 		and (r.instrument = blofin.i.instrument)
 			and (o.order_type = ot.order_type)
-				and (o.state = os.order_state)
+				and (o.state = os.state)
 					and (o.cancel_source = can.cancel)
 						and (o.order_category = cat.category));
 
 CREATE VIEW blofin.vw_requests AS
 select
 	r.client_order_id AS client_order_id,
-	os.source_ref AS order_state,
+	s.status AS status,
 	r.account AS account,
 	r.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	r.margin_mode AS margin_mode,
-	r.bias AS bias,
+	r.position AS position,
 	r.action AS action,
 	ot.source_ref AS order_type,
 	r.price AS price,
@@ -680,11 +683,11 @@ join blofin.vw_instruments i)
 join blofin.currency b)
 join blofin.currency q)
 join blofin.order_type ot)
-join blofin.order_state os)
+join blofin.state s)
 where
 	((r.instrument = blofin.i.instrument)
 		and (r.order_type = ot.order_type)
-			and (r.order_state = os.order_state)
+			and (r.state = s.state)
 				and (blofin.i.base_currency = b.currency)
 					and (blofin.i.quote_currency = q.currency));
 
@@ -700,10 +703,10 @@ select
 	auth.priority AS priority,
 	ra.enabled AS enabled
 from
-	blofin.role r
-join blofin.subject s
-join blofin.authority auth
-join blofin.role_authority ra
+	(((blofin.role r
+join blofin.subject s)
+join blofin.authority auth)
+join blofin.role_authority ra)
 where
 	((ra.subject = s.subject)
 		and (ra.role = r.role)
@@ -716,10 +719,10 @@ select
 	s.subject AS subject,
 	s.area AS area
 from
-	blofin.role r
-join blofin.subject s
-join blofin.authority auth
-join blofin.role_authority ra
+	(((blofin.role r
+join blofin.subject s)
+join blofin.authority auth)
+join blofin.role_authority ra)
 where
 	((ra.subject = s.subject)
 		and (ra.role = r.role)
@@ -747,19 +750,19 @@ select
 	u.create_time AS create_time,
 	u.update_time AS update_time
 from
-	blofin.user u
-join blofin.role r
-join blofin.state s
+	((blofin.user u
+join blofin.role r)
+join blofin.state s)
 where
 	((u.role = r.role)
 		and (u.state = s.state));
 
 CREATE VIEW blofin.vw_api_requests AS
 select
-	blofin.vr.order_state AS orderState,
+	blofin.vr.status AS status,
 	blofin.vr.symbol AS instId,
 	blofin.vr.margin_mode AS marginMode,
-	blofin.vr.bias AS positionSide,
+	blofin.vr.position AS positionSide,
 	blofin.vr.action AS side,
 	blofin.vr.order_type AS orderType,
 	replace(format(blofin.vr.price, blofin.vr.digits), ',', '') AS price,

@@ -17,6 +17,7 @@ import { setUser } from "@cli/interfaces/user";
 import { setEnviron } from "@cli/modules/Environ";
 
 import * as Accounts from "@db/interfaces/account";
+import { TSession } from "@module/session";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves accounts from local server; if new, prompts to create;                     |
@@ -25,18 +26,23 @@ export const setAccount = async (props: any) => {
   const alias = await Prompt(["text"], { name: "alias", message: "  Nickname for Account?", initial: props?.alias ? props?.alias : `` });
   const owner = await setUser({ title: "Admin" });
   const broker = await setBroker();
-  const state = await setState({});
+  const state = await setState();
   const environ = await setEnviron({});
-  const wss_url = await Prompt(["text"], { name: "wss_url", message: "  Websocket URL:", initial: props?.wss_url ? props?.wss_url : `` });
   const rest_api_url = await Prompt(["text"], {
     name: "rest_api_url",
     message: "  Public REST API URL:",
     initial: props?.rest_api_url ? props?.rest_api_url : ``,
   });
-
+  const wss_url = await Prompt(["text"], { name: "wss_url", message: "  Websocket URL:", initial: props?.wss_url ? props?.wss_url : `` });
+  const wss_public_url = await Prompt(["text"], {
+    name: "wss_public_url",
+    message: "  Public URL:",
+    initial: props?.wss_public_url ? props?.wss_public_url : ``,
+  });
   const api = props?.api === undefined ? await Prompt(["text"], { name: "api", message: "  API Key:" }) : { api: props.api };
-  const key = props?.key === undefined ? await Prompt(["text"], { name: "key", message: "  Secret Key:" }) : { key: props.key };
+  const secret = props?.secret === undefined ? await Prompt(["text"], { name: "secret", message: "  Secret Key:" }) : { secret: props.secret };
   const phrase = props?.phrase === undefined ? await Prompt(["text"], { name: "phrase", message: "  Passphrase:" }) : { phrase: props.phrase };
+
   console.log(``);
 
   const { choice } = await Prompt(["choice"], {
@@ -53,10 +59,11 @@ export const setAccount = async (props: any) => {
       ...broker,
       ...state,
       ...environ,
-      ...wss_url,
       ...rest_api_url,
+      ...wss_url,
+      ...wss_public_url,
       ...api,
-      ...key,
+      ...secret,
       ...phrase,
     });
   }
@@ -98,18 +105,19 @@ export const menuViewAccount = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Presents the Imports view;                                                           |
 //+--------------------------------------------------------------------------------------+
-const setImports = async (imports: Array<Partial<Accounts.IAccount>>) => {
+const setImports = async (imports: Array<Partial<TSession>>) => {
   for (let id = 0; id < imports.length; id++) {
-    const { alias, api, key, phrase, wss_url, rest_api_url } = imports[id];
+    const { alias, api, secret, phrase, wss_url, rest_api_url, wss_public_url } = imports[id];
 
     console.log(`\n >>> ${green("Imports")}: ${bold(id + 1)} of ${bold(imports.length)}\n`);
 
     alias && console.log(`            ${yellow("Alias")}: ${dim(alias)}`);
     api && console.log(`         ${yellow("API Key")}: ${dim(api)}`);
-    key && console.log(`     ${yellow("Private Key")}: ${dim(key)}`);
+    secret && console.log(`     ${yellow("Private Key")}: ${dim(secret)}`);
     phrase && console.log(`          ${yellow("Phrase")}: ${dim(phrase)}`);
-    wss_url && console.log(`      ${yellow("Socket URL")}: ${dim(wss_url)}`);
     rest_api_url && console.log(`         ${yellow("API URL")}: ${dim(rest_api_url)}`);
+    wss_url && console.log(`      ${yellow("Socket URL")}: ${dim(wss_url)}`);
+    wss_public_url && console.log(`      ${yellow("Public URL")}: ${dim(wss_public_url)}`);
 
     console.log(" ");
 

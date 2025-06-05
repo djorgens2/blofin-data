@@ -11,7 +11,7 @@ import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 
 import * as Accounts from "@api/accounts";
-import * as Orders from "@db/interfaces/order";
+import * as OrderAPI from "@api/orders";
 
 export type IResponseProps = {
   event: string;
@@ -48,17 +48,12 @@ export const setSession = (props: Partial<TSession>) => Object.assign(session, {
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
 //+--------------------------------------------------------------------------------------+
-export const signRequest = async (method: string, path: string, body: string) => {
+export const signRequest = async (method: string, path: string, body: string = "") => {
   const { secret } = Session();
   const timestamp = String(Date.now());
   const nonce = uniqueKey(32);
   const prehash = `${path}${method}${timestamp}${nonce}${body}`;
   const messageEncoded = new TextEncoder().encode(prehash);
-
-  console.log("\n\nThe key:", secret, path, method, prehash, messageEncoded, timestamp);
-  console.log("\n\nThe packages:", Session());
-  console.log("\n\nThe JSON:", body);
-
   const hmac = createHmac("sha256", secret!).update(messageEncoded).digest("hex");
   const hexEncoded = Buffer.from(hmac).toString("hex");
   const sign = Buffer.from(hexEncoded, "hex").toString("base64");
@@ -134,7 +129,7 @@ export function openWebSocket(props: Partial<TSession>) {
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      console.log("message pre-process", message!.arg?.channel);
+      console.log("message pre-process", message!.arg?.channel, message!.data);
       message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account! });
       // message!.arg.channel === "orders" && console.log("Orders:", message!.data, api, secret);
       // message!.arg.channel === "positions" && console.log("Positions:", message!.data);
@@ -144,9 +139,10 @@ export function openWebSocket(props: Partial<TSession>) {
   setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send("ping");
+      //      Orders.Execute();
+      OrderAPI.Audit();
     }
     if (ws.readyState === WebSocket.CONNECTING) console.log("Websocket trying to connect...");
-    Orders.Execute();
   }, 29000);
   return ws;
 }

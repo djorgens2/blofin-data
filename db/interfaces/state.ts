@@ -12,12 +12,9 @@ import { hashKey } from "@lib/crypto.util";
 export type System = "Enabled" | "Disabled" | "Halted";
 export type Status = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed" | undefined;
 
-export interface IKeyProps {
+export interface IState {
   state?: Uint8Array;
   status?: string | Status;
-}
-
-export interface IState extends IKeyProps, RowDataPacket {
   description: string;
 }
 
@@ -44,7 +41,7 @@ export const Import = () =>
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: { status: string; description: string }): Promise<IKeyProps["state"]> {
+export async function Publish(props: { status: string; description: string }): Promise<IState["state"]> {
   const { status, description } = props;
   const state = await Key({ status });
 
@@ -59,7 +56,7 @@ export async function Publish(props: { status: string; description: string }): P
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefined> {
+export async function Key(props: Partial<IState>): Promise<IState["state"] | undefined> {
   const { status, state } = props;
   const args = [];
 
@@ -80,7 +77,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["state"] | undefi
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
+export async function Fetch(props: Partial<IState>): Promise<Array<Partial<IState>>> {
   const { state, status } = props;
   const args = [];
 

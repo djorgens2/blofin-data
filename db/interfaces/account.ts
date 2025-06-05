@@ -3,7 +3,7 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-
+import Prompt, { IOption } from "@cli/modules/Prompts";
 import type { RowDataPacket } from "mysql2";
 import type { TSession } from "@module/session";
 
@@ -15,11 +15,15 @@ import { hashHmac } from "@lib/crypto.util";
 import { setUserToken } from "@cli/interfaces/user";
 
 import * as States from "@db/interfaces/state";
+import * as Brokers from "@db/interfaces/broker";
 import * as Environments from "@db/interfaces/environment";
 
 export interface IKeyProps {
   account: Uint8Array | undefined;
   currency: Uint8Array | undefined;
+  api: string;
+  secret: string;
+  phrase: string;
   alias: string;
   owner: Uint8Array;
   user: Uint8Array;
@@ -46,19 +50,20 @@ export interface IKeyProps {
   spot_available: number;
   liability: number;
   update_time: number;
-}
-
-export interface IAccount extends IKeyProps, RowDataPacket {
-  wss_url?: string | undefined;
   rest_api_url?: string | undefined;
+  wss_url?: string | undefined;
   wss_public_url?: string | undefined;
 }
 
+export interface IAccount extends IKeyProps, RowDataPacket {}
+
 type TMutableProps = {
+  account?: Uint8Array;
+  broker?: Uint8Array;
   state?: Uint8Array | undefined;
   environment?: Uint8Array | undefined;
-  wss_url?: string | undefined;
   rest_api_url?: string | undefined;
+  wss_url?: string | undefined;
   wss_public_url?: string | undefined;
   total_equity?: number | undefined;
   isolated_equity?: number | undefined;
@@ -88,7 +93,6 @@ export const Import = async () => {
 
   for (let id in keys) {
     const { api, secret, phrase } = keys[id];
-
     (await Key({ api, secret, phrase })) === undefined && imports.push(keys[id]);
   }
   return imports;
@@ -98,25 +102,28 @@ export const Import = async () => {
 //| Adds all new accounts recieved from ui or any internal source to the database;       |
 //+--------------------------------------------------------------------------------------+
 export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account"]> {
-  const { user, broker, state, environment, alias } = props;
-  const { api, secret, phrase, wss_url, rest_api_url, wss_public_url } = Session();
-
+  const { api, secret, phrase, user, broker, state, status, environment, environ, alias } = props;
   const key = await Key({ api, secret, phrase });
 
   if (key === undefined) {
     const hmac = await hashHmac([api, secret, phrase]);
-    const position = Math.floor(Math.random() * 82 + 1);
-    const hash = Buffer.from([position, hmac.charCodeAt(position), hmac.charCodeAt(position + 1)]);
-
-    await Modify(`INSERT INTO blofin.account (account, broker, state, environment, wss_url, rest_api_url) VALUES (?, ?, ?, ?, ?, ?)`, [
-      hash,
-      broker,
-      state,
-      environment,
-      wss_url,
-      rest_api_url,
-      wss_public_url,
-    ]);
+    const slot = Math.floor(Math.random() * 82 + 1);
+    const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
+    const insert: TMutableProps = {
+      account: hash,
+      broker: broker ? broker : alias ? await Brokers.Key({ name: alias}) : undefined,
+      state: state ? state : status ? await States.Key({ status }) : undefined,
+      environment: environment ? environment : environ ? await Environments.Key({ environ }) : undefined,
+      total_equity: props?.total_equity,
+      isolated_equity: props?.isolated_equity,
+      rest_api_url: props.rest_api_url,
+      wss_url: props?.wss_url,
+      wss_public_url: props?.wss_public_url
+    }
+    const [ fields, args ] = parseColumns(insert,``);
+    const sql = `INSERT INTO blofin.account (${fields.join(', ')} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
+  
+    await Modify( sql, args );
     await Modify(`INSERT INTO blofin.user_account VALUES (?, ?, ?, ?)`, [user, hash, user, alias]);
 
     return hash;
@@ -137,12 +144,12 @@ export async function Key(props: Partial<TSession>): Promise<IKeyProps["account"
   } else if (api && secret && phrase) {
     const accounts = await Fetch({});
 
-    for (let match in accounts) {
+    for (const match in accounts) {
       const { account } = accounts[match];
       const hmac = await hashHmac([api, secret, phrase]);
       const slot = parseInt(account![0].toFixed(), 10);
       const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
-
+      
       if (hash.toString() === account?.toString()) return hash;
     }
     return undefined;
@@ -207,8 +214,8 @@ export async function Update(props: Partial<IKeyProps>): Promise<number | undefi
       environment: props?.environment ? props.environment : props?.environ ? await Environments.Key({ environ: props.environ }) : undefined,
       total_equity: props?.total_equity,
       isolated_equity: props?.isolated_equity,
-      wss_url: Session().wss_url,
       rest_api_url: Session().rest_api_url,
+      wss_url: Session().wss_url,
       wss_public_url: Session().wss_public_url,
       update_time: props?.update_time,
     };

@@ -49,7 +49,11 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
     //--- whitelist exceptions
     if (arg === "pong")
       // @ts-ignore
-      return { event: "pong" };
+    return { event: "pong" };
+
+    if (arg === `{""}`)
+      // @ts-ignore
+      return {};
     throw new Error(`Something jacked up; ${arg} is not a valid JSON;`);
   }
   return undefined;
