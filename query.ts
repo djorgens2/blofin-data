@@ -13,6 +13,8 @@ import * as KeySet from "@db/interfaces/instrument_period";
 import * as Area from "@db/interfaces/subject";
 import * as Environ from "@db/interfaces/environment";
 import * as Account from "@db/interfaces/account";
+import * as Request from "@db/interfaces/order";
+import * as Reference from "@db/interfaces/reference";
 
 import { parseJSON } from "@lib/std.util";
 import { hexify } from "./lib/crypto.util";
@@ -30,10 +32,12 @@ enum Subject {
   Bars = "-bars",
   Broker = "-b",
   Role = "-r",
+  Request = "-req",
   User = "-u",
   Login = "-login",
   Area = "-area",
   Environ = '-e',
+  Reference = '-ref',
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -98,7 +102,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.State: {
-      const props = parseJSON<State.IKeyProps>(args);
+      const props = parseJSON<State.IState>(args);
       props!.state && Object.assign(props!, { ...props, state: hexify(props!.state) });
       const key = await State.Key(props!);
       console.log("Fetch state:", props, key);
@@ -133,14 +137,28 @@ async function show(subject: string, args: string): Promise<string> {
     }
     case Subject.Account: {
       const props = parseJSON< Account.IKeyProps >(args);
-      const key = await Account.Key(props!);
+      const key = await Account.Fetch(props!);
       console.log("Fetch Account:", props, key);
+      return "ok";
+    }
+    case Subject.Request: {
+      const props = parseJSON< Request.IRequest >(args);
+      const key = await Request.Fetch(props!);
+      console.log("Fetch Request:", props, key);
       return "ok";
     }
     case Subject.Detail: {
       const props = parseJSON<Detail.IKeyProps>(args);
       const key = await Detail.Key(props!);
       console.log("Fetch detail:", props, key);
+      return "ok";
+    }
+    case Subject.Reference: {
+      const json = parseJSON<Reference.IKeyProps>(args);
+      // @ts-ignore
+      const { table, ...props} = json;
+      const key = await Reference.Fetch<Reference.IKeyProps>(table, props!);
+      console.log("Fetch reference:", props, key);
       return "ok";
     }
     case Subject.KeySet: {

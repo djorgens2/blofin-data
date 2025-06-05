@@ -5,7 +5,8 @@
   "scripts": {
     "main": "npx tsx app > app.log",
     "test": "npx tsx ./test/modules/$TEST_SCRIPT",
-    "import": "npx tsx import.ts > import.log"
+    "import": "npx tsx import.ts > import.log",
+    "cli": "npx tsx ./app/cli"
   },
   "keywords": [],
   "author": "",

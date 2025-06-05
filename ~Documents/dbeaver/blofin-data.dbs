@@ -174,7 +174,7 @@ long or short for Hedge Mode. It must be sent in Hedge Mode.]]></comment>
 user_canceled
 system_canceled]]></comment>
 			<column name="cancel" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="source_ref" type="VARCHAR" length="10" jt="12" mandatory="y" />
+			<column name="source_ref" type="VARCHAR" length="15" jt="12" mandatory="y" />
 			<column name="source" type="VARCHAR" length="12" jt="12" mandatory="y" />
 			<index name="pk_cancel" unique="PRIMARY_KEY" >
 				<column name="cancel" />
@@ -401,11 +401,12 @@ isolated]]></comment>
 		</table>
 		<table name="order_state" prior="tbl" >
 			<comment><![CDATA[live, effective, canceled, order_failed, filled, partially_canceled, partially_filled]]></comment>
-			<column name="order_state" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="state" prior="order_state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="source_ref" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="map_ref" type="VARCHAR" length="10" jt="12" />
 			<column name="status" prior="description" type="VARCHAR" length="30" jt="12" mandatory="y" />
 			<index name="pk_order_state" unique="PRIMARY_KEY" >
-				<column name="order_state" />
+				<column name="state" />
 			</index>
 			<index name="ak_order_state" unique="UNIQUE_KEY" >
 				<column name="source_ref" />
@@ -436,8 +437,8 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="price" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="size" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="position" prior="bias" type="CHAR" length="5" jt="1" mandatory="y" />
 			<column name="action" type="CHAR" length="4" jt="1" mandatory="y" />
-			<column name="bias" type="CHAR" length="5" jt="1" mandatory="y" />
 			<column name="margin_mode" type="VARCHAR" length="10" jt="12" mandatory="y" />
 			<column name="filled_size" type="DOUBLE" jt="8" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
@@ -486,7 +487,7 @@ ioc: Immediate-or-cancel order]]></comment>
 				<column name="action" />
 			</index>
 			<index name="fk_o_bias" unique="NORMAL" >
-				<column name="bias" />
+				<column name="position" />
 			</index>
 			<index name="fk_o_margin_mode" unique="NORMAL" >
 				<column name="margin_mode" />
@@ -509,11 +510,11 @@ ioc: Immediate-or-cancel order]]></comment>
 			<fk name="fk_o_action" to_schema="blofin" to_table="action" >
 				<fk_column name="action" pk="action" />
 			</fk>
-			<fk name="fk_o_bias" to_schema="blofin" to_table="bias" >
-				<fk_column name="bias" pk="bias" />
+			<fk name="fk_o_position" to_schema="blofin" to_table="bias" >
+				<fk_column name="position" pk="bias" />
 			</fk>
 			<fk name="fk_o_order_state" to_schema="blofin" to_table="order_state" >
-				<fk_column name="state" pk="order_state" />
+				<fk_column name="state" pk="state" />
 			</fk>
 			<fk name="fk_o_category" to_schema="blofin" to_table="category" >
 				<fk_column name="order_category" pk="category" />
@@ -560,11 +561,11 @@ mark: mark price]]></comment>
 		</table>
 		<table name="requests" prior="requsts" >
 			<column name="client_order_id" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="order_state" type="BINARY" length="3" jt="-2" />
 			<column name="account" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="state" type="BINARY" length="3" jt="-2" />
 			<column name="margin_mode" type="VARCHAR" length="10" jt="12" mandatory="y" />
-			<column name="bias" type="CHAR" length="5" jt="1" mandatory="y" />
+			<column name="position" prior="bias" type="CHAR" length="5" jt="1" mandatory="y" />
 			<column name="action" type="CHAR" length="4" jt="1" mandatory="y" />
 			<column name="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="price" type="DOUBLE" jt="8" mandatory="y" >
@@ -585,14 +586,14 @@ mark: mark price]]></comment>
 			<column name="create_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
+			<column name="update_time" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
+			</column>
 			<index name="pk_requests" unique="PRIMARY_KEY" >
 				<column name="client_order_id" />
 			</index>
-			<index name="unq_requests_action" unique="UNIQUE_KEY" >
-				<column name="action" />
-			</index>
 			<index name="fk_r_bias" unique="NORMAL" >
-				<column name="bias" />
+				<column name="position" />
 			</index>
 			<index name="fk_r_order_type" unique="NORMAL" >
 				<column name="order_type" />
@@ -606,14 +607,14 @@ mark: mark price]]></comment>
 			<index name="fk_r_instrument" unique="NORMAL" >
 				<column name="instrument" />
 			</index>
-			<index name="fk_r_order_state" unique="NORMAL" >
-				<column name="order_state" />
+			<index name="fk_r_state" unique="NORMAL" >
+				<column name="state" />
 			</index>
-			<fk name="fk_r_action" to_schema="blofin" to_table="action" >
-				<fk_column name="action" pk="action" />
-			</fk>
+			<index name="fk_r_action" unique="NORMAL" >
+				<column name="action" />
+			</index>
 			<fk name="fk_r_bias" to_schema="blofin" to_table="bias" >
-				<fk_column name="bias" pk="bias" />
+				<fk_column name="position" pk="bias" />
 			</fk>
 			<fk name="fk_r_order_type" to_schema="blofin" to_table="order_type" >
 				<fk_column name="order_type" pk="order_type" />
@@ -627,8 +628,11 @@ mark: mark price]]></comment>
 			<fk name="fk_r_instrument" to_schema="blofin" to_table="instrument" >
 				<fk_column name="instrument" pk="instrument" />
 			</fk>
-			<fk name="fk_r_order_state" to_schema="blofin" to_table="order_state" >
-				<fk_column name="order_state" pk="order_state" />
+			<fk name="fk_r_state" to_schema="blofin" to_table="state" >
+				<fk_column name="state" pk="state" />
+			</fk>
+			<fk name="fk_r_action" to_schema="blofin" to_table="action" >
+				<fk_column name="action" pk="action" />
 			</fk>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
@@ -687,7 +691,7 @@ mark: mark price]]></comment>
 			<column name="status" type="VARCHAR" length="10" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
-			<column name="description" type="VARCHAR" length="30" jt="12" mandatory="y" >
+			<column name="description" type="VARCHAR" length="60" jt="12" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<index name="pk_state" unique="PRIMARY_KEY" >
@@ -872,8 +876,8 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_api_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `blofin`.`vr`.`order_state` AS `orderState`,`blofin`.`vr`.`symbol` AS `instId`,`blofin`.`vr`.`margin_mode` AS `marginMode`,`blofin`.`vr`.`bias` AS `positionSide`,`blofin`.`vr`.`action` AS `side`,`blofin`.`vr`.`order_type` AS `orderType`,replace(format(`blofin`.`vr`.`price`,`blofin`.`vr`.`digits`),',','') AS `price`,replace(format(`blofin`.`vr`.`size`,`blofin`.`vr`.`digits`),',','') AS `size`,cast(`blofin`.`vr`.`leverage` as char charset utf8mb4) AS `leverage`,if((`blofin`.`vr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`blofin`.`vr`.`client_order_id` AS `clientOrderId`,cast(0 as double) AS `tpTriggerPrice`,cast(0 as double) AS `tpOrderPrice`,cast(0 as double) AS `slTriggerPrice`,cast(0 as double) AS `slOrderPrice`,`blofin`.`vr`.`broker_id` AS `brokerId` from `blofin`.`vw_requests` `vr`]]></view_script>
-			<column name="orderState" type="VARCHAR" />
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `blofin`.`vr`.`status` AS `status`,`blofin`.`vr`.`symbol` AS `instId`,`blofin`.`vr`.`margin_mode` AS `marginMode`,`blofin`.`vr`.`position` AS `positionSide`,`blofin`.`vr`.`action` AS `side`,`blofin`.`vr`.`order_type` AS `orderType`,replace(format(`blofin`.`vr`.`price`,`blofin`.`vr`.`digits`),',','') AS `price`,replace(format(`blofin`.`vr`.`size`,`blofin`.`vr`.`digits`),',','') AS `size`,cast(`blofin`.`vr`.`leverage` as char charset utf8mb4) AS `leverage`,if((`blofin`.`vr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`blofin`.`vr`.`client_order_id` AS `clientOrderId`,cast(0 as double) AS `tpTriggerPrice`,cast(0 as double) AS `tpOrderPrice`,cast(0 as double) AS `slTriggerPrice`,cast(0 as double) AS `slOrderPrice`,`blofin`.`vr`.`broker_id` AS `brokerId` from `blofin`.`vw_requests` `vr`]]></view_script>
+			<column name="status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="marginMode" type="VARCHAR" />
 			<column name="positionSide" type="CHAR" />
@@ -976,13 +980,13 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_orders" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `o`.`client_order_id` AS `client_order_id`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,`o`.`order_id` AS `order_id`,`o`.`action` AS `action`,`o`.`bias` AS `bias`,`o`.`price` AS `price`,`o`.`size` AS `size`,`o`.`leverage` AS `leverage`,`o`.`margin_mode` AS `margin_mode`,`blofin`.`i`.`symbol` AS `symbol`,`blofin`.`i`.`base_currency` AS `base_currency`,`blofin`.`i`.`base_symbol` AS `base_symbol`,`blofin`.`i`.`quote_currency` AS `quote_currency`,`blofin`.`i`.`quote_symbol` AS `quote_symbol`,`blofin`.`i`.`instrument_type` AS `instrument_type`,`blofin`.`i`.`contract_type` AS `contract_type`,`blofin`.`i`.`trade_period` AS `trade_period`,`blofin`.`i`.`trade_timeframe` AS `trade_timeframe`,`blofin`.`i`.`timeframe_units` AS `timeframe_units`,`cat`.`source_ref` AS `order_category`,`tp`.`trigger_price` AS `tp_trigger_price`,`tp`.`order_price` AS `tp_order_price`,`tp`.`price_type` AS `tp_price_type`,`sl`.`trigger_price` AS `sl_trigger_price`,`sl`.`order_price` AS `sl_order_price`,`sl`.`price_type` AS `sl_price_type`,`os`.`source_ref` AS `state`,`ot`.`source_ref` AS `order_type`,`o`.`filled_size` AS `filled_size`,`o`.`filled_amount` AS `filled_amount`,`o`.`average_price` AS `average_price`,`o`.`fee` AS `fee`,`o`.`pnl` AS `pnl`,`can`.`source_ref` AS `cancel_source`,`o`.`reduce_only` AS `reduce_only`,`o`.`broker_id` AS `broker_id`,`o`.`create_time` AS `create_time`,`o`.`update_time` AS `update_time`,`blofin`.`i`.`bulk_collection_rate` AS `bulk_collection_rate`,`blofin`.`i`.`interval_collection_rate` AS `interval_collection_rate`,`blofin`.`i`.`sma_factor` AS `sma_factor`,`blofin`.`i`.`contract_value` AS `contract_value`,`blofin`.`i`.`max_leverage` AS `max_leverage`,`blofin`.`i`.`min_size` AS `min_size`,`blofin`.`i`.`lot_size` AS `lot_size`,`blofin`.`i`.`tick_size` AS `tick_size`,`blofin`.`i`.`digits` AS `digits`,`blofin`.`i`.`max_limit_size` AS `max_limit_size`,`blofin`.`i`.`max_market_size` AS `max_market_size`,`blofin`.`i`.`list_time` AS `list_time`,`blofin`.`i`.`list_timestamp` AS `list_timestamp`,`blofin`.`i`.`expiry_time` AS `expiry_time`,`blofin`.`i`.`expiry_timestamp` AS `expiry_timestamp`,`blofin`.`i`.`trade_state` AS `trade_state`,`blofin`.`i`.`trade_status` AS `trade_status`,`blofin`.`i`.`suspense` AS `suspense` from ((((((((((`blofin`.`orders` `o` left join `blofin`.`triggers` `tp` on((`o`.`client_order_id` = `tp`.`client_order_id`))) left join `blofin`.`category` `ctp` on(((`tp`.`category` = `ctp`.`category`) and (`ctp`.`source_ref` = 'tp')))) left join `blofin`.`triggers` `sl` on((`o`.`client_order_id` = `sl`.`client_order_id`))) left join `blofin`.`category` `csl` on(((`sl`.`category` = `csl`.`category`) and (`csl`.`source_ref` = 'sl')))) join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) join `blofin`.`cancel` `can`) join `blofin`.`category` `cat`) join `blofin`.`vw_instruments` `i`) join `blofin`.`requests` `r`) where ((`r`.`client_order_id` = `o`.`client_order_id`) and (`r`.`instrument` = `blofin`.`i`.`instrument`) and (`o`.`order_type` = `ot`.`order_type`) and (`o`.`state` = `os`.`order_state`) and (`o`.`cancel_source` = `can`.`cancel`) and (`o`.`order_category` = `cat`.`category`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `o`.`client_order_id` AS `client_order_id`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,`o`.`order_id` AS `order_id`,`o`.`position` AS `position`,`o`.`action` AS `action`,`o`.`price` AS `price`,`o`.`size` AS `size`,`o`.`leverage` AS `leverage`,`o`.`margin_mode` AS `margin_mode`,`blofin`.`i`.`symbol` AS `symbol`,`blofin`.`i`.`base_currency` AS `base_currency`,`blofin`.`i`.`base_symbol` AS `base_symbol`,`blofin`.`i`.`quote_currency` AS `quote_currency`,`blofin`.`i`.`quote_symbol` AS `quote_symbol`,`blofin`.`i`.`instrument_type` AS `instrument_type`,`blofin`.`i`.`contract_type` AS `contract_type`,`blofin`.`i`.`trade_period` AS `trade_period`,`blofin`.`i`.`trade_timeframe` AS `trade_timeframe`,`blofin`.`i`.`timeframe_units` AS `timeframe_units`,`cat`.`source_ref` AS `order_category`,`tp`.`trigger_price` AS `tp_trigger_price`,`tp`.`order_price` AS `tp_order_price`,`tp`.`price_type` AS `tp_price_type`,`sl`.`trigger_price` AS `sl_trigger_price`,`sl`.`order_price` AS `sl_order_price`,`sl`.`price_type` AS `sl_price_type`,`os`.`source_ref` AS `state`,`ot`.`source_ref` AS `order_type`,`o`.`filled_size` AS `filled_size`,`o`.`filled_amount` AS `filled_amount`,`o`.`average_price` AS `average_price`,`o`.`fee` AS `fee`,`o`.`pnl` AS `pnl`,`can`.`source_ref` AS `cancel_source`,`o`.`reduce_only` AS `reduce_only`,`o`.`broker_id` AS `broker_id`,`o`.`create_time` AS `create_time`,`o`.`update_time` AS `update_time`,`blofin`.`i`.`bulk_collection_rate` AS `bulk_collection_rate`,`blofin`.`i`.`interval_collection_rate` AS `interval_collection_rate`,`blofin`.`i`.`sma_factor` AS `sma_factor`,`blofin`.`i`.`contract_value` AS `contract_value`,`blofin`.`i`.`max_leverage` AS `max_leverage`,`blofin`.`i`.`min_size` AS `min_size`,`blofin`.`i`.`lot_size` AS `lot_size`,`blofin`.`i`.`tick_size` AS `tick_size`,`blofin`.`i`.`digits` AS `digits`,`blofin`.`i`.`max_limit_size` AS `max_limit_size`,`blofin`.`i`.`max_market_size` AS `max_market_size`,`blofin`.`i`.`list_time` AS `list_time`,`blofin`.`i`.`list_timestamp` AS `list_timestamp`,`blofin`.`i`.`expiry_time` AS `expiry_time`,`blofin`.`i`.`expiry_timestamp` AS `expiry_timestamp`,`blofin`.`i`.`trade_state` AS `trade_state`,`blofin`.`i`.`trade_status` AS `trade_status`,`blofin`.`i`.`suspense` AS `suspense` from ((((((((((`blofin`.`orders` `o` left join `blofin`.`triggers` `tp` on((`o`.`client_order_id` = `tp`.`client_order_id`))) left join `blofin`.`category` `ctp` on(((`tp`.`category` = `ctp`.`category`) and (`ctp`.`source_ref` = 'tp')))) left join `blofin`.`triggers` `sl` on((`o`.`client_order_id` = `sl`.`client_order_id`))) left join `blofin`.`category` `csl` on(((`sl`.`category` = `csl`.`category`) and (`csl`.`source_ref` = 'sl')))) join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) join `blofin`.`cancel` `can`) join `blofin`.`category` `cat`) join `blofin`.`vw_instruments` `i`) join `blofin`.`requests` `r`) where ((`r`.`client_order_id` = `o`.`client_order_id`) and (`r`.`instrument` = `blofin`.`i`.`instrument`) and (`o`.`order_type` = `ot`.`order_type`) and (`o`.`state` = `os`.`state`) and (`o`.`cancel_source` = `can`.`cancel`) and (`o`.`order_category` = `cat`.`category`))]]></view_script>
 			<column name="client_order_id" type="BINARY" />
 			<column name="account" type="BINARY" />
 			<column name="instrument" type="BINARY" />
 			<column name="order_id" type="BIGINT" />
+			<column name="position" type="CHAR" />
 			<column name="action" type="CHAR" />
-			<column name="bias" type="CHAR" />
 			<column name="price" type="DOUBLE" />
 			<column name="size" type="DOUBLE" />
 			<column name="leverage" type="INT" />
@@ -1037,19 +1041,20 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`client_order_id` AS `client_order_id`,`os`.`source_ref` AS `order_state`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`r`.`margin_mode` AS `margin_mode`,`r`.`bias` AS `bias`,`r`.`action` AS `action`,`ot`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`tp_trigger` AS `tp_trigger`,`r`.`sl_trigger` AS `sl_trigger`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from (((((`blofin`.`requests` `r` join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`order_type` = `ot`.`order_type`) and (`r`.`order_state` = `os`.`order_state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`client_order_id` AS `client_order_id`,`s`.`status` AS `status`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`r`.`margin_mode` AS `margin_mode`,`r`.`position` AS `position`,`r`.`action` AS `action`,`ot`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`tp_trigger` AS `tp_trigger`,`r`.`sl_trigger` AS `sl_trigger`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from (((((`blofin`.`requests` `r` join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`state` `s`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`order_type` = `ot`.`order_type`) and (`r`.`state` = `s`.`state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`))]]></view_script>
 			<column name="client_order_id" type="BINARY" />
-			<column name="order_state" type="VARCHAR" />
+			<column name="status" type="VARCHAR" />
 			<column name="account" type="BINARY" />
 			<column name="instrument" type="BINARY" />
 			<column name="symbol" type="VARCHAR" />
 			<column name="margin_mode" type="VARCHAR" />
-			<column name="bias" type="CHAR" />
+			<column name="position" type="CHAR" />
 			<column name="action" type="CHAR" />
 			<column name="order_type" type="VARCHAR" />
 			<column name="price" type="DOUBLE" />
 			<column name="size" type="DOUBLE" />
 			<column name="leverage" type="INT" />
+			<column name="digits" type="BIGINT" />
 			<column name="tp_trigger" type="VARCHAR" />
 			<column name="sl_trigger" type="VARCHAR" />
 			<column name="memo" type="VARCHAR" />
@@ -1057,11 +1062,10 @@ mark: mark price]]></comment>
 			<column name="broker_id" type="VARCHAR" />
 			<column name="expiry_time" type="DATETIME" />
 			<column name="create_time" type="DATETIME" />
-			<column name="digits" type="BIGINT" />
 		</view>
 		<view name="vw_role_privileges" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ra`.`role_authority` AS `role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`ra`.`enabled` AS `enabled` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`role_authority` `ra` where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ra`.`role_authority` AS `role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`ra`.`enabled` AS `enabled` from (((`blofin`.`role` `r` join `blofin`.`subject` `s`) join `blofin`.`authority` `auth`) join `blofin`.`role_authority` `ra`) where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`))]]></view_script>
 			<column name="role" type="BINARY" />
 			<column name="title" type="VARCHAR" />
 			<column name="subject" type="BINARY" />
@@ -1074,7 +1078,7 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_role_subjects" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from `blofin`.`role` `r` join `blofin`.`subject` `s` join `blofin`.`authority` `auth` join `blofin`.`role_authority` `ra` where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from (((`blofin`.`role` `r` join `blofin`.`subject` `s`) join `blofin`.`authority` `auth`) join `blofin`.`role_authority` `ra`) where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`]]></view_script>
 			<column name="role" type="BINARY" />
 			<column name="title" type="VARCHAR" />
 			<column name="subject" type="BINARY" />
@@ -1082,7 +1086,7 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_users" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`password` AS `password`,`u`.`hash` AS `hash`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from `blofin`.`user` `u` join `blofin`.`role` `r` join `blofin`.`state` `s` where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`password` AS `password`,`u`.`hash` AS `hash`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from ((`blofin`.`user` `u` join `blofin`.`role` `r`) join `blofin`.`state` `s`) where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`))]]></view_script>
 			<column name="user" type="BINARY" />
 			<column name="username" type="VARCHAR" />
 			<column name="email" type="VARCHAR" />
@@ -1097,85 +1101,85 @@ mark: mark price]]></comment>
 			<column name="update_time" type="DATETIME" />
 		</view>
 	</schema>
-	<layout name="Diagram" id="a6121fdd-a8e7-4dee-9e3b-c4f99ff04962" show_relation="columns" >
-		<entity schema="blofin" name="user_account" color="994D00" x="1000" y="1060" />
-		<entity schema="blofin" name="user" color="1A4D1A" x="1060" y="580" />
-		<entity schema="blofin" name="authority" color="1A4D1A" x="1300" y="740" />
-		<entity schema="blofin" name="triggers" color="AE5285" x="2760" y="540" />
-		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1320" y="480" />
-		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1300" y="220" />
-		<entity schema="blofin" name="role" color="1A4D1A" x="980" y="400" />
-		<entity schema="blofin" name="state" color="994D00" x="1160" y="960" />
-		<entity schema="blofin" name="category" color="AE5285" x="2720" y="320" />
-		<entity schema="blofin" name="activity" color="1A4D1A" x="1560" y="220" />
-		<entity schema="blofin" name="subject" color="1A4D1A" x="1560" y="520" />
-		<entity schema="blofin" name="broker" color="994D00" x="980" y="1360" />
+	<layout name="Diagram_001" id="d607366c-33b5-4ede-80e7-d8744e21acb2" show_relation="columns" >
 		<entity schema="blofin" name="vw_users" color="3986C1" x="540" y="100" />
 		<entity schema="blofin" name="vw_accounts" color="3986C1" x="300" y="100" />
 		<entity schema="blofin" name="vw_instruments" color="3986C1" x="60" y="100" />
-		<entity schema="blofin" name="environment" color="994D00" x="980" y="1220" />
-		<entity schema="blofin" name="order_state" color="AE5285" x="2300" y="180" />
-		<entity schema="blofin" name="price_type" color="AE5285" x="2780" y="180" />
-		<entity schema="blofin" name="orders" color="AE5285" x="2400" y="360" />
-		<entity schema="blofin" name="cancel" color="AE5285" x="2540" y="120" />
-		<entity schema="blofin" name="action" color="CCCC33" x="1840" y="780" />
-		<entity schema="blofin" name="instrument" color="331A80" x="1720" y="960" />
-		<entity schema="blofin" name="currency" color="331A80" x="1760" y="1360" />
 		<entity schema="blofin" name="period" color="331A80" x="2040" y="1060" />
 		<entity schema="blofin" name="candle" color="331A80" x="2340" y="1020" />
 		<entity schema="blofin" name="instrument_period" color="331A80" x="2020" y="1280" />
 		<entity schema="blofin" name="contract_type" color="331A80" x="2760" y="1400" />
-		<entity schema="blofin" name="order_type" color="AE5285" x="2140" y="400" />
-		<entity schema="blofin" name="margin_mode" color="AE5285" x="2120" y="540" />
-		<entity schema="blofin" name="bias" color="CCCC33" x="2000" y="620" />
-		<entity schema="blofin" name="instrument_detail" color="331A80" x="2740" y="980" />
 		<entity schema="blofin" name="instrument_type" color="AE5285" x="2740" y="720" />
 		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="540" y="400" />
 		<entity schema="blofin" name="vw_candles" color="3986C1" x="300" y="940" />
 		<entity schema="blofin" name="vw_instrument_periods" color="3986C1" x="60" y="740" />
 		<entity schema="blofin" name="vw_candle_audit" color="3986C1" x="80" y="1140" />
 		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="540" y="640" />
+		<entity schema="blofin" name="user" color="1A4D1A" x="1060" y="540" />
+		<entity schema="blofin" name="instrument_detail" color="331A80" x="2740" y="980" />
+		<entity schema="blofin" name="instrument" color="331A80" x="1720" y="940" />
+		<entity schema="blofin" name="action" color="CCCC33" x="1840" y="760" />
+		<entity schema="blofin" name="authority" color="1A4D1A" x="1300" y="680" />
+		<entity schema="blofin" name="activity" color="1A4D1A" x="980" y="200" />
+		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1280" y="420" />
+		<entity schema="blofin" name="role" color="1A4D1A" x="1060" y="360" />
+		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1260" y="200" />
+		<entity schema="blofin" name="triggers" color="AE5285" x="2740" y="520" />
+		<entity schema="blofin" name="currency" color="331A80" x="1760" y="1320" />
+		<entity schema="blofin" name="margin_mode" color="AE5285" x="2120" y="500" />
+		<entity schema="blofin" name="bias" color="CCCC33" x="2000" y="600" />
+		<entity schema="blofin" name="environment" color="994D00" x="1260" y="1360" />
+		<entity schema="blofin" name="broker" color="994D00" x="980" y="1160" />
+		<entity schema="blofin" name="subject" color="1A4D1A" x="1560" y="400" />
+		<entity schema="blofin" name="account" color="994D00" x="1220" y="960" />
+		<entity schema="blofin" name="user_account" color="994D00" x="1000" y="960" />
 		<entity schema="blofin" name="vw_requests" color="3986C1" x="540" y="1160" />
+		<entity schema="blofin" name="price_type" color="AE5285" x="2780" y="100" />
+		<entity schema="blofin" name="category" color="AE5285" x="2700" y="280" />
+		<entity schema="blofin" name="order_type" color="AE5285" x="2140" y="360" />
+		<entity schema="blofin" name="state" color="994D00" x="1460" y="900" />
+		<entity schema="blofin" name="order_state" color="AE5285" x="2300" y="100" />
 		<entity schema="blofin" name="vw_orders" color="3986C1" x="720" y="100" />
-		<entity schema="blofin" name="account" color="994D00" x="1220" y="1180" />
-		<entity schema="blofin" name="requests" color="CCCC33" x="1720" y="220" />
+		<entity schema="blofin" name="cancel" color="AE5285" x="2500" y="100" />
 		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="540" y="780" />
 		<entity schema="blofin" name="account_detail" color="994D00" x="1460" y="1100" />
+		<entity schema="blofin" name="requests" color="CCCC33" x="1720" y="200" />
+		<entity schema="blofin" name="orders" color="AE5285" x="2400" y="320" />
 		<group name="orders" color="AE5285" >
-			<entity schema="blofin" name="triggers" />
-			<entity schema="blofin" name="category" />
-			<entity schema="blofin" name="order_state" />
-			<entity schema="blofin" name="price_type" />
-			<entity schema="blofin" name="orders" />
-			<entity schema="blofin" name="cancel" />
-			<entity schema="blofin" name="order_type" />
-			<entity schema="blofin" name="margin_mode" />
 			<entity schema="blofin" name="instrument_type" />
+			<entity schema="blofin" name="triggers" />
+			<entity schema="blofin" name="margin_mode" />
+			<entity schema="blofin" name="price_type" />
+			<entity schema="blofin" name="category" />
+			<entity schema="blofin" name="order_type" />
+			<entity schema="blofin" name="order_state" />
+			<entity schema="blofin" name="cancel" />
+			<entity schema="blofin" name="orders" />
 		</group>
 		<group name="instruments" color="331A80" >
-			<entity schema="blofin" name="instrument" />
-			<entity schema="blofin" name="currency" />
 			<entity schema="blofin" name="period" />
 			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="instrument_period" />
 			<entity schema="blofin" name="contract_type" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="instrument" />
+			<entity schema="blofin" name="currency" />
 		</group>
 		<group name="accounts" color="994D00" >
+			<entity schema="blofin" name="environment" />
+			<entity schema="blofin" name="broker" />
+			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="state" />
-			<entity schema="blofin" name="broker" />
-			<entity schema="blofin" name="environment" />
-			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="account_detail" />
 		</group>
 		<group name="users/privileges" color="1A4D1A" >
 			<entity schema="blofin" name="user" />
 			<entity schema="blofin" name="authority" />
-			<entity schema="blofin" name="role_authority" />
-			<entity schema="blofin" name="task_authority" />
-			<entity schema="blofin" name="role" />
 			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role_authority" />
+			<entity schema="blofin" name="role" />
+			<entity schema="blofin" name="task_authority" />
 			<entity schema="blofin" name="subject" />
 		</group>
 		<group name="views" color="C4E0F9" >
@@ -1196,54 +1200,480 @@ mark: mark price]]></comment>
 			<entity schema="blofin" name="bias" />
 			<entity schema="blofin" name="requests" />
 		</group>
-		<script name="SQL_Editor" id="3e28539a-38c6-4f31-97c3-98b5d0248b3c" language="SQL" >
-			<string><![CDATA[DROP VIEW vw_api_requests;
+		<script name="SQL_Editor" id="99cad8c1-fd60-4854-8332-95f785c27c8d" language="SQL" >
+			<string><![CDATA[CREATE SCHEMA blofin;
 
-DROP VIEW vw_requests;
+CREATE  TABLE blofin.action ( 
+	action               CHAR(4)    NOT NULL   PRIMARY KEY
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN balance SET DEFAULT (0);
+CREATE  TABLE blofin.activity ( 
+	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
+	task                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN equity SET DEFAULT (0);
+CREATE  TABLE blofin.authority ( 
+	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
+	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	priority             SMALLINT  DEFAULT (0)  NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN isolated_equity SET DEFAULT (0);
+CREATE  TABLE blofin.bias ( 
+	bias                 CHAR(5)    NOT NULL   PRIMARY KEY
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN available SET DEFAULT (0);
+CREATE  TABLE blofin.broker ( 
+	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
+	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_broker UNIQUE ( name ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN available_equity SET DEFAULT (0);
+CREATE  TABLE blofin.cancel ( 
+	cancel               BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)    NOT NULL   ,
+	source               VARCHAR(12)    NOT NULL   ,
+	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN equity_usd SET DEFAULT (0);
+CREATE  TABLE blofin.category ( 
+	category             BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(20)    NOT NULL   ,
+	description          VARCHAR(30)    NOT NULL   ,
+	trigger_type         BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	CONSTRAINT ak_category UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN frozen SET DEFAULT (0);
+CREATE  TABLE blofin.contract_type ( 
+	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_contract_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN order_frozen SET DEFAULT (0);
+CREATE  TABLE blofin.currency ( 
+	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
+	symbol               VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	image_url            VARCHAR(300)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	suspense             BOOLEAN       ,
+	CONSTRAINT ak_currency UNIQUE ( symbol ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN borrow_frozen SET DEFAULT (0);
+CREATE  TABLE blofin.environment ( 
+	environment          BINARY(3)    NOT NULL   PRIMARY KEY,
+	environ              VARCHAR(15)    NOT NULL   
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN unrealized_pnl SET DEFAULT (0);
+CREATE  TABLE blofin.instrument_type ( 
+	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_instrument_type UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN isolated_unrealized_pnl SET DEFAULT (0);
+CREATE  TABLE blofin.margin_mode ( 
+	margin_mode          VARCHAR(10)    NOT NULL   PRIMARY KEY,
+	description          VARCHAR(30)       
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN margin_ratio SET DEFAULT (0);
+CREATE  TABLE blofin.order_state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(20)    NOT NULL   ,
+	map_ref              VARCHAR(10)       ,
+	`status`             VARCHAR(30)    NOT NULL   ,
+	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN spot_available SET DEFAULT (0);
+CREATE  TABLE blofin.order_type ( 
+	order_type           BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)    NOT NULL   ,
+	description          VARCHAR(30)       ,
+	CONSTRAINT ak_order_type UNIQUE ( source_ref ) 
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN liability SET DEFAULT (0);
+CREATE  TABLE blofin.period ( 
+	period               BINARY(3)    NOT NULL   PRIMARY KEY,
+	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	timeframe_units      INT    NOT NULL   ,
+	CONSTRAINT ak_period UNIQUE ( timeframe ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.account_detail ALTER COLUMN update_time SET DEFAULT (CURRENT_TIMESTAMP);
+CREATE  TABLE blofin.price_type ( 
+	price_type           CHAR(5)    NOT NULL   PRIMARY KEY,
+	description          VARCHAR(16)       
+ ) engine=InnoDB;
 
-ALTER TABLE blofin.orders ALTER COLUMN reduce_only SET DEFAULT (false);
+CREATE  TABLE blofin.role ( 
+	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
+	title                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	auth_rank            SMALLINT    NOT NULL   ,
+	CONSTRAINT ak_role UNIQUE ( title ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.orders ALTER COLUMN create_time SET DEFAULT (CURRENT_TIMESTAMP);
+CREATE  TABLE blofin.state ( 
+	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	`status`             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_trade_state UNIQUE ( `status` ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.orders ALTER COLUMN update_time SET DEFAULT (CURRENT_TIMESTAMP);
+CREATE  TABLE blofin.subject ( 
+	subject              BINARY(3)    NOT NULL   PRIMARY KEY,
+	area                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.requests ALTER COLUMN expiry_time SET DEFAULT (CURRENT_TIMESTAMP);
+CREATE  TABLE blofin.`user` ( 
+	`user`               BINARY(3)    NOT NULL   PRIMARY KEY,
+	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	hash                 BINARY(16)    NOT NULL   ,
+	password             BINARY(32)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	create_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP)  NOT NULL   ,
+	update_time          DATETIME  DEFAULT (CURRENT_TIMESTAMP) ON UPDATE CURRENT_TIMESTAMP NOT NULL   ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE blofin.requests ALTER COLUMN create_time SET DEFAULT (CURRENT_TIMESTAMP);
+CREATE INDEX fk_u_role ON blofin.`user` ( role );
 
-CREATE VIEW blofin.vw_api_requests AS select `blofin`.`vr`.`order_state` AS `orderState`,`blofin`.`vr`.`symbol` AS `instId`,`blofin`.`vr`.`margin_mode` AS `marginMode`,`blofin`.`vr`.`bias` AS `positionSide`,`blofin`.`vr`.`action` AS `side`,`blofin`.`vr`.`order_type` AS `orderType`,`blofin`.`vr`.`price` AS `price`,`blofin`.`vr`.`size` AS `size`,`blofin`.`vr`.`leverage` AS `leverage`,if((`blofin`.`vr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`blofin`.`vr`.`client_order_id` AS `clientOrderId`,cast(0 as double) AS `tpTriggerPrice`,cast(0 as double) AS `tpOrderPrice`,cast(0 as double) AS `slTriggerPrice`,cast(0 as double) AS `slOrderPrice`,`blofin`.`vr`.`broker_id` AS `brokerId` from `blofin`.`vw_requests` `vr`;
+CREATE INDEX fk_u_state ON blofin.`user` ( state );
 
-CREATE VIEW blofin.vw_requests AS select `r`.`client_order_id` AS `client_order_id`,`os`.`source_ref` AS `order_state`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`r`.`margin_mode` AS `margin_mode`,`r`.`bias` AS `bias`,`r`.`action` AS `action`,`ot`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`r`.`tp_trigger` AS `tp_trigger`,`r`.`sl_trigger` AS `sl_trigger`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from (((((`blofin`.`requests` `r` join `blofin`.`instrument` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) where ((`r`.`instrument` = `i`.`instrument`) and (`r`.`order_type` = `ot`.`order_type`) and (`r`.`order_state` = `os`.`order_state`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+CREATE  TABLE blofin.account ( 
+	account              BINARY(3)    NOT NULL   PRIMARY KEY,
+	broker               BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	environment          BINARY(3)    NOT NULL   ,
+	total_equity         DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
+	isolated_equity      DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
+	wss_url              VARCHAR(100)       ,
+	rest_api_url         VARCHAR(100)       ,
+	wss_public_url       VARCHAR(100)       ,
+	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
+	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES blofin.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_state ON blofin.account ( state );
+
+CREATE INDEX fk_a_broker ON blofin.account ( broker );
+
+CREATE INDEX fk_a_environment ON blofin.account ( environment );
+
+CREATE  TABLE blofin.account_detail ( 
+	account              BINARY(3)    NOT NULL   ,
+	currency             BINARY(3)    NOT NULL   ,
+	balance              DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	equity               DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	isolated_equity      DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	available            DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	available_equity     DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	equity_usd           DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	frozen               DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	order_frozen         DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	borrow_frozen        DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	unrealized_pnl       DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	isolated_unrealized_pnl DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	coin_usd_price       DECIMAL(10,6)  DEFAULT (0)  NOT NULL   ,
+	margin_ratio         DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	spot_available       DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	liability            DECIMAL(15,3)  DEFAULT ('0.000')  NOT NULL   ,
+	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
+	CONSTRAINT pk_account_detail PRIMARY KEY ( account, currency ),
+	CONSTRAINT fk_ad_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ad_currency FOREIGN KEY ( currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ad_currency ON blofin.account_detail ( currency );
+
+CREATE  TABLE blofin.instrument ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	base_currency        BINARY(3)    NOT NULL   ,
+	quote_currency       BINARY(3)    NOT NULL   ,
+	trade_period         BINARY(3)       ,
+	trade_state          BINARY(3)  DEFAULT (0x1697FE)  NOT NULL   ,
+	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
+	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_state FOREIGN KEY ( trade_state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES blofin.period( period ) ON DELETE RESTRICT ON UPDATE RESTRICT
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON blofin.instrument ( quote_currency );
+
+CREATE INDEX fk_i_trade_period ON blofin.instrument ( trade_period );
+
+CREATE INDEX fk_i_state ON blofin.instrument ( trade_state );
+
+CREATE  TABLE blofin.instrument_detail ( 
+	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	contract_type        BINARY(3)    NOT NULL   ,
+	contract_value       DECIMAL(17,5)    NOT NULL   ,
+	max_leverage         INT    NOT NULL   ,
+	min_size             DECIMAL(5,3)    NOT NULL   ,
+	lot_size             DECIMAL(5,3)    NOT NULL   ,
+	tick_size            DOUBLE    NOT NULL   ,
+	max_limit_size       DECIMAL(13,2)    NOT NULL   ,
+	max_market_size      DECIMAL(13,2)    NOT NULL   ,
+	list_time            DATETIME    NOT NULL   ,
+	expiry_time          DATETIME    NOT NULL   ,
+	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES blofin.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON blofin.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON blofin.instrument_detail ( contract_type );
+
+CREATE  TABLE blofin.instrument_period ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	sma_factor           SMALLINT  DEFAULT (_utf8mb4'0')  NOT NULL   ,
+	bulk_collection_rate SMALLINT  DEFAULT ('0')  NOT NULL   ,
+	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
+	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
+	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
+
+CREATE  TABLE blofin.requests ( 
+	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
+	account              BINARY(3)    NOT NULL   ,
+	instrument           BINARY(3)    NOT NULL   ,
+	state                BINARY(3)       ,
+	margin_mode          VARCHAR(10)    NOT NULL   ,
+	position             CHAR(5)    NOT NULL   ,
+	action               CHAR(4)    NOT NULL   ,
+	order_type           BINARY(3)    NOT NULL   ,
+	price                DOUBLE  DEFAULT (0)  NOT NULL   ,
+	size                 DOUBLE    NOT NULL   ,
+	leverage             INT    NOT NULL   ,
+	tp_trigger           VARCHAR(40)       ,
+	sl_trigger           VARCHAR(40)       ,
+	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	memo                 VARCHAR(60)       ,
+	broker_id            VARCHAR(16)       ,
+	expiry_time          DATETIME  DEFAULT (now())  NOT NULL   ,
+	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
+	CONSTRAINT unq_requests_action UNIQUE ( action ) ,
+	CONSTRAINT unq_requests_create_time UNIQUE ( create_time ) ,
+	CONSTRAINT fk_r_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_bias FOREIGN KEY ( position ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_r_bias ON blofin.requests ( position );
+
+CREATE INDEX fk_r_order_type ON blofin.requests ( order_type );
+
+CREATE INDEX fk_r_margin_mode ON blofin.requests ( margin_mode );
+
+CREATE INDEX fk_r_account ON blofin.requests ( account );
+
+CREATE INDEX fk_r_instrument ON blofin.requests ( instrument );
+
+CREATE INDEX fk_requests_state ON blofin.requests ( state );
+
+CREATE  TABLE blofin.role_authority ( 
+	role_authority       BINARY(3)    NOT NULL   PRIMARY KEY,
+	role                 BINARY(3)    NOT NULL   ,
+	authority            BINARY(3)    NOT NULL   ,
+	subject              BINARY(3)    NOT NULL   ,
+	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
+	CONSTRAINT ak_role_authority UNIQUE ( role, authority, subject ) ,
+	CONSTRAINT fk_ra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ra_subject ON blofin.role_authority ( subject );
+
+CREATE INDEX fk_ra_role ON blofin.role_authority ( role );
+
+CREATE INDEX fk_ra_authority ON blofin.role_authority ( authority );
+
+CREATE  TABLE blofin.task_authority ( 
+	role_authority       BINARY(3)    NOT NULL   ,
+	activity             BINARY(3)    NOT NULL   ,
+	CONSTRAINT pk_task_authority PRIMARY KEY ( role_authority, activity ),
+	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ta_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
+
+CREATE  TABLE blofin.user_account ( 
+	`user`               BINARY(3)    NOT NULL   ,
+	account              BINARY(3)    NOT NULL   ,
+	owner                BINARY(3)    NOT NULL   ,
+	alias                VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT pk_user_account PRIMARY KEY ( `user`, account ),
+	CONSTRAINT ak_account_owner UNIQUE ( account, owner ) ,
+	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_user FOREIGN KEY ( `user` ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_owner FOREIGN KEY ( owner ) REFERENCES blofin.`user`( `user` ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
+
+CREATE INDEX fk_ua_owner ON blofin.user_account ( owner );
+
+CREATE  TABLE blofin.candle ( 
+	instrument           BINARY(3)    NOT NULL   ,
+	period               BINARY(3)    NOT NULL   ,
+	bar_time             DATETIME    NOT NULL   ,
+	open                 DOUBLE    NOT NULL   ,
+	high                 DOUBLE    NOT NULL   ,
+	low                  DOUBLE    NOT NULL   ,
+	close                DOUBLE    NOT NULL   ,
+	volume               INT    NOT NULL   ,
+	vol_currency         INT    NOT NULL   ,
+	vol_currency_quote   INT    NOT NULL   ,
+	completed            BOOLEAN    NOT NULL   ,
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
+	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES blofin.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_c_period ON blofin.candle ( period );
+
+CREATE  TABLE blofin.orders ( 
+	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
+	order_id             BIGINT    NOT NULL   ,
+	instrument_type      BINARY(3)    NOT NULL   ,
+	price                DOUBLE    NOT NULL   ,
+	size                 DOUBLE    NOT NULL   ,
+	order_type           BINARY(3)    NOT NULL   ,
+	position             CHAR(5)    NOT NULL   ,
+	action               CHAR(4)    NOT NULL   ,
+	margin_mode          VARCHAR(10)    NOT NULL   ,
+	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
+	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
+	average_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	leverage             INT  DEFAULT (0)  NOT NULL   ,
+	fee                  DOUBLE  DEFAULT (0)  NOT NULL   ,
+	pnl                  DOUBLE  DEFAULT (0)  NOT NULL   ,
+	cancel_source        BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)    NOT NULL   ,
+	reduce_only          BOOLEAN  DEFAULT ('0')  NOT NULL   ,
+	broker_id            VARCHAR(16)    NOT NULL   ,
+	create_time          DATE  DEFAULT (now())  NOT NULL   ,
+	update_time          DATE  DEFAULT (now())  NOT NULL   ,
+	CONSTRAINT ak_orders UNIQUE ( order_id ) ,
+	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_bias FOREIGN KEY ( position ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_category FOREIGN KEY ( order_category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_cancel FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel( cancel ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_requests FOREIGN KEY ( client_order_id ) REFERENCES blofin.requests( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_o_instrument_type ON blofin.orders ( instrument_type );
+
+CREATE INDEX fk_o_order_type ON blofin.orders ( order_type );
+
+CREATE INDEX fk_o_action ON blofin.orders ( action );
+
+CREATE INDEX fk_o_bias ON blofin.orders ( position );
+
+CREATE INDEX fk_o_margin_mode ON blofin.orders ( margin_mode );
+
+CREATE INDEX fk_o_order_state ON blofin.orders ( state );
+
+CREATE INDEX fk_o_category ON blofin.orders ( order_category );
+
+CREATE INDEX fk_o_cancel ON blofin.orders ( cancel_source );
+
+CREATE  TABLE blofin.triggers ( 
+	client_order_id      BINARY(3)    NOT NULL   ,
+	category             BINARY(3)    NOT NULL   ,
+	trigger_price        DOUBLE    NOT NULL   ,
+	order_price          DOUBLE    NOT NULL   ,
+	price_type           CHAR(5)    NOT NULL   ,
+	CONSTRAINT pk_triggers PRIMARY KEY ( client_order_id, category ),
+	CONSTRAINT fk_t_orders FOREIGN KEY ( client_order_id ) REFERENCES blofin.orders( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_t_category FOREIGN KEY ( category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_t_price_type FOREIGN KEY ( price_type ) REFERENCES blofin.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_t_category ON blofin.triggers ( category );
+
+CREATE INDEX fk_t_price_type ON blofin.triggers ( price_type );
+
+CREATE VIEW blofin.vw_accounts AS select `a`.`account` AS `account`,`a`.`broker` AS `broker`,`a`.`state` AS `state`,`s`.`status` AS `status`,`e`.`environment` AS `environment`,`e`.`environ` AS `environ`,`b`.`name` AS `broker_name`,`b`.`image_url` AS `broker_image_url`,`b`.`website_url` AS `broker_website_url`,`u`.`username` AS `owner_name`,`ua`.`alias` AS `alias`,`u`.`email` AS `owner_email`,`u`.`image_url` AS `owner_image_url`,`a`.`total_equity` AS `total_equity`,`a`.`isolated_equity` AS `isolated_equity`,`a`.`wss_url` AS `wss_url`,`a`.`rest_api_url` AS `rest_api_url`,`c`.`currency` AS `currency`,`c`.`symbol` AS `symbol`,`c`.`image_url` AS `currency_image_url`,`c`.`suspense` AS `currency_suspended`,`ad`.`balance` AS `balance`,`ad`.`equity` AS `currency_equity`,`ad`.`isolated_equity` AS `currency_isolated_equity`,`ad`.`equity` AS `equity`,`ad`.`available` AS `available`,`ad`.`available_equity` AS `available_equity`,`ad`.`equity_usd` AS `equity_usd`,`ad`.`frozen` AS `frozen`,`ad`.`order_frozen` AS `order_frozen`,`ad`.`borrow_frozen` AS `borrow_frozen`,`ad`.`unrealized_pnl` AS `unrealized_pnl`,`ad`.`isolated_unrealized_pnl` AS `isolated_unrealized_pnl`,`ad`.`coin_usd_price` AS `coin_usd_price`,`ad`.`margin_ratio` AS `margin_ratio`,`ad`.`spot_available` AS `spot_available`,`ad`.`liability` AS `liability`,`ad`.`update_time` AS `update_time` from (((((((`blofin`.`account` `a` left join `blofin`.`account_detail` `ad` on((`a`.`account` = `ad`.`account`))) left join `blofin`.`currency` `c` on((`ad`.`currency` = `c`.`currency`))) left join `blofin`.`user_account` `ua` on((`a`.`account` = `ua`.`account`))) left join `blofin`.`user` `u` on((`u`.`user` = `ua`.`owner`))) join `blofin`.`environment` `e`) join `blofin`.`broker` `b`) join `blofin`.`state` `s`) where ((`a`.`broker` = `b`.`broker`) and (`a`.`environment` = `e`.`environment`) and (`a`.`state` = `s`.`state`));
+
+CREATE VIEW blofin.vw_instrument_periods AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if((`ip`.`bulk_collection_rate` = 0),0,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,if((`ip`.`bulk_collection_rate` > 0),true,false) AS `active_collection`,`b`.`suspense` AS `suspense` from (((((((`blofin`.`instrument` `i` join `blofin`.`state` `s`) join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `p`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join (select `ipts`.`instrument` AS `instrument`,`ipts`.`period` AS `period`,if((`its`.`trade_period` = `ipts`.`period`),`its`.`trade_state`,0x1697fe) AS `trade_state` from (`blofin`.`instrument_period` `ipts` join `blofin`.`instrument` `its`) where (`ipts`.`instrument` = `its`.`instrument`)) `tps`) where ((`ip`.`instrument` = `i`.`instrument`) and (`ip`.`period` = `p`.`period`) and (`ip`.`instrument` = `tps`.`instrument`) and (`ip`.`period` = `tps`.`period`) and (`tps`.`trade_state` = `s`.`state`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_instruments AS select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`it`.`source_ref` AS `instrument_type`,`ct`.`source_ref` AS `contract_type`,`tp`.`period` AS `trade_period`,`tp`.`timeframe` AS `trade_timeframe`,`tp`.`timeframe_units` AS `timeframe_units`,`ip`.`bulk_collection_rate` AS `bulk_collection_rate`,if(((`ip`.`bulk_collection_rate` = 0) or (`ip`.`bulk_collection_rate` is null)),NULL,if((`ip`.`interval_collection_rate` > 4),`ip`.`interval_collection_rate`,4)) AS `interval_collection_rate`,`ip`.`sma_factor` AS `sma_factor`,`id`.`contract_value` AS `contract_value`,`id`.`max_leverage` AS `max_leverage`,`id`.`min_size` AS `min_size`,`id`.`lot_size` AS `lot_size`,`id`.`tick_size` AS `tick_size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`id`.`max_limit_size` AS `max_limit_size`,`id`.`max_market_size` AS `max_market_size`,`id`.`list_time` AS `list_time`,unix_timestamp(`id`.`list_time`) AS `list_timestamp`,`id`.`expiry_time` AS `expiry_time`,unix_timestamp(`id`.`expiry_time`) AS `expiry_timestamp`,`s`.`state` AS `trade_state`,`s`.`status` AS `trade_status`,`b`.`suspense` AS `suspense` from ((((((((`blofin`.`instrument` `i` left join `blofin`.`instrument_period` `ip` on(((`i`.`trade_period` = `ip`.`period`) and (`i`.`instrument` = `ip`.`instrument`)))) left join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) left join `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) left join `blofin`.`contract_type` `ct` on((`id`.`contract_type` = `ct`.`contract_type`))) left join `blofin`.`period` `tp` on((`i`.`trade_period` = `tp`.`period`))) join `blofin`.`state` `s`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) where ((`i`.`trade_state` = `s`.`state`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_orders AS select `o`.`client_order_id` AS `client_order_id`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,`o`.`order_id` AS `order_id`,`o`.`position` AS `position`,`o`.`action` AS `action`,`o`.`price` AS `price`,`o`.`size` AS `size`,`o`.`leverage` AS `leverage`,`o`.`margin_mode` AS `margin_mode`,`blofin`.`i`.`symbol` AS `symbol`,`blofin`.`i`.`base_currency` AS `base_currency`,`blofin`.`i`.`base_symbol` AS `base_symbol`,`blofin`.`i`.`quote_currency` AS `quote_currency`,`blofin`.`i`.`quote_symbol` AS `quote_symbol`,`blofin`.`i`.`instrument_type` AS `instrument_type`,`blofin`.`i`.`contract_type` AS `contract_type`,`blofin`.`i`.`trade_period` AS `trade_period`,`blofin`.`i`.`trade_timeframe` AS `trade_timeframe`,`blofin`.`i`.`timeframe_units` AS `timeframe_units`,`cat`.`source_ref` AS `order_category`,`tp`.`trigger_price` AS `tp_trigger_price`,`tp`.`order_price` AS `tp_order_price`,`tp`.`price_type` AS `tp_price_type`,`sl`.`trigger_price` AS `sl_trigger_price`,`sl`.`order_price` AS `sl_order_price`,`sl`.`price_type` AS `sl_price_type`,`os`.`source_ref` AS `state`,`ot`.`source_ref` AS `order_type`,`o`.`filled_size` AS `filled_size`,`o`.`filled_amount` AS `filled_amount`,`o`.`average_price` AS `average_price`,`o`.`fee` AS `fee`,`o`.`pnl` AS `pnl`,`can`.`source_ref` AS `cancel_source`,`o`.`reduce_only` AS `reduce_only`,`o`.`broker_id` AS `broker_id`,`o`.`create_time` AS `create_time`,`o`.`update_time` AS `update_time`,`blofin`.`i`.`bulk_collection_rate` AS `bulk_collection_rate`,`blofin`.`i`.`interval_collection_rate` AS `interval_collection_rate`,`blofin`.`i`.`sma_factor` AS `sma_factor`,`blofin`.`i`.`contract_value` AS `contract_value`,`blofin`.`i`.`max_leverage` AS `max_leverage`,`blofin`.`i`.`min_size` AS `min_size`,`blofin`.`i`.`lot_size` AS `lot_size`,`blofin`.`i`.`tick_size` AS `tick_size`,`blofin`.`i`.`digits` AS `digits`,`blofin`.`i`.`max_limit_size` AS `max_limit_size`,`blofin`.`i`.`max_market_size` AS `max_market_size`,`blofin`.`i`.`list_time` AS `list_time`,`blofin`.`i`.`list_timestamp` AS `list_timestamp`,`blofin`.`i`.`expiry_time` AS `expiry_time`,`blofin`.`i`.`expiry_timestamp` AS `expiry_timestamp`,`blofin`.`i`.`trade_state` AS `trade_state`,`blofin`.`i`.`trade_status` AS `trade_status`,`blofin`.`i`.`suspense` AS `suspense` from ((((((((((`blofin`.`orders` `o` left join `blofin`.`triggers` `tp` on((`o`.`client_order_id` = `tp`.`client_order_id`))) left join `blofin`.`category` `ctp` on(((`tp`.`category` = `ctp`.`category`) and (`ctp`.`source_ref` = 'tp')))) left join `blofin`.`triggers` `sl` on((`o`.`client_order_id` = `sl`.`client_order_id`))) left join `blofin`.`category` `csl` on(((`sl`.`category` = `csl`.`category`) and (`csl`.`source_ref` = 'sl')))) join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) join `blofin`.`cancel` `can`) join `blofin`.`category` `cat`) join `blofin`.`vw_instruments` `i`) join `blofin`.`requests` `r`) where ((`r`.`client_order_id` = `o`.`client_order_id`) and (`r`.`instrument` = `blofin`.`i`.`instrument`) and (`o`.`order_type` = `ot`.`order_type`) and (`o`.`state` = `os`.`state`) and (`o`.`cancel_source` = `can`.`cancel`) and (`o`.`order_category` = `cat`.`category`));
+
+CREATE VIEW blofin.vw_requests AS select `r`.`client_order_id` AS `client_order_id`,`s`.`status` AS `status`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`r`.`margin_mode` AS `margin_mode`,`r`.`position` AS `position`,`r`.`action` AS `action`,`ot`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`tp_trigger` AS `tp_trigger`,`r`.`sl_trigger` AS `sl_trigger`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from (((((`blofin`.`requests` `r` join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`state` `s`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`order_type` = `ot`.`order_type`) and (`r`.`state` = `s`.`state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`));
+
+CREATE VIEW blofin.vw_role_privileges AS select `ra`.`role_authority` AS `role_authority`,`r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area`,`auth`.`authority` AS `authority`,`auth`.`privilege` AS `privilege`,`auth`.`priority` AS `priority`,`ra`.`enabled` AS `enabled` from (((`blofin`.`role` `r` join `blofin`.`subject` `s`) join `blofin`.`authority` `auth`) join `blofin`.`role_authority` `ra`) where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`));
+
+CREATE VIEW blofin.vw_role_subjects AS select `r`.`role` AS `role`,`r`.`title` AS `title`,`s`.`subject` AS `subject`,`s`.`area` AS `area` from (((`blofin`.`role` `r` join `blofin`.`subject` `s`) join `blofin`.`authority` `auth`) join `blofin`.`role_authority` `ra`) where ((`ra`.`subject` = `s`.`subject`) and (`ra`.`role` = `r`.`role`) and (`ra`.`authority` = `auth`.`authority`)) group by `r`.`role`,`r`.`title`,`s`.`subject`,`s`.`area` order by `s`.`area`;
+
+CREATE VIEW blofin.vw_users AS select `u`.`user` AS `user`,`u`.`username` AS `username`,`u`.`email` AS `email`,`u`.`role` AS `role`,`r`.`title` AS `title`,`u`.`state` AS `state`,`s`.`status` AS `status`,`u`.`image_url` AS `image_url`,`u`.`password` AS `password`,`u`.`hash` AS `hash`,`u`.`create_time` AS `create_time`,`u`.`update_time` AS `update_time` from ((`blofin`.`user` `u` join `blofin`.`role` `r`) join `blofin`.`state` `s`) where ((`u`.`role` = `r`.`role`) and (`u`.`state` = `s`.`state`));
+
+CREATE VIEW blofin.vw_api_requests AS select `blofin`.`vr`.`status` AS `orderState`,`blofin`.`vr`.`symbol` AS `instId`,`blofin`.`vr`.`margin_mode` AS `marginMode`,`blofin`.`vr`.`position` AS `positionSide`,`blofin`.`vr`.`action` AS `side`,`blofin`.`vr`.`order_type` AS `orderType`,replace(format(`blofin`.`vr`.`price`,`blofin`.`vr`.`digits`),',','') AS `price`,replace(format(`blofin`.`vr`.`size`,`blofin`.`vr`.`digits`),',','') AS `size`,cast(`blofin`.`vr`.`leverage` as char charset utf8mb4) AS `leverage`,if((`blofin`.`vr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`blofin`.`vr`.`client_order_id` AS `clientOrderId`,cast(0 as double) AS `tpTriggerPrice`,cast(0 as double) AS `tpOrderPrice`,cast(0 as double) AS `slTriggerPrice`,cast(0 as double) AS `slOrderPrice`,`blofin`.`vr`.`broker_id` AS `brokerId` from `blofin`.`vw_requests` `vr`;
+
+CREATE VIEW blofin.vw_candles AS select `blofin`.`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`pt`.`period` AS `period`,`pt`.`timeframe` AS `timeframe`,`c`.`bar_time` AS `bar_time`,unix_timestamp(`c`.`bar_time`) AS `timestamp`,`c`.`open` AS `open`,`c`.`high` AS `high`,`c`.`low` AS `low`,`c`.`close` AS `close`,`c`.`volume` AS `volume`,`c`.`vol_currency` AS `vol_currency`,`c`.`vol_currency_quote` AS `vol_currency_quote`,`blofin`.`i`.`digits` AS `digits`,`c`.`completed` AS `completed` from (((((`blofin`.`vw_instruments` `i` join `blofin`.`instrument_period` `ip`) join `blofin`.`period` `pt`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`candle` `c`) where ((`c`.`instrument` = `blofin`.`i`.`instrument`) and (`c`.`period` = `pt`.`period`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`) and (`blofin`.`i`.`instrument` = `ip`.`instrument`) and (`ip`.`period` = `pt`.`period`));
+
+CREATE VIEW blofin.vw_candle_audit AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc;
+
+ALTER TABLE blofin.action COMMENT 'buy
+sell';
+
+ALTER TABLE blofin.bias COMMENT 'Position side
+Default net for One-way Mode
+long or short for Hedge Mode. It must be sent in Hedge Mode.';
+
+ALTER TABLE blofin.cancel COMMENT 'not_canceled
+user_canceled
+system_canceled';
+
+ALTER TABLE blofin.category COMMENT 'normal
+full_liquidation
+partial_liquidation
+adl
+tp
+sl';
+
+ALTER TABLE blofin.margin_mode COMMENT 'Margin mode
+cross
+isolated';
+
+ALTER TABLE blofin.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
+
+ALTER TABLE blofin.order_type COMMENT 'market: market order
+limit: limit order
+post_only: Post-only order
+fok: Fill-or-kill order
+ioc: Immediate-or-cancel order';
+
+ALTER TABLE blofin.price_type COMMENT 'Trigger price type.
+last: last price
+index: index price
+mark: mark price';
 ]]></string>
 		</script>
 	</layout>

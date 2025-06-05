@@ -9,28 +9,15 @@ import type { RowDataPacket } from "mysql2";
 import { Modify, parseColumns, Select } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-// export const OrderType = {
-//   Market: "market",
-//   Limit: "limit",
-//   Post: "post_only",
-//   FoK: "fill-or",
-//   IoC: "Suspended",
-//   Deleted: "Deleted",
-//   Expired: "Expired",
-// } as const;
-// export type Status = (typeof Status)[keyof typeof Status];
-// export const OrderTypes: Array<{ type: Status; description: string }> = [
-//   { type: "market", description: "market order" },
-//   { type: "limit", description: "limit order" },
-//   { type: "post_only", description: "Post-only order" },
-//   { type: "fok", description: "Fill-or-kill order" },
-//   { type: "ioc", description: "Immediate-or-cancel order" },
-// ];
-
-// export interface IKeyProps {
-//   state?: Uint8Array;
-//   status?: string | Status;
-// }
+export interface IKeyProps {
+  table: string | undefined;
+  state?: Uint8Array;
+  order_type?: Uint8Array;
+  cancel?: Uint8Array;
+  category?: Uint8Array;
+  source_ref: string;
+  map_ref: string;
+}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports period seed data to the database;                                            |
@@ -39,13 +26,13 @@ export const Import = async () => {
   ["buy", "sell"].forEach((action) => Add("action", { action }));
   ["short", "long", "net"].forEach((bias) => Add("bias", { bias }));
   [
-    { order_state: 0, source_ref: "live", status: "Live" },
-    { order_state: 0, source_ref: "effective", status: "Effective" },
-    { order_state: 0, source_ref: "canceled", status: "Canceled" },
-    { order_state: 0, source_ref: "order_failed", status: "Order Failed" },
-    { order_state: 0, source_ref: "filled", status: "Filled" },
-    { order_state: 0, source_ref: "partially_canceled", status: "Partially Canceled" },
-    { order_state: 0, source_ref: "partially_filled", status: "Partially Filled" },
+    { state: 0, source_ref: "live", map_ref: "Pending", status: "Live" },
+    { state: 0, source_ref: "effective", map_ref: "Pending", status: "Effective" },
+    { state: 0, source_ref: "canceled", map_ref: "Canceled", status: "Canceled" },
+    { state: 0, source_ref: "order_failed", map_ref: "Rejected", status: "Order Failed" },
+    { state: 0, source_ref: "filled", map_ref: "Fulfilled", status: "Filled" },
+    { state: 0, source_ref: "partially_canceled", map_ref: "Pending", status: "Partially Canceled" },
+    { state: 0, source_ref: "partially_filled", map_ref: "Pending", status: "Partially Filled" },
   ].forEach((state) => Add("order_state", state));
   [
     { order_type: 0, source_ref: "market", description: "Market order" },
@@ -53,7 +40,6 @@ export const Import = async () => {
     { order_type: 0, source_ref: "post_only", description: "Post-only order" },
     { order_type: 0, source_ref: "fok", description: "Fill-or-kill order" },
     { order_type: 0, source_ref: "ioc", description: "Immediate-or-cancel order" },
-    { order_type: 0, source_ref: "gtc", description: "Good-til-Canceled order" },
   ].forEach((type) => Add("order_type", type));
   [
     { cancel: 0, source_ref: "not_canceled", source: "Open, Not Canceled" },
@@ -90,9 +76,12 @@ export async function Add(table: string, data: object) {
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch<T extends object> (table: string, props: T ): Promise<Array<Partial<T>>> {
+export async function Fetch<IKeyProps> (table: string, props: Partial<IKeyProps> ): Promise<Array<Partial<IKeyProps>| undefined>> {
   const [fields, args] = parseColumns(props);
-  const sql: string = `SELECT * FROM blofin.${table} WHERE ${fields.join(" AND ")}`;
-  return Select<T>(sql, args);
+  const sql: string = `SELECT * FROM blofin.${table} ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  
+  if (!Object.keys(props).length && !fields.length) return [undefined];
+  
+  return Select<IKeyProps>(sql, args);
 }
 

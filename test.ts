@@ -94,6 +94,14 @@
 // import { Import } from "./api/instruments";
 // Import();
 
+// //----------------------------- Account Import ---------------------------------------//
+// import { Import } from "@db/interfaces/account";
+// const imports = async() => {
+//   const new_accts = await Import();
+//   console.log(new_accts)
+// }
+// imports();
+
 //----------------------------- Role/Privs Import ---------------------------------------//
 //import * as Authority from "@db/interfaces/authority";
 //import * as Subject from "@db/interfaces/subject";
@@ -719,44 +727,6 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // };
 // load();
 
-//----------------------------- order test  -------------------------------------------------------//
-import { hexify } from "@lib/crypto.util";
-import * as Order from "@db/interfaces/order";
-import * as Refs from "@db/interfaces/reference";
-import * as Instruments from "@db/interfaces/instrument";
-
-const order_request = {
-  instId: "BTC-USDT",
-  marginMode: "cross",
-  side: "buy",
-  orderType: "limit",
-  price: (95000.1).toFixed(1),
-  size: "0.1",
-  leverage: "3",
-  positionSide: "long",
-};
-
-const request: Partial<Order.IRequest> = {
-  client_order_id: undefined!,
-  state: undefined!,
-  account: hexify("305954")!,
-  instrument: hexify("4e3e8a")!,
-  margin_mode: "cross",
-  position: "long",
-  action: "buy",
-  order_type: "limit",
-  price: 93000.1,
-  size: 0.1,
-  leverage: 10,
-  tp_trigger: undefined!,
-  sl_trigger: undefined!,
-  reduce_only: undefined!,
-  expiry_time: new Date(),
-};
-
-const req = Order.Request(request);
-//const exec = Order.Execute();
-
 //----------------------------------------- Generic fetch v. CRUD fetch performance test (hmmm...)------------------------------//
 // *-------------------------- round 1 --------------------------*
 // From Interface Fetch returned in 0.11948900000004414ms
@@ -817,4 +787,80 @@ const req = Order.Request(request);
 // et = performance.now();
 // console.log(`From Generic Fetch returned in ${et - st}ms`);
 
+//----------------------------- order test  -------------------------------------------------------//
+import { hexify } from "@lib/crypto.util";
+import * as Order from "@db/interfaces/order";
+import * as Request from "@api/orders";
+import * as Refs from "@db/interfaces/reference";
+import * as Instruments from "@db/interfaces/instrument";
 
+const order_request = {
+  instId: "BTC-USDT",
+  marginMode: "cross",
+  side: "buy",
+  orderType: "limit",
+  price: (95000.1).toFixed(1),
+  size: "0.1",
+  leverage: "3",
+  positionSide: "long",
+};
+
+const api_order: Array<Request.IOrderAPI> = [
+  {
+    instType: "SWAP",
+    instId: "BTC-USDT",
+    orderId: "4000011703777",
+    clientOrderId: "0x25d921",
+    price: "93000.100000000000000000",
+    size: "0.1",
+    orderType: "limit",
+    side: "buy",
+    positionSide: "long",
+    marginMode: "cross",
+    filledSize: "0",
+    filledAmount: "0.000000000000000000",
+    averagePrice: "0.000000000000000000",
+    state: "live",
+    leverage: "3",
+    tpTriggerPrice: null,
+    tpOrderPrice: null,
+    slTriggerPrice: null,
+    slOrderPrice: null,
+    fee: "0.000000000000000000",
+    pnl: "0.000000000000000000",
+    cancelSource: "",
+    orderCategory: "normal",
+    createTime: "1748915537513",
+    updateTime: "1748915537524",
+    reduceOnly: "false",
+    brokerId: "",
+  },
+];
+
+const request: Partial<Order.IRequest> = {
+  client_order_id: undefined!,
+  state: undefined!,
+  account: hexify("145a6a")!,
+  instrument: hexify("4e3e8a")!,
+  margin_mode: "cross",
+  position: "long",
+  action: "buy",
+  order_type: "limit",
+  price: 93000.1,
+  size: 0.1,
+  leverage: 10,
+  tp_trigger: undefined!,
+  sl_trigger: undefined!,
+  reduce_only: undefined!,
+  expiry_time: new Date(),
+};
+
+// const req = Order.Request(request);
+// const exec = Order.Execute();
+import * as Reference from "@db/interfaces/reference";
+const checkRef = async () => {
+  const cancel_dflt = await Reference.Fetch<Reference.IKeyProps>("cancel", { source_ref: "not_canceled" });
+  console.log(cancel_dflt);
+};
+checkRef();
+Request.Publish(api_order);
