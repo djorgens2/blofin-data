@@ -139,8 +139,7 @@ export function openWebSocket(props: Partial<TSession>) {
   setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send("ping");
-      //      Orders.Execute();
-      OrderAPI.Audit();
+      OrderAPI.Import();
     }
     if (ws.readyState === WebSocket.CONNECTING) console.log("Websocket trying to connect...");
   }, 29000);

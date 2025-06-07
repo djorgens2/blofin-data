@@ -27,19 +27,11 @@ CREATE  TABLE blofin.broker (
 	CONSTRAINT ak_broker UNIQUE ( name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE blofin.cancel ( 
-	cancel               BINARY(3)    NOT NULL   PRIMARY KEY,
+CREATE  TABLE blofin.cancel_source ( 
+	cancel_source        BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(15)    NOT NULL   ,
 	source               VARCHAR(12)    NOT NULL   ,
 	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
- ) engine=InnoDB;
-
-CREATE  TABLE blofin.category ( 
-	category             BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(20)    NOT NULL   ,
-	description          VARCHAR(30)    NOT NULL   ,
-	trigger_type         BOOLEAN  DEFAULT (false)  NOT NULL   ,
-	CONSTRAINT ak_category UNIQUE ( source_ref ) 
  ) engine=InnoDB;
 
 CREATE  TABLE blofin.contract_type ( 
@@ -72,6 +64,14 @@ CREATE  TABLE blofin.instrument_type (
 CREATE  TABLE blofin.margin_mode ( 
 	margin_mode          VARCHAR(10)    NOT NULL   PRIMARY KEY,
 	description          VARCHAR(30)       
+ ) engine=InnoDB;
+
+CREATE  TABLE blofin.order_category ( 
+	order_category       BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(20)    NOT NULL   ,
+	description          VARCHAR(30)    NOT NULL   ,
+	trigger_type         BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	CONSTRAINT ak_order_category UNIQUE ( source_ref ) 
  ) engine=InnoDB;
 
 CREATE  TABLE blofin.order_state ( 
@@ -378,10 +378,10 @@ CREATE  TABLE blofin.orders (
 	CONSTRAINT fk_o_action FOREIGN KEY ( action ) REFERENCES blofin.action( action ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_position FOREIGN KEY ( position ) REFERENCES blofin.bias( bias ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_category FOREIGN KEY ( order_category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_cancel FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel( cancel ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES blofin.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_requests FOREIGN KEY ( client_order_id ) REFERENCES blofin.requests( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_o_requests FOREIGN KEY ( client_order_id ) REFERENCES blofin.requests( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_cancel_source FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel_source( cancel_source ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_o_instrument_type ON blofin.orders ( instrument_type );
@@ -396,23 +396,23 @@ CREATE INDEX fk_o_margin_mode ON blofin.orders ( margin_mode );
 
 CREATE INDEX fk_o_order_state ON blofin.orders ( state );
 
-CREATE INDEX fk_o_category ON blofin.orders ( order_category );
+CREATE INDEX fk_o_order_category ON blofin.orders ( order_category );
 
-CREATE INDEX fk_o_cancel ON blofin.orders ( cancel_source );
+CREATE INDEX fk_o_cancel_source ON blofin.orders ( cancel_source );
 
 CREATE  TABLE blofin.triggers ( 
 	client_order_id      BINARY(3)    NOT NULL   ,
-	category             BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)    NOT NULL   ,
 	trigger_price        DOUBLE    NOT NULL   ,
 	order_price          DOUBLE    NOT NULL   ,
 	price_type           CHAR(5)    NOT NULL   ,
-	CONSTRAINT pk_triggers PRIMARY KEY ( client_order_id, category ),
+	CONSTRAINT pk_triggers PRIMARY KEY ( client_order_id, order_category ),
 	CONSTRAINT fk_t_orders FOREIGN KEY ( client_order_id ) REFERENCES blofin.orders( client_order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_t_category FOREIGN KEY ( category ) REFERENCES blofin.category( category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_t_order_category FOREIGN KEY ( order_category ) REFERENCES blofin.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_t_price_type FOREIGN KEY ( price_type ) REFERENCES blofin.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) engine=InnoDB;
 
-CREATE INDEX fk_t_category ON blofin.triggers ( category );
+CREATE INDEX fk_t_order_category ON blofin.triggers ( order_category );
 
 CREATE INDEX fk_t_price_type ON blofin.triggers ( price_type );
 
@@ -575,6 +575,10 @@ where
 CREATE VIEW blofin.vw_orders AS
 select
 	o.client_order_id AS client_order_id,
+	s.state AS request_state,
+	s.status AS status,
+	r.expiry_time AS expiry_time,
+	blofin.i.symbol AS symbol,
 	r.account AS account,
 	r.instrument AS instrument,
 	o.order_id AS order_id,
@@ -584,7 +588,6 @@ select
 	o.size AS size,
 	o.leverage AS leverage,
 	o.margin_mode AS margin_mode,
-	blofin.i.symbol AS symbol,
 	blofin.i.base_currency AS base_currency,
 	blofin.i.base_symbol AS base_symbol,
 	blofin.i.quote_currency AS quote_currency,
@@ -593,7 +596,6 @@ select
 	blofin.i.contract_type AS contract_type,
 	blofin.i.trade_period AS trade_period,
 	blofin.i.trade_timeframe AS trade_timeframe,
-	blofin.i.timeframe_units AS timeframe_units,
 	cat.source_ref AS order_category,
 	tp.trigger_price AS tp_trigger_price,
 	tp.order_price AS tp_order_price,
@@ -613,47 +615,35 @@ select
 	o.broker_id AS broker_id,
 	o.create_time AS create_time,
 	o.update_time AS update_time,
-	blofin.i.bulk_collection_rate AS bulk_collection_rate,
-	blofin.i.interval_collection_rate AS interval_collection_rate,
-	blofin.i.sma_factor AS sma_factor,
-	blofin.i.contract_value AS contract_value,
-	blofin.i.max_leverage AS max_leverage,
-	blofin.i.min_size AS min_size,
-	blofin.i.lot_size AS lot_size,
-	blofin.i.tick_size AS tick_size,
 	blofin.i.digits AS digits,
-	blofin.i.max_limit_size AS max_limit_size,
-	blofin.i.max_market_size AS max_market_size,
-	blofin.i.list_time AS list_time,
-	blofin.i.list_timestamp AS list_timestamp,
-	blofin.i.expiry_time AS expiry_time,
-	blofin.i.expiry_timestamp AS expiry_timestamp,
 	blofin.i.trade_state AS trade_state,
 	blofin.i.trade_status AS trade_status,
 	blofin.i.suspense AS suspense
 from
-	((((((((((blofin.orders o
+	(((((((((((blofin.orders o
 left join blofin.triggers tp on
 	((o.client_order_id = tp.client_order_id)))
-left join blofin.category ctp on
-	(((tp.category = ctp.category) and (ctp.source_ref = 'tp'))))
+left join blofin.order_category ctp on
+	(((tp.order_category = ctp.order_category) and (ctp.source_ref = 'tp'))))
 left join blofin.triggers sl on
 	((o.client_order_id = sl.client_order_id)))
-left join blofin.category csl on
-	(((sl.category = csl.category) and (csl.source_ref = 'sl'))))
+left join blofin.order_category csl on
+	(((sl.order_category = csl.order_category) and (csl.source_ref = 'sl'))))
 join blofin.order_type ot)
 join blofin.order_state os)
-join blofin.cancel can)
-join blofin.category cat)
+join blofin.cancel_source can)
+join blofin.order_category cat)
 join blofin.vw_instruments i)
 join blofin.requests r)
+join blofin.state s)
 where
 	((r.client_order_id = o.client_order_id)
 		and (r.instrument = blofin.i.instrument)
 			and (o.order_type = ot.order_type)
 				and (o.state = os.state)
-					and (o.cancel_source = can.cancel)
-						and (o.order_category = cat.category));
+					and (os.map_ref = s.status)
+						and (o.cancel_source = can.cancel_source)
+							and (o.order_category = cat.order_category));
 
 CREATE VIEW blofin.vw_requests AS
 select
@@ -837,20 +827,20 @@ ALTER TABLE blofin.bias COMMENT 'Position side
 Default net for One-way Mode
 long or short for Hedge Mode. It must be sent in Hedge Mode.';
 
-ALTER TABLE blofin.cancel COMMENT 'not_canceled
+ALTER TABLE blofin.cancel_source COMMENT 'not_canceled
 user_canceled
 system_canceled';
 
-ALTER TABLE blofin.category COMMENT 'normal
+ALTER TABLE blofin.margin_mode COMMENT 'Margin mode
+cross
+isolated';
+
+ALTER TABLE blofin.order_category COMMENT 'normal
 full_liquidation
 partial_liquidation
 adl
 tp
 sl';
-
-ALTER TABLE blofin.margin_mode COMMENT 'Margin mode
-cross
-isolated';
 
 ALTER TABLE blofin.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
 

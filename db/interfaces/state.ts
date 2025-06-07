@@ -4,25 +4,24 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
 export type System = "Enabled" | "Disabled" | "Halted";
-export type Status = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed" | undefined;
+export type Request = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
+export type User = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 
 export interface IState {
-  state?: Uint8Array;
-  status?: string | Status;
+  state: Uint8Array;
+  status: Request | System | User;
   description: string;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed States to define accounts/trading operational status;                   |
 //+--------------------------------------------------------------------------------------+
-export const Import = () =>
-  [
+export const Import = () => {
+  const states: Array<Partial<IState>> = [
     { status: "Enabled", description: "Enabled for trading" },
     { status: "Disabled", description: "Disabled from trading" },
     { status: "Halted", description: "Adverse event halt" },
@@ -36,12 +35,14 @@ export const Import = () =>
     { status: "Rejected", description: "Rejected; request denied; check error log" },
     { status: "Canceled", description: "Canceled; request canceled;" },
     { status: "Closed", description: "Closed; request is closed;" },
-  ].forEach((state) => Publish(state));
+  ];
+  states.forEach((state) => Publish(state));
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: { status: string; description: string }): Promise<IState["state"]> {
+export async function Publish(props: Partial<IState>): Promise<IState["state"]> {
   const { status, description } = props;
   const state = await Key({ status });
 
