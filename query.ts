@@ -13,7 +13,7 @@ import * as KeySet from "@db/interfaces/instrument_period";
 import * as Area from "@db/interfaces/subject";
 import * as Environ from "@db/interfaces/environment";
 import * as Account from "@db/interfaces/account";
-import * as Request from "@db/interfaces/order";
+import * as Request from "@db/interfaces/request";
 import * as Reference from "@db/interfaces/reference";
 
 import { parseJSON } from "@lib/std.util";
@@ -123,7 +123,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.User: {
-      const props = parseJSON<User.IKeyProps>(args);
+      const props = parseJSON<User.IUser>(args);
       props!.user && Object.assign(props!, { ...props, user: hexify(props!.user) });
       const key = await User.Key(props!);
       console.log("Fetch User:", props, key);

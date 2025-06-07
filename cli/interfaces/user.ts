@@ -6,6 +6,7 @@
 "use strict";
 
 import Prompt, { IOption } from "@cli/modules/Prompts";
+import type { IUser}  from "@db/interfaces/user";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 import { Answers } from "prompts";
@@ -43,7 +44,7 @@ const setFields = async <T extends Answers<string>>(props: T) => {
   const roles = await setRole(props);
   const { role, title } = roles!;
 
-  const states = await setState(props);
+  const states = await setState();
   const { state, status } = states!;
 
   const images = props?.image_url && (await Prompt(["text"], { message: "Edit image?", initial: props?.image_url }));
@@ -55,7 +56,7 @@ const setFields = async <T extends Answers<string>>(props: T) => {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves users in prompt format;                                                    |
 //+--------------------------------------------------------------------------------------+
-export const setUser = async (props: Users.IKeyProps) => {
+export const setUser = async (props: IUser) => {
   const users = await Users.Fetch(props);
   const choices: Array<IOption> = [];
 
@@ -108,7 +109,7 @@ const setRole = async <T extends Answers<string>>(props: T) => {
 //+--------------------------------------------------------------------------------------+
 //| Performs light validation on prompted user credentials; more tightening expected;    |
 //+--------------------------------------------------------------------------------------+
-export const setCredentials = async (newUser: boolean = false, props?: Partial<Users.IKeyProps>) => {
+export const setCredentials = async (newUser: boolean = false, props?: Partial<IUser>) => {
   const credentials = await Prompt(["username", "email"]);
 
   let { username, email } = credentials;

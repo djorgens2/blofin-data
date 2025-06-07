@@ -7,17 +7,18 @@
 
 import type { IOrder } from "@db/interfaces/order";
 
-import * as State from "@db/interfaces/state";
-import * as Request from "@db/interfaces/order";
-import * as Reference from "@db/interfaces/reference";
-import * as Instrument from "@db/interfaces/instrument";
-import * as InstrumentType from "@db/interfaces/instrument_type";
-
-import { parseColumns } from "@db/query.utils";
-import { Select } from "@db/query.utils";
+import { Select, parseColumns } from "@db/query.utils";
 import { Session, signRequest } from "@module/session";
 import { IKeyProps } from "@db/interfaces/reference";
 import { hexify } from "@lib/crypto.util";
+import { hexString, isEqual } from "@lib/std.util";
+
+import * as States from "@db/interfaces/state";
+import * as Orders from "@db/interfaces/order";
+import * as Request from "@db/interfaces/request";
+import * as Reference from "@db/interfaces/reference";
+import * as Instrument from "@db/interfaces/instrument";
+import * as InstrumentType from "@db/interfaces/instrument_type";
 
 export interface IRequestAPI {
   status?: string;
@@ -54,21 +55,17 @@ export interface IOrderAPI extends IRequestAPI {
   orderCategory: string;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
-//+--------------------------------------------------------------------------------------+
-export async function Queue(props: Partial<IRequestAPI>): Promise<Array<Partial<IRequestAPI>>> {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_api_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-  return Select<IRequestAPI>(sql, args);
-}
+export type TResponse = {
+  orderId: string;
+  clientOrderId: string;
+  msg: string;
+  code: string;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Submit(props: Partial<IRequestAPI>) {
-  // @ts-ignore
-  Object.keys(props).forEach((key) => props[key] === undefined && delete props[key]);
+export async function Submit(props: Array<Partial<IRequestAPI>>) {
   const method = "POST";
   const path = "/api/v1/trade/order";
   const body = JSON.stringify(props);
@@ -90,7 +87,10 @@ export async function Submit(props: Partial<IRequestAPI>) {
     body,
   })
     .then((response) => response.json())
-    .then((json) => console.log(json))
+    .then((json) => {
+      if (json.code === 0) Request.Update(json.data);
+      else throw new Error(json);
+    })
     .catch((error) => console.log(error));
 
   // # Place order
@@ -117,79 +117,95 @@ export async function Submit(props: Partial<IRequestAPI>) {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Merge - completes high-level request->order validation and applies inserts/updates;  |
+//| Formats and emits order requests to broker for execution;                            |
 //+--------------------------------------------------------------------------------------+
-export async function Merge(order: Partial<IOrder>) {
-  const { client_order_id, create_time, update_time, ...api } = order;
-  const [status] = await Reference.Fetch<IKeyProps>("order_state", { state: order.state });
-  const [request] = await Request.Fetch({ client_order_id });
-  const state = await State.Key({ status: status!.map_ref });
+export async function Execute(): Promise<number> {
+  await Import();
 
-  if (request) {
-    if ((request.instrument = order.instrument)) {
-      const [fields, args] = parseColumns(api);
-      console.log("\napi:", api, "\nfields:", fields, "\nargs:", args);
-      // const sql = `INSERT INTO blofin.requests ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
+  const requests = await Request.Queue({ status: "Queued" });
 
-      // await Modify(sql, args);
-    }
+  for (const id in requests) {
+    const request = requests[id];
+    const custKey = hexify(request.clientOrderId!);
+    const api: Partial<IRequestAPI> = {
+      instId: request.instId!,
+      marginMode: request.marginMode!,
+      positionSide: request.positionSide!,
+      side: request.side!,
+      orderType: request.orderType!,
+      price: request.price!,
+      size: request.size!,
+      leverage: request.leverage!,
+      reduceOnly: request.reduceOnly!,
+      clientOrderId: hexString(custKey!, 3),
+      tpTriggerPrice: request.tpTriggerPrice ? request.tpTriggerPrice : undefined,
+      tpOrderPrice: request.tpOrderPrice! ? request.tpTriggerPrice : undefined,
+      slTriggerPrice: request.slTriggerPrice! ? request.tpTriggerPrice : undefined,
+      slOrderPrice: request.slOrderPrice! ? request.tpTriggerPrice : undefined,
+      brokerId: request.brokerId ? request.brokerId : undefined,
+    };
+
+    await Submit(api);
   }
-  // console.log("Instruments Suspended: ", suspense.length, suspense);
-  // console.log("Instruments Updated: ", modified.length, modified);
-
-  // await Currency.Suspend(suspense);
-  // await Instrument.Suspend(suspense);
-  // await InstrumentDetail.Update(modified);
+  return requests.length;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Publish - scrubs blofin api updates, applies keys, and executes merge to local db;   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(orders: Array<IOrderAPI>) {
+export async function Publish(orders: Array<Partial<IOrderAPI>>) {
   for (const id in orders) {
     const order = orders[id];
-    const inst_type_dflt = await InstrumentType.Key({ source_ref: "SWAP" });
-    const [cancel_dflt] = await Reference.Fetch<IKeyProps>("cancel", { source_ref: "not_canceled" });
     const instrument = await Instrument.Key({ symbol: order.instId });
-    const instrument_type = await InstrumentType.Key({ source_ref: order.instType });
-    const [apiState] = await Reference.Fetch<IKeyProps>("order_state", { source_ref: order.state });
-    const [apiOrderType] = await Reference.Fetch<IKeyProps>("order_type", { source_ref: order.orderType });
-    const [apiCategory] = await Reference.Fetch<IKeyProps>("category", { source_ref: order.orderCategory });
-    const [apiCancel] = await Reference.Fetch<IKeyProps>("cancel", { source_ref: order.cancelSource });
-    const update: Partial<IOrder> = {
-      instrument,
-      instrument_type: instrument_type ? instrument_type : inst_type_dflt,
-      order_id: order.orderId,
-      client_order_id: hexify(order.clientOrderId),
-      price: parseFloat(order.price),
-      size: parseFloat(order.size),
-      order_type: apiOrderType!.order_type!,
-      action: order.side,
-      position: order.positionSide,
-      margin_mode: order.marginMode,
-      filled_size: parseFloat(order.filledSize),
-      // @ts-ignore
-      filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
-      average_price: parseFloat(order.averagePrice),
-      state: apiState!.state!,
-      leverage: parseInt(order.leverage),
-      fee: parseFloat(order.fee),
-      pnl: parseFloat(order.pnl),
-      category: apiCategory!.category!,
-      cancel: apiCancel?.cancel ? apiCancel.cancel : cancel_dflt!.cancel,
-      reduce_only: order.reduceOnly === "true" ? true : false,
-      broker_id: order.brokerId,
-      create_time: parseInt(order.createTime),
-      update_time: parseInt(order.updateTime),
-    };
-    await Merge(update);
+
+    if (order.clientOrderId) {
+      //-- handle untracked requests
+    //} else if (instrument) {
+      const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
+      const instrument_type = await InstrumentType.Key({ source_ref: order.instType });
+      const [cancel_default] = await Reference.Fetch<IKeyProps>("cancel_source", { source_ref: "not_canceled" });
+      const [apiState] = await Reference.Fetch<IKeyProps>("order_state", { source_ref: order.state });
+      const [apiOrderType] = await Reference.Fetch<IKeyProps>("order_type", { source_ref: order.orderType });
+      const [apiCategory] = await Reference.Fetch<IKeyProps>("order_category", { source_ref: order.orderCategory });
+      const [apiCancel] = await Reference.Fetch<IKeyProps>("cancel_source", { source_ref: order.cancelSource });
+      const update: Partial<IOrder> = {
+        client_order_id: hexify(order.clientOrderId!),
+        instrument,
+        instrument_type: instrument_type ? instrument_type : inst_type_default,
+        order_id: order.orderId,
+        price: parseFloat(order.price!),
+        size: parseFloat(order.size!),
+        order_type: apiOrderType?.order_type,
+        action: order.side,
+        position: order.positionSide,
+        margin_mode: order.marginMode,
+        filled_size: parseFloat(order.filledSize!),
+        // @ts-ignore
+        filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
+        average_price: parseFloat(order.averagePrice!),
+        state: apiState?.state,
+        leverage: parseInt(order.leverage!),
+        fee: parseFloat(order.fee!),
+        pnl: parseFloat(order.pnl!),
+        order_category: apiCategory?.order_category,
+        cancel_source: apiCancel?.cancel_source ? apiCancel.cancel_source : cancel_default!.cancel_source,
+        reduce_only: order.reduceOnly === "true" ? true : false,
+        broker_id: order.brokerId?.length ? undefined : order.brokerId,
+        create_time: parseInt(order.createTime!),
+        update_time: parseInt(order.updateTime!),
+      };
+
+      await Orders.Publish(update);
+    } else {
+      //-- handle missing order;
+    }
   }
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Audit - retrieves active orders; reconciles with local db;                           |
+//| Import - retrieves active orders; reconciles with local db;                          |
 //+--------------------------------------------------------------------------------------+
-export async function Audit() {
+export async function Import() {
   const method = "GET";
   const path = "/api/v1/trade/orders-pending";
   const { api, phrase, rest_api_url } = Session();

@@ -4,12 +4,12 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt from '@cli/modules/Prompts';
+import Prompt from "@cli/modules/Prompts";
 
 //+--------------------------------------------------------------------------------------+
 //| Pauses console app execution;                                                        |
 //+--------------------------------------------------------------------------------------+
-export async function Pause( message: string) {
+export async function Pause(message: string) {
   const { choice } = await Prompt(["choice"], { message, active: "continue", inactive: "exit", initial: true });
   if (!choice) process.exit(0);
 }
@@ -49,7 +49,7 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
     //--- whitelist exceptions
     if (arg === "pong")
       // @ts-ignore
-    return { event: "pong" };
+      return { event: "pong" };
 
     if (arg === `{""}`)
       // @ts-ignore
@@ -58,6 +58,23 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
   }
   return undefined;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
+//+--------------------------------------------------------------------------------------+
+export const setExpiry = (period: string) => {
+  // @ts-ignore
+  Date.prototype.add = function (increment: number) {
+    this.setTime(this.getTime() + increment);
+    return this;
+  };
+  
+  const increment = parseInt(period);
+  const timeframe = period.slice(-1) === 's' ? 1000 : period.slice(-1) === 'm' ? 60000 : period.slice(-1) === 'h' ? 3600000 : period.slice(-1) === 'd' ? 86400000 : undefined;
+  // @ts-ignore
+  const expiry = timeframe ? new Date().add(increment*timeframe) : undefined;
+  return expiry;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns true if value is in bounds conclusively; inside the bounds exclusively       |

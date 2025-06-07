@@ -8,25 +8,22 @@ import type { RowDataPacket } from "mysql2";
 
 import { Modify, Select } from "@db/query.utils";
 import { hashKey, hashPassword } from "@lib/crypto.util";
-import { Status } from "@db/interfaces/state";
 
 import * as Roles from "@db/interfaces/role";
 import * as States from "@db/interfaces/state";
 
-export interface IKeyProps {
-  user?: Uint8Array;
-  username?: string;
-  email?: string;
-  password?: string | Uint8Array;
-  hash?: Uint8Array;
-  role?: Uint8Array;
-  title?: string;
-  state?: Uint8Array;
-  status?: Status;
-  image_url?: string;
-}
-export interface IUser extends IKeyProps, RowDataPacket {
-  total_users: number;
+export interface IUser {
+  user: Uint8Array;
+  username: string;
+  email: string;
+  password: string | Uint8Array;
+  hash: Uint8Array;
+  role: Uint8Array;
+  title: string;
+  state: Uint8Array;
+  status: States.User;
+  image_url: string;
+  total_users?: number;
   create_time?: Date;
   update_time?: Date;
 }
@@ -34,7 +31,7 @@ export interface IUser extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Creates/sets/resets user password;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function SetPassword(props: IKeyProps) {
+export async function SetPassword(props: Partial<IUser>) {
   const { user, username, email, password } = props;
   const key = user ? user : await Key({ username, email });
   const hash = hashKey(32);
@@ -51,7 +48,7 @@ export async function SetPassword(props: IKeyProps) {
 //+--------------------------------------------------------------------------------------+
 //| Updates changes to User @ the local DB;                                              |
 //+--------------------------------------------------------------------------------------+
-export async function Update(props: IKeyProps): Promise<IKeyProps> {
+export async function Update(props: Partial<IUser>): Promise<Partial<IUser>> {
   const { username, email, password, hash, title, status, image_url } = props;
   const user = props.user ? props.user : await Key({ username, email });
   const updateable = ["role", "hash", "password", "state", "image_url"];
@@ -92,7 +89,7 @@ export async function Update(props: IKeyProps): Promise<IKeyProps> {
 //+--------------------------------------------------------------------------------------+
 //| Adds new Users to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Add(props: IKeyProps): Promise<IKeyProps> {
+export async function Add(props: Partial<IUser>): Promise<Partial<IUser>> {
   const { username, email, password, title, status } = props;
   const user = await Key({ username, email });
 
@@ -120,7 +117,7 @@ export async function Add(props: IKeyProps): Promise<IKeyProps> {
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["user"] | undefined> {
+export async function Key(props: Partial<IUser>): Promise<IUser["user"] | undefined> {
   const { user, username, email } = props;
   const args = [];
 
@@ -141,7 +138,7 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["user"] | undefin
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
+export async function Fetch(props: Partial<IUser>): Promise<Array<Partial<IUser>>> {
   const args = [];
   const { user, username, email } = props;
   const state = props.state ? props.state! : await States.Key({ status: props.status });
@@ -165,9 +162,8 @@ export async function Fetch(props: IKeyProps): Promise<Array<Partial<IUser>>> {
 //+--------------------------------------------------------------------------------------+
 //| Returns true|false if password hashes match on user supplied the text password;      |
 //+--------------------------------------------------------------------------------------+
-export async function Login(props: IKeyProps): Promise<Partial<IUser>> {
+export async function Login(props: Partial<IUser>): Promise<Partial<IUser>> {
   const { username, email } = props;
-
   const [user, packet] = await Fetch({ username, email });
 
   if (user) {
@@ -199,7 +195,7 @@ export async function Login(props: IKeyProps): Promise<Partial<IUser>> {
 //+--------------------------------------------------------------------------------------+
 //| Returns #users in local db; used to determine if app requires initialization;        |
 //+--------------------------------------------------------------------------------------+
-export const Count = async (props: IKeyProps) => {
+export const Count = async (props: IUser) => {
   const args = [];
   const filters = [];
   const role = props?.role ? props.role : await Roles.Key({ title: props?.title });
