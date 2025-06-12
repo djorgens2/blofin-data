@@ -25,8 +25,6 @@ export interface IRequest {
   price: number;
   size: number;
   leverage: number;
-  tp_trigger: string;
-  sl_trigger: string;
   memo: string;
   reduce_only: boolean;
   broker_id: string;
@@ -83,7 +81,8 @@ export async function Update(response: Array<TResponse>) {
 
       await Modify(sql,args);
     } else {
-      const order = await Orders.Fetch({ client_order_id });
+      const [{ request_state }] = await Orders.Fetch({ client_order_id });
+
     }
   }
   // console.log("Instruments Suspended: ", suspense.length, suspense);

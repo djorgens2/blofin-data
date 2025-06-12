@@ -18,6 +18,7 @@ import * as State from "@db/interfaces/state";
 
 export interface IOrder extends IRequest {
   order_id: string;
+  request_state: Uint8Array;
   instrument_type: Uint8Array;
   order_category: Uint8Array;
   cancel_source: Uint8Array;

@@ -21,15 +21,13 @@ export interface IKeyProps {
 //| Imports period seed data to the database;                                            |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  ["buy", "sell"].forEach((action) => Add("action", { action }));
-  ["short", "long", "net"].forEach((bias) => Add("bias", { bias }));
   [
     { state: 0, source_ref: "live", map_ref: "Pending", status: "Live" },
     { state: 0, source_ref: "effective", map_ref: "Pending", status: "Effective" },
     { state: 0, source_ref: "canceled", map_ref: "Canceled", status: "Canceled" },
     { state: 0, source_ref: "order_failed", map_ref: "Rejected", status: "Order Failed" },
     { state: 0, source_ref: "filled", map_ref: "Fulfilled", status: "Filled" },
-    { state: 0, source_ref: "partially_canceled", map_ref: "Pending", status: "Partially Canceled" },
+    { state: 0, source_ref: "partially_canceled", map_ref: "Canceled", status: "Partially Canceled" },
     { state: 0, source_ref: "partially_filled", map_ref: "Pending", status: "Partially Filled" },
   ].forEach((state) => Add("order_state", state));
   [
@@ -38,11 +36,12 @@ export const Import = async () => {
     { order_type: 0, source_ref: "post_only", description: "Post-only order" },
     { order_type: 0, source_ref: "fok", description: "Fill-or-kill order" },
     { order_type: 0, source_ref: "ioc", description: "Immediate-or-cancel order" },
+    { order_type: 0, source_ref: "trigger", description: "Trigger or algo order"},
   ].forEach((type) => Add("order_type", type));
   [
-    { cancel: 0, source_ref: "not_canceled", source: "Open, Not Canceled" },
-    { cancel: 0, source_ref: "user_canceled", source: "Canceled by User" },
-    { cancel: 0, source_ref: "system_canceled", source: "Canceled by System" },
+    { cancel_source: 0, source_ref: "not_canceled", source: "None" },
+    { cancel_source: 0, source_ref: "user_canceled", source: "User" },
+    { cancel_source: 0, source_ref: "system_canceled", source: "System" },
   ].forEach((type) => Add("cancel", type));
   ["last", "index", "mark"].forEach((price_type) => Add("price_type", { price_type }));
   ["cross", "isolated"].forEach((margin_mode) => Add("margin_mode", { margin_mode }));

@@ -130,9 +130,9 @@ export function openWebSocket(props: Partial<TSession>) {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
       console.log("message pre-process", message!.arg?.channel, message!.data);
-      message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account! });
-      // message!.arg.channel === "orders" && console.log("Orders:", message!.data, api, secret);
-      // message!.arg.channel === "positions" && console.log("Positions:", message!.data);
+      message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account });
+      message!.arg.channel === "orders" && console.log("Orders:", message!.data );
+      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
     } else console.log("Unhandled message:", message!, Session());
   };
 

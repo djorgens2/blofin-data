@@ -43,10 +43,8 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: IPositionsAPI) {
-  const stops = await tpsl.Import();
-  console.log({positions:props,  stops});
-
+export async function Update(props: IPositionsAPI) {
+  // do something
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -54,7 +52,7 @@ export async function Publish(props: IPositionsAPI) {
 //+--------------------------------------------------------------------------------------+
 export async function Import() {
   const method = "GET";
-  const path = "/api/v1/account/positions";
+  const path = "/api/v1/trade/orders-tpsl-pending";
   const { api, phrase, rest_api_url } = Session();
   const { sign, timestamp, nonce } = await signRequest(method, path);
   const headers = {
@@ -73,7 +71,8 @@ export async function Import() {
     .then((response) => response.json())
     .then((json) => {
       if (json?.code === 0) throw new Error(json);
-      Publish(json.data);
+//      Publish(json.data);
+
     })
     .catch((error) => console.log(error));
 }

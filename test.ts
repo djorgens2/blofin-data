@@ -871,7 +871,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // // const exec = Order.Execute();
 import * as Orders from "@db/interfaces/order";
 import * as OrderAPI from "api/orders";
-const api =
+const api: Array<Partial<OrderAPI.IOrderAPI>> =
 [
   {
     orderId: '4000011703777',
