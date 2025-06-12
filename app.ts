@@ -20,4 +20,4 @@ Instrument.Import();
 
 const app = new CMain();
 
-app.Start("Blofin");
+app.Start("Blofin Demo");

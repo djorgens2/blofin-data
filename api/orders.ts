@@ -52,7 +52,10 @@ export interface IOrderAPI extends IRequestAPI {
   fee: string;
   pnl: string;
   cancelSource: string;
-  orderCategory: string;
+  orderCategory: string;    
+  algoClientOrderId?: string,
+  algoId?: string;
+  filled_amount?: string;
 }
 
 export type TResponse = {
@@ -123,6 +126,7 @@ export async function Execute(): Promise<number> {
   await Import();
 
   const requests = await Request.Queue({ status: "Queued" });
+  const queue: Array<Partial<IRequestAPI>> = [];
 
   for (const id in requests) {
     const request = requests[id];
@@ -144,9 +148,9 @@ export async function Execute(): Promise<number> {
       slOrderPrice: request.slOrderPrice! ? request.tpTriggerPrice : undefined,
       brokerId: request.brokerId ? request.brokerId : undefined,
     };
-
-    await Submit(api);
+    queue.push(api);
   }
+  await Submit(queue);
   return requests.length;
 }
 
