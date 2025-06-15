@@ -5,6 +5,7 @@
 "use strict";
 
 import type { IRequestAPI, TResponse } from "@api/orders";
+import type { IRequestState } from "@db/interfaces/state";
 
 import { Modify, parseColumns, Select } from "@db/query.utils";
 import { hashKey, hexify } from "@lib/crypto.util";
@@ -13,7 +14,7 @@ import * as States from "@db/interfaces/state";
 import * as Orders from "@db/interfaces/order";
 
 export interface IRequest {
-  client_order_id: Uint8Array;
+  request: Uint8Array;
   state: Uint8Array;
   account: Uint8Array;
   instrument: Uint8Array;
@@ -43,11 +44,11 @@ export async function Queue(props: Partial<IRequestAPI>): Promise<Array<Partial<
 //+--------------------------------------------------------------------------------------+
 //| Set-up/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export async function Submit(props: Partial<IRequest>): Promise<IRequest["client_order_id"] | undefined> {
-  const key = hexify(hashKey(6));
-  const [{ state }] = await States.Fetch({ status: "Queued" });
-  const [fields, args] = parseColumns({ ...props, client_order_id: key, state }, "");
-  const sql = `INSERT INTO blofin.requests ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
+export async function Submit(props: Partial<IRequest>): Promise<IRequest["request"] | undefined> {
+  const key = props.request ? props.request : hexify(hashKey(6));
+  const [{ state }] = await States.Fetch<IRequestState>({ status: "Queued" });
+  const [fields, args] = parseColumns({ ...props, request: key, state }, "");
+  const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
 
   await Modify(sql, args);
 
@@ -72,20 +73,20 @@ export async function Update(response: Array<TResponse>) {
   for (const id in response) {
     const update = response[id];
     const {orderId, clientOrderId} = update;
-    const client_order_id = hexify(clientOrderId);
+    const request = hexify(clientOrderId);
 
     if (update?.code) {
       const key = states.find(({ status }) => status === "Rejected");
-      const sql = `UPDATE blofin.request SET state = ?, memo = ? WHERE clientOrderId = ?`;
-      const args = [key?.state,`[${update.code}]: ${update.msg}`, hexify(clientOrderId)];
+      const sql = `UPDATE blofin.requests SET state = ?, memo = ? WHERE request = ?`;
+      const args = [key?.state,`[${update.code}]: ${update.msg}`, request];
 
       await Modify(sql,args);
     } else {
-      const [{ request_state }] = await Orders.Fetch({ client_order_id });
+      const [{ state }] = await Orders.Fetch({ request });
 
     }
   }
-  // console.log("Instruments Suspended: ", suspense.length, suspense);
+  // console.log("Instruments Suspended: ", suspense.length, ssuspense);
   // console.log("Instruments Updated: ", modified.length, modified);
   // await Currency.Suspend(suspense);
   // await Instrument.Suspend(suspense);

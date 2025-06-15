@@ -7,21 +7,29 @@
 import { Modify, Select } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-export type System = "Enabled" | "Disabled" | "Halted";
-export type Request = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
-export type User = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
+export type TSystem = "Enabled" | "Disabled" | "Halted";
+export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
+export type TAccount = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 
-export interface IState {
+export type TState = {
   state: Uint8Array;
-  status: Request | System | User;
+  status: TRequest | TSystem | TAccount;
   description: string;
+}
+
+export interface IRequestState extends TState {
+  status: TRequest;
+}
+
+export interface IAccountState extends TState {
+  status: TAccount;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed States to define accounts/trading operational status;                   |
 //+--------------------------------------------------------------------------------------+
 export const Import = () => {
-  const states: Array<Partial<IState>> = [
+  const states: Array<Partial<TState>> = [
     { status: "Enabled", description: "Enabled for trading" },
     { status: "Disabled", description: "Disabled from trading" },
     { status: "Halted", description: "Adverse event halt" },
@@ -42,7 +50,7 @@ export const Import = () => {
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IState>): Promise<IState["state"]> {
+export async function Publish(props: Partial<TState>): Promise<TState["state"]> {
   const { status, description } = props;
   const state = await Key({ status });
 
@@ -57,7 +65,7 @@ export async function Publish(props: Partial<IState>): Promise<IState["state"]> 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: Partial<IState>): Promise<IState["state"] | undefined> {
+export async function Key<T extends TState>(props: Partial<T>): Promise<Partial<T>["state"] | undefined> {
   const { status, state } = props;
   const args = [];
 
@@ -71,14 +79,14 @@ export async function Key(props: Partial<IState>): Promise<IState["state"] | und
     sql += `status = ?`;
   } else return undefined;
 
-  const [key] = await Select<IState>(sql, args);
+  const [key] = await Select<TState>(sql, args);
   return key === undefined ? undefined : key.state;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IState>): Promise<Array<Partial<IState>>> {
+export async function Fetch<T extends TState>(props: Partial<T>): Promise<Array<Partial<T>>> {
   const { state, status } = props;
   const args = [];
 
@@ -92,5 +100,5 @@ export async function Fetch(props: Partial<IState>): Promise<Array<Partial<IStat
     sql += ` WHERE status = ?`;
   }
 
-  return Select<IState>(sql, args);
+  return Select<T>(sql, args);
 }

@@ -1,19 +1,14 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                         positions.ts |
+//|                                                                             stops.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
 "use server";
 
-import type { ICandle, IKeyProps } from "@db/interfaces/candle";
-import type { IMessage } from "@lib/app.util";
-
 import { isEqual } from "@lib/std.util";
-
-import * as Candle from "@db/interfaces/candle";
 import { Session, signRequest } from "@module/session";
 
-export interface IPositionsAPI {
+export interface IStopsAPI {
   data: [
     {
       instType: string;
@@ -40,10 +35,24 @@ export interface IPositionsAPI {
   ];
 }
 
+export interface IStopRequest {
+  account: Uint8Array;
+  instrument: Uint8Array;
+  symbol: string;
+  type: 'tp' | 'sl';
+  position: 'long' | 'net' | 'stop';
+  size: number;
+  price: number;
+  size_percent: number;
+  symbol_percent: number;
+  equity_percent: number;
+  create_time: Date;
+}
+
 //+--------------------------------------------------------------------------------------+
-//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
+//| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
-export async function Update(props: IPositionsAPI) {
+export async function Update(props: IStopsAPI) {
   // do something
 }
 

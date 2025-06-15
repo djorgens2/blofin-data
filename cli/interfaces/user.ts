@@ -56,7 +56,7 @@ const setFields = async <T extends Answers<string>>(props: T) => {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves users in prompt format;                                                    |
 //+--------------------------------------------------------------------------------------+
-export const setUser = async (props: IUser) => {
+export const setUser = async (props: Partial<IUser>) => {
   const users = await Users.Fetch(props);
   const choices: Array<IOption> = [];
 

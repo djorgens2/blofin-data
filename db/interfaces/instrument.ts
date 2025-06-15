@@ -5,7 +5,7 @@
 "use strict";
 
 import type { RowDataPacket } from "mysql2";
-import { Status } from "@db/interfaces/state";
+import { TSystem } from "@db/interfaces/state";
 
 import { Select, Modify } from "@db/query.utils";
 import { splitSymbol } from "@lib/app.util";
@@ -47,7 +47,7 @@ export interface IInstrument extends IKeyProps, RowDataPacket {
   expiry_time: Date;
   expiry_timestamp: number;
   trade_state: Uint8Array;
-  trade_status: Status;
+  trade_status: TSystem;
   suspense: boolean;
 }
 

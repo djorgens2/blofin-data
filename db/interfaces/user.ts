@@ -4,7 +4,7 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
+import type { TAccount } from "db/interfaces/state";
 
 import { Modify, Select } from "@db/query.utils";
 import { hashKey, hashPassword } from "@lib/crypto.util";
@@ -21,7 +21,7 @@ export interface IUser {
   role: Uint8Array;
   title: string;
   state: Uint8Array;
-  status: States.User;
+  status: TAccount;
   image_url: string;
   total_users?: number;
   create_time?: Date;
@@ -35,6 +35,7 @@ export async function SetPassword(props: Partial<IUser>) {
   const { user, username, email, password } = props;
   const key = user ? user : await Key({ username, email });
   const hash = hashKey(32);
+  // @ts-ignore
   const encrypt = hashPassword({ username, email, password, hash });
 
   if (key === undefined) {
@@ -171,6 +172,7 @@ export async function Login(props: Partial<IUser>): Promise<Partial<IUser>> {
 
     if (password instanceof Uint8Array) {
       const encrypt = Buffer.from(password);
+      // @ts-ignore
       const key = hashPassword({ username, email, password: props.password, hash });
       if (encrypt.toString("hex") === key.toString("hex")) {
         if (user.status === "Enabled") {

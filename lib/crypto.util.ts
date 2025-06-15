@@ -86,7 +86,7 @@ export const hashKey = (length: number = 32): Uint8Array => {
 //+--------------------------------------------------------------------------------------+
 //| Given user properties identify the user, validates against a local hash;             |
 //+--------------------------------------------------------------------------------------+
-export const hashPassword = (props: User.IKeyProps) => {
+export const hashPassword = (props: User.IUser) => {
   const length = 64;
   const message = JSON.stringify(props);
   const key = createHash("sha256").update(message).digest("hex");
