@@ -868,45 +868,88 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // };
 
 // const req = Requests.Submit(request);
-// // const exec = Order.Execute();
+// const exec = Order.Execute();
+// import * as Orders from "@db/interfaces/order";
+// import * as OrderAPI from "api/orders";
+// const api: Array<Partial<OrderAPI.IOrderAPI>> =
+// [
+//   {
+//     orderId: '4000011703777',
+//     clientOrderId: '0x25d921',
+//     instId: 'BTC-USDT',
+//     marginMode: 'cross',
+//     positionSide: 'long',
+//     side: 'buy',
+//     orderType: 'limit',
+//     price: '93000.100000000000000000',
+//     size: '0.100000000000000000',
+//     reduceOnly: 'false',
+//     leverage: '3',
+//     state: 'live',
+//     filledSize: '0.000000000000000000',
+//     averagePrice: '0.000000000000000000',
+//     fee: '0.000000000000000000',
+//     pnl: '0.000000000000000000',
+//     createTime: '1748915537513',
+//     updateTime: '1748915537524',
+//     orderCategory: 'normal',
+//     tpTriggerPrice: null,
+//     slTriggerPrice: null,
+//     slOrderPrice: null,
+//     tpOrderPrice: null,
+//     brokerId: '',
+//     algoClientOrderId: '',
+//     algoId: '',
+//     filledAmount: '0.000000000000000000',
+//     filled_amount: '0.000000000000000000'
+//   }
+// ];
+
+// const order = async () => {
+//   const processed = await OrderAPI.Publish(api);
+// }
+
+// order();
+
+//----------------------------- expiry calc test  -------------------------------------------------------//
+import { setExpiry } from "@lib/std.util";
+
+console.log(setExpiry(`30s`));
+
+//----------------------------- order test  -------------------------------------------------------//
+import { hexify } from "@lib/crypto.util";
+import * as Requests from "@db/interfaces/request";
 import * as Orders from "@db/interfaces/order";
-import * as OrderAPI from "api/orders";
-const api: Array<Partial<OrderAPI.IOrderAPI>> =
-[
-  {
-    orderId: '4000011703777',
-    clientOrderId: '0x25d921',
-    instId: 'BTC-USDT',
-    marginMode: 'cross',
-    positionSide: 'long',
-    side: 'buy',
-    orderType: 'limit',
-    price: '93000.100000000000000000',
-    size: '0.100000000000000000',
-    reduceOnly: 'false',
-    leverage: '3',
-    state: 'live',
-    filledSize: '0.000000000000000000',
-    averagePrice: '0.000000000000000000',
-    fee: '0.000000000000000000',
-    pnl: '0.000000000000000000',
-    createTime: '1748915537513',
-    updateTime: '1748915537524',
-    orderCategory: 'normal',
-    tpTriggerPrice: null,
-    slTriggerPrice: null,
-    slOrderPrice: null,
-    tpOrderPrice: null,
-    brokerId: '',
-    algoClientOrderId: '',
-    algoId: '',
-    filledAmount: '0.000000000000000000',
-    filled_amount: '0.000000000000000000'
-  }
-];
+import * as OrderAPI from "@api/orders";
 
-const order = async () => {
-  const processed = await OrderAPI.Publish(api);
-}
+//-- test 1; request w/ no tpsl; 100%
+const request1: Partial<Requests.IRequest> = {
+  account: hexify("145a6a")!,
+  instrument: hexify("4e3e8a")!,
+  margin_mode: "cross",
+  position: "long",
+  action: "buy",
+  order_type: hexify("6eb6c5"),
+  price: 93000.1,
+  size: 0.1,
+  leverage: 10,
+  expiry_time: setExpiry("30m"),
+};
+const req1 = Requests.Submit(request1);
 
-order();
+//-- test 2; with ck con errors; 100%
+// const request2: Partial<Requests.IRequest> = {
+//   request: undefined,
+//   state: undefined,
+//   account: hexify("145a6a")!,
+//   instrument: hexify("4e3e8a")!,
+//   margin_mode: "cross",
+//   position: "top",
+//   action: "drop",
+//   order_type: hexify("6eb6c5"),
+//   price: 93000.1,
+//   size: 0.1,
+//   leverage: 10,
+//   reduce_only: undefined,
+//   expiry_time: setExpiry("30m"),
+// };

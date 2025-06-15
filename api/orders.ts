@@ -11,7 +11,7 @@ import { Select, parseColumns } from "@db/query.utils";
 import { Session, signRequest } from "@module/session";
 import { IKeyProps } from "@db/interfaces/reference";
 import { hexify } from "@lib/crypto.util";
-import { hexString, isEqual } from "@lib/std.util";
+import { hexString, isEqual, setExpiry } from "@lib/std.util";
 
 import * as States from "@db/interfaces/state";
 import * as Orders from "@db/interfaces/order";
@@ -32,10 +32,10 @@ export interface IRequestAPI {
   leverage: string;
   reduceOnly: string;
   clientOrderId: string;
-  tpTriggerPrice: string | undefined | null;
-  tpOrderPrice: string | undefined | null;
-  slTriggerPrice: string | undefined | null;
-  slOrderPrice: string | undefined | null;
+  tpTriggerPrice: undefined | null;
+  tpOrderPrice: undefined | null;
+  slTriggerPrice: undefined | null;
+  slOrderPrice: undefined | null;
   brokerId: string | undefined;
   createTime: string;
   updateTime: string;
@@ -52,8 +52,8 @@ export interface IOrderAPI extends IRequestAPI {
   fee: string;
   pnl: string;
   cancelSource: string;
-  orderCategory: string;    
-  algoClientOrderId?: string,
+  orderCategory: string;
+  algoClientOrderId?: string;
   algoId?: string;
   filled_amount?: string;
 }
@@ -69,42 +69,37 @@ export type TResponse = {
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export async function Submit(props: Array<Partial<IRequestAPI>>) {
-  const method = "POST";
-  const path = "/api/v1/trade/order";
-  const body = JSON.stringify(props);
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
+  if (props.length > 0) {
+    const method = "POST";
+    const path = "/api/v1/trade/batch-orders";
+    const body = JSON.stringify(props);
+    const { api, phrase, rest_api_url } = Session();
+    const { sign, timestamp, nonce } = await signRequest(method, path, body);
 
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
+    const headers = {
+      "ACCESS-KEY": api!,
+      "ACCESS-SIGN": sign!,
+      "ACCESS-TIMESTAMP": timestamp!,
+      "ACCESS-NONCE": nonce!,
+      "ACCESS-PASSPHRASE": phrase!,
+      "Content-Type": "application/json",
+    };
 
-  fetch(rest_api_url!.concat(path), {
-    method,
-    headers,
-    body,
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json.code === 0) Request.Update(json.data);
-      else throw new Error(json);
+    fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+      body,
     })
-    .catch((error) => console.log(error));
-
-  // # Place order
-  // response = requests.post(
-  //     "https://openapi.blofin.com/api/v1/trade/order",
-  //     headers=headers,
-  //     json=order_request
-  // )
-  // response.raise_for_status()
-  // order_response = response.json()
-
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.code === 0) Request.Update(json.data);
+        else {
+          console.log(json, json.data, method, headers, body);
+          throw new Error(json);
+        }
+      })
+      .catch((error) => console.log(error));
+  }
   // # Verify response format and success
   // if not isinstance(order_response, dict):
   //     raise Exception(f"Invalid order response format: {order_response}")
@@ -122,9 +117,8 @@ export async function Submit(props: Array<Partial<IRequestAPI>>) {
 //+--------------------------------------------------------------------------------------+
 //| Formats and emits order requests to broker for execution;                            |
 //+--------------------------------------------------------------------------------------+
-export async function Execute(): Promise<number> {
-  await Import();
-
+async function ProcessRequests(): Promise<number> {
+  console.log("starting executing...");
   const requests = await Request.Queue({ status: "Queued" });
   const queue: Array<Partial<IRequestAPI>> = [];
 
@@ -142,16 +136,20 @@ export async function Execute(): Promise<number> {
       leverage: request.leverage!,
       reduceOnly: request.reduceOnly!,
       clientOrderId: hexString(custKey!, 3),
-      tpTriggerPrice: request.tpTriggerPrice ? request.tpTriggerPrice : undefined,
-      tpOrderPrice: request.tpOrderPrice! ? request.tpTriggerPrice : undefined,
-      slTriggerPrice: request.slTriggerPrice! ? request.tpTriggerPrice : undefined,
-      slOrderPrice: request.slOrderPrice! ? request.tpTriggerPrice : undefined,
       brokerId: request.brokerId ? request.brokerId : undefined,
     };
     queue.push(api);
   }
   await Submit(queue);
   return requests.length;
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Update - scrubs blofin wss updates, applies keys, and executes merge to local db;    |
+//+--------------------------------------------------------------------------------------+
+export async function Update(orders: Array<Partial<IOrderAPI>>) {
+  //await Publish(orders);
+  console.log("imin order publishing");
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -163,15 +161,16 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
     const instrument = await Instrument.Key({ symbol: order.instId });
 
     if (order.clientOrderId) {
-      //-- handle untracked requests
-    //} else if (instrument) {
+      const request = await Request.Fetch({ request: hexify(order.clientOrderId) });
       const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
       const instrument_type = await InstrumentType.Key({ source_ref: order.instType });
+
       const [cancel_default] = await Reference.Fetch<IKeyProps>("cancel_source", { source_ref: "not_canceled" });
       const [apiState] = await Reference.Fetch<IKeyProps>("order_state", { source_ref: order.state });
       const [apiOrderType] = await Reference.Fetch<IKeyProps>("order_type", { source_ref: order.orderType });
       const [apiCategory] = await Reference.Fetch<IKeyProps>("order_category", { source_ref: order.orderCategory });
       const [apiCancel] = await Reference.Fetch<IKeyProps>("cancel_source", { source_ref: order.cancelSource });
+
       const update: Partial<IOrder> = {
         client_order_id: hexify(order.clientOrderId!),
         instrument,
@@ -194,20 +193,41 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
         order_category: apiCategory?.order_category,
         cancel_source: apiCancel?.cancel_source ? apiCancel.cancel_source : cancel_default!.cancel_source,
         reduce_only: order.reduceOnly === "true" ? true : false,
-        broker_id: order.brokerId?.length ? undefined : order.brokerId,
+        broker_id: order.brokerId?.length ? order.brokerId : undefined,
         create_time: parseInt(order.createTime!),
         update_time: parseInt(order.updateTime!),
       };
 
-      await Orders.Publish(update);
+      //-- handle missing requests
+      if (request === undefined) {
+        instrument &&
+          Request.Submit({
+            request: update.client_order_id,
+            account: Session().account,
+            instrument,
+            position: update.position,
+            action: update.action,
+            price: update.price,
+            size: update.size,
+            leverage: update.leverage,
+            order_type: update.order_type,
+            margin_mode: update.margin_mode,
+            reduce_only: update.reduce_only,
+            memo: "Request missing; auto-submit;",
+            expiry_time: setExpiry("1h"), //--- need a default expiry mechanism
+          });
+      }
+
+      instrument && (await Orders.Publish(update));
     } else {
-      //-- handle missing order;
+      //-- handle untracked order;
     }
   }
+  console.log("done publishing...");
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Import - retrieves active orders; reconciles with local db;                          |
+//| Scheduled process retrieves active orders; reconciles with local db; Executes queued;|
 //+--------------------------------------------------------------------------------------+
 export async function Import() {
   const method = "GET";
@@ -223,14 +243,16 @@ export async function Import() {
     "Content-Type": "application/json",
   };
 
-  fetch(rest_api_url!.concat(path), {
+  await fetch(rest_api_url!.concat(path), {
     method,
     headers,
   })
     .then((response) => response.json())
-    .then((json) => {
+    .then( async (json) => {
       if (json?.code === 0) throw new Error(json);
-      Publish(json.data);
+
+      await Publish(json.data);
+      await ProcessRequests();
     })
     .catch((error) => console.log(error));
 }

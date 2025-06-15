@@ -11,6 +11,7 @@ import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 
 import * as Accounts from "@api/accounts";
+import * as Orders from "@api/accounts";
 import * as OrderAPI from "@api/orders";
 
 export type IResponseProps = {
@@ -129,10 +130,9 @@ export function openWebSocket(props: Partial<TSession>) {
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      console.log("message pre-process", message!.arg?.channel, message!.data);
       message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account });
-      message!.arg.channel === "orders" && console.log("Orders:", message!.data );
-      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
+      message!.arg.channel === "orders" && Orders.Update(message!.data);
+//      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
     } else console.log("Unhandled message:", message!, Session());
   };
 
@@ -140,6 +140,7 @@ export function openWebSocket(props: Partial<TSession>) {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send("ping");
       OrderAPI.Import();
+      console.log(`ping`)
     }
     if (ws.readyState === WebSocket.CONNECTING) console.log("Websocket trying to connect...");
   }, 29000);

@@ -44,8 +44,8 @@ export interface IPositionsAPI {
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: IPositionsAPI) {
-  const stops = await tpsl.Import();
-  console.log({positions:props,  stops});
+//  const stops = await tpsl.Import();
+//  console.log({positions:props});
 
 }
 
@@ -72,7 +72,7 @@ export async function Import() {
   })
     .then((response) => response.json())
     .then((json) => {
-      if (json?.code === 0) throw new Error(json);
+      if (json?.code > 0) throw new Error(json);
       Publish(json.data);
     })
     .catch((error) => console.log(error));

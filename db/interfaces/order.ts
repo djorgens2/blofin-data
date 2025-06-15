@@ -17,6 +17,7 @@ import * as Request from "@db/interfaces/request";
 import * as State from "@db/interfaces/state";
 
 export interface IOrder extends IRequest {
+  client_order_id: Uint8Array;
   order_id: string;
   request_state: Uint8Array;
   instrument_type: Uint8Array;
@@ -46,6 +47,7 @@ export async function Publish(props: Partial<IOrder>) {
           .join(", ")}, ?, FROM_UNIXTIME(?/1000), FROM_UNIXTIME(?/1000)) ` +
         `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")} = ?, create_time = FROM_UNIXTIME(?/1000), update_time = FROM_UNIXTIME(?/1000)`;
 
+        console.log("Inserts", sql,[...args, client_order_id, create_time, update_time, ...args, create_time, update_time]);
       await Modify(sql, [...args, client_order_id, create_time, update_time, ...args, create_time, update_time]);
 
       //      setUserToken({ error: 0, message: `Account update applied.` });

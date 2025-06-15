@@ -5,10 +5,10 @@
 "use strict";
 import Prompt, { IOption } from "@cli/modules/Prompts";
 import type { RowDataPacket } from "mysql2";
-import type { TSession } from "@module/session";
+import type { TSession, TState } from "@module/session";
+import { IAccountState } from "@db/interfaces/state";
 
 import { Session } from "@module/session";
-import { Status } from "@db/interfaces/state";
 import { Select, Modify, parseColumns } from "@db/query.utils";
 
 import { hashHmac } from "@lib/crypto.util";
@@ -30,7 +30,7 @@ export interface IKeyProps {
   username: string;
   broker: Uint8Array;
   state: Uint8Array;
-  status: string | Status;
+  status: IAccountState;
   environment: Uint8Array;
   environ: string;
   total_equity: number;
@@ -61,6 +61,7 @@ type TMutableProps = {
   account?: Uint8Array;
   broker?: Uint8Array;
   state?: Uint8Array | undefined;
+  status?: IAccountState | undefined;
   environment?: Uint8Array | undefined;
   rest_api_url?: string | undefined;
   wss_url?: string | undefined;
@@ -112,10 +113,11 @@ export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account
     const insert: TMutableProps = {
       account: hash,
       broker: broker ? broker : alias ? await Brokers.Key({ name: alias}) : undefined,
+      // @ts-ignore
       state: state ? state : status ? await States.Key({ status }) : undefined,
       environment: environment ? environment : environ ? await Environments.Key({ environ }) : undefined,
-      total_equity: props?.total_equity,
-      isolated_equity: props?.isolated_equity,
+      total_equity: parseFloat(props?.total_equity!.toFixed(3)),
+      isolated_equity: parseFloat(props?.isolated_equity!.toFixed(3)),
       rest_api_url: props.rest_api_url,
       wss_url: props?.wss_url,
       wss_public_url: props?.wss_public_url
@@ -210,20 +212,21 @@ export async function Update(props: Partial<IKeyProps>): Promise<number | undefi
 
   if (account) {
     const update: TMutableProps = {
-      state: props?.state ? props.state : props?.status ? await States.Key({ status: props.status }) : undefined,
+      // @ts-ignore
+      state: props?.state ? props.state : props?.status ? await States.Key({ status: props?.status }) : undefined,
       environment: props?.environment ? props.environment : props?.environ ? await Environments.Key({ environ: props.environ }) : undefined,
-      total_equity: props?.total_equity,
-      isolated_equity: props?.isolated_equity,
+      total_equity: parseFloat(props?.total_equity!.toFixed(3)),
+      isolated_equity: parseFloat(props?.isolated_equity!.toFixed(3)),
       rest_api_url: Session().rest_api_url,
       wss_url: Session().wss_url,
       wss_public_url: Session().wss_public_url,
-      update_time: props?.update_time,
+      update_time: props?.update_time! / 1000,
     };
 
     const [fields, args] = parseColumns<TMutableProps>(update, ``);
 
     if (fields) {
-      const sql = `UPDATE blofin.account SET ${fields.join(" = ?, ")}= FROM_UNIXTIME(?/1000) WHERE account = ?`;
+      const sql = `UPDATE blofin.account SET ${fields.join(" = ?, ")} = FROM_UNIXTIME(?) WHERE account = ?`;
       args.push(account);
       await Modify(sql, args);
       setUserToken({ error: 0, message: `Account update applied.` });
