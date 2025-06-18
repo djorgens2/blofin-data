@@ -4,17 +4,9 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "@api/orders";
-import type { IOrderAPI } from "@api/orders";
 import type { IRequest } from "@db/interfaces/request";
 
 import { Modify, parseColumns, Select } from "@db/query.utils";
-import { hashKey, hexify } from "@lib/crypto.util";
-import { hexString } from "@lib/std.util";
-
-import * as OrderAPI from "@api/orders";
-import * as Request from "@db/interfaces/request";
-import * as State from "@db/interfaces/state";
 
 export interface IOrder extends IRequest {
   client_order_id: Uint8Array;
@@ -47,10 +39,7 @@ export async function Publish(props: Partial<IOrder>) {
           .join(", ")}, ?, FROM_UNIXTIME(?/1000), FROM_UNIXTIME(?/1000)) ` +
         `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")} = ?, create_time = FROM_UNIXTIME(?/1000), update_time = FROM_UNIXTIME(?/1000)`;
 
-        console.log("Inserts", sql,[...args, client_order_id, create_time, update_time, ...args, create_time, update_time]);
       await Modify(sql, [...args, client_order_id, create_time, update_time, ...args, create_time, update_time]);
-
-      //      setUserToken({ error: 0, message: `Account update applied.` });
       return 1;
     } catch (e) {
       console.log(e, props!);

@@ -1,21 +1,21 @@
 //+---------------------------------------------------------------------------------------+
-//|                                                                              order.ts |
+//|                                                                            request.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI, TResponse } from "@api/orders";
+import type { IRequestAPI } from "@api/requests";
 import type { IRequestState } from "@db/interfaces/state";
 
 import { Modify, parseColumns, Select } from "@db/query.utils";
 import { hashKey, hexify } from "@lib/crypto.util";
 
 import * as States from "@db/interfaces/state";
-import * as Orders from "@db/interfaces/order";
 
 export interface IRequest {
   request: Uint8Array;
   state: Uint8Array;
+  status: States.TRequest;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
@@ -44,7 +44,7 @@ export async function Queue(props: Partial<IRequestAPI>): Promise<Array<Partial<
 //+--------------------------------------------------------------------------------------+
 //| Set-up/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export async function Submit(props: Partial<IRequest>): Promise<IRequest["request"] | undefined> {
+export async function Publish(props: Partial<IRequest>): Promise<IRequest["request"] | undefined> {
   const key = props.request ? props.request : hexify(hashKey(6));
   const [{ state }] = await States.Fetch<IRequestState>({ status: "Queued" });
   const [fields, args] = parseColumns({ ...props, request: key, state }, "");
@@ -67,28 +67,10 @@ export async function Fetch(props: Partial<IRequest>): Promise<Array<Partial<IRe
 //+--------------------------------------------------------------------------------------+
 //| Updates the request states via WSS or API;                                           |
 //+--------------------------------------------------------------------------------------+
-export async function Update(response: Array<TResponse>) {
-  const states = await States.Fetch({});
-
-  for (const id in response) {
-    const update = response[id];
-    const {orderId, clientOrderId} = update;
-    const request = hexify(clientOrderId);
-
-    if (update?.code) {
-      const key = states.find(({ status }) => status === "Rejected");
-      const sql = `UPDATE blofin.requests SET state = ?, memo = ? WHERE request = ?`;
-      const args = [key?.state,`[${update.code}]: ${update.msg}`, request];
-
-      await Modify(sql,args);
-    } else {
-      const [{ state }] = await Orders.Fetch({ request });
-
-    }
-  }
-  // console.log("Instruments Suspended: ", suspense.length, ssuspense);
-  // console.log("Instruments Updated: ", modified.length, modified);
-  // await Currency.Suspend(suspense);
-  // await Instrument.Suspend(suspense);
-  // await InstrumentDetail.Update(modified);
+export async function Update(props: Partial<IRequest>) {
+  const { request, status, memo } = props;
+  const state = await States.Key<IRequestState>({ status });
+  const sql = `UPDATE blofin.request SET state = ?, memo = ? WHERE request = ?`;
+  const args = [state, memo, request];
+  await Modify(sql, args);
 }

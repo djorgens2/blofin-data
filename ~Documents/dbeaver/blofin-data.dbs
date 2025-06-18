@@ -234,6 +234,108 @@ system_canceled]]></comment>
 			</index>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
+		<table name="fibonacci" prior="tbl" >
+			<column name="fibonacci" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="level" type="TINYINT" jt="-6" mandatory="y" />
+			<column name="percent" type="DECIMAL" length="5" decimal="3" jt="3" mandatory="y" />
+			<column name="alias" prior="description" type="VARCHAR" length="10" jt="12" mandatory="y" />
+			<index name="pk_fibonacci" unique="PRIMARY_KEY" >
+				<column name="fibonacci" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="fractal" prior="fractal_targets" >
+			<column name="fractal" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="period" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="position" type="CHAR" length="5" jt="1" />
+			<column name="fibonacci" type="BINARY" length="3" jt="-2" />
+			<index name="pk_fractal" unique="PRIMARY_KEY" >
+				<column name="fractal" />
+			</index>
+			<index name="ak_fractal" unique="UNIQUE_KEY" >
+				<column name="instrument" />
+				<column name="period" />
+				<column name="position" />
+			</index>
+			<constraint name="ck_ft_position" >
+				<string><![CDATA[`position` in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short')]]></string>
+			</constraint>
+			<fk name="fk_f_instrument_period" to_schema="blofin" to_table="instrument_period" >
+				<fk_column name="instrument" pk="instrument" />
+				<fk_column name="period" pk="period" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="fractal_fibonacci" prior="tbl" >
+			<column name="fractal" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="fractal_type" type="CHAR" length="10" jt="1" mandatory="y" >
+				<comment><![CDATA[Retrace
+Extension]]></comment>
+			</column>
+			<column name="fibonacci" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="fractal_state" type="CHAR" length="10" jt="1" mandatory="y" />
+			<column name="price" type="DOUBLE" jt="8" mandatory="y" />
+			<index name="pk_fractal_fibonacci" unique="PRIMARY_KEY" >
+				<column name="fractal" />
+				<column name="fractal_type" />
+				<column name="fibonacci" />
+			</index>
+			<index name="fk_ff_fibonacci" unique="NORMAL" >
+				<column name="fibonacci" />
+			</index>
+			<index name="fk_ff_fractal_state" unique="NORMAL" >
+				<column name="fractal_state" />
+			</index>
+			<constraint name="ck_ff_fractal_type" >
+				<string><![CDATA[`fractal_type` in (_utf8mb4'extension',_utf8mb4'retrace')]]></string>
+			</constraint>
+			<fk name="fk_ff_fractal" to_schema="blofin" to_table="fractal" >
+				<fk_column name="fractal" pk="fractal" />
+			</fk>
+			<fk name="fk_ff_fibonacci" to_schema="blofin" to_table="fibonacci" >
+				<fk_column name="fibonacci" pk="fibonacci" />
+			</fk>
+			<fk name="fk_ff_fractal_state" to_schema="blofin" to_table="fractal_state" >
+				<fk_column name="fractal_state" pk="fractal_state" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="fractal_point" prior="point" >
+			<column name="fractal" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="point_type" type="CHAR" length="10" jt="1" mandatory="y" />
+			<column name="price" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="create_time" prior="bar_time" type="DATETIME" jt="93" mandatory="y" />
+			<index name="pk_fractal_point" unique="PRIMARY_KEY" >
+				<column name="fractal" />
+				<column name="point_type" />
+			</index>
+			<index name="fk_fp_point_type" unique="NORMAL" >
+				<column name="point_type" />
+			</index>
+			<fk name="fk_fp_point_type" to_schema="blofin" to_table="point_type" >
+				<fk_column name="point_type" pk="point_type" />
+			</fk>
+			<fk name="fk_fp_fractal" to_schema="blofin" to_table="fractal" >
+				<fk_column name="fractal" pk="fractal" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="fractal_state" prior="fractal_" >
+			<comment><![CDATA[Rally
+Pullback
+Retrace
+Correction
+Recovery
+Breakout
+Reversal
+Extension]]></comment>
+			<column name="fractal_state" type="CHAR" length="10" jt="1" mandatory="y" />
+			<index name="pk_fractal_state" unique="PRIMARY_KEY" >
+				<column name="fractal_state" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
 		<table name="instrument" row_count="497" spec="" >
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="base_currency" type="BINARY" length="3" jt="-2" mandatory="y" />
@@ -329,6 +431,9 @@ system_canceled]]></comment>
 			</column>
 			<column name="interval_collection_rate" type="SMALLINT" jt="5" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
+			</column>
+			<column name="strict_stops" prior="strict" type="BOOLEAN" jt="16" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
 			</column>
 			<index name="pk_instrument_period" unique="PRIMARY_KEY" >
 				<column name="instrument" />
@@ -532,6 +637,24 @@ ioc: Immediate-or-cancel order]]></comment>
 			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
+		<table name="placeholder" prior="tbl" >
+			<column name="placeholder" type="CHAR" length="1" jt="1" />
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="point_type" prior="tbl" >
+			<comment><![CDATA[Origin
+Base
+Root
+Expansion
+Retrace
+Recovery
+Close]]></comment>
+			<column name="point_type" type="CHAR" length="10" jt="1" mandatory="y" />
+			<index name="pk_point_type" unique="PRIMARY_KEY" >
+				<column name="point_type" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
 		<table name="position_stops" prior="tbl" >
 			<column name="tpsl_id" type="BIGINT" jt="-5" mandatory="y" />
 			<column name="stop_type" type="CHAR" length="2" jt="1" mandatory="y" />
@@ -554,33 +677,33 @@ ioc: Immediate-or-cancel order]]></comment>
 			<options><![CDATA[engine=InnoDB]]></options>
 		</table>
 		<table name="positions" prior="position" spec="" >
-			<column name="position_id" type="BIGINT" jt="-5" mandatory="y" />
+			<column name="position_id" type="BINARY" length="4" jt="-2" mandatory="y" />
+			<column name="position" type="CHAR" length="5" jt="1" mandatory="y" />
+			<column name="positions" type="INT" jt="4" mandatory="y" />
+			<column name="positions_avail" prior="available_positions" type="INT" jt="4" mandatory="y" />
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="instrument_type" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="margin_mode" prior="marginMode" type="VARCHAR" length="10" jt="12" mandatory="y" />
-			<column name="position" type="CHAR" length="4" jt="1" mandatory="y" />
 			<column name="leverage" type="INT" jt="4" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
 			</column>
-			<column name="positions" type="INT" jt="4" mandatory="y" />
-			<column name="available_positions" type="INT" jt="4" mandatory="y" />
-			<column name="average_price" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="margin_mode" prior="marginMode" type="VARCHAR" length="10" jt="12" mandatory="y" />
 			<column name="margin_ratio" type="DECIMAL" length="12" decimal="3" jt="3" mandatory="y" />
+			<column name="margin_initial" prior="initial_margin" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="margin_maint" prior="maintenance_margin" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="average_price" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="liquidation_price" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="mark_price" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="unrealized_pnl" type="DOUBLE" jt="8" mandatory="y" />
-			<column name="unrealized_pnl_ratio" type="DOUBLE" jt="8" mandatory="y" />
-			<column name="initial_margin" type="DOUBLE" jt="8" mandatory="y" />
-			<column name="maintenance_margin" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="unrealized_pnl_ratio" type="DECIMAL" length="12" decimal="3" jt="3" mandatory="y" />
+			<column name="adl" type="TINYINT" jt="-6" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
 			<column name="create_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
-			<index name="pk_positions" unique="PRIMARY_KEY" >
-				<column name="position_id" />
-			</index>
 			<index name="fk_p_instrument" unique="NORMAL" >
 				<column name="instrument" />
 			</index>
@@ -589,6 +712,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			</index>
 			<index name="fk_p_margin_mode" unique="NORMAL" >
 				<column name="margin_mode" />
+			</index>
+			<index name="pk_positions" unique="PRIMARY_KEY" >
+				<column name="position_id" />
 			</index>
 			<constraint name="ck_p_position" >
 				<string><![CDATA[`position` in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short')]]></string>
@@ -751,9 +877,26 @@ mark: mark price]]></comment>
 			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
+		<table name="stop_detail" prior="stop_price" >
+			<column name="request" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="stop_type" prior="fractal_type" type="CHAR" length="2" jt="1" mandatory="y" />
+			<column name="trigger_price" type="DOUBLE" jt="8" mandatory="y" />
+			<column name="order_price" type="DOUBLE" jt="8" mandatory="y" />
+			<index name="pk_stop_detail" unique="PRIMARY_KEY" >
+				<column name="request" />
+				<column name="stop_type" />
+			</index>
+			<constraint name="ck_sd_stop_type" >
+				<string><![CDATA[`stop_type` in (_utf8mb4'sl',_utf8mb4'tp')]]></string>
+			</constraint>
+			<fk name="fk_sd_stop_request" to_schema="blofin" to_table="stop_request" >
+				<fk_column name="request" pk="request" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
 		<table name="stop_order" spec="" >
+			<column name="client_order_id" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="tpsl_id" type="BIGINT" jt="-5" mandatory="y" />
-			<column name="client_order_id" type="BIGINT" jt="-5" mandatory="y" />
 			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="action" type="CHAR" length="4" jt="1" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
@@ -763,67 +906,63 @@ mark: mark price]]></comment>
 			<column name="reduce_only" type="BOOLEAN" jt="16" mandatory="y" >
 				<defo><![CDATA[false]]></defo>
 			</column>
-			<column name="brokerId" type="VARCHAR" length="16" jt="12" >
+			<column name="broker_id" prior="brokerId" type="VARCHAR" length="16" jt="12" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="create_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
-			<index name="pk_stop_order" unique="PRIMARY_KEY" >
-				<column name="tpsl_id" />
-			</index>
-			<index name="ak_stop_order" unique="UNIQUE_KEY" >
-				<column name="client_order_id" />
-			</index>
 			<index name="fk_so_order_state" unique="NORMAL" >
 				<column name="state" />
+			</index>
+			<index name="pk_stop_order" unique="PRIMARY_KEY" >
+				<column name="client_order_id" />
+			</index>
+			<index name="ak_stop_order" unique="UNIQUE_KEY" >
+				<column name="tpsl_id" />
 			</index>
 			<constraint name="ck_so_action" type="CHECK" options="" >
 				<string><![CDATA[`action` in (_utf8mb4'buy',_utf8mb4'sell')]]></string>
 			</constraint>
-			<fk name="fk_so_order_state_0" to_schema="blofin" to_table="order_state" >
+			<fk name="fk_so_order_state" to_schema="blofin" to_table="order_state" >
 				<fk_column name="state" pk="state" />
 			</fk>
-			<fk name="fk_so_positions" to_schema="blofin" to_table="positions" >
-				<fk_column name="client_order_id" pk="position_id" />
+			<fk name="fk_so_stop_request" to_schema="blofin" to_table="stop_request" >
+				<fk_column name="client_order_id" pk="request" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="stop_request" spec="" >
-			<column name="position_id" type="BIGINT" jt="-5" mandatory="y" />
-			<column name="stop_type" type="CHAR" length="2" jt="1" mandatory="y" >
-				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
-			</column>
+			<column name="request" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="position_id" type="BINARY" length="4" jt="-2" mandatory="y" />
 			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="size" type="DOUBLE" jt="8" mandatory="y" >
-				<defo><![CDATA[0]]></defo>
+				<defo><![CDATA[-(1)]]></defo>
 			</column>
-			<column name="price" type="DOUBLE" jt="8" mandatory="y" >
-				<defo><![CDATA[0]]></defo>
+			<column name="reduce_only" type="BOOLEAN" jt="16" mandatory="y" >
+				<defo><![CDATA[false]]></defo>
+			</column>
+			<column name="broker_id" type="VARCHAR" length="16" jt="12" />
+			<column name="memo" type="VARCHAR" length="100" jt="12" />
+			<column name="expiry_time" prior="update_time" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[now()]]></defo>
 			</column>
 			<column name="create_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
-			<column name="update_time" type="DATETIME" jt="93" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
-			</column>
+			<index name="fk_sr_state" unique="NORMAL" >
+				<column name="state" />
+			</index>
 			<index name="pk_stop_request" unique="PRIMARY_KEY" >
-				<column name="position_id" />
-				<column name="stop_type" />
+				<column name="request" />
 			</index>
 			<index name="fk_sr_positions" unique="NORMAL" >
 				<column name="position_id" />
 			</index>
-			<index name="fk_sr_state" unique="NORMAL" >
-				<column name="state" />
-			</index>
-			<constraint name="ck_sr_stop_type" type="CHECK" options="" >
-				<string><![CDATA[`stop_type` in (_utf8mb4'sl',_utf8mb4'tp')]]></string>
-			</constraint>
-			<fk name="fk_sr_positions_0" to_schema="blofin" to_table="positions" >
+			<fk name="fk_sr_positions" to_schema="blofin" to_table="positions" >
 				<fk_column name="position_id" pk="position_id" />
 			</fk>
-			<fk name="fk_sr_state_0" to_schema="blofin" to_table="state" >
+			<fk name="fk_sr_state" to_schema="blofin" to_table="state" >
 				<fk_column name="state" pk="state" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
@@ -990,6 +1129,25 @@ mark: mark price]]></comment>
 			<column name="memo" type="VARCHAR" />
 			<column name="expiry_time" type="DATETIME" />
 		</view>
+		<view name="vw_api_stop_requests" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`s`.`status`) AS `status`,`blofin`.`vp`.`symbol` AS `instId`,`blofin`.`vp`.`margin_mode` AS `marginMode`,`blofin`.`vp`.`position` AS `positionSide`,`blofin`.`vp`.`counteraction` AS `side`,replace(format(`tp`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `tpTriggerPrice`,replace(format(`tp`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `tpOrderPrice`,replace(format(`sl`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `slTriggerPrice`,replace(format(`sl`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `slOrderPrice`,`sr`.`size` AS `size`,if((`sr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`sr`.`request` AS `clientOrderId`,`sr`.`broker_id` AS `brokerId`,`sr`.`memo` AS `memo`,`sr`.`expiry_time` AS `expiryTime` from ((((((`blofin`.`stop_request` `sr` left join `blofin`.`stop_order` `so` on((`sr`.`request` = `so`.`client_order_id`))) left join `blofin`.`order_state` `os` on((`so`.`state` = `os`.`state`))) join `blofin`.`vw_positions` `vp`) join `blofin`.`state` `s`) join `blofin`.`stop_detail` `tp`) join `blofin`.`stop_detail` `sl`) where ((`sr`.`state` = `s`.`state`) and (`sr`.`position_id` = `blofin`.`vp`.`position_id`) and (`sr`.`request` = `tp`.`request`) and (`tp`.`stop_type` = 'tp') and (`sr`.`request` = `sl`.`request`) and (`sl`.`stop_type` = 'sl'))]]></view_script>
+			<column name="status" type="VARCHAR" />
+			<column name="instId" type="VARCHAR" />
+			<column name="marginMode" type="VARCHAR" />
+			<column name="positionSide" type="CHAR" />
+			<column name="side" type="VARCHAR" />
+			<column name="tpTriggerPrice" type="VARCHAR" />
+			<column name="tpOrderPrice" type="VARCHAR" />
+			<column name="slTriggerPrice" type="VARCHAR" />
+			<column name="slOrderPrice" type="VARCHAR" />
+			<column name="size" type="DOUBLE" />
+			<column name="reduceOnly" type="VARCHAR" />
+			<column name="clientOrderId" type="BINARY" />
+			<column name="brokerId" type="VARCHAR" />
+			<column name="memo" type="VARCHAR" />
+			<column name="expiryTime" type="DATETIME" />
+		</view>
 		<view name="vw_candle_audit" >
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc]]></view_script>
@@ -1116,6 +1274,32 @@ mark: mark price]]></comment>
 			<column name="trade_state" type="BINARY" />
 			<column name="trade_status" type="VARCHAR" />
 			<column name="suspense" type="BIT" />
+		</view>
+		<view name="vw_positions" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `p`.`position_id` AS `position_id`,`p`.`position` AS `position`,`p`.`positions` AS `positions`,`p`.`positions_avail` AS `positions_avail`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`i`.`instrument` AS `instrument`,`it`.`source_ref` AS `instrument_type`,if((`p`.`positions` > 0),'buy','sell') AS `action`,if((`p`.`positions` > 0),'buy','sell') AS `counteraction`,`p`.`leverage` AS `leverage`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`p`.`margin_mode` AS `margin_mode`,`p`.`margin_ratio` AS `margin_ratio`,replace(format(`p`.`margin_initial`,3),',','') AS `margin_initial`,replace(format(`p`.`margin_maint`,3),',','') AS `margin_maint`,replace(format(`p`.`average_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `average_price`,replace(format(`p`.`liquidation_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `liquidation_price`,replace(format(`p`.`mark_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `mark_price`,replace(format(`p`.`unrealized_pnl`,3),',','') AS `unrealized_pnl`,`p`.`unrealized_pnl_ratio` AS `unrealized_pnl_ratio`,`p`.`create_time` AS `create_time`,`p`.`update_time` AS `update_time` from (((((`blofin`.`positions` `p` join `blofin`.`instrument` `i`) join `blofin`.`instrument_type` `it`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) where ((`p`.`instrument` = `i`.`instrument`) and (`p`.`instrument` = `id`.`instrument`) and (`p`.`instrument_type` = `it`.`instrument_type`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`))]]></view_script>
+			<column name="position_id" type="BINARY" />
+			<column name="position" type="CHAR" />
+			<column name="positions" type="INT" />
+			<column name="positions_avail" type="INT" />
+			<column name="symbol" type="VARCHAR" />
+			<column name="instrument" type="BINARY" />
+			<column name="instrument_type" type="VARCHAR" />
+			<column name="action" type="VARCHAR" />
+			<column name="counteraction" type="VARCHAR" />
+			<column name="leverage" type="INT" />
+			<column name="digits" type="BIGINT" />
+			<column name="margin_mode" type="VARCHAR" />
+			<column name="margin_ratio" type="DECIMAL" />
+			<column name="margin_initial" type="VARCHAR" />
+			<column name="margin_maint" type="VARCHAR" />
+			<column name="average_price" type="VARCHAR" />
+			<column name="liquidation_price" type="VARCHAR" />
+			<column name="mark_price" type="VARCHAR" />
+			<column name="unrealized_pnl" type="VARCHAR" />
+			<column name="unrealized_pnl_ratio" type="DOUBLE" />
+			<column name="create_time" type="DATETIME" />
+			<column name="update_time" type="DATETIME" />
 		</view>
 		<view name="vw_requests" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -2225,103 +2409,124 @@ mark: mark price';
 	<layout name="Diagram_002" id="170092b3-bb38-4dda-b9cd-88626b91c09a" show_relation="columns" >
 		<entity schema="blofin" name="vw_instruments" color="3986C1" x="60" y="100" />
 		<entity schema="blofin" name="vw_users" color="3986C1" x="540" y="100" />
-		<entity schema="blofin" name="user_account" color="994D00" x="940" y="920" />
 		<entity schema="blofin" name="vw_orders" color="3986C1" x="720" y="100" />
-		<entity schema="blofin" name="vw_candles" color="3986C1" x="60" y="760" />
-		<entity schema="blofin" name="vw_candle_audit" color="3986C1" x="80" y="1220" />
-		<entity schema="blofin" name="request" color="FFFF00" x="1540" y="100" />
-		<entity schema="blofin" name="cancel_source" color="AE5285" x="3000" y="260" />
-		<entity schema="blofin" name="order_category" color="AE5285" x="3000" y="440" />
-		<entity schema="blofin" name="subject" color="1A4D1A" x="1380" y="100" />
-		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1280" y="320" />
-		<entity schema="blofin" name="contract_type" color="331A80" x="3320" y="1200" />
-		<entity schema="blofin" name="instrument_period" color="331A80" x="2600" y="1240" />
-		<entity schema="blofin" name="instrument_type" color="331A80" x="2720" y="740" />
-		<entity schema="blofin" name="candle" color="331A80" x="3060" y="940" />
-		<entity schema="blofin" name="period" color="331A80" x="2780" y="1000" />
-		<entity schema="blofin" name="order_state" color="AE5285" x="2200" y="480" />
-		<entity schema="blofin" name="order_type" color="AE5285" x="2200" y="180" />
-		<entity schema="blofin" name="account_detail" color="994D00" x="1480" y="940" />
-		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1160" y="100" />
-		<entity schema="blofin" name="activity" color="1A4D1A" x="960" y="100" />
-		<entity schema="blofin" name="margin_mode" color="AE5285" x="1940" y="300" />
-		<entity schema="blofin" name="positions" color="00F0FF" x="1840" y="900" />
-		<entity schema="blofin" name="instrument" color="331A80" x="2460" y="800" />
-		<entity schema="blofin" name="state" color="994D00" x="1660" y="780" />
-		<entity schema="blofin" name="stop_request" color="FFFF00" x="1760" y="480" />
-		<entity schema="blofin" name="authority" color="1A4D1A" x="1280" y="560" />
-		<entity schema="blofin" name="user" color="1A4D1A" x="960" y="420" />
-		<entity schema="blofin" name="position_stops" color="00F0FF" x="2220" y="1280" />
-		<entity schema="blofin" name="currency" color="331A80" x="2400" y="1280" />
-		<entity schema="blofin" name="broker" color="994D00" x="1060" y="1280" />
-		<entity schema="blofin" name="environment" color="994D00" x="1260" y="1220" />
 		<entity schema="blofin" name="vw_instrument_periods" color="3986C1" x="300" y="100" />
-		<entity schema="blofin" name="vw_accounts" color="3986C1" x="300" y="520" />
-		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="540" y="420" />
-		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="540" y="680" />
-		<entity schema="blofin" name="vw_requests" color="3986C1" x="540" y="840" />
-		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="740" y="1040" />
-		<entity schema="blofin" name="stop_order" color="3986C1" x="2200" y="960" />
-		<entity schema="blofin" name="orders" color="AE5285" x="2640" y="100" />
-		<entity schema="blofin" name="instrument_detail" color="331A80" x="3300" y="720" />
-		<entity schema="blofin" name="role" color="1A4D1A" x="940" y="240" />
-		<entity schema="blofin" name="account" color="994D00" x="1160" y="820" />
+		<entity schema="blofin" name="placeholder" color="C1D8EE" x="3680" y="2100" />
+		<entity schema="blofin" name="account" color="994D00" x="1380" y="860" />
+		<entity schema="blofin" name="broker" color="994D00" x="1620" y="1000" />
+		<entity schema="blofin" name="environment" color="994D00" x="1400" y="1360" />
+		<entity schema="blofin" name="authority" color="1A4D1A" x="1340" y="140" />
+		<entity schema="blofin" name="activity" color="1A4D1A" x="940" y="140" />
+		<entity schema="blofin" name="role_authority" color="1A4D1A" x="1240" y="360" />
+		<entity schema="blofin" name="state" color="994D00" x="1620" y="800" />
+		<entity schema="blofin" name="account_detail" color="994D00" x="1080" y="1000" />
+		<entity schema="blofin" name="subject" color="1A4D1A" x="1260" y="600" />
+		<entity schema="blofin" name="user_account" color="994D00" x="940" y="840" />
+		<entity schema="blofin" name="order_category" color="AE5285" x="2800" y="580" />
+		<entity schema="blofin" name="cancel_source" color="AE5285" x="2800" y="380" />
+		<entity schema="blofin" name="instrument_detail" color="331A80" x="3140" y="800" />
+		<entity schema="blofin" name="contract_type" color="331A80" x="3160" y="1220" />
+		<entity schema="blofin" name="user" color="1A4D1A" x="960" y="440" />
+		<entity schema="blofin" name="role" color="1A4D1A" x="960" y="260" />
+		<entity schema="blofin" name="period" color="331A80" x="2620" y="1060" />
+		<entity schema="blofin" name="candle" color="331A80" x="2900" y="1000" />
+		<entity schema="blofin" name="instrument_type" color="331A80" x="2620" y="800" />
+		<entity schema="blofin" name="currency" color="331A80" x="2240" y="1260" />
+		<entity schema="blofin" name="stop_order" color="00F0FF" x="2040" y="1000" />
+		<entity schema="blofin" name="instrument_period" color="331A80" x="2440" y="1280" />
+		<entity schema="blofin" name="fractal_point" color="FFFF80" x="3600" y="1320" />
+		<entity schema="blofin" name="fractal_state" color="FFFF80" x="3620" y="820" />
+		<entity schema="blofin" name="fractal_fibonacci" color="FFFF80" x="3360" y="800" />
+		<entity schema="blofin" name="fractal" color="FFFF80" x="3360" y="1300" />
+		<entity schema="blofin" name="order_state" color="AE5285" x="2120" y="560" />
+		<entity schema="blofin" name="stop_request" color="FFFF00" x="1720" y="460" />
+		<entity schema="blofin" name="position_stops" color="00F0FF" x="2060" y="1320" />
+		<entity schema="blofin" name="stop_detail" color="FFFF00" x="1740" y="220" />
+		<entity schema="blofin" name="margin_mode" color="AE5285" x="1920" y="180" />
+		<entity schema="blofin" name="order_type" color="AE5285" x="2120" y="100" />
+		<entity schema="blofin" name="task_authority" color="1A4D1A" x="1140" y="100" />
+		<entity schema="blofin" name="fibonacci" color="FFFF80" x="3440" y="1060" />
+		<entity schema="blofin" name="point_type" color="FFFF80" x="3620" y="1120" />
+		<entity schema="blofin" name="vw_role_privileges" color="3986C1" x="540" y="400" />
+		<entity schema="blofin" name="vw_role_subjects" color="3986C1" x="540" y="640" />
+		<entity schema="blofin" name="vw_requests" color="3986C1" x="520" y="780" />
+		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="520" y="1200" />
+		<entity schema="blofin" name="vw_candles" color="3986C1" x="60" y="740" />
+		<entity schema="blofin" name="vw_positions" color="3986C1" x="700" y="940" />
+		<entity schema="blofin" name="vw_accounts" color="3986C1" x="280" y="500" />
+		<entity schema="blofin" name="vw_candle_audit" color="3986C1" x="320" y="1320" />
+		<entity schema="blofin" name="vw_api_stop_requests" color="3986C1" x="80" y="1180" />
+		<entity schema="blofin" name="instrument" color="331A80" x="2300" y="840" />
+		<entity schema="blofin" name="positions" color="00F0FF" x="1800" y="940" />
+		<entity schema="blofin" name="orders" color="AE5285" x="2480" y="140" />
+		<entity schema="blofin" name="request" color="FFFF00" x="1500" y="100" />
 		<group name="orders" color="AE5285" >
-			<entity schema="blofin" name="cancel_source" />
 			<entity schema="blofin" name="order_category" />
+			<entity schema="blofin" name="cancel_source" />
 			<entity schema="blofin" name="order_state" />
-			<entity schema="blofin" name="order_type" />
 			<entity schema="blofin" name="margin_mode" />
+			<entity schema="blofin" name="order_type" />
 			<entity schema="blofin" name="orders" />
 		</group>
 		<group name="instruments" color="331A80" >
-			<entity schema="blofin" name="contract_type" />
-			<entity schema="blofin" name="instrument_period" />
-			<entity schema="blofin" name="instrument_type" />
-			<entity schema="blofin" name="candle" />
-			<entity schema="blofin" name="period" />
-			<entity schema="blofin" name="instrument" />
-			<entity schema="blofin" name="currency" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="contract_type" />
+			<entity schema="blofin" name="period" />
+			<entity schema="blofin" name="candle" />
+			<entity schema="blofin" name="instrument_type" />
+			<entity schema="blofin" name="currency" />
+			<entity schema="blofin" name="instrument_period" />
+			<entity schema="blofin" name="instrument" />
 		</group>
 		<group name="accounts" color="994D00" >
-			<entity schema="blofin" name="user_account" />
-			<entity schema="blofin" name="account_detail" />
-			<entity schema="blofin" name="state" />
+			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="broker" />
 			<entity schema="blofin" name="environment" />
-			<entity schema="blofin" name="account" />
+			<entity schema="blofin" name="state" />
+			<entity schema="blofin" name="account_detail" />
+			<entity schema="blofin" name="user_account" />
 		</group>
 		<group name="users/privileges" color="1A4D1A" >
-			<entity schema="blofin" name="subject" />
-			<entity schema="blofin" name="role_authority" />
-			<entity schema="blofin" name="task_authority" />
-			<entity schema="blofin" name="activity" />
 			<entity schema="blofin" name="authority" />
+			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role_authority" />
+			<entity schema="blofin" name="subject" />
 			<entity schema="blofin" name="user" />
 			<entity schema="blofin" name="role" />
+			<entity schema="blofin" name="task_authority" />
 		</group>
 		<group name="views" color="C4E0F9" >
 			<entity schema="blofin" name="vw_instruments" />
 			<entity schema="blofin" name="vw_users" />
 			<entity schema="blofin" name="vw_orders" />
-			<entity schema="blofin" name="vw_candles" />
-			<entity schema="blofin" name="vw_candle_audit" />
 			<entity schema="blofin" name="vw_instrument_periods" />
-			<entity schema="blofin" name="vw_accounts" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_role_subjects" />
 			<entity schema="blofin" name="vw_requests" />
 			<entity schema="blofin" name="vw_api_requests" />
+			<entity schema="blofin" name="vw_candles" />
+			<entity schema="blofin" name="vw_positions" />
+			<entity schema="blofin" name="vw_accounts" />
+			<entity schema="blofin" name="vw_candle_audit" />
+			<entity schema="blofin" name="vw_api_stop_requests" />
 		</group>
 		<group name="requests" color="FFFF00" >
-			<entity schema="blofin" name="request" />
 			<entity schema="blofin" name="stop_request" />
+			<entity schema="blofin" name="stop_detail" />
+			<entity schema="blofin" name="request" />
 		</group>
 		<group name="positions" color="00F0FF" >
-			<entity schema="blofin" name="positions" />
-			<entity schema="blofin" name="position_stops" />
 			<entity schema="blofin" name="stop_order" />
+			<entity schema="blofin" name="position_stops" />
+			<entity schema="blofin" name="positions" />
+		</group>
+		<group name="fractals" color="FFFF80" >
+			<entity schema="blofin" name="fractal_point" />
+			<entity schema="blofin" name="fractal_state" />
+			<entity schema="blofin" name="fractal_fibonacci" />
+			<entity schema="blofin" name="fractal" />
+			<entity schema="blofin" name="fibonacci" />
+			<entity schema="blofin" name="point_type" />
 		</group>
 	</layout>
 </project>

@@ -3,16 +3,15 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-import Prompt, { IOption } from "@cli/modules/Prompts";
-import type { RowDataPacket } from "mysql2";
-import type { TSession, TState } from "@module/session";
-import { IAccountState } from "@db/interfaces/state";
 
+import type { RowDataPacket } from "mysql2";
+import type { TSession } from "@module/session";
+import type { TAccount, IAccountState } from "@db/interfaces/state";
+
+import { setUserToken } from "@cli/interfaces/user";
+import { hashHmac } from "@lib/crypto.util";
 import { Session } from "@module/session";
 import { Select, Modify, parseColumns } from "@db/query.utils";
-
-import { hashHmac } from "@lib/crypto.util";
-import { setUserToken } from "@cli/interfaces/user";
 
 import * as States from "@db/interfaces/state";
 import * as Brokers from "@db/interfaces/broker";
@@ -30,7 +29,7 @@ export interface IKeyProps {
   username: string;
   broker: Uint8Array;
   state: Uint8Array;
-  status: IAccountState;
+  status: TAccount;
   environment: Uint8Array;
   environ: string;
   total_equity: number;
@@ -61,7 +60,7 @@ type TMutableProps = {
   account?: Uint8Array;
   broker?: Uint8Array;
   state?: Uint8Array | undefined;
-  status?: IAccountState | undefined;
+  status?: TAccount | undefined;
   environment?: Uint8Array | undefined;
   rest_api_url?: string | undefined;
   wss_url?: string | undefined;
@@ -113,8 +112,7 @@ export async function Add(props: Partial<IKeyProps>): Promise<IKeyProps["account
     const insert: TMutableProps = {
       account: hash,
       broker: broker ? broker : alias ? await Brokers.Key({ name: alias}) : undefined,
-      // @ts-ignore
-      state: state ? state : status ? await States.Key({ status }) : undefined,
+      state: state ? state : status ? await States.Key<IAccountState>({ status }) : undefined,
       environment: environment ? environment : environ ? await Environments.Key({ environ }) : undefined,
       total_equity: parseFloat(props?.total_equity!.toFixed(3)),
       isolated_equity: parseFloat(props?.isolated_equity!.toFixed(3)),
@@ -212,7 +210,6 @@ export async function Update(props: Partial<IKeyProps>): Promise<number | undefi
 
   if (account) {
     const update: TMutableProps = {
-      // @ts-ignore
       state: props?.state ? props.state : props?.status ? await States.Key({ status: props?.status }) : undefined,
       environment: props?.environment ? props.environment : props?.environ ? await Environments.Key({ environ: props.environ }) : undefined,
       total_equity: parseFloat(props?.total_equity!.toFixed(3)),

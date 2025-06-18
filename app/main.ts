@@ -33,7 +33,7 @@ export class CMain {
   //+------------------------------------------------------------------------------------+
   async Start(service: string) {
     const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: "Halted" });
-    const wss = await this.setService(service);
+    let wss = await this.setService(service);
 
     instruments.forEach((instrument, id) => {
       const ipc = clear({ state: "init", symbol: instrument.symbol!, node: id });
@@ -49,15 +49,23 @@ export class CMain {
       });
     });
 
-    setInterval(() => {
-      // console.log('ping');
-      if (wss && wss.readyState === WebSocket.OPEN) {
-        wss.send("ping");
+    setInterval(async () => {
+      if (wss) {
+        switch (wss.readyState) {
+          case WebSocket.OPEN: {
+            wss.send("ping");
+            break;
+          }
+          case WebSocket.CONNECTING: {
+            console.log("Websocket connecting...");
+            break;
+          }
+          case WebSocket.CLOSED: {
+            wss = await this.setService(service);
+            break;
+          }
+        }
       }
-      // if (ipc.state === "ready") {
-      //   Object.assign(ipc, { ...ipc, state: "api" });
-      //   app.send(ipc);
-      // }
     }, 29000);
   }
 }

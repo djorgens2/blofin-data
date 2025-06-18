@@ -68,11 +68,11 @@ export const setExpiry = (period: string) => {
     this.setTime(this.getTime() + increment);
     return this;
   };
-  
+
   const increment = parseInt(period);
-  const timeframe = period.slice(-1) === 's' ? 1000 : period.slice(-1) === 'm' ? 60000 : period.slice(-1) === 'h' ? 3600000 : period.slice(-1) === 'd' ? 86400000 : undefined;
+  const timeframe = period.slice(-1) === "s" ? 1000 : period.slice(-1) === "m" ? 60000 : period.slice(-1) === "h" ? 3600000 : period.slice(-1) === "d" ? 86400000 : undefined;
   // @ts-ignore
-  const expiry = timeframe ? new Date().add(increment*timeframe) : undefined;
+  const expiry = timeframe ? new Date().add(increment * timeframe) : undefined;
   return expiry;
 };
 

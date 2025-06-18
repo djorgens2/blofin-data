@@ -5,48 +5,74 @@
 "use strict";
 "use server";
 
-import type { ICandle, IKeyProps } from "@db/interfaces/candle";
+import type { IPositions } from "@db/interfaces/positions";
 import type { IMessage } from "@lib/app.util";
 
-import { isEqual } from "@lib/std.util";
-
-import * as Candle from "@db/interfaces/candle";
 import { Session, signRequest } from "@module/session";
+import { hexify } from "@lib/crypto.util";
+
+import * as Instrument from "@db/interfaces/instrument";
+import * as InstrumentType from "@db/interfaces/instrument_type";
+import * as Positions from "@db/interfaces/positions";
 
 export interface IPositionsAPI {
-  data: [
-    {
-      instType: string;
-      instId: string;
-      marginMode: string;
-      positionId: number;
-      positionSide: string;
-      positions: number;
-      availablePositions: number;
-      averagePrice: number;
-      unrealizedPnl: number;
-      unrealizedPnlRatio: number;
-      leverage: number;
-      liquidationPrice: number;
-      markPrice: number;
-      initialMargin: number;
-      margin: number;
-      marginRatio: number;
-      maintenanceMargin: number;
-      adl: number;
-      createTime: number;
-      updateTime: number;
-    }
-  ];
+  positionId: string;
+  instType: string;
+  instId: string;
+  marginMode: "cross" | "isolated";
+  positionSide: "short" | "long" | "net";
+  positions: string;
+  availablePositions: string;
+  averagePrice: string;
+  unrealizedPnl: string;
+  unrealizedPnlRatio: string;
+  leverage: string;
+  liquidationPrice: string;
+  markPrice: string;
+  initialMargin: string;
+  margin: string;
+  marginRatio: string;
+  maintenanceMargin: string;
+  adl: string;
+  createTime: string;
+  updateTime: string;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: IPositionsAPI) {
-//  const stops = await tpsl.Import();
-//  console.log({positions:props});
-
+export async function Publish(props: Array<IPositionsAPI>) {
+  //  const stops = await tpsl.Import();
+console.log(props)
+  for (const id in props) {
+    const position = props[id];
+    const position_id = hexify(parseInt(position.positionId).toString(16));
+    const instrument = await Instrument.Key({ symbol: position.instId });
+    const instrument_type = await InstrumentType.Key({ source_ref: position.instType });
+    const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
+    const update: Partial<IPositions> = {
+      position_id,
+      position: position.positionSide,
+      positions: parseInt(position.positions),
+      positions_avail: parseInt(position.availablePositions),
+      instrument,
+      instrument_type: instrument_type ? instrument_type : inst_type_default,
+      leverage: parseInt(position.leverage!),
+      margin_mode: position.marginMode,
+      margin_ratio: parseFloat(position.marginRatio),
+      margin_initial: parseFloat(position.initialMargin),
+      margin_maint: parseFloat(position.maintenanceMargin),
+      average_price: parseFloat(position.averagePrice),
+      liquidation_price: parseFloat(position.liquidationPrice),
+      mark_price: parseFloat(position.markPrice),
+      unrealized_pnl: parseFloat(position.unrealizedPnl),
+      unrealized_pnl_ratio: parseFloat(position.unrealizedPnlRatio),
+      adl: parseInt(position.adl),
+      create_time: parseInt(position.createTime!),
+      update_time: parseInt(position.updateTime!),
+    };
+    await Positions.Publish(update);
+  }
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -66,14 +92,14 @@ export async function Import() {
     "Content-Type": "application/json",
   };
 
-  fetch(rest_api_url!.concat(path), {
+  await fetch(rest_api_url!.concat(path), {
     method,
     headers,
   })
     .then((response) => response.json())
     .then((json) => {
       if (json?.code > 0) throw new Error(json);
-      Publish(json.data);
+//      Publish(json.data);
     })
     .catch((error) => console.log(error));
 }
