@@ -10,7 +10,6 @@ import { hashKey } from "@lib/crypto.util";
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
 export type TAccount = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
-
 export type TState = {
   state: Uint8Array;
   status: TRequest | TSystem | TAccount;
@@ -65,7 +64,7 @@ export async function Publish(props: Partial<TState>): Promise<TState["state"]> 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends TState>(props: Partial<T>): Promise<Partial<T>["state"] | undefined> {
+export async function Key<T extends TState>(props: Partial<T>): Promise<T["state"] | undefined> {
   const { status, state } = props;
   const args = [];
 
@@ -78,8 +77,8 @@ export async function Key<T extends TState>(props: Partial<T>): Promise<Partial<
     args.push(status);
     sql += `status = ?`;
   } else return undefined;
-
-  const [key] = await Select<TState>(sql, args);
+  
+  const [key] = await Select<T>(sql, args);
   return key === undefined ? undefined : key.state;
 }
 

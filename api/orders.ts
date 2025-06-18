@@ -6,40 +6,19 @@
 "use server";
 
 import type { IOrder } from "@db/interfaces/order";
+import type { IRequestAPI } from "@api/requests";
 
-import { Select, parseColumns } from "@db/query.utils";
 import { Session, signRequest } from "@module/session";
 import { IKeyProps } from "@db/interfaces/reference";
 import { hexify } from "@lib/crypto.util";
 import { hexString, isEqual, setExpiry } from "@lib/std.util";
 
-import * as States from "@db/interfaces/state";
+import * as RequestAPI from "@api/requests";
 import * as Orders from "@db/interfaces/order";
 import * as Request from "@db/interfaces/request";
 import * as Reference from "@db/interfaces/reference";
 import * as Instrument from "@db/interfaces/instrument";
 import * as InstrumentType from "@db/interfaces/instrument_type";
-
-export interface IRequestAPI {
-  status?: string;
-  instId: string;
-  marginMode: "cross" | "isolated";
-  positionSide: "short" | "long" | "net";
-  side: "buy" | "sell";
-  orderType: string;
-  price: string;
-  size: string;
-  leverage: string;
-  reduceOnly: string;
-  clientOrderId: string;
-  tpTriggerPrice: undefined | null;
-  tpOrderPrice: undefined | null;
-  slTriggerPrice: undefined | null;
-  slOrderPrice: undefined | null;
-  brokerId: string | undefined;
-  createTime: string;
-  updateTime: string;
-}
 
 export interface IOrderAPI extends IRequestAPI {
   instType: string;
@@ -66,85 +45,6 @@ export type TResponse = {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
-//+--------------------------------------------------------------------------------------+
-export async function Submit(props: Array<Partial<IRequestAPI>>) {
-  if (props.length > 0) {
-    const method = "POST";
-    const path = "/api/v1/trade/batch-orders";
-    const body = JSON.stringify(props);
-    const { api, phrase, rest_api_url } = Session();
-    const { sign, timestamp, nonce } = await signRequest(method, path, body);
-
-    const headers = {
-      "ACCESS-KEY": api!,
-      "ACCESS-SIGN": sign!,
-      "ACCESS-TIMESTAMP": timestamp!,
-      "ACCESS-NONCE": nonce!,
-      "ACCESS-PASSPHRASE": phrase!,
-      "Content-Type": "application/json",
-    };
-
-    fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-      body,
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.code === 0) Request.Update(json.data);
-        else {
-          console.log(json, json.data, method, headers, body);
-          throw new Error(json);
-        }
-      })
-      .catch((error) => console.log(error));
-  }
-  // # Verify response format and success
-  // if not isinstance(order_response, dict):
-  //     raise Exception(f"Invalid order response format: {order_response}")
-
-  // if "code" in order_response and order_response["code"] != "0":
-  //     raise Exception(f"Order API error: {order_response}")
-
-  // if "data" not in order_response:
-  //     raise Exception(f"No data in order response: {order_response}")
-
-  // order_id = order_response["data"][0]["orderId"]
-  // print(f"Order placed: {order_id}")
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Formats and emits order requests to broker for execution;                            |
-//+--------------------------------------------------------------------------------------+
-async function ProcessRequests(): Promise<number> {
-  console.log("starting executing...");
-  const requests = await Request.Queue({ status: "Queued" });
-  const queue: Array<Partial<IRequestAPI>> = [];
-
-  for (const id in requests) {
-    const request = requests[id];
-    const custKey = hexify(request.clientOrderId!);
-    const api: Partial<IRequestAPI> = {
-      instId: request.instId!,
-      marginMode: request.marginMode!,
-      positionSide: request.positionSide!,
-      side: request.side!,
-      orderType: request.orderType!,
-      price: request.price!,
-      size: request.size!,
-      leverage: request.leverage!,
-      reduceOnly: request.reduceOnly!,
-      clientOrderId: hexString(custKey!, 3),
-      brokerId: request.brokerId ? request.brokerId : undefined,
-    };
-    queue.push(api);
-  }
-  await Submit(queue);
-  return requests.length;
-}
-
-//+--------------------------------------------------------------------------------------+
 //| Update - scrubs blofin wss updates, applies keys, and executes merge to local db;    |
 //+--------------------------------------------------------------------------------------+
 export async function Update(orders: Array<Partial<IOrderAPI>>) {
@@ -161,7 +61,7 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
     const instrument = await Instrument.Key({ symbol: order.instId });
 
     if (order.clientOrderId) {
-      const request = await Request.Fetch({ request: hexify(order.clientOrderId) });
+      const [request] = await Request.Fetch({ request: hexify(order.clientOrderId) });
       const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
       const instrument_type = await InstrumentType.Key({ source_ref: order.instType });
 
@@ -183,7 +83,6 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
         position: order.positionSide,
         margin_mode: order.marginMode,
         filled_size: parseFloat(order.filledSize!),
-        // @ts-ignore
         filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
         average_price: parseFloat(order.averagePrice!),
         state: apiState?.state,
@@ -201,7 +100,7 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
       //-- handle missing requests
       if (request === undefined) {
         instrument &&
-          Request.Submit({
+          (await Request.Publish({
             request: update.client_order_id,
             account: Session().account,
             instrument,
@@ -215,7 +114,7 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
             reduce_only: update.reduce_only,
             memo: "Request missing; auto-submit;",
             expiry_time: setExpiry("1h"), //--- need a default expiry mechanism
-          });
+          }));
       }
 
       instrument && (await Orders.Publish(update));
@@ -223,7 +122,6 @@ export async function Publish(orders: Array<Partial<IOrderAPI>>) {
       //-- handle untracked order;
     }
   }
-  console.log("done publishing...");
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -248,11 +146,14 @@ export async function Import() {
     headers,
   })
     .then((response) => response.json())
-    .then( async (json) => {
-      if (json?.code === 0) throw new Error(json);
+    .then(async (json) => {
+      if (json.code === "0") {
 
-      await Publish(json.data);
-      await ProcessRequests();
+        await Publish(json.data);
+        await RequestAPI.Process();
+      } else {
+        throw new Error(json);
+      }
     })
     .catch((error) => console.log(error));
 }

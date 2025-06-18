@@ -10,8 +10,8 @@ import { uniqueKey } from "@lib/crypto.util";
 import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 
-import * as Accounts from "@api/accounts";
-import * as Orders from "@api/accounts";
+import * as PositionsAPI from "@api/positions";
+import * as AccountAPI from "@api/accounts";
 import * as OrderAPI from "@api/orders";
 
 export type IResponseProps = {
@@ -112,11 +112,13 @@ export function openWebSocket(props: Partial<TSession>) {
     console.error("WebSocket error:", error);
   };
 
-  ws.onmessage = (event) => {
+  ws.onmessage = async (event) => {
     const message = parseJSON<IResponseProps>(event.data);
 
     if (message!.event === "pong") {
       setSession({ state: "connected" });
+      await PositionsAPI.Import();
+      await OrderAPI.Import();
     } else if (message!.event === "login") {
       if (message!.code === "0") {
         ws.send(
@@ -130,19 +132,11 @@ export function openWebSocket(props: Partial<TSession>) {
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      message!.arg.channel === "account" && Accounts.Update({ ...message!.data, account: account });
-      message!.arg.channel === "orders" && Orders.Update(message!.data);
-//      message!.arg.channel === "positions" && console.log("Positions:", message!.data);
+      message!.arg.channel === "account" && AccountAPI.Publish({ ...message!.data, account: account });
+      message!.arg.channel === "orders" && OrderAPI.Publish(message!.data);
+      message!.arg.channel === "positions" && PositionsAPI.Publish(message!.data);
     } else console.log("Unhandled message:", message!, Session());
   };
 
-  setInterval(() => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send("ping");
-      OrderAPI.Import();
-      console.log(`ping`)
-    }
-    if (ws.readyState === WebSocket.CONNECTING) console.log("Websocket trying to connect...");
-  }, 29000);
   return ws;
 }

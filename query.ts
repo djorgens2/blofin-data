@@ -102,7 +102,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.State: {
-      const props = parseJSON<State.IState>(args);
+      const props = parseJSON<State.TState>(args);
       props!.state && Object.assign(props!, { ...props, state: hexify(props!.state) });
       const key = await State.Key(props!);
       console.log("Fetch state:", props, key);

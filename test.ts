@@ -919,8 +919,6 @@ console.log(setExpiry(`30s`));
 //----------------------------- order test  -------------------------------------------------------//
 import { hexify } from "@lib/crypto.util";
 import * as Requests from "@db/interfaces/request";
-import * as Orders from "@db/interfaces/order";
-import * as OrderAPI from "@api/orders";
 
 //-- test 1; request w/ no tpsl; 100%
 const request1: Partial<Requests.IRequest> = {
@@ -930,12 +928,12 @@ const request1: Partial<Requests.IRequest> = {
   position: "long",
   action: "buy",
   order_type: hexify("6eb6c5"),
-  price: 93000.1,
+  price: 102000.1,
   size: 0.1,
   leverage: 10,
   expiry_time: setExpiry("30m"),
 };
-const req1 = Requests.Submit(request1);
+const req1 = Requests.Publish(request1);
 
 //-- test 2; with ck con errors; 100%
 // const request2: Partial<Requests.IRequest> = {
