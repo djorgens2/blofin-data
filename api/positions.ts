@@ -99,7 +99,7 @@ export async function Import() {
     .then((response) => response.json())
     .then((json) => {
       if (json?.code > 0) throw new Error(json);
-//      Publish(json.data);
+      Publish(json.data);
     })
     .catch((error) => console.log(error));
 }
