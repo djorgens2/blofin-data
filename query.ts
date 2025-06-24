@@ -143,8 +143,15 @@ async function show(subject: string, args: string): Promise<string> {
     }
     case Subject.Request: {
       const props = parseJSON< Request.IRequest >(args);
+      Object.assign(props!, {
+        ...props, 
+        account: props?.account ? hexify(props.account) :undefined,
+        request: props?.request ? hexify(props.request): undefined,
+        instrument: props?.instrument ? hexify(props.instrument) : undefined,
+        state: props?.state ? hexify(props.state) : undefined
+      });
       const key = await Request.Fetch(props!);
-      console.log("Fetch Request:", props, key);
+      console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Detail: {
@@ -157,7 +164,7 @@ async function show(subject: string, args: string): Promise<string> {
       const json = parseJSON<Reference.IKeyProps>(args);
       // @ts-ignore
       const { table, ...props} = json;
-      const key = await Reference.Fetch<Reference.IKeyProps>(table, props!);
+      const key = await Reference.Fetch(table, props!);
       console.log("Fetch reference:", props, key);
       return "ok";
     }

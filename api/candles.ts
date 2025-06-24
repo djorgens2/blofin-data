@@ -97,5 +97,8 @@ export async function Import(message: IMessage, props: IKeyProps) {
         confirm: parseInt(field[8]) === 1,
       }));
       Merge(message, props, apiCandles);
+    })
+    .catch((error) => {
+      console.log("Bad request in Candles.Import", { props });
     });
 }

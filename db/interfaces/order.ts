@@ -48,7 +48,7 @@ export async function Publish(props: Partial<IOrder>) {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches orders from local db that meet props criteria;                             |
+//| Fetches orders from local db that meet props criteria;                               |
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IOrder>): Promise<Array<Partial<IOrder>>> {
   const [fields, args] = parseColumns(props);
@@ -56,17 +56,13 @@ export async function Fetch(props: Partial<IOrder>): Promise<Array<Partial<IOrde
   return Select<IRequest>(sql, args);
 }
 
-// //+--------------------------------------------------------------------------------------+
-// //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
-// //+--------------------------------------------------------------------------------------+
-// export async function Update(props: IOrderAPI) {
-//   const [fields, args] = parseColumns(props, ``);
-//           const sql =
-//             `INSERT INTO blofin.orders (account, currency, ${fields.join(", ")}) VALUES (${"".padEnd(
-//               (args.length + 1) * 3,
-//               "?, "
-//             )}FROM_UNIXTIME(?/1000)) ` + `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")} = FROM_UNIXTIME(?/1000)`;
-//           args.unshift(props.account, props.currency, ...args);
-//           await Modify(sql, args);
-
-// }
+//+--------------------------------------------------------------------------------------+
+//| Updates the order states states via WSS or API;                                      |
+//+--------------------------------------------------------------------------------------+
+export async function Update(props: Partial<IOrder>) {
+  // const { request, status, memo } = props;
+  // const state = await States.Key<IRequestState>({ status });
+  // const sql = `UPDATE blofin.request SET state = ?, memo = ? WHERE request = ?`;
+  // const args = [state, memo, request];
+  // await Modify(sql, args);
+}

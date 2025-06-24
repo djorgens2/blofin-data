@@ -13,6 +13,7 @@ import { TextEncoder } from "node:util";
 import * as PositionsAPI from "@api/positions";
 import * as AccountAPI from "@api/accounts";
 import * as OrderAPI from "@api/orders";
+import { time } from "node:console";
 
 export type IResponseProps = {
   event: string;
@@ -117,6 +118,7 @@ export function openWebSocket(props: Partial<TSession>) {
 
     if (message!.event === "pong") {
       setSession({ state: "connected" });
+      console.log(new Date().toLocaleTimeString());
       await PositionsAPI.Import();
       await OrderAPI.Import();
     } else if (message!.event === "login") {

@@ -9,10 +9,10 @@ import { hashKey } from "@lib/crypto.util";
 
 export interface IKeyProps {
   table: string | undefined;
-  state?: Uint8Array;
+  state?: Uint8Array | undefined;
   order_type?: Uint8Array;
-  cancel_source?: Uint8Array;
-  order_category?: Uint8Array;
+  cancel_source?: Uint8Array | undefined;
+  order_category?: Uint8Array | undefined;
   source_ref: string;
   map_ref: string;
 }
@@ -71,14 +71,30 @@ export async function Add(table: string, data: object) {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//| Executes a query in priority sequence based on supplied seek params; returns data;   |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch<IKeyProps> (table: string, props: Partial<IKeyProps> ): Promise<Array<Partial<IKeyProps>| undefined>> {
+export async function Fetch(table: string, props: Partial<IKeyProps> ): Promise<Array<Partial<IKeyProps> | undefined>> {
   const [fields, args] = parseColumns(props);
   const sql: string = `SELECT * FROM blofin.${table} ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   if (Object.keys(props).length && !fields.length) return [undefined];
   
   return Select<IKeyProps>(sql, args);
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//+--------------------------------------------------------------------------------------+
+export async function Key<T>(table: string, props: Partial<IKeyProps> ): Promise<T | undefined> {
+  const [fields, args] = parseColumns(props);
+  const pkey = table === "order_state" ? "state" : table;
+  const sql: string = `SELECT ${pkey} FROM blofin.${table} ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+
+  if (Object.keys(props).length && !fields.length) return undefined;
+  
+  const [key] = await Select<T>(sql, args);
+//@ts-ignore
+  return key ? key[pkey] : undefined;
+
 }
 

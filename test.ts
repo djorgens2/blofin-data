@@ -912,28 +912,87 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // order();
 
 //----------------------------- expiry calc test  -------------------------------------------------------//
-import { setExpiry } from "@lib/std.util";
+// import { setExpiry } from "@lib/std.util";
 
-console.log(setExpiry(`30s`));
+// console.log(setExpiry(`30s`));
+
+//----------------------------- number test -------------------------------------------------------//
+// import { format } from "@lib/std.util";
+
+// console.log(format(''));
+// console.log(format('abc'));
+// console.log(format('123.567'));
+// console.log(format('xxx123.567'));
+// console.log(format('123.567aaabc'));
+// console.log(format(null));
+// import { hexify } from "@lib/crypto.util";
+
+// const test = "171717";
+// const hex1 = parseInt(test);
+// const hex2 = hex1.toString(16).padStart(8, "0");
+// const buf = Buffer.from(hex2, "hex");
+// const buf2 = Buffer.from(parseInt(test).toString(16).padStart(8, "0"),'hex');
+// console.log(hex1, hex2, buf, buf2, hexify(parseInt(test),4));
+
+//----------------------------- useful code! -----------------------------//
+// import { IOrderAPI } from "@api/orders";
+// //const body = `[${JSON.stringify((({ instId, orderId, clientOrderId }) => ({ instId, orderId, clientOrderId }))(cancel))}]`;
+// const cancel: Array<Partial<IOrderAPI>> = [
+//   { instId: "BTC-USDT" },
+//   { orderId: "4000012355467" },
+//   { clientOrderId: "0xc0ffee" },
+//   { instId: "BTC-USDT", orderId: "4000012355467", clientOrderId: "0xc0ffee" },
+// ];
+// const body = console.log(JSON.stringify(cancel.map(({ instId, orderId, clientOrderId }) => ({ instId, orderId, clientOrderId }))));
+
+import * as Reference from "@db/interfaces/reference"
+
+const getKey = async (table: string, key: string)  => {
+  console.log(await Reference.Key(table, {source_ref: key}));
+}
+
+getKey('cancel_source', 'user_canceled');
+getKey('order_state', 'live');
+getKey('order_type', 'cross');
+//getKey('price_type', 'cro');
+
+interface MyObject {
+  name: string;
+  age: number;
+  city: string;
+}
+
+const myObject: MyObject = {
+  name: "Alice",
+  age: 30,
+  city: "New York",
+};
+
+const keyName: keyof MyObject = "age"; // The key name is stored in a variable
+
+const value = myObject[keyName]; // Access the value using bracket notation with the variable
+
+console.log(value); // Output: 30
 
 //----------------------------- order test  -------------------------------------------------------//
-import { hexify } from "@lib/crypto.util";
-import * as Requests from "@db/interfaces/request";
+// import { hexify } from "@lib/crypto.util";
+// import { setExpiry } from "@lib/std.util";
+// import * as Requests from "@db/interfaces/request";
 
-//-- test 1; request w/ no tpsl; 100%
-const request1: Partial<Requests.IRequest> = {
-  account: hexify("145a6a")!,
-  instrument: hexify("4e3e8a")!,
-  margin_mode: "cross",
-  position: "long",
-  action: "buy",
-  order_type: hexify("6eb6c5"),
-  price: 102000.1,
-  size: 0.1,
-  leverage: 10,
-  expiry_time: setExpiry("30m"),
-};
-const req1 = Requests.Publish(request1);
+// //-- test 1; request w/ no tpsl; 100%
+// const request1: Partial<Requests.IRequest> = {
+//   account: hexify("145a6a")!,
+//   instrument: hexify("4e3e8a")!,
+//   margin_mode: "cross",
+//   position: "long",
+//   action: "buy",
+//   order_type: hexify("6eb6c5"),
+//   price: 95000.,
+//   size: 0.1,
+//   leverage: 10,
+//   expiry_time: setExpiry("30m"),
+// };
+// const req1 = Requests.Submit(request1);
 
 //-- test 2; with ck con errors; 100%
 // const request2: Partial<Requests.IRequest> = {

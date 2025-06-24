@@ -13,6 +13,7 @@ import * as ContractType from "@db/interfaces/contract_type";
 import * as InstrumentType from "@db/interfaces/instrument_type";
 import * as InstrumentDetail from "@db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
+import { error } from "node:console";
 
 export interface IInstrumentAPI {
   instId: string;
@@ -118,5 +119,8 @@ export function Import() {
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then((response) => response.json())
     .then(async (result: IResult) => await Publish(result.data))
-    .then(async (data: Array<IInstrumentAPI>) => await Merge(data));
+    .then(async (data: Array<IInstrumentAPI>) => await Merge(data))
+    .catch((error) => {
+      console.log(`Error fetching instruments; }`);
+    });
 }
