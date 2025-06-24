@@ -70,7 +70,8 @@ export const setExpiry = (period: string) => {
   };
 
   const increment = parseInt(period);
-  const timeframe = period.slice(-1) === "s" ? 1000 : period.slice(-1) === "m" ? 60000 : period.slice(-1) === "h" ? 3600000 : period.slice(-1) === "d" ? 86400000 : undefined;
+  const timeframe =
+    period.slice(-1) === "s" ? 1000 : period.slice(-1) === "m" ? 60000 : period.slice(-1) === "h" ? 3600000 : period.slice(-1) === "d" ? 86400000 : undefined;
   // @ts-ignore
   const expiry = timeframe ? new Date().add(increment * timeframe) : undefined;
   return expiry;
@@ -123,9 +124,9 @@ export const isLower = (source: number | string, benchmark: number | string, dig
 //| Returns a numeric value formatted to a specified precision                           |
 //+--------------------------------------------------------------------------------------+
 export const format = (value: number | string, digits: number = 8): number => {
-  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : value.toFixed(digits);
+  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : typeof value === "number" ? value.toFixed(digits) : value;
 
-  return Number(formatted);
+  return isNaN(parseFloat(formatted)) ? 0 : Number(formatted);
 };
 
 //+--------------------------------------------------------------------------------------+

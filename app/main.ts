@@ -14,12 +14,13 @@ import { clear } from "@lib/app.util";
 
 import * as InstrumentPeriods from "@db/interfaces/instrument_period";
 import * as Accounts from "@db/interfaces/account";
-import * as Orders from "@db/interfaces/order";
 
 //+--------------------------------------------------------------------------------------+
 //| CMain - Master Processing Instantiator/Monitor Class for Enabled Instruments;        |
 //+--------------------------------------------------------------------------------------+
 export class CMain {
+  retries: number = 0;
+
   async setService(service: string) {
     const keys: Array<Partial<TSession>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
     const props = keys.find(({ alias }) => alias === service);
@@ -54,10 +55,12 @@ export class CMain {
         switch (wss.readyState) {
           case WebSocket.OPEN: {
             wss.send("ping");
+            this.retries = 0;
             break;
           }
           case WebSocket.CONNECTING: {
-            console.log("Websocket connecting...");
+            console.log(`Websocket connecting; attempt #: [ ${++this.retries} ]`);
+            this.retries > 2 && wss.close(1002, "Endpoint received malformed frame; socket closed.");
             break;
           }
           case WebSocket.CLOSED: {

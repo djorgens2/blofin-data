@@ -13,7 +13,7 @@ CREATE  TABLE blofin.authority (
 
 CREATE  TABLE blofin.broker ( 
 	broker               BINARY(3)    NOT NULL   PRIMARY KEY,
-	name                 VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	name                 VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	image_url            VARCHAR(60)  DEFAULT ('./images/broker/no-image') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	website_url          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_broker UNIQUE ( name ) 
@@ -21,10 +21,10 @@ CREATE  TABLE blofin.broker (
 
 CREATE  TABLE blofin.cancel_source ( 
 	cancel_source        BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(15)    NOT NULL   ,
-	source               VARCHAR(12)    NOT NULL   ,
+	source_ref           VARCHAR(15)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	source               VARCHAR(12)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.contract_type ( 
 	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -43,19 +43,19 @@ CREATE  TABLE blofin.currency (
 
 CREATE  TABLE blofin.environment ( 
 	environment          BINARY(3)    NOT NULL   PRIMARY KEY,
-	environ              VARCHAR(15)    NOT NULL   
- ) engine=InnoDB;
+	environ              VARCHAR(15)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.fibonacci ( 
 	fibonacci            BINARY(3)    NOT NULL   PRIMARY KEY,
 	level                TINYINT    NOT NULL   ,
 	percent              DECIMAL(5,3)    NOT NULL   ,
-	alias                VARCHAR(10)    NOT NULL   
- ) engine=InnoDB;
+	alias                VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.fractal_state ( 
-	fractal_state        CHAR(10)    NOT NULL   PRIMARY KEY
- ) engine=InnoDB;
+	fractal_state        CHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.instrument_type ( 
 	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -65,31 +65,31 @@ CREATE  TABLE blofin.instrument_type (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.margin_mode ( 
-	margin_mode          VARCHAR(10)    NOT NULL   PRIMARY KEY,
-	description          VARCHAR(30)       
- ) engine=InnoDB;
+	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs    
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.order_category ( 
 	order_category       BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(20)    NOT NULL   ,
-	description          VARCHAR(30)    NOT NULL   ,
-	CONSTRAINT ak_order_category UNIQUE ( source_ref ) 
- ) engine=InnoDB;
+	source_ref           VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_category UNIQUE ( source_ref ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.order_state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(20)    NOT NULL   ,
-	map_ref              VARCHAR(10)       ,
-	status             VARCHAR(30)    NOT NULL   ,
+	source_ref           VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	status             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	map_ref              VARCHAR(10)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.order_type ( 
 	order_type           BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(10)    NOT NULL   ,
-	description          VARCHAR(30)       ,
+	source_ref           VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_type UNIQUE ( source_ref ) 
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.period ( 
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -99,18 +99,14 @@ CREATE  TABLE blofin.period (
 	CONSTRAINT ak_period UNIQUE ( timeframe ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE blofin.placeholder ( 
-	placeholder          CHAR(1)       
- ) engine=InnoDB;
-
 CREATE  TABLE blofin.point_type ( 
-	point_type           CHAR(10)    NOT NULL   PRIMARY KEY
- ) engine=InnoDB;
+	point_type           CHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.price_type ( 
-	price_type           CHAR(5)    NOT NULL   PRIMARY KEY,
-	description          VARCHAR(16)       
- ) engine=InnoDB;
+	price_type           CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY,
+	description          VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.role ( 
 	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -122,7 +118,7 @@ CREATE  TABLE blofin.role (
 CREATE  TABLE blofin.state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
 	status             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	description          VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_trade_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
@@ -133,10 +129,10 @@ CREATE  TABLE blofin.subject (
 
 CREATE  TABLE blofin.user ( 
 	user               BINARY(3)    NOT NULL   PRIMARY KEY,
-	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
+	username             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	password             BINARY(32)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	image_url            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -158,13 +154,13 @@ CREATE  TABLE blofin.account (
 	environment          BINARY(3)    NOT NULL   ,
 	total_equity         DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
 	isolated_equity      DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
-	wss_url              VARCHAR(100)       ,
-	rest_api_url         VARCHAR(100)       ,
-	wss_public_url       VARCHAR(100)       ,
+	wss_url              VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	rest_api_url         VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	wss_public_url       VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES blofin.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES blofin.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES blofin.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_a_state ON blofin.account ( state );
@@ -207,7 +203,7 @@ CREATE  TABLE blofin.instrument (
 	trade_state          BINARY(3)    NOT NULL   ,
 	lot_scale_factor     INT  DEFAULT (0)  NOT NULL   ,
 	martingale_factor    INT  DEFAULT (0)  NOT NULL   ,
-	leverage             INT  DEFAULT (0)  NOT NULL   ,
+	leverage             INT  DEFAULT ('0')  NOT NULL   ,
 	default_stop_loss    DOUBLE  DEFAULT (0)  NOT NULL   ,
 	default_take_profit  DOUBLE  DEFAULT (0)  NOT NULL   ,
 	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
@@ -261,61 +257,66 @@ CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 
 CREATE  TABLE blofin.positions ( 
 	position_id          BINARY(4)    NOT NULL   PRIMARY KEY,
-	position             CHAR(5)    NOT NULL   ,
+	instrument           BINARY(3)    NOT NULL   ,
+	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	positions            INT    NOT NULL   ,
 	positions_avail      INT    NOT NULL   ,
-	instrument           BINARY(3)    NOT NULL   ,
 	instrument_type      BINARY(3)    NOT NULL   ,
 	leverage             INT  DEFAULT (0)  NOT NULL   ,
-	margin_mode          VARCHAR(10)    NOT NULL   ,
+	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	margin_used          DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	margin_ratio         DECIMAL(12,3)    NOT NULL   ,
 	margin_initial       DOUBLE    NOT NULL   ,
 	margin_maint         DOUBLE    NOT NULL   ,
 	average_price        DOUBLE    NOT NULL   ,
-	liquidation_price    DOUBLE    NOT NULL   ,
 	mark_price           DOUBLE    NOT NULL   ,
+	liquidation_price    DOUBLE    NOT NULL   ,
 	unrealized_pnl       DOUBLE    NOT NULL   ,
 	unrealized_pnl_ratio DECIMAL(12,3)    NOT NULL   ,
 	adl                  TINYINT  DEFAULT (0)  NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT fk_p_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_p_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_p_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_p_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_positions_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.positions ADD CONSTRAINT ck_p_position CHECK ( position in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short') );
-
-CREATE INDEX fk_p_instrument ON blofin.positions ( instrument );
 
 CREATE INDEX fk_p_instrument_type ON blofin.positions ( instrument_type );
 
 CREATE INDEX fk_p_margin_mode ON blofin.positions ( margin_mode );
 
+CREATE INDEX fk_p_instrument ON blofin.positions ( instrument );
+
+CREATE INDEX fk_positions_state ON blofin.positions ( state );
+
 CREATE  TABLE blofin.request ( 
 	request              BINARY(3)    NOT NULL   PRIMARY KEY,
 	account              BINARY(3)    NOT NULL   ,
 	instrument           BINARY(3)    NOT NULL   ,
-	position             CHAR(5)    NOT NULL   ,
-	action               CHAR(4)    NOT NULL   ,
+	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	price                DOUBLE  DEFAULT (0)  NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	leverage             INT    NOT NULL   ,
 	order_type           BINARY(3)    NOT NULL   ,
-	margin_mode          VARCHAR(10)    NOT NULL   ,
+	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
-	memo                 VARCHAR(100)       ,
-	broker_id            VARCHAR(16)       ,
+	memo                 VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	expiry_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
-	CONSTRAINT fk_r_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.request ADD CONSTRAINT ck_r_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
 
@@ -338,9 +339,9 @@ CREATE  TABLE blofin.role_authority (
 	subject              BINARY(3)    NOT NULL   ,
 	enabled              BOOLEAN  DEFAULT (true)  NOT NULL   ,
 	CONSTRAINT ak_role_authority UNIQUE ( role, authority, subject ) ,
-	CONSTRAINT fk_ra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_sra_authority FOREIGN KEY ( authority ) REFERENCES blofin.authority( authority ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_role FOREIGN KEY ( role ) REFERENCES blofin.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sra_subject FOREIGN KEY ( subject ) REFERENCES blofin.subject( subject ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ra_subject ON blofin.role_authority ( subject );
@@ -355,8 +356,8 @@ CREATE  TABLE blofin.stop_request (
 	state                BINARY(3)    NOT NULL   ,
 	size                 DOUBLE  DEFAULT (-(1))  NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
-	broker_id            VARCHAR(16)       ,
-	memo                 VARCHAR(100)       ,
+	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
+	memo                 VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	expiry_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT fk_sr_positions FOREIGN KEY ( position_id ) REFERENCES blofin.positions( position_id ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -372,7 +373,7 @@ CREATE  TABLE blofin.task_authority (
 	activity             BINARY(3)    NOT NULL   ,
 	CONSTRAINT pk_task_authority PRIMARY KEY ( role_authority, activity ),
 	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ta_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ta_subject_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
@@ -385,13 +386,13 @@ CREATE  TABLE blofin.user_account (
 	CONSTRAINT pk_user_account PRIMARY KEY ( user, account ),
 	CONSTRAINT ak_account_owner UNIQUE ( account, owner ) ,
 	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ua_user FOREIGN KEY ( user ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ua_owner FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ua_owner FOREIGN KEY ( owner ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_user FOREIGN KEY ( user ) REFERENCES blofin.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_ua_account ON blofin.user_account ( account );
-
 CREATE INDEX fk_ua_owner ON blofin.user_account ( owner );
+
+CREATE INDEX fk_ua_account ON blofin.user_account ( account );
 
 CREATE  TABLE blofin.candle ( 
 	instrument           BINARY(3)    NOT NULL   ,
@@ -416,25 +417,23 @@ CREATE  TABLE blofin.fractal (
 	fractal              BINARY(3)    NOT NULL   PRIMARY KEY,
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
-	position             CHAR(5)       ,
+	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs    ,
 	fibonacci            BINARY(3)       ,
 	CONSTRAINT ak_fractal UNIQUE ( instrument, period, position ) ,
 	CONSTRAINT fk_f_instrument_period FOREIGN KEY ( instrument, period ) REFERENCES blofin.instrument_period( instrument, period ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
-
-ALTER TABLE blofin.fractal ADD CONSTRAINT ck_ft_position CHECK ( position in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short') );
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.fractal_fibonacci ( 
 	fractal              BINARY(3)    NOT NULL   ,
-	fractal_type         CHAR(10)    NOT NULL   ,
+	fractal_type         CHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	fibonacci            BINARY(3)    NOT NULL   ,
-	fractal_state        CHAR(10)    NOT NULL   ,
+	fractal_state        CHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	price                DOUBLE    NOT NULL   ,
 	CONSTRAINT pk_fractal_fibonacci PRIMARY KEY ( fractal, fractal_type, fibonacci ),
-	CONSTRAINT fk_ff_fractal FOREIGN KEY ( fractal ) REFERENCES blofin.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ff_fibonacci FOREIGN KEY ( fibonacci ) REFERENCES blofin.fibonacci( fibonacci ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ff_fractal FOREIGN KEY ( fractal ) REFERENCES blofin.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ff_fractal_state FOREIGN KEY ( fractal_state ) REFERENCES blofin.fractal_state( fractal_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.fractal_fibonacci ADD CONSTRAINT ck_ff_fractal_type CHECK ( fractal_type in (_utf8mb4'extension',_utf8mb4'retrace') );
 
@@ -444,13 +443,13 @@ CREATE INDEX fk_ff_fractal_state ON blofin.fractal_fibonacci ( fractal_state );
 
 CREATE  TABLE blofin.fractal_point ( 
 	fractal              BINARY(3)    NOT NULL   ,
-	point_type           CHAR(10)    NOT NULL   ,
+	point_type           CHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	price                DOUBLE    NOT NULL   ,
 	create_time          DATETIME    NOT NULL   ,
 	CONSTRAINT pk_fractal_point PRIMARY KEY ( fractal, point_type ),
-	CONSTRAINT fk_fp_point_type FOREIGN KEY ( point_type ) REFERENCES blofin.point_type( point_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_fp_fractal FOREIGN KEY ( fractal ) REFERENCES blofin.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+	CONSTRAINT fk_p_point_type FOREIGN KEY ( point_type ) REFERENCES blofin.point_type( point_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_point_fractal FOREIGN KEY ( fractal ) REFERENCES blofin.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_fp_point_type ON blofin.fractal_point ( point_type );
 
@@ -461,9 +460,9 @@ CREATE  TABLE blofin.orders (
 	price                DOUBLE    NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	order_type           BINARY(3)    NOT NULL   ,
-	position             CHAR(5)    NOT NULL   ,
-	action               CHAR(4)    NOT NULL   ,
-	margin_mode          VARCHAR(10)    NOT NULL   ,
+	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
 	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
 	average_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
@@ -474,22 +473,18 @@ CREATE  TABLE blofin.orders (
 	cancel_source        BINARY(3)    NOT NULL   ,
 	order_category       BINARY(3)    NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (_utf8mb4'0')  NOT NULL   ,
-	broker_id            VARCHAR(16)       ,
+	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT ak_orders UNIQUE ( order_id ) ,
-	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES blofin.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_cancel_source FOREIGN KEY ( cancel_source ) REFERENCES blofin.cancel_source( cancel_source ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES blofin.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_request FOREIGN KEY ( client_order_id ) REFERENCES blofin.request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-ALTER TABLE blofin.orders ADD CONSTRAINT ck_o_position CHECK ( position in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short') );
-
-ALTER TABLE blofin.orders ADD CONSTRAINT ck_o_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
 
 CREATE INDEX fk_o_instrument_type ON blofin.orders ( instrument_type );
 
@@ -505,12 +500,12 @@ CREATE INDEX fk_o_cancel_source ON blofin.orders ( cancel_source );
 
 CREATE  TABLE blofin.stop_detail ( 
 	request              BINARY(3)    NOT NULL   ,
-	stop_type            CHAR(2)    NOT NULL   ,
+	stop_type            CHAR(2)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	trigger_price        DOUBLE    NOT NULL   ,
 	order_price          DOUBLE    NOT NULL   ,
 	CONSTRAINT pk_stop_detail PRIMARY KEY ( request, stop_type ),
 	CONSTRAINT fk_sd_stop_request FOREIGN KEY ( request ) REFERENCES blofin.stop_request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.stop_detail ADD CONSTRAINT ck_sd_stop_type CHECK ( stop_type in (_utf8mb4'sl',_utf8mb4'tp') );
 
@@ -518,10 +513,11 @@ CREATE  TABLE blofin.stop_order (
 	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BIGINT    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
-	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	action               CHAR(4)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	actual_size          DOUBLE    NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	memo                 VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
 	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT ak_stop_order UNIQUE ( tpsl_id ) ,
@@ -535,12 +531,12 @@ CREATE INDEX fk_so_order_state ON blofin.stop_order ( state );
 
 CREATE  TABLE blofin.position_stops ( 
 	tpsl_id              BIGINT    NOT NULL   ,
-	stop_type            CHAR(2)    NOT NULL   ,
+	stop_type            CHAR(2)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	trigger_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
 	order_price          DOUBLE  DEFAULT (0)  NOT NULL   ,
 	CONSTRAINT pk_position_stops PRIMARY KEY ( tpsl_id, stop_type ),
 	CONSTRAINT fk_ps_stop_order FOREIGN KEY ( tpsl_id ) REFERENCES blofin.stop_order( tpsl_id ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.position_stops ADD CONSTRAINT ck_ps_stop_type CHECK ( stop_type in (_utf8mb4'sl',_utf8mb4'tp') );
 
@@ -816,21 +812,24 @@ select
 	replace(format(p.mark_price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS mark_price,
 	replace(format(p.unrealized_pnl, 3), ',', '') AS unrealized_pnl,
 	p.unrealized_pnl_ratio AS unrealized_pnl_ratio,
+	s.status AS status,
 	p.create_time AS create_time,
 	p.update_time AS update_time
 from
-	(((((blofin.positions p
+	((((((blofin.positions p
 join blofin.instrument i)
 join blofin.instrument_type it)
 join blofin.instrument_detail id)
 join blofin.currency b)
 join blofin.currency q)
+join blofin.state s)
 where
 	((p.instrument = i.instrument)
 		and (p.instrument = id.instrument)
 			and (p.instrument_type = it.instrument_type)
 				and (i.base_currency = b.currency)
-					and (i.quote_currency = q.currency));
+					and (i.quote_currency = q.currency)
+						and (p.state = s.state));
 
 CREATE VIEW blofin.vw_requests AS
 select

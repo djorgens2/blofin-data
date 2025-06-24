@@ -44,9 +44,11 @@ export async function Queue(props: Partial<IRequestAPI>): Promise<Array<Partial<
 //+--------------------------------------------------------------------------------------+
 //| Set-up/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IRequest>): Promise<IRequest["request"] | undefined> {
+export async function Submit(props: Partial<IRequest>): Promise<IRequest["request"] | undefined> {
   const key = props.request ? props.request : hexify(hashKey(6));
-  const [{ state }] = await States.Fetch<IRequestState>({ status: "Queued" });
+  const queued = await States.Key<IRequestState>({ status: "Queued" });
+  const pending = await States.Key<IRequestState>({ status: "Pending" });
+  const state = props.request ? pending : queued;
   const [fields, args] = parseColumns({ ...props, request: key, state }, "");
   const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
 
@@ -61,6 +63,7 @@ export async function Publish(props: Partial<IRequest>): Promise<IRequest["reque
 export async function Fetch(props: Partial<IRequest>): Promise<Array<Partial<IRequest>>> {
   const [fields, args] = parseColumns(props);
   const sql = `SELECT * FROM blofin.vw_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+
   return Select<IRequest>(sql, args);
 }
 

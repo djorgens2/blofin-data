@@ -13,17 +13,15 @@ import * as dotenv from "dotenv";
 import * as path from "path";
 import * as User from "@db/interfaces/user";
 
-
 dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 const secret = process.env.USER_SECRET ? process.env.USER_SECRET : ``;
-
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |
 //+--------------------------------------------------------------------------------------+
 export const hashHmac = async (keys: Array<any>) => {
-  const key = keys.join('');
+  const key = keys.join("");
   const encoded = new TextEncoder().encode(key);
   const hmac = createHmac("sha256", secret).update(encoded).digest("hex");
   const hex = Buffer.from(hmac).toString("hex");
@@ -41,7 +39,7 @@ export const uniqueKey = (length: number): string => {
 //+--------------------------------------------------------------------------------------+
 //| Returns a UIntArray on a valid hex value passed as a string|number; validates binary |
 //+--------------------------------------------------------------------------------------+
-export const hexify = (key: string | Uint8Array | object): Uint8Array | undefined => {
+export const hexify = (key: string | Uint8Array | number | object, size?: number): Uint8Array | undefined => {
   if (key) {
     if (key instanceof Uint8Array)
       if (key.length > 0) return Buffer.from(key);
@@ -52,6 +50,8 @@ export const hexify = (key: string | Uint8Array | object): Uint8Array | undefine
       else return undefined;
   }
 
+  if (typeof key === "number") key = key.toString(16);
+
   if (typeof key === "string") {
     key.slice(0, 2) === "0x" && (key = key.slice(2));
     key.slice(0, 7) === "<Buffer" && (key = key.slice(8, 15).split(" ").join(""));
@@ -60,10 +60,8 @@ export const hexify = (key: string | Uint8Array | object): Uint8Array | undefine
     const bytes = new Uint8Array(key.length / 2);
 
     if (regex.test(key)) {
-      for (let byte = 0; byte < bytes.length; byte++) {
-        bytes.set([parseInt(key?.slice(byte * 2, byte * 2 + 2), 16)], byte);
-      }
-      return Buffer.from(bytes);
+      size && (key = key.padStart(size*2, "0"));
+      return Buffer.from(key, "hex");
     }
   }
 

@@ -10,10 +10,12 @@ import type { IMessage } from "@lib/app.util";
 
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
+import { format } from "@lib/std.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as InstrumentType from "@db/interfaces/instrument_type";
 import * as Positions from "@db/interfaces/positions";
+import * as StopsAPI from "@api/stops";
 
 export interface IPositionsAPI {
   positionId: string;
@@ -42,11 +44,10 @@ export interface IPositionsAPI {
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Array<IPositionsAPI>) {
-  //  const stops = await tpsl.Import();
-console.log(props)
+  const active = [];
   for (const id in props) {
     const position = props[id];
-    const position_id = hexify(parseInt(position.positionId).toString(16));
+    const position_id = hexify(parseInt(position.positionId),4);
     const instrument = await Instrument.Key({ symbol: position.instId });
     const instrument_type = await InstrumentType.Key({ source_ref: position.instType });
     const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
@@ -59,20 +60,24 @@ console.log(props)
       instrument_type: instrument_type ? instrument_type : inst_type_default,
       leverage: parseInt(position.leverage!),
       margin_mode: position.marginMode,
-      margin_ratio: parseFloat(position.marginRatio),
-      margin_initial: parseFloat(position.initialMargin),
-      margin_maint: parseFloat(position.maintenanceMargin),
-      average_price: parseFloat(position.averagePrice),
-      liquidation_price: parseFloat(position.liquidationPrice),
-      mark_price: parseFloat(position.markPrice),
-      unrealized_pnl: parseFloat(position.unrealizedPnl),
-      unrealized_pnl_ratio: parseFloat(position.unrealizedPnlRatio),
+      margin_used: format(position.margin),
+      margin_ratio: format(position.marginRatio, 3),
+      margin_initial: format(position.initialMargin),
+      margin_maint: format(position.maintenanceMargin),
+      average_price: format(position.averagePrice),
+      liquidation_price: format(position.liquidationPrice),
+      mark_price: format(position.markPrice),
+      unrealized_pnl: format(position.unrealizedPnl),
+      unrealized_pnl_ratio: format(position.unrealizedPnlRatio, 3),
       adl: parseInt(position.adl),
       create_time: parseInt(position.createTime!),
       update_time: parseInt(position.updateTime!),
     };
     await Positions.Publish(update);
+    active.push(update);
   }
+  await Positions.Update(active);
+  await StopsAPI.Import();
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -92,14 +97,14 @@ export async function Import() {
     "Content-Type": "application/json",
   };
 
-  await fetch(rest_api_url!.concat(path), {
+  fetch(rest_api_url!.concat(path), {
     method,
     headers,
   })
     .then((response) => response.json())
     .then((json) => {
       if (json?.code > 0) throw new Error(json);
-//      Publish(json.data);
+      Publish(json.data);
     })
-    .catch((error) => console.log(error));
+    .catch((error) => console.log({ error, path }));
 }

@@ -5,12 +5,10 @@
 "use strict";
 "use server";
 
-import type { IRequest } from "@db/interfaces/request";
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
-import { hexString, setExpiry } from "@lib/std.util";
+import { hexString } from "@lib/std.util";
 
-import * as States from "@db/interfaces/state";
 import * as Request from "@db/interfaces/request";
 
 export interface IRequestAPI {
@@ -82,7 +80,7 @@ export async function Submit(requests: Array<Partial<IRequestAPI>>) {
       "Content-Type": "application/json",
     };
 
-    await fetch(rest_api_url!.concat(path), {
+    fetch(rest_api_url!.concat(path), {
       method,
       headers,
       body,
@@ -98,18 +96,6 @@ export async function Submit(requests: Array<Partial<IRequestAPI>>) {
       })
       .catch((error) => console.log(error));
   }
-  // # Verify response format and success
-  // if not isinstance(order_response, dict):
-  //     raise Exception(f"Invalid order response format: {order_response}")
-
-  // if "code" in order_response and order_response["code"] != "0":
-  //     raise Exception(f"Order API error: {order_response}")
-
-  // if "data" not in order_response:
-  //     raise Exception(f"No data in order response: {order_response}")
-
-  // order_id = order_response["data"][0]["orderId"]
-  // print(f"Order placed: {order_id}")
 }
 
 //+--------------------------------------------------------------------------------------+
