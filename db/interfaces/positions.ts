@@ -64,8 +64,7 @@ export async function Update(props: Array<Partial<IPositions>>) {
   const fulfilled = await Select<IPositions>(`SELECT * FROM blofin.vw_positions WHERE status = "Fulfilled"`, []);
   const closed = await States.Key({ status: "Closed" });
 
-  for (const id in fulfilled) {
-    const update = fulfilled[id];
+  for (const update of fulfilled) {
     const active = props.find(({ position_id }) => position_id?.toString() === update.position_id?.toString());
 
     try {

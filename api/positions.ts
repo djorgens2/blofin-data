@@ -45,9 +45,8 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Array<IPositionsAPI>) {
   const active = [];
-  for (const id in props) {
-    const position = props[id];
-    const position_id = hexify(parseInt(position.positionId),4);
+  for (const position of props) {
+    const position_id = hexify(parseInt(position.positionId), 4);
     const instrument = await Instrument.Key({ symbol: position.instId });
     const instrument_type = await InstrumentType.Key({ source_ref: position.instType });
     const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
@@ -77,7 +76,6 @@ export async function Publish(props: Array<IPositionsAPI>) {
     active.push(update);
   }
   await Positions.Update(active);
-  await StopsAPI.Import();
 }
 
 //+--------------------------------------------------------------------------------------+

@@ -945,34 +945,35 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // ];
 // const body = console.log(JSON.stringify(cancel.map(({ instId, orderId, clientOrderId }) => ({ instId, orderId, clientOrderId }))));
 
-import * as Reference from "@db/interfaces/reference"
+//----------------------------------------- State generic fetch test ----------------------------------//
+// import * as Reference from "@db/interfaces/reference"
 
-const getKey = async (table: string, key: string)  => {
-  console.log(await Reference.Key(table, {source_ref: key}));
-}
+// const getKey = async (table: string, key: string)  => {
+//   console.log(await Reference.Key(table, {source_ref: key}));
+// }
 
-getKey('cancel_source', 'user_canceled');
-getKey('order_state', 'live');
-getKey('order_type', 'cross');
-//getKey('price_type', 'cro');
+// getKey('cancel_source', 'user_canceled');
+// getKey('order_state', 'live');
+// getKey('order_type', 'cross');
+// //getKey('price_type', 'cro');
 
-interface MyObject {
-  name: string;
-  age: number;
-  city: string;
-}
+// interface MyObject {
+//   name: string;
+//   age: number;
+//   city: string;
+// }
 
-const myObject: MyObject = {
-  name: "Alice",
-  age: 30,
-  city: "New York",
-};
+// const myObject: MyObject = {
+//   name: "Alice",
+//   age: 30,
+//   city: "New York",
+// };
 
-const keyName: keyof MyObject = "age"; // The key name is stored in a variable
+// const keyName: keyof MyObject = "age"; // The key name is stored in a variable
 
-const value = myObject[keyName]; // Access the value using bracket notation with the variable
+// const value = myObject[keyName]; // Access the value using bracket notation with the variable
 
-console.log(value); // Output: 30
+// console.log(value); // Output: 30
 
 //----------------------------- order test  -------------------------------------------------------//
 // import { hexify } from "@lib/crypto.util";
@@ -987,8 +988,8 @@ console.log(value); // Output: 30
 //   position: "long",
 //   action: "buy",
 //   order_type: hexify("6eb6c5"),
-//   price: 95000.,
-//   size: 0.1,
+//   price: 95000.1,
+//   size: 0.3,
 //   leverage: 10,
 //   expiry_time: setExpiry("30m"),
 // };
@@ -1010,3 +1011,56 @@ console.log(value); // Output: 30
 //   reduce_only: undefined,
 //   expiry_time: setExpiry("30m"),
 // };
+
+//----------------------------- expiry calc test  -------------------------------------------------------//
+// import { setExpiry } from "@lib/std.util";
+// import { Process } from "api/requests"
+
+// const open = setExpiry('45s');
+// const close = setExpiry('30s');
+// const expiry = setExpiry('0s');
+
+// if (close>open) console.log('close is higher');
+// if (open>close) console.log('open is higher');
+
+// console.log (open,close,expiry);
+
+// const go = async () => {
+//   const rejects = await Process();
+// }
+
+// go();
+
+//----------------------------- order fetch key test  -------------------------------------------------------//
+// import { hexify } from "@lib/crypto.util";
+// import { Key } from "db/interfaces/order";
+
+// const go = async () => {
+//   const or_id = await Key({ order_id: 1000107956455 });
+//   const cl_id = await Key({ client_order_id: hexify("43a912") });
+//   const no_id = await Key({ status: "Canceled" });
+//   const no_param = await Key({});
+
+//   console.log({ or_id, cl_id, no_id, no_param });
+// };
+
+// go();
+
+//----------------------------- order fetch key test  -------------------------------------------------------//
+import { hexify } from "@lib/crypto.util";
+import { Key } from "db/interfaces/order";
+
+const go = async () => {
+  // const or_id = await Key({ order_id: 1000107956455 });
+  // const cl_id = await Key({ client_order_id: hexify("43a912") });
+  // const no_id = await Key({ status: "Canceled" });
+  // const no_param = await Key({});
+
+  // console.log({ or_id, cl_id, no_id, no_param });
+  console.log(hexify('03a3532e8560',6)); // <Buffer 03 a3 53 2e 85 60>
+  console.log(hexify('0x25d921',6));     // <Buffer 00 00 00 25 d9 21>
+};
+
+go();
+
+
