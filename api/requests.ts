@@ -1,18 +1,20 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                          requests.ts |
+//|                                                                   [api]  requests.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
 "use server";
 
+import type { TRequest } from "@db/interfaces/state";
+
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
-import { hexString } from "@lib/std.util";
 
 import * as Request from "@db/interfaces/request";
 
 export interface IRequestAPI {
-  status?: string;
+  status?: TRequest;
+  orderId?: number | string | undefined | null;
   instId: string;
   marginMode: "cross" | "isolated";
   positionSide: "short" | "long" | "net";
@@ -43,8 +45,8 @@ export type TResponse = {
 //| Updates the request states via WSS or API;                                           |
 //+--------------------------------------------------------------------------------------+
 export async function Update(response: Array<TResponse>) {
-  for (const id in response) {
-    const { code, msg, orderId, clientOrderId } = response[id];
+  for (const result of response) {
+    const { code, msg, orderId, clientOrderId } = result;
     const request = hexify(clientOrderId);
     const update = { request };
 
@@ -53,11 +55,6 @@ export async function Update(response: Array<TResponse>) {
       : Object.assign(update, { ...update, status: "Rejected", memo: `[${code}]: ${msg}` });
     request && (await Request.Update(update));
   }
-  // console.log("Instruments Suspended: ", suspense.length, ssuspense);
-  // console.log("Instruments Updated: ", modified.length, modified);
-  // await Currency.Suspend(suspense);
-  // await Instrument.Suspend(suspense);
-  // await InstrumentDetail.Update(modified);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -96,33 +93,4 @@ export async function Submit(requests: Array<Partial<IRequestAPI>>) {
       })
       .catch((error) => console.log(error));
   }
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Formats and emits order requests to broker for execution;                            |
-//+--------------------------------------------------------------------------------------+
-export async function Process(): Promise<number> {
-  const requests = await Request.Queue({ status: "Queued" });
-  const queue: Array<Partial<IRequestAPI>> = [];
-
-  for (const id in requests) {
-    const request = requests[id];
-    const custKey = hexify(request.clientOrderId!);
-    const api: Partial<IRequestAPI> = {
-      instId: request.instId!,
-      marginMode: request.marginMode!,
-      positionSide: request.positionSide!,
-      side: request.side!,
-      orderType: request.orderType!,
-      price: request.price!,
-      size: request.size!,
-      leverage: request.leverage!,
-      reduceOnly: request.reduceOnly!,
-      clientOrderId: hexString(custKey!, 3),
-      brokerId: request.brokerId ? request.brokerId : undefined,
-    };
-    queue.push(api);
-  }
-  await Submit(queue);
-  return requests.length;
 }

@@ -12,8 +12,10 @@ import { TextEncoder } from "node:util";
 
 import * as PositionsAPI from "@api/positions";
 import * as AccountAPI from "@api/accounts";
+import * as RequestAPI from "@api/requests"
 import * as OrderAPI from "@api/orders";
-import { time } from "node:console";
+import * as StopsAPI from "@api/stops";
+import * as Execute from "@module/trades"
 
 export type IResponseProps = {
   event: string;
@@ -121,6 +123,9 @@ export function openWebSocket(props: Partial<TSession>) {
       console.log(new Date().toLocaleTimeString());
       await PositionsAPI.Import();
       await OrderAPI.Import();
+      await StopsAPI.Import();
+      await Execute.Trades();
+
     } else if (message!.event === "login") {
       if (message!.code === "0") {
         ws.send(

@@ -5,7 +5,7 @@
 "use server";
 "use strict";
 
-import type { System } from "@db/interfaces/state";
+import type { TState } from "@db/interfaces/state";
 import Prompt, { IOption } from "@cli/modules/Prompts";
 import * as States from "@db/interfaces/state";
 

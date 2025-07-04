@@ -14,6 +14,7 @@ import * as Area from "@db/interfaces/subject";
 import * as Environ from "@db/interfaces/environment";
 import * as Account from "@db/interfaces/account";
 import * as Request from "@db/interfaces/request";
+import * as Order from "@db/interfaces/order";
 import * as Reference from "@db/interfaces/reference";
 
 import { parseJSON } from "@lib/std.util";
@@ -32,6 +33,7 @@ enum Subject {
   Bars = "-bars",
   Broker = "-b",
   Role = "-r",
+  Order = "-ord",
   Request = "-req",
   User = "-u",
   Login = "-login",
@@ -152,6 +154,23 @@ async function show(subject: string, args: string): Promise<string> {
       });
       const key = await Request.Fetch(props!);
       console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
+      return "ok";
+    }
+    case Subject.Order: {
+      const props = parseJSON< Order.IOrder >(args);
+      Object.assign(props!, {
+        ...props, 
+        account: props?.account ? hexify(props.account) :undefined,
+        request: props?.request ? hexify(props.request): undefined,
+        instrument: props?.instrument ? hexify(props.instrument) : undefined,
+        instrument_type: props?.instrument_type ? hexify(props.instrument_type) : undefined,
+        request_type: props?.request_type ? hexify(props.request_type) : undefined,
+        order_state: props?.order_state ? hexify(props.order_state) : undefined,
+        order_category: props?.order_category ? hexify(props.order_category) : undefined,
+        cancel_source: props?.cancel_source ? hexify(props.cancel_source) : undefined
+      });
+      const key = await Order.Fetch(props!);
+      console.log(`Fetch Orders [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Detail: {

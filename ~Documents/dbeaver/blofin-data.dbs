@@ -525,7 +525,7 @@ sl]]></comment>
 		</table>
 		<table name="order_state" row_count="7" spec="" >
 			<comment><![CDATA[live, effective, canceled, order_failed, filled, partially_canceled, partially_filled]]></comment>
-			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="order_state" prior="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="source_ref" type="VARCHAR" length="20" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -536,41 +536,20 @@ sl]]></comment>
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<index name="pk_order_state" unique="PRIMARY_KEY" >
-				<column name="state" />
+				<column name="order_state" />
 			</index>
 			<index name="ak_order_state" unique="UNIQUE_KEY" >
 				<column name="source_ref" />
 			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
-		<table name="order_type" row_count="5" spec="" >
-			<comment><![CDATA[market: market order
-limit: limit order
-post_only: Post-only order
-fok: Fill-or-kill order
-ioc: Immediate-or-cancel order]]></comment>
-			<column name="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
-			<column name="source_ref" type="VARCHAR" length="10" jt="12" mandatory="y" >
-				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
-			</column>
-			<column name="description" type="VARCHAR" length="30" jt="12" >
-				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
-			</column>
-			<index name="pk_order_type" unique="PRIMARY_KEY" >
-				<column name="order_type" />
-			</index>
-			<index name="ak_order_type" unique="UNIQUE_KEY" >
-				<column name="source_ref" />
-			</index>
-			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
-		</table>
 		<table name="orders" row_count="2" spec="" >
-			<column name="client_order_id" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request" prior="client_order_id" type="BINARY" length="6" jt="-2" mandatory="y" />
 			<column name="order_id" type="BIGINT" jt="-5" mandatory="y" />
 			<column name="instrument_type" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="price" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="size" type="DOUBLE" jt="8" mandatory="y" />
-			<column name="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request_type" prior="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="position" type="CHAR" length="5" jt="1" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -589,7 +568,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="average_price" type="DOUBLE" jt="8" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
 			</column>
-			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="order_state" prior="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="leverage" type="INT" jt="4" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
 			</column>
@@ -614,7 +593,7 @@ ioc: Immediate-or-cancel order]]></comment>
 				<defo><![CDATA[now()]]></defo>
 			</column>
 			<index name="pk_orders" unique="PRIMARY_KEY" >
-				<column name="client_order_id" />
+				<column name="request" />
 			</index>
 			<index name="ak_orders" unique="UNIQUE_KEY" >
 				<column name="order_id" />
@@ -622,14 +601,14 @@ ioc: Immediate-or-cancel order]]></comment>
 			<index name="fk_o_instrument_type" unique="NORMAL" >
 				<column name="instrument_type" />
 			</index>
-			<index name="fk_o_order_type" unique="NORMAL" >
-				<column name="order_type" />
+			<index name="fk_o_request_type" unique="NORMAL" >
+				<column name="request_type" />
 			</index>
 			<index name="fk_o_margin_mode" unique="NORMAL" >
 				<column name="margin_mode" />
 			</index>
 			<index name="fk_o_order_state" unique="NORMAL" >
-				<column name="state" />
+				<column name="order_state" />
 			</index>
 			<index name="fk_o_order_category" unique="NORMAL" >
 				<column name="order_category" />
@@ -650,13 +629,13 @@ ioc: Immediate-or-cancel order]]></comment>
 				<fk_column name="order_category" pk="order_category" />
 			</fk>
 			<fk name="fk_o_order_state" to_schema="blofin" to_table="order_state" options="" >
-				<fk_column name="state" pk="state" />
+				<fk_column name="order_state" pk="order_state" />
 			</fk>
-			<fk name="fk_o_order_type" to_schema="blofin" to_table="order_type" options="" >
-				<fk_column name="order_type" pk="order_type" />
+			<fk name="fk_o_request_type" to_schema="blofin" to_table="request_type" options="" >
+				<fk_column name="request_type" pk="request_type" />
 			</fk>
 			<fk name="fk_o_request" to_schema="blofin" to_table="request" options="" >
-				<fk_column name="client_order_id" pk="request" />
+				<fk_column name="request" pk="request" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -718,6 +697,7 @@ Close]]></comment>
 		</table>
 		<table name="positions" row_count="2" spec="" >
 			<column name="position_id" type="BINARY" length="4" jt="-2" mandatory="y" />
+			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="position" type="CHAR" length="5" jt="1" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
@@ -745,7 +725,6 @@ Close]]></comment>
 			<column name="adl" type="TINYINT" jt="-6" mandatory="y" >
 				<defo><![CDATA[0]]></defo>
 			</column>
-			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="create_time" type="DATETIME" jt="93" mandatory="y" >
 				<defo><![CDATA[now()]]></defo>
 			</column>
@@ -801,7 +780,7 @@ mark: mark price]]></comment>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="request" row_count="2" spec="" >
-			<column name="request" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request" type="BINARY" length="6" jt="-2" mandatory="y" />
 			<column name="account" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="instrument" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="position" type="CHAR" length="5" jt="1" mandatory="y" >
@@ -816,7 +795,7 @@ mark: mark price]]></comment>
 			</column>
 			<column name="size" type="DOUBLE" jt="8" mandatory="y" />
 			<column name="leverage" type="INT" jt="4" mandatory="y" />
-			<column name="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request_type" prior="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="margin_mode" type="VARCHAR" length="10" jt="12" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -841,8 +820,8 @@ mark: mark price]]></comment>
 			<index name="pk_request" unique="PRIMARY_KEY" >
 				<column name="request" />
 			</index>
-			<index name="fk_r_order_type" unique="NORMAL" >
-				<column name="order_type" />
+			<index name="fk_r_request_type" unique="NORMAL" >
+				<column name="request_type" />
 			</index>
 			<index name="fk_r_margin_mode" unique="NORMAL" >
 				<column name="margin_mode" />
@@ -871,12 +850,33 @@ mark: mark price]]></comment>
 			<fk name="fk_r_margin_mode" to_schema="blofin" to_table="margin_mode" options="" >
 				<fk_column name="margin_mode" pk="margin_mode" />
 			</fk>
-			<fk name="fk_r_order_type" to_schema="blofin" to_table="order_type" options="" >
-				<fk_column name="order_type" pk="order_type" />
+			<fk name="fk_r_request_type" to_schema="blofin" to_table="request_type" options="" >
+				<fk_column name="request_type" pk="request_type" />
 			</fk>
 			<fk name="fk_r_state" to_schema="blofin" to_table="state" options="" >
 				<fk_column name="state" pk="state" />
 			</fk>
+			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
+		</table>
+		<table name="request_type" prior="order_type" row_count="5" spec="" >
+			<comment><![CDATA[market: market order
+limit: limit order
+post_only: Post-only order
+fok: Fill-or-kill order
+ioc: Immediate-or-cancel order]]></comment>
+			<column name="request_type" prior="order_type" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="source_ref" type="VARCHAR" length="10" jt="12" mandatory="y" >
+				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
+			</column>
+			<column name="description" type="VARCHAR" length="30" jt="12" >
+				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
+			</column>
+			<index name="pk_request_type" unique="PRIMARY_KEY" >
+				<column name="request_type" />
+			</index>
+			<index name="ak_request_type" unique="UNIQUE_KEY" >
+				<column name="source_ref" />
+			</index>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="role" row_count="4" spec="" >
@@ -946,7 +946,7 @@ mark: mark price]]></comment>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="stop_detail" row_count="0" spec="" >
-			<column name="request" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request" type="BINARY" length="6" jt="-2" mandatory="y" />
 			<column name="stop_type" type="CHAR" length="2" jt="1" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -965,9 +965,9 @@ mark: mark price]]></comment>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="stop_order" row_count="0" spec="" >
-			<column name="client_order_id" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request" prior="client_order_id" type="BINARY" length="6" jt="-2" mandatory="y" />
 			<column name="tpsl_id" type="BIGINT" jt="-5" mandatory="y" />
-			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="order_state" prior="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="action" type="CHAR" length="4" jt="1" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -986,27 +986,27 @@ mark: mark price]]></comment>
 				<defo><![CDATA[now()]]></defo>
 			</column>
 			<index name="pk_stop_order" unique="PRIMARY_KEY" >
-				<column name="client_order_id" />
+				<column name="request" />
 			</index>
 			<index name="ak_stop_order" unique="UNIQUE_KEY" >
 				<column name="tpsl_id" />
 			</index>
 			<index name="fk_so_order_state" unique="NORMAL" >
-				<column name="state" />
+				<column name="order_state" />
 			</index>
 			<constraint name="ck_so_action" type="CHECK" options="" >
 				<string><![CDATA[`action` in (_utf8mb4'buy',_utf8mb4'sell')]]></string>
 			</constraint>
 			<fk name="fk_so_order_state" to_schema="blofin" to_table="order_state" options="" >
-				<fk_column name="state" pk="state" />
+				<fk_column name="order_state" pk="order_state" />
 			</fk>
 			<fk name="fk_so_stop_request" to_schema="blofin" to_table="stop_request" options="" >
-				<fk_column name="client_order_id" pk="request" />
+				<fk_column name="request" pk="request" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
 		<table name="stop_request" row_count="0" spec="" >
-			<column name="request" type="BINARY" length="3" jt="-2" mandatory="y" />
+			<column name="request" type="BINARY" length="6" jt="-2" mandatory="y" />
 			<column name="position_id" type="BINARY" length="4" jt="-2" mandatory="y" />
 			<column name="state" type="BINARY" length="3" jt="-2" mandatory="y" />
 			<column name="size" type="DOUBLE" jt="8" mandatory="y" >
@@ -1191,7 +1191,7 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_api_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`rs`.`status`) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`r`.`position` AS `positionSide`,`r`.`action` AS `side`,`ot`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `broker_id`,`r`.`request` AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`client_order_id`))) left join `blofin`.`order_state` `os` on((`o`.`state` = `os`.`state`))) join `blofin`.`instrument` `i`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`state` `rs`) where ((`r`.`instrument` = `i`.`instrument`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`) and (`r`.`state` = `rs`.`state`) and (`r`.`order_type` = `ot`.`order_type`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`rs`.`status`) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`r`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `broker_id`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `blofin`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `blofin`.`instrument` `i`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`request_type` `rt`) join `blofin`.`state` `rs`) where ((`r`.`instrument` = `i`.`instrument`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`) and (`r`.`state` = `rs`.`state`) and (`r`.`request_type` = `rt`.`request_type`))]]></view_script>
 			<column name="status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="marginMode" type="VARCHAR" />
@@ -1202,13 +1202,13 @@ mark: mark price]]></comment>
 			<column name="size" type="VARCHAR" />
 			<column name="reduceOnly" type="VARCHAR" />
 			<column name="broker_id" type="VARCHAR" />
-			<column name="clientOrderId" type="BINARY" />
+			<column name="clientOrderId" type="VARCHAR" />
 			<column name="memo" type="VARCHAR" />
 			<column name="expiry_time" type="DATETIME" />
 		</view>
 		<view name="vw_api_stop_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`s`.`status`) AS `status`,`blofin`.`vp`.`symbol` AS `instId`,`blofin`.`vp`.`margin_mode` AS `marginMode`,`blofin`.`vp`.`position` AS `positionSide`,`blofin`.`vp`.`counteraction` AS `side`,replace(format(`tp`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `tpTriggerPrice`,replace(format(`tp`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `tpOrderPrice`,replace(format(`sl`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `slTriggerPrice`,replace(format(`sl`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `slOrderPrice`,`sr`.`size` AS `size`,if((`sr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`sr`.`request` AS `clientOrderId`,`sr`.`broker_id` AS `brokerId`,`sr`.`memo` AS `memo`,`sr`.`expiry_time` AS `expiryTime` from ((((((`blofin`.`stop_request` `sr` left join `blofin`.`stop_order` `so` on((`sr`.`request` = `so`.`client_order_id`))) left join `blofin`.`order_state` `os` on((`so`.`state` = `os`.`state`))) join `blofin`.`vw_positions` `vp`) join `blofin`.`state` `s`) join `blofin`.`stop_detail` `tp`) join `blofin`.`stop_detail` `sl`) where ((`sr`.`state` = `s`.`state`) and (`sr`.`position_id` = `blofin`.`vp`.`position_id`) and (`sr`.`request` = `tp`.`request`) and (`tp`.`stop_type` = 'tp') and (`sr`.`request` = `sl`.`request`) and (`sl`.`stop_type` = 'sl'))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`s`.`status`) AS `status`,`blofin`.`vp`.`symbol` AS `instId`,`blofin`.`vp`.`margin_mode` AS `marginMode`,`blofin`.`vp`.`position` AS `positionSide`,`blofin`.`vp`.`counteraction` AS `side`,replace(format(`tp`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `tpTriggerPrice`,replace(format(`tp`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `tpOrderPrice`,replace(format(`sl`.`trigger_price`,`blofin`.`vp`.`digits`),',','') AS `slTriggerPrice`,replace(format(`sl`.`order_price`,`blofin`.`vp`.`digits`),',','') AS `slOrderPrice`,`sr`.`size` AS `size`,if((`sr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`sr`.`request` AS `clientOrderId`,`sr`.`broker_id` AS `brokerId`,`sr`.`memo` AS `memo`,`sr`.`expiry_time` AS `expiryTime` from ((((((`blofin`.`stop_request` `sr` left join `blofin`.`stop_order` `so` on((`sr`.`request` = `so`.`request`))) left join `blofin`.`order_state` `os` on((`so`.`order_state` = `os`.`order_state`))) join `blofin`.`vw_positions` `vp`) join `blofin`.`state` `s`) join `blofin`.`stop_detail` `tp`) join `blofin`.`stop_detail` `sl`) where ((`sr`.`state` = `s`.`state`) and (`sr`.`position_id` = `blofin`.`vp`.`position_id`) and (`sr`.`request` = `tp`.`request`) and (`tp`.`stop_type` = 'tp') and (`sr`.`request` = `sl`.`request`) and (`sl`.`stop_type` = 'sl'))]]></view_script>
 			<column name="status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="marginMode" type="VARCHAR" />
@@ -1252,8 +1252,8 @@ mark: mark price]]></comment>
 			<column name="volume" type="INT" />
 			<column name="vol_currency" type="INT" />
 			<column name="vol_currency_quote" type="INT" />
-			<column name="digits" type="BIGINT" />
 			<column name="completed" type="BIT" />
+			<column name="digits" type="BIGINT" />
 		</view>
 		<view name="vw_instrument_periods" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1311,46 +1311,52 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_orders" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `o`.`client_order_id` AS `client_order_id`,`s`.`state` AS `request_state`,`s`.`status` AS `status`,`r`.`expiry_time` AS `expiry_time`,`blofin`.`i`.`symbol` AS `symbol`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,`o`.`order_id` AS `order_id`,`o`.`position` AS `position`,`o`.`action` AS `action`,`o`.`price` AS `price`,`o`.`size` AS `size`,`o`.`leverage` AS `leverage`,`o`.`margin_mode` AS `margin_mode`,`blofin`.`i`.`base_currency` AS `base_currency`,`blofin`.`i`.`base_symbol` AS `base_symbol`,`blofin`.`i`.`quote_currency` AS `quote_currency`,`blofin`.`i`.`quote_symbol` AS `quote_symbol`,`blofin`.`i`.`instrument_type` AS `instrument_type`,`blofin`.`i`.`contract_type` AS `contract_type`,`blofin`.`i`.`trade_period` AS `trade_period`,`blofin`.`i`.`trade_timeframe` AS `trade_timeframe`,`cat`.`source_ref` AS `order_category`,`os`.`source_ref` AS `state`,`ot`.`source_ref` AS `order_type`,`o`.`filled_size` AS `filled_size`,`o`.`filled_amount` AS `filled_amount`,`o`.`average_price` AS `average_price`,`o`.`fee` AS `fee`,`o`.`pnl` AS `pnl`,`can`.`source_ref` AS `cancel_source`,`o`.`reduce_only` AS `reduce_only`,`o`.`broker_id` AS `broker_id`,`o`.`create_time` AS `create_time`,`o`.`update_time` AS `update_time`,`blofin`.`i`.`digits` AS `digits`,`blofin`.`i`.`trade_state` AS `trade_state`,`blofin`.`i`.`trade_status` AS `trade_status`,`blofin`.`i`.`suspense` AS `suspense` from (((((((`blofin`.`orders` `o` join `blofin`.`order_type` `ot`) join `blofin`.`order_state` `os`) join `blofin`.`cancel_source` `can`) join `blofin`.`order_category` `cat`) join `blofin`.`vw_instruments` `i`) join `blofin`.`request` `r`) join `blofin`.`state` `s`) where ((`r`.`request` = `o`.`client_order_id`) and (`r`.`instrument` = `blofin`.`i`.`instrument`) and (`o`.`order_type` = `ot`.`order_type`) and (`o`.`state` = `os`.`state`) and (`os`.`map_ref` = `s`.`status`) and (`o`.`cancel_source` = `can`.`cancel_source`) and (`o`.`order_category` = `cat`.`order_category`))]]></view_script>
-			<column name="client_order_id" type="BINARY" />
-			<column name="request_state" type="BINARY" />
-			<column name="status" type="VARCHAR" />
-			<column name="expiry_time" type="DATETIME" />
-			<column name="symbol" type="VARCHAR" />
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `o`.`request` AS `request`,`o`.`order_id` AS `order_id`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `client_order_id`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,`blofin`.`i`.`symbol` AS `symbol`,`blofin`.`i`.`base_currency` AS `base_currency`,`blofin`.`i`.`base_symbol` AS `base_symbol`,`blofin`.`i`.`quote_currency` AS `quote_currency`,`blofin`.`i`.`quote_symbol` AS `quote_symbol`,`blofin`.`i`.`instrument_type` AS `instrument_type`,`os`.`order_state` AS `order_state`,`os`.`source_ref` AS `order_status`,`s`.`state` AS `request_state`,`s`.`status` AS `request_status`,`rt`.`request_type` AS `request_type`,`rt`.`source_ref` AS `order_type`,`o`.`position` AS `position`,`o`.`action` AS `action`,`o`.`price` AS `price`,`o`.`size` AS `size`,`o`.`leverage` AS `leverage`,`o`.`margin_mode` AS `margin_mode`,`cat`.`order_category` AS `order_category`,`cat`.`source_ref` AS `category`,`blofin`.`i`.`contract_type` AS `contract_type`,`blofin`.`i`.`contract_type` AS `contract`,`blofin`.`i`.`trade_period` AS `trade_period`,`blofin`.`i`.`trade_timeframe` AS `trade_timeframe`,`o`.`filled_size` AS `filled_size`,`o`.`filled_amount` AS `filled_amount`,`o`.`average_price` AS `average_price`,`o`.`fee` AS `fee`,`o`.`pnl` AS `pnl`,`can`.`cancel_source` AS `cancel_source`,`can`.`source_ref` AS `canceled_by`,`o`.`reduce_only` AS `reduce_only`,`o`.`broker_id` AS `broker_id`,`blofin`.`i`.`digits` AS `digits`,`blofin`.`i`.`trade_state` AS `trade_state`,`blofin`.`i`.`trade_status` AS `trade_status`,`blofin`.`i`.`suspense` AS `suspense`,`o`.`create_time` AS `create_time`,`o`.`update_time` AS `update_time`,`r`.`expiry_time` AS `expiry_time` from (((((((`blofin`.`orders` `o` join `blofin`.`request_type` `rt`) join `blofin`.`order_state` `os`) join `blofin`.`cancel_source` `can`) join `blofin`.`order_category` `cat`) join `blofin`.`vw_instruments` `i`) join `blofin`.`request` `r`) join `blofin`.`state` `s`) where ((`r`.`request` = `o`.`request`) and (`r`.`instrument` = `blofin`.`i`.`instrument`) and (`o`.`request_type` = `rt`.`request_type`) and (`o`.`order_state` = `os`.`order_state`) and (`os`.`map_ref` = `s`.`status`) and (`o`.`cancel_source` = `can`.`cancel_source`) and (`o`.`order_category` = `cat`.`order_category`))]]></view_script>
+			<column name="request" type="BINARY" />
+			<column name="order_id" type="BIGINT" />
+			<column name="client_order_id" type="VARCHAR" />
 			<column name="account" type="BINARY" />
 			<column name="instrument" type="BINARY" />
-			<column name="order_id" type="BIGINT" />
+			<column name="symbol" type="VARCHAR" />
+			<column name="base_currency" type="BINARY" />
+			<column name="base_symbol" type="VARCHAR" />
+			<column name="quote_currency" type="BINARY" />
+			<column name="quote_symbol" type="VARCHAR" />
+			<column name="instrument_type" type="VARCHAR" />
+			<column name="order_state" type="BINARY" />
+			<column name="order_status" type="VARCHAR" />
+			<column name="request_state" type="BINARY" />
+			<column name="request_status" type="VARCHAR" />
+			<column name="request_type" type="BINARY" />
+			<column name="order_type" type="VARCHAR" />
 			<column name="position" type="CHAR" />
 			<column name="action" type="CHAR" />
 			<column name="price" type="DOUBLE" />
 			<column name="size" type="DOUBLE" />
 			<column name="leverage" type="INT" />
 			<column name="margin_mode" type="VARCHAR" />
-			<column name="base_currency" type="BINARY" />
-			<column name="base_symbol" type="VARCHAR" />
-			<column name="quote_currency" type="BINARY" />
-			<column name="quote_symbol" type="VARCHAR" />
-			<column name="instrument_type" type="VARCHAR" />
+			<column name="order_category" type="BINARY" />
+			<column name="category" type="VARCHAR" />
 			<column name="contract_type" type="VARCHAR" />
+			<column name="contract" type="VARCHAR" />
 			<column name="trade_period" type="BINARY" />
 			<column name="trade_timeframe" type="VARCHAR" />
-			<column name="order_category" type="VARCHAR" />
-			<column name="state" type="VARCHAR" />
-			<column name="order_type" type="VARCHAR" />
 			<column name="filled_size" type="DOUBLE" />
 			<column name="filled_amount" type="DOUBLE" />
 			<column name="average_price" type="DOUBLE" />
 			<column name="fee" type="DOUBLE" />
 			<column name="pnl" type="DOUBLE" />
-			<column name="cancel_source" type="VARCHAR" />
+			<column name="cancel_source" type="BINARY" />
+			<column name="canceled_by" type="VARCHAR" />
 			<column name="reduce_only" type="BIT" />
 			<column name="broker_id" type="VARCHAR" />
-			<column name="create_time" type="DATETIME" />
-			<column name="update_time" type="DATETIME" />
 			<column name="digits" type="BIGINT" />
 			<column name="trade_state" type="BINARY" />
 			<column name="trade_status" type="VARCHAR" />
 			<column name="suspense" type="BIT" />
+			<column name="create_time" type="DATETIME" />
+			<column name="update_time" type="DATETIME" />
+			<column name="expiry_time" type="DATETIME" />
 		</view>
 		<view name="vw_positions" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1381,15 +1387,19 @@ mark: mark price]]></comment>
 		</view>
 		<view name="vw_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`request` AS `request`,`s`.`status` AS `status`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`r`.`margin_mode` AS `margin_mode`,`r`.`position` AS `position`,`r`.`action` AS `action`,`ot`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from (((((`blofin`.`request` `r` join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`order_type` `ot`) join `blofin`.`state` `s`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`order_type` = `ot`.`order_type`) and (`r`.`state` = `s`.`state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`request` AS `request`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`s`.`state` AS `state`,`s`.`status` AS `status`,`rs`.`state` AS `order_state`,`os`.`map_ref` AS `order_status`,`r`.`margin_mode` AS `margin_mode`,`r`.`position` AS `position`,`r`.`action` AS `action`,`r`.`request_type` AS `request_type`,`rt`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `blofin`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) left join `blofin`.`state` `rs` on((`os`.`map_ref` = `rs`.`status`))) join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`request_type` `rt`) join `blofin`.`state` `s`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`request_type` = `rt`.`request_type`) and (`r`.`state` = `s`.`state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`))]]></view_script>
 			<column name="request" type="BINARY" />
-			<column name="status" type="VARCHAR" />
 			<column name="account" type="BINARY" />
 			<column name="instrument" type="BINARY" />
 			<column name="symbol" type="VARCHAR" />
+			<column name="state" type="BINARY" />
+			<column name="status" type="VARCHAR" />
+			<column name="order_state" type="BINARY" />
+			<column name="order_status" type="VARCHAR" />
 			<column name="margin_mode" type="VARCHAR" />
 			<column name="position" type="CHAR" />
 			<column name="action" type="CHAR" />
+			<column name="request_type" type="BINARY" />
 			<column name="order_type" type="VARCHAR" />
 			<column name="price" type="DOUBLE" />
 			<column name="size" type="DOUBLE" />
@@ -1440,73 +1450,73 @@ mark: mark price]]></comment>
 		</view>
 	</schema>
 	<layout name="Main Diagram" id="77367206-caff-4884-85a2-730c3c899037" show_relation="columns" >
-		<entity schema="blofin" name="currency" color="4D3399" x="1460" y="1400" />
-		<entity schema="blofin" name="contract_type" color="4D3399" x="2320" y="1240" />
-		<entity schema="blofin" name="instrument_detail" color="4D3399" x="2320" y="780" />
-		<entity schema="blofin" name="environment" color="994D00" x="700" y="1440" />
-		<entity schema="blofin" name="candle" color="4D3399" x="2100" y="980" />
-		<entity schema="blofin" name="instrument_period" color="4D3399" x="1640" y="1240" />
-		<entity schema="blofin" name="period" color="4D3399" x="1820" y="1020" />
-		<entity schema="blofin" name="user_account" color="C7F4BE" x="260" y="580" />
 		<entity schema="blofin" name="user" color="C7F4BE" x="480" y="420" />
-		<entity schema="blofin" name="cancel_source" color="FF0000" x="2320" y="300" />
-		<entity schema="blofin" name="account" color="994D00" x="680" y="1020" />
-		<entity schema="blofin" name="stop_request" color="FFFF00" x="860" y="480" />
-		<entity schema="blofin" name="instrument_type" color="4D3399" x="1820" y="720" />
 		<entity schema="blofin" name="role" color="C7F4BE" x="500" y="100" />
-		<entity schema="blofin" name="role_authority" color="C7F4BE" x="280" y="100" />
-		<entity schema="blofin" name="task_authority" color="C7F4BE" x="240" y="400" />
-		<entity schema="blofin" name="activity" color="C7F4BE" x="60" y="400" />
-		<entity schema="blofin" name="authority" color="C7F4BE" x="60" y="200" />
 		<entity schema="blofin" name="subject" color="C7F4BE" x="60" y="100" />
-		<entity schema="blofin" name="vw_role_privileges" color="BED3F4" x="2800" y="380" />
-		<entity schema="blofin" name="vw_accounts" color="BED3F4" x="2800" y="620" />
-		<entity schema="blofin" name="vw_users" color="BED3F4" x="2960" y="100" />
-		<entity schema="blofin" name="order_type" color="FF0000" x="1340" y="100" />
-		<entity schema="blofin" name="orders" color="FF0000" x="1820" y="100" />
-		<entity schema="blofin" name="order_category" color="FF0000" x="2340" y="500" />
-		<entity schema="blofin" name="vw_positions" color="BED3F4" x="3300" y="100" />
-		<entity schema="blofin" name="instrument" color="4D3399" x="1500" y="780" />
-		<entity schema="blofin" name="position_stops" color="B3EEFF" x="1280" y="1400" />
-		<entity schema="blofin" name="stop_order" color="B3EEFF" x="1240" y="880" />
-		<entity schema="blofin" name="order_state" color="FF0000" x="1300" y="460" />
-		<entity schema="blofin" name="stop_detail" color="FFFF00" x="880" y="240" />
-		<entity schema="blofin" name="price_type" color="FF0000" x="2180" y="160" />
-		<entity schema="blofin" name="request" color="FFFF00" x="660" y="100" />
-		<entity schema="blofin" name="vw_api_requests" color="BED3F4" x="3120" y="100" />
-		<entity schema="blofin" name="vw_requests" color="BED3F4" x="3040" y="420" />
-		<entity schema="blofin" name="vw_orders" color="BED3F4" x="3320" y="640" />
-		<entity schema="blofin" name="vw_candles" color="BED3F4" x="3060" y="860" />
-		<entity schema="blofin" name="vw_api_stop_requests" color="BED3F4" x="2540" y="1180" />
-		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="2540" y="740" />
-		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="2540" y="100" />
-		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="2780" y="100" />
-		<entity schema="blofin" name="vw_role_subjects" color="BED3F4" x="2780" y="220" />
-		<entity schema="blofin" name="state" color="994D00" x="760" y="820" />
-		<entity schema="blofin" name="point_type" color="FFCC80" x="1460" y="1940" />
-		<entity schema="blofin" name="margin_mode" color="FF0000" x="1060" y="200" />
-		<entity schema="blofin" name="fractal_point" color="FFCC80" x="1720" y="1920" />
-		<entity schema="blofin" name="fractal_state" color="FFCC80" x="2360" y="1980" />
+		<entity schema="blofin" name="vw_instruments" color="BED3F4" x="2620" y="100" />
+		<entity schema="blofin" name="point_type" color="FFCC80" x="1460" y="1960" />
+		<entity schema="blofin" name="fractal_point" color="FFCC80" x="1720" y="1940" />
+		<entity schema="blofin" name="fractal_state" color="FFCC80" x="2360" y="2000" />
 		<entity schema="blofin" name="account_detail" color="994D00" x="60" y="1060" />
 		<entity schema="blofin" name="broker" color="994D00" x="380" y="1200" />
-		<entity schema="blofin" name="positions" color="B3EEFF" x="940" y="1060" />
-		<entity schema="blofin" name="fractal" color="FFCC80" x="1720" y="1640" />
-		<entity schema="blofin" name="fibonacci" color="FFCC80" x="2060" y="1740" />
-		<entity schema="blofin" name="fractal_fibonacci" color="FFCC80" x="2360" y="1660" />
+		<entity schema="blofin" name="fractal" color="FFCC80" x="1720" y="1660" />
+		<entity schema="blofin" name="fibonacci" color="FFCC80" x="2060" y="1760" />
+		<entity schema="blofin" name="fractal_fibonacci" color="FFCC80" x="2360" y="1680" />
+		<entity schema="blofin" name="currency" color="4D3399" x="1560" y="1380" />
+		<entity schema="blofin" name="environment" color="994D00" x="780" y="1440" />
+		<entity schema="blofin" name="user_account" color="C7F4BE" x="240" y="580" />
+		<entity schema="blofin" name="positions" color="B3EEFF" x="960" y="1060" />
+		<entity schema="blofin" name="vw_instrument_periods" color="BED3F4" x="2860" y="100" />
+		<entity schema="blofin" name="vw_role_privileges" color="BED3F4" x="3100" y="100" />
+		<entity schema="blofin" name="vw_accounts" color="BED3F4" x="2860" y="540" />
+		<entity schema="blofin" name="vw_candle_audit" color="BED3F4" x="2660" y="1240" />
+		<entity schema="blofin" name="vw_candles" color="BED3F4" x="2640" y="760" />
+		<entity schema="blofin" name="vw_users" color="BED3F4" x="3120" y="360" />
+		<entity schema="blofin" name="vw_role_subjects" color="BED3F4" x="3120" y="680" />
+		<entity schema="blofin" name="vw_positions" color="BED3F4" x="3100" y="860" />
+		<entity schema="blofin" name="stop_request" color="FFFF00" x="880" y="440" />
+		<entity schema="blofin" name="vw_api_stop_requests" color="BED3F4" x="3320" y="640" />
+		<entity schema="blofin" name="position_stops" color="B3EEFF" x="1380" y="1380" />
+		<entity schema="blofin" name="instrument_detail" color="4D3399" x="2400" y="820" />
+		<entity schema="blofin" name="contract_type" color="4D3399" x="2400" y="1240" />
+		<entity schema="blofin" name="account" color="994D00" x="660" y="1040" />
+		<entity schema="blofin" name="state" color="994D00" x="740" y="820" />
+		<entity schema="blofin" name="stop_order" color="B3EEFF" x="1320" y="900" />
+		<entity schema="blofin" name="vw_api_requests" color="BED3F4" x="3340" y="1020" />
+		<entity schema="blofin" name="instrument" color="4D3399" x="1580" y="840" />
+		<entity schema="blofin" name="candle" color="4D3399" x="2160" y="1020" />
+		<entity schema="blofin" name="instrument_period" color="4D3399" x="1720" y="1360" />
+		<entity schema="blofin" name="order_state" color="FF0000" x="1360" y="580" />
+		<entity schema="blofin" name="cancel_source" color="FF0000" x="2000" y="280" />
+		<entity schema="blofin" name="order_category" color="FF0000" x="2000" y="460" />
+		<entity schema="blofin" name="request" color="FFFF00" x="660" y="100" />
+		<entity schema="blofin" name="orders" color="FF0000" x="1680" y="140" />
+		<entity schema="blofin" name="vw_orders" color="BED3F4" x="3520" y="100" />
+		<entity schema="blofin" name="vw_requests" color="BED3F4" x="3320" y="100" />
+		<entity schema="blofin" name="task_authority" color="C7F4BE" x="260" y="400" />
+		<entity schema="blofin" name="activity" color="C7F4BE" x="80" y="400" />
+		<entity schema="blofin" name="role_authority" color="C7F4BE" x="280" y="140" />
+		<entity schema="blofin" name="authority" color="C7F4BE" x="60" y="240" />
+		<entity schema="blofin" name="price_type" color="FF0000" x="2440" y="100" />
+		<entity schema="blofin" name="request_type" color="FFFF00" x="1100" y="100" />
+		<entity schema="blofin" name="margin_mode" color="FF0000" x="1300" y="320" />
+		<entity schema="blofin" name="stop_detail" color="FFFF00" x="1120" y="580" />
+		<entity schema="blofin" name="instrument_type" color="4D3399" x="1800" y="820" />
+		<entity schema="blofin" name="period" color="4D3399" x="1900" y="1080" />
 		<group name="views" color="ECF0F7" >
+			<entity schema="blofin" name="vw_instruments" />
+			<entity schema="blofin" name="vw_instrument_periods" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_accounts" />
-			<entity schema="blofin" name="vw_users" />
-			<entity schema="blofin" name="vw_positions" />
-			<entity schema="blofin" name="vw_api_requests" />
-			<entity schema="blofin" name="vw_requests" />
-			<entity schema="blofin" name="vw_orders" />
-			<entity schema="blofin" name="vw_candles" />
-			<entity schema="blofin" name="vw_api_stop_requests" />
-			<entity schema="blofin" name="vw_instrument_periods" />
-			<entity schema="blofin" name="vw_instruments" />
 			<entity schema="blofin" name="vw_candle_audit" />
+			<entity schema="blofin" name="vw_candles" />
+			<entity schema="blofin" name="vw_users" />
 			<entity schema="blofin" name="vw_role_subjects" />
+			<entity schema="blofin" name="vw_positions" />
+			<entity schema="blofin" name="vw_api_stop_requests" />
+			<entity schema="blofin" name="vw_api_requests" />
+			<entity schema="blofin" name="vw_orders" />
+			<entity schema="blofin" name="vw_requests" />
 		</group>
 		<group name="fibonacci" color="FFCC80" >
 			<entity schema="blofin" name="point_type" />
@@ -1517,50 +1527,50 @@ mark: mark price]]></comment>
 			<entity schema="blofin" name="fractal_fibonacci" />
 		</group>
 		<group name="accounts" color="994D00" >
+			<entity schema="blofin" name="account_detail" />
+			<entity schema="blofin" name="broker" />
 			<entity schema="blofin" name="environment" />
 			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="state" />
-			<entity schema="blofin" name="account_detail" />
-			<entity schema="blofin" name="broker" />
 		</group>
 		<group name="positions" color="B3EEFF" >
+			<entity schema="blofin" name="positions" />
 			<entity schema="blofin" name="position_stops" />
 			<entity schema="blofin" name="stop_order" />
-			<entity schema="blofin" name="positions" />
 		</group>
 		<group name="users" color="EEF7EC" >
-			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="user" />
 			<entity schema="blofin" name="role" />
-			<entity schema="blofin" name="role_authority" />
+			<entity schema="blofin" name="subject" />
+			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="task_authority" />
 			<entity schema="blofin" name="activity" />
+			<entity schema="blofin" name="role_authority" />
 			<entity schema="blofin" name="authority" />
-			<entity schema="blofin" name="subject" />
 		</group>
 		<group name="instruments" color="4D3399" >
 			<entity schema="blofin" name="currency" />
-			<entity schema="blofin" name="contract_type" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="contract_type" />
+			<entity schema="blofin" name="instrument" />
 			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="instrument_period" />
-			<entity schema="blofin" name="period" />
 			<entity schema="blofin" name="instrument_type" />
-			<entity schema="blofin" name="instrument" />
+			<entity schema="blofin" name="period" />
 		</group>
 		<group name="orders" color="FF0000" >
-			<entity schema="blofin" name="cancel_source" />
-			<entity schema="blofin" name="order_type" />
-			<entity schema="blofin" name="orders" />
-			<entity schema="blofin" name="order_category" />
 			<entity schema="blofin" name="order_state" />
+			<entity schema="blofin" name="cancel_source" />
+			<entity schema="blofin" name="order_category" />
+			<entity schema="blofin" name="orders" />
 			<entity schema="blofin" name="price_type" />
 			<entity schema="blofin" name="margin_mode" />
 		</group>
 		<group name="requests" color="FFFF00" >
 			<entity schema="blofin" name="stop_request" />
-			<entity schema="blofin" name="stop_detail" />
 			<entity schema="blofin" name="request" />
+			<entity schema="blofin" name="request_type" />
+			<entity schema="blofin" name="stop_detail" />
 		</group>
 	</layout>
 	<layout name="~Diagram with Sample Tools" id="97aa2821-678b-4776-b446-d3ad403bc682" show_column_type="y" show_relation="columns" >
@@ -1586,7 +1596,7 @@ mark: mark price]]></comment>
 		<entity schema="blofin" name="margin_mode" color="C7F4BE" x="4080" y="3500" />
 		<entity schema="blofin" name="order_category" color="BEBEF4" x="1240" y="1640" />
 		<entity schema="blofin" name="order_state" color="BEBEF4" x="1240" y="1920" />
-		<entity schema="blofin" name="order_type" color="BEBEF4" x="860" y="1920" />
+		<entity schema="blofin" name="request_type" color="BEBEF4" x="860" y="1920" />
 		<entity schema="blofin" name="orders" color="BEBEF4" x="480" y="2200" />
 		<entity schema="blofin" name="period" color="D1BEF4" x="60" y="3220" />
 		<entity schema="blofin" name="point_type" color="BED3F4" x="4400" y="320" />

@@ -77,18 +77,11 @@ CREATE  TABLE blofin.order_category (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.order_state ( 
-	state                BINARY(3)    NOT NULL   PRIMARY KEY,
+	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	status             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	map_ref              VARCHAR(10)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE  TABLE blofin.order_type ( 
-	order_type           BINARY(3)    NOT NULL   PRIMARY KEY,
-	source_ref           VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs    ,
-	CONSTRAINT ak_order_type UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.period ( 
@@ -106,6 +99,13 @@ CREATE  TABLE blofin.point_type (
 CREATE  TABLE blofin.price_type ( 
 	price_type           CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY,
 	description          VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.request_type ( 
+	request_type         BINARY(3)    NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	description          VARCHAR(30)   COLLATE utf8mb4_0900_as_cs    ,
+	CONSTRAINT ak_request_type UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.role ( 
@@ -257,6 +257,7 @@ CREATE INDEX fk_ip_period ON blofin.instrument_period ( period );
 
 CREATE  TABLE blofin.positions ( 
 	position_id          BINARY(4)    NOT NULL   PRIMARY KEY,
+	state                BINARY(3)    NOT NULL   ,
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	positions            INT    NOT NULL   ,
@@ -274,7 +275,6 @@ CREATE  TABLE blofin.positions (
 	unrealized_pnl       DOUBLE    NOT NULL   ,
 	unrealized_pnl_ratio DECIMAL(12,3)    NOT NULL   ,
 	adl                  TINYINT  DEFAULT (0)  NOT NULL   ,
-	state                BINARY(3)    NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT fk_p_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -294,7 +294,7 @@ CREATE INDEX fk_p_instrument ON blofin.positions ( instrument );
 CREATE INDEX fk_positions_state ON blofin.positions ( state );
 
 CREATE  TABLE blofin.request ( 
-	request              BINARY(3)    NOT NULL   PRIMARY KEY,
+	request              BINARY(6)    NOT NULL   PRIMARY KEY,
 	account              BINARY(3)    NOT NULL   ,
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -303,7 +303,7 @@ CREATE  TABLE blofin.request (
 	price                DOUBLE  DEFAULT (0)  NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	leverage             INT    NOT NULL   ,
-	order_type           BINARY(3)    NOT NULL   ,
+	request_type         BINARY(3)    NOT NULL   ,
 	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	memo                 VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
@@ -314,7 +314,7 @@ CREATE  TABLE blofin.request (
 	CONSTRAINT fk_r_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_request_type FOREIGN KEY ( request_type ) REFERENCES blofin.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
@@ -322,7 +322,7 @@ ALTER TABLE blofin.request ADD CONSTRAINT ck_r_action CHECK ( action in (_utf8mb
 
 ALTER TABLE blofin.request ADD CONSTRAINT ck_r_position CHECK ( position in (_utf8mb4'long',_utf8mb4'net',_utf8mb4'short') );
 
-CREATE INDEX fk_r_order_type ON blofin.request ( order_type );
+CREATE INDEX fk_r_request_type ON blofin.request ( request_type );
 
 CREATE INDEX fk_r_margin_mode ON blofin.request ( margin_mode );
 
@@ -351,7 +351,7 @@ CREATE INDEX fk_ra_role ON blofin.role_authority ( role );
 CREATE INDEX fk_ra_authority ON blofin.role_authority ( authority );
 
 CREATE  TABLE blofin.stop_request ( 
-	request              BINARY(3)    NOT NULL   PRIMARY KEY,
+	request              BINARY(6)    NOT NULL   PRIMARY KEY,
 	position_id          BINARY(4)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	size                 DOUBLE  DEFAULT (-(1))  NOT NULL   ,
@@ -454,19 +454,19 @@ CREATE  TABLE blofin.fractal_point (
 CREATE INDEX fk_fp_point_type ON blofin.fractal_point ( point_type );
 
 CREATE  TABLE blofin.orders ( 
-	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
+	request              BINARY(6)    NOT NULL   PRIMARY KEY,
 	order_id             BIGINT    NOT NULL   ,
 	instrument_type      BINARY(3)    NOT NULL   ,
 	price                DOUBLE    NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
-	order_type           BINARY(3)    NOT NULL   ,
+	request_type         BINARY(3)    NOT NULL   ,
 	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
 	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
 	average_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
-	state                BINARY(3)    NOT NULL   ,
+	order_state          BINARY(3)    NOT NULL   ,
 	leverage             INT  DEFAULT (0)  NOT NULL   ,
 	fee                  DOUBLE  DEFAULT (0)  NOT NULL   ,
 	pnl                  DOUBLE  DEFAULT (0)  NOT NULL   ,
@@ -481,25 +481,25 @@ CREATE  TABLE blofin.orders (
 	CONSTRAINT fk_o_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES blofin.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES blofin.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES blofin.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_type FOREIGN KEY ( order_type ) REFERENCES blofin.order_type( order_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_request FOREIGN KEY ( client_order_id ) REFERENCES blofin.request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( order_state ) REFERENCES blofin.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_request_type FOREIGN KEY ( request_type ) REFERENCES blofin.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_request FOREIGN KEY ( request ) REFERENCES blofin.request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_o_instrument_type ON blofin.orders ( instrument_type );
 
-CREATE INDEX fk_o_order_type ON blofin.orders ( order_type );
+CREATE INDEX fk_o_request_type ON blofin.orders ( request_type );
 
 CREATE INDEX fk_o_margin_mode ON blofin.orders ( margin_mode );
 
-CREATE INDEX fk_o_order_state ON blofin.orders ( state );
+CREATE INDEX fk_o_order_state ON blofin.orders ( order_state );
 
 CREATE INDEX fk_o_order_category ON blofin.orders ( order_category );
 
 CREATE INDEX fk_o_cancel_source ON blofin.orders ( cancel_source );
 
 CREATE  TABLE blofin.stop_detail ( 
-	request              BINARY(3)    NOT NULL   ,
+	request              BINARY(6)    NOT NULL   ,
 	stop_type            CHAR(2)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	trigger_price        DOUBLE    NOT NULL   ,
 	order_price          DOUBLE    NOT NULL   ,
@@ -510,9 +510,9 @@ CREATE  TABLE blofin.stop_detail (
 ALTER TABLE blofin.stop_detail ADD CONSTRAINT ck_sd_stop_type CHECK ( stop_type in (_utf8mb4'sl',_utf8mb4'tp') );
 
 CREATE  TABLE blofin.stop_order ( 
-	client_order_id      BINARY(3)    NOT NULL   PRIMARY KEY,
+	request              BINARY(6)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BIGINT    NOT NULL   ,
-	state                BINARY(3)    NOT NULL   ,
+	order_state          BINARY(3)    NOT NULL   ,
 	action               CHAR(4)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
 	actual_size          DOUBLE    NOT NULL   ,
@@ -521,13 +521,13 @@ CREATE  TABLE blofin.stop_order (
 	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT ak_stop_order UNIQUE ( tpsl_id ) ,
-	CONSTRAINT fk_so_order_state FOREIGN KEY ( state ) REFERENCES blofin.order_state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_stop_request FOREIGN KEY ( client_order_id ) REFERENCES blofin.stop_request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES blofin.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_stop_request FOREIGN KEY ( request ) REFERENCES blofin.stop_request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE blofin.stop_order ADD CONSTRAINT ck_so_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
 
-CREATE INDEX fk_so_order_state ON blofin.stop_order ( state );
+CREATE INDEX fk_so_order_state ON blofin.stop_order ( order_state );
 
 CREATE  TABLE blofin.position_stops ( 
 	tpsl_id              BIGINT    NOT NULL   ,
@@ -605,25 +605,25 @@ select
 	r.margin_mode AS marginMode,
 	r.position AS positionSide,
 	r.action AS side,
-	ot.source_ref AS orderType,
+	rt.source_ref AS orderType,
 	replace(format(r.price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS price,
 	replace(format(r.size,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS size,
 	if((r.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	r.broker_id AS broker_id,
-	r.request AS clientOrderId,
+	cast(hex(r.request) as char charset utf8mb4) AS clientOrderId,
 	r.memo AS memo,
 	r.expiry_time AS expiry_time
 from
 	((((((((blofin.request r
 left join blofin.orders o on
-	((r.request = o.client_order_id)))
+	((r.request = o.request)))
 left join blofin.order_state os on
-	((o.state = os.state)))
+	((o.order_state = os.order_state)))
 join blofin.instrument i)
 join blofin.instrument_detail id)
 join blofin.currency b)
 join blofin.currency q)
-join blofin.order_type ot)
+join blofin.request_type rt)
 join blofin.state rs)
 where
 	((r.instrument = i.instrument)
@@ -631,7 +631,7 @@ where
 			and (i.base_currency = b.currency)
 				and (i.quote_currency = q.currency)
 					and (r.state = rs.state)
-						and (r.order_type = ot.order_type));
+						and (r.request_type = rt.request_type));
 
 CREATE VIEW blofin.vw_instrument_periods AS
 select
@@ -733,48 +733,54 @@ where
 
 CREATE VIEW blofin.vw_orders AS
 select
-	o.client_order_id AS client_order_id,
-	s.state AS request_state,
-	s.status AS status,
-	r.expiry_time AS expiry_time,
-	blofin.i.symbol AS symbol,
+	o.request AS request,
+	o.order_id AS order_id,
+	cast(hex(r.request) as char charset utf8mb4) AS client_order_id,
 	r.account AS account,
 	r.instrument AS instrument,
-	o.order_id AS order_id,
+	blofin.i.symbol AS symbol,
+	blofin.i.base_currency AS base_currency,
+	blofin.i.base_symbol AS base_symbol,
+	blofin.i.quote_currency AS quote_currency,
+	blofin.i.quote_symbol AS quote_symbol,
+	blofin.i.instrument_type AS instrument_type,
+	os.order_state AS order_state,
+	os.source_ref AS order_status,
+	s.state AS request_state,
+	s.status AS request_status,
+	rt.request_type AS request_type,
+	rt.source_ref AS order_type,
 	o.position AS position,
 	o.action AS action,
 	o.price AS price,
 	o.size AS size,
 	o.leverage AS leverage,
 	o.margin_mode AS margin_mode,
-	blofin.i.base_currency AS base_currency,
-	blofin.i.base_symbol AS base_symbol,
-	blofin.i.quote_currency AS quote_currency,
-	blofin.i.quote_symbol AS quote_symbol,
-	blofin.i.instrument_type AS instrument_type,
+	cat.order_category AS order_category,
+	cat.source_ref AS category,
 	blofin.i.contract_type AS contract_type,
+	blofin.i.contract_type AS contract,
 	blofin.i.trade_period AS trade_period,
 	blofin.i.trade_timeframe AS trade_timeframe,
-	cat.source_ref AS order_category,
-	os.source_ref AS state,
-	ot.source_ref AS order_type,
 	o.filled_size AS filled_size,
 	o.filled_amount AS filled_amount,
 	o.average_price AS average_price,
 	o.fee AS fee,
 	o.pnl AS pnl,
-	can.source_ref AS cancel_source,
+	can.cancel_source AS cancel_source,
+	can.source_ref AS canceled_by,
 	o.reduce_only AS reduce_only,
 	o.broker_id AS broker_id,
-	o.create_time AS create_time,
-	o.update_time AS update_time,
 	blofin.i.digits AS digits,
 	blofin.i.trade_state AS trade_state,
 	blofin.i.trade_status AS trade_status,
-	blofin.i.suspense AS suspense
+	blofin.i.suspense AS suspense,
+	o.create_time AS create_time,
+	o.update_time AS update_time,
+	r.expiry_time AS expiry_time
 from
 	(((((((blofin.orders o
-join blofin.order_type ot)
+join blofin.request_type rt)
 join blofin.order_state os)
 join blofin.cancel_source can)
 join blofin.order_category cat)
@@ -782,10 +788,10 @@ join blofin.vw_instruments i)
 join blofin.request r)
 join blofin.state s)
 where
-	((r.request = o.client_order_id)
+	((r.request = o.request)
 		and (r.instrument = blofin.i.instrument)
-			and (o.order_type = ot.order_type)
-				and (o.state = os.state)
+			and (o.request_type = rt.request_type)
+				and (o.order_state = os.order_state)
 					and (os.map_ref = s.status)
 						and (o.cancel_source = can.cancel_source)
 							and (o.order_category = cat.order_category));
@@ -834,14 +840,18 @@ where
 CREATE VIEW blofin.vw_requests AS
 select
 	r.request AS request,
-	s.status AS status,
 	r.account AS account,
 	r.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
+	s.state AS state,
+	s.status AS status,
+	rs.state AS order_state,
+	os.map_ref AS order_status,
 	r.margin_mode AS margin_mode,
 	r.position AS position,
 	r.action AS action,
-	ot.source_ref AS order_type,
+	r.request_type AS request_type,
+	rt.source_ref AS order_type,
 	r.price AS price,
 	r.size AS size,
 	r.leverage AS leverage,
@@ -852,15 +862,21 @@ select
 	r.expiry_time AS expiry_time,
 	r.create_time AS create_time
 from
-	(((((blofin.request r
+	((((((((blofin.request r
+left join blofin.orders o on
+	((r.request = o.request)))
+left join blofin.order_state os on
+	((o.order_state = os.order_state)))
+left join blofin.state rs on
+	((os.map_ref = rs.status)))
 join blofin.vw_instruments i)
 join blofin.currency b)
 join blofin.currency q)
-join blofin.order_type ot)
+join blofin.request_type rt)
 join blofin.state s)
 where
 	((r.instrument = blofin.i.instrument)
-		and (r.order_type = ot.order_type)
+		and (r.request_type = rt.request_type)
 			and (r.state = s.state)
 				and (blofin.i.base_currency = b.currency)
 					and (blofin.i.quote_currency = q.currency));
@@ -951,9 +967,9 @@ select
 from
 	((((((blofin.stop_request sr
 left join blofin.stop_order so on
-	((sr.request = so.client_order_id)))
+	((sr.request = so.request)))
 left join blofin.order_state os on
-	((so.state = os.state)))
+	((so.order_state = os.order_state)))
 join blofin.vw_positions vp)
 join blofin.state s)
 join blofin.stop_detail tp)
@@ -1017,6 +1033,7 @@ having
 order by
 	blofin.vc.symbol,
 	hour desc;
+
 ALTER TABLE blofin.cancel_source COMMENT 'not_canceled
 user_canceled
 system_canceled';
@@ -1043,12 +1060,6 @@ sl';
 
 ALTER TABLE blofin.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
 
-ALTER TABLE blofin.order_type COMMENT 'market: market order
-limit: limit order
-post_only: Post-only order
-fok: Fill-or-kill order
-ioc: Immediate-or-cancel order';
-
 ALTER TABLE blofin.point_type COMMENT 'Origin
 Base
 Root
@@ -1061,6 +1072,12 @@ ALTER TABLE blofin.price_type COMMENT 'Trigger price type.
 last: last price
 index: index price
 mark: mark price';
+
+ALTER TABLE blofin.request_type COMMENT 'market: market order
+limit: limit order
+post_only: Post-only order
+fok: Fill-or-kill order
+ioc: Immediate-or-cancel order';
 
 ALTER TABLE blofin.fractal_fibonacci MODIFY fractal_type CHAR(10)  NOT NULL   COMMENT 'Retrace
 Extension';

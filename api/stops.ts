@@ -5,7 +5,8 @@
 "use strict";
 "use server";
 
-import { IStopRequest } from "@db/interfaces/stops";
+import type { IStopRequest } from "@db/interfaces/stops";
+
 import { hexify } from "@lib/crypto.util";
 import { Session, signRequest } from "@module/session";
 
@@ -35,8 +36,7 @@ export interface IStopsAPI {
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Array<IStopsAPI>) {
-  for (const id in props) {
-    const publish = props[id];
+  for (const publish of props) {
     const update: Partial<IStopRequest> = {
       request: hexify(publish.clientOrderId),
       tpsl_id: publish.tpslId,
@@ -51,9 +51,10 @@ export async function Publish(props: Array<IStopsAPI>) {
         { stop_type: "sl", trigger_price: parseFloat(publish.slTriggerPrice), order_price: parseFloat(publish.slOrderPrice) },
       ],
     };
+
     if (publish.clientOrderId.length === 0) {
       await Cancel(publish);
-      await Stops.Submit(update);
+      await Stops.Publish(update);
     }
     await Stops.Publish(update);
   }
@@ -95,7 +96,7 @@ export async function Cancel(cancel: Partial<IStopsAPI>) {
   const method = "POST";
   const path = "/api/v1/trade/cancel-tpsl";
   const body = `[${JSON.stringify((({ instId, tpslId, clientOrderId }) => ({ instId, tpslId, clientOrderId }))(cancel))}]`;
-  console.log(body);
+
   const { api, phrase, rest_api_url } = Session();
   const { sign, timestamp, nonce } = await signRequest(method, path, body);
   const headers = {
@@ -121,3 +122,37 @@ export async function Cancel(cancel: Partial<IStopsAPI>) {
     })
     .catch((error) => console.log(error));
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Cancel - closes a pending TP/SL order;                                               |
+//+--------------------------------------------------------------------------------------+
+export const Submit = async (request: Partial<IStopsAPI>) => {
+  const method = "POST";
+  const path = "/api/v1/trade/order-tpsl";
+  const body = JSON.stringify(request);
+  const { api, phrase, rest_api_url } = Session();
+  const { sign, timestamp, nonce } = await signRequest(method, path, body);
+  const headers = {
+    "ACCESS-KEY": api!,
+    "ACCESS-SIGN": sign!,
+    "ACCESS-TIMESTAMP": timestamp!,
+    "ACCESS-NONCE": nonce!,
+    "ACCESS-PASSPHRASE": phrase!,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+      body,
+    });
+
+    if (response.ok) {
+      const json = await response.json();
+      return json.data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
