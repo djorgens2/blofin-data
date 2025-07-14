@@ -121,6 +121,6 @@ export function Import() {
     .then(async (result: IResult) => await Publish(result.data))
     .then(async (data: Array<IInstrumentAPI>) => await Merge(data))
     .catch((error) => {
-      console.log(`Error fetching instruments; }`);
+      console.log(`Error fetching instruments;`, error);
     });
 }

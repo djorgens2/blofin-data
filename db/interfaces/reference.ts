@@ -46,6 +46,8 @@ export const Import = async () => {
   ].forEach((type) => Add("cancel", type));
   ["last", "index", "mark"].forEach((price_type) => Add("price_type", { price_type }));
   ["cross", "isolated"].forEach((margin_mode) => Add("margin_mode", { margin_mode }));
+  ["tp", "sl"].forEach((stop_type) => Add("stop_type", { stop_type }));
+  ["long", "short"].forEach((position) => Add("position", { position }));
   [
     { order_category: 0, source_ref: "normal", description: "Normal", trigger_type: false },
     { order_category: 0, source_ref: "full_liquidation", description: "Full Liquidation", trigger_type: false },

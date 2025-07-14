@@ -4,19 +4,19 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TResponse } from "@module/trades";
 import type { IRequestAPI } from "@api/requests";
+import type { IOrderAudit } from "@db/interfaces/order";
 import type { IRequestState, TRequest } from "@db/interfaces/state";
 
 import { Modify, parseColumns, Select } from "@db/query.utils";
 import { Session } from "@module/session";
-import { hashKey, hexify } from "@lib/crypto.util";
+import { uniqueKey, hexify } from "@lib/crypto.util";
 
 import * as States from "@db/interfaces/state";
 
 export interface IRequest {
   request: Uint8Array;
-  order_id: string | number;
+  order_id: number;
   client_order_id: string | undefined;
   account: Uint8Array;
   instrument: Uint8Array;
@@ -40,6 +40,23 @@ export interface IRequest {
   expiry_time: Date;
 }
 
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
+//+--------------------------------------------------------------------------------------+
+export const Reconcile = async (): Promise<Array<Partial<IOrderAudit>>> => {
+  const audit = await Select<IOrderAudit>(`SELECT * FROM blofin.vw_order_audit WHERE state != request_state`,[]);
+  
+  if (audit.length) {
+    for (const order of audit) {
+      const { request, request_state, status, request_status}=order;
+      const memo = `Audit: Request state changed from ${status} to ${request_status}`
+      await Update({request, state: request_state, memo});
+    }
+  }
+  return audit;
+};
+
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
@@ -55,8 +72,7 @@ export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   const { account } = Session();
-  const { status } = props;
-  const key = props.request ? props.request : hexify(hashKey(10));
+  const key = props.request ? props.request : hexify(uniqueKey(10),6);
   const state = props.state ? props.state : await States.Key<IRequestState>({ status: "Queued" });
   const [fields, args] = parseColumns({ ...props, request: key, state, account }, "");
   const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
@@ -64,18 +80,6 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
   await Modify(sql, args);
 
   return key;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Resubmit - closes untracked pending order batch; resubmits on success cancellation;  |
-//+--------------------------------------------------------------------------------------+
-export const Resubmit = async (cancels: Array<TResponse>, resubs: Array<Partial<IRequest>>) => {
-  console.log(`In Resubmit [API]: Resubmissions [${resubs.length}]`);
-  for (const request in cancels) {
-    if (cancels[request].code === "0") {
-      await Submit(resubs[request]);
-    }
-  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -105,7 +109,7 @@ export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"]
 //+--------------------------------------------------------------------------------------+
 export const Update = async (props: Partial<IRequest>) => {
   const { request, status, memo } = props;
-  const state = await States.Key<IRequestState>({ status });
+  const state = props.state ? props.state : await States.Key<IRequestState>({ status });
   const sql = `UPDATE blofin.request SET state = ?, memo = ? WHERE request = ?`;
   const args = [state, memo, request];
 

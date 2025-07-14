@@ -60,12 +60,14 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
   if (instrument === undefined) {
     const key = hashKey(6);
     const disabled = await State.Key({ status: "Disabled" });
+    const margin_mode = 'cross';
 
-    await Modify(`INSERT INTO blofin.instrument (instrument, base_currency, quote_currency, trade_state) VALUES (?, ?, ?, ?)`, [
+    await Modify(`INSERT INTO blofin.instrument (instrument, base_currency, quote_currency, trade_state, margin_mode) VALUES (?, ?, ?, ?, ?)`, [
       key,
       base_currency,
       quote_currency,
-      disabled
+      disabled,
+      margin_mode
     ]);
     return key;
   }

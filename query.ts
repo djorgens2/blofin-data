@@ -16,6 +16,7 @@ import * as Account from "@db/interfaces/account";
 import * as Request from "@db/interfaces/request";
 import * as Order from "@db/interfaces/order";
 import * as Reference from "@db/interfaces/reference";
+import * as Positions from "@db/interfaces/positions";
 
 import { parseJSON } from "@lib/std.util";
 import { hexify } from "./lib/crypto.util";
@@ -24,7 +25,7 @@ enum Subject {
   Account = "-a",
   Instrument = "-i",
   Contract = "-ctype",
-  Currency = "-$",
+  Currency = "-sym",
   Type = "-itype",
   Period = "-p",
   Detail = "-d",
@@ -40,6 +41,7 @@ enum Subject {
   Area = "-area",
   Environ = '-e',
   Reference = '-ref',
+  Positions = '-pos'
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -163,7 +165,6 @@ async function show(subject: string, args: string): Promise<string> {
         account: props?.account ? hexify(props.account) :undefined,
         request: props?.request ? hexify(props.request): undefined,
         instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        instrument_type: props?.instrument_type ? hexify(props.instrument_type) : undefined,
         request_type: props?.request_type ? hexify(props.request_type) : undefined,
         order_state: props?.order_state ? hexify(props.order_state) : undefined,
         order_category: props?.order_category ? hexify(props.order_category) : undefined,
@@ -185,6 +186,17 @@ async function show(subject: string, args: string): Promise<string> {
       const { table, ...props} = json;
       const key = await Reference.Fetch(table, props!);
       console.log("Fetch reference:", props, key);
+      return "ok";
+    }
+    case Subject.Positions: {
+      const props = parseJSON< Positions.IPositions >(args);
+      Object.assign(props!, {
+        ...props, 
+        instrument: props?.instrument ? hexify(props.instrument) : undefined,
+        state: props?.state ? hexify(props.state) : undefined
+      });
+      const key = await Positions.Fetch(props!);
+      console.log(`Fetch Positions [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.KeySet: {

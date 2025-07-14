@@ -6,16 +6,16 @@
 "use server";
 
 import type { IPositions } from "@db/interfaces/positions";
-import type { IMessage } from "@lib/app.util";
+import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
 
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
 import { format } from "@lib/std.util";
+import { Select } from "@db/query.utils";
 
 import * as Instrument from "@db/interfaces/instrument";
-import * as InstrumentType from "@db/interfaces/instrument_type";
 import * as Positions from "@db/interfaces/positions";
-import * as StopsAPI from "@api/stops";
+import * as InstrumentPositions from "@db/interfaces/instrument_position";
 
 export interface IPositionsAPI {
   positionId: string;
@@ -44,19 +44,16 @@ export interface IPositionsAPI {
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Array<IPositionsAPI>) {
-  const active = [];
+  const active: Array<Partial<IInstrumentPosition>> = [];
   for (const position of props) {
-    const position_id = hexify(parseInt(position.positionId), 4);
+    const positions = hexify(parseInt(position.positionId), 4);
     const instrument = await Instrument.Key({ symbol: position.instId });
-    const instrument_type = await InstrumentType.Key({ source_ref: position.instType });
-    const inst_type_default = await InstrumentType.Key({ source_ref: "SWAP" });
     const update: Partial<IPositions> = {
-      position_id,
-      position: position.positionSide,
-      positions: parseInt(position.positions),
-      positions_avail: parseInt(position.availablePositions),
+      positions,
       instrument,
-      instrument_type: instrument_type ? instrument_type : inst_type_default,
+      position: position.positionSide,
+      size: parseFloat(position.positions),
+      size_available: parseFloat(position.availablePositions),
       leverage: parseInt(position.leverage!),
       margin_mode: position.marginMode,
       margin_used: format(position.margin),
@@ -73,15 +70,47 @@ export async function Publish(props: Array<IPositionsAPI>) {
       update_time: parseInt(position.updateTime!),
     };
     await Positions.Publish(update);
-    active.push(update);
+    active.push({ instrument, position: update.position, status: "Open" });
   }
-  await Positions.Update(active);
+  return active;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| History - retrieves position history; *** non-functional;                            |
+//+--------------------------------------------------------------------------------------+
+// const History = async () => {
+//   const method = "GET";
+//   const path = "/api/v1/account/positions-history";
+//   const { api, phrase, rest_api_url } = Session();
+//   const { sign, timestamp, nonce } = await signRequest(method, path);
+//   const headers = {
+//     "ACCESS-KEY": api!,
+//     "ACCESS-SIGN": sign!,
+//     "ACCESS-TIMESTAMP": timestamp!,
+//     "ACCESS-NONCE": nonce!,
+//     "ACCESS-PASSPHRASE": phrase!,
+//     "Content-Type": "application/json",
+//   };
+
+//   try {
+//     const response = await fetch(rest_api_url!.concat(path), {
+//       method,
+//       headers,
+//     });
+//     if (response.ok) {
+//       const json = await response.json();
+//       return json.data;
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     return [];
+//   }
+// };
 
 //+--------------------------------------------------------------------------------------+
 //| Import - retrieves active orders; reconciles with local db;                          |
 //+--------------------------------------------------------------------------------------+
-export async function Import() {
+export async function Active() {
   const method = "GET";
   const path = "/api/v1/account/positions";
   const { api, phrase, rest_api_url } = Session();
@@ -95,14 +124,34 @@ export async function Import() {
     "Content-Type": "application/json",
   };
 
-  fetch(rest_api_url!.concat(path), {
-    method,
-    headers,
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json?.code > 0) throw new Error(json);
-      Publish(json.data);
-    })
-    .catch((error) => console.log({ error, path }));
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.data;
+    }
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
+//+--------------------------------------------------------------------------------------+
+export const Import = async () => {
+  const history = await Select<IInstrumentPosition>(`SELECT * FROM blofin.vw_instrument_positions WHERE position_open = true`, []);
+  const active: Array<IPositionsAPI> = await Active();
+  const publish = await Publish(active);
+
+  if (history.length)
+    for (const local of history) {
+      const { instrument, symbol, position } = local;
+      const found = active.find(({ instId, positionSide }) => instId === symbol && positionSide === position);
+      !found && publish.push({ instrument, position, status: "Closed" });
+    }
+  publish.length && (await InstrumentPositions.Update(publish));
+};
