@@ -978,21 +978,23 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //----------------------------- order test  -------------------------------------------------------//
 // import { hexify } from "@lib/crypto.util";
 // import { setExpiry } from "@lib/std.util";
+// import { setSession } from "@module/session";
 // import * as Requests from "@db/interfaces/request";
 
 // //-- test 1; request w/ no tpsl; 100%
 // const request1: Partial<Requests.IRequest> = {
-//   account: hexify("145a6a")!,
 //   instrument: hexify("4e3e8a")!,
 //   margin_mode: "cross",
-//   position: "long",
-//   action: "buy",
-//   order_type: hexify("6eb6c5"),
-//   price: 95000.1,
-//   size: 0.3,
+//   position: "short",
+//   action: "sell",
+//   request_type: hexify("6eb6c5"),
+//   price: 109000,
+//   size: 300,
 //   leverage: 10,
 //   expiry_time: setExpiry("30m"),
 // };
+
+// setSession({ account: hexify("145a6a")})
 // const req1 = Requests.Submit(request1);
 
 //-- test 2; with ck con errors; 100%
@@ -1047,20 +1049,36 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // go();
 
 //----------------------------- order fetch key test  -------------------------------------------------------//
-import { hexify } from "@lib/crypto.util";
-import { Key } from "db/interfaces/order";
+// import { hashKey, hexify, uniqueKey } from "@lib/crypto.util";
+// import { Key } from "db/interfaces/order";
 
-const go = async () => {
-  // const or_id = await Key({ order_id: 1000107956455 });
-  // const cl_id = await Key({ client_order_id: hexify("43a912") });
-  // const no_id = await Key({ status: "Canceled" });
-  // const no_param = await Key({});
+// const go = async () => {
+//   const hash = uniqueKey(10);
+//   const key = hexify(hash,6);
+//   console.log(key, key?.byteLength);
+// };
 
-  // console.log({ or_id, cl_id, no_id, no_param });
-  console.log(hexify('03a3532e8560',6)); // <Buffer 03 a3 53 2e 85 60>
-  console.log(hexify('0x25d921',6));     // <Buffer 00 00 00 25 d9 21>
-};
+// go();
 
-go();
+// console.log(hexify(uniqueKey(10),6));
 
+//----------------------------- fetch order state test  -------------------------------------------------------//
+// import * as Orders from "@db/interfaces/order";
+
+// const go = async () => {
+//   const state = await Orders.State({order_status: 'live'});
+//   console.log(state);
+// };
+
+// go();
+
+//----------------------------------- Instrument Position ------------------------------------------//
+// import { Publish } from "@db/interfaces/instrument_position";
+
+// (async () => await Publish())();
+
+//----------------------------------- Import State ------------------------------------------//
+// import { Import } from "@db/interfaces/state";
+
+// (async () => await Import())();
 

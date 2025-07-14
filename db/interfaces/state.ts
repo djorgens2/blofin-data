@@ -10,11 +10,12 @@ import { hashKey } from "@lib/crypto.util";
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
 export type TAccount = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
+export type TPosition = "Pending" | "Open" | "Closed";
 export type TState = {
   state: Uint8Array;
-  status: TRequest | TSystem | TAccount;
+  status: TRequest | TSystem | TAccount | TPosition;
   description: string;
-}
+};
 
 export interface IRequestState extends TState {
   status: TRequest;
@@ -42,6 +43,7 @@ export const Import = () => {
     { status: "Rejected", description: "Rejected; request denied; check error log" },
     { status: "Canceled", description: "Canceled; request canceled;" },
     { status: "Closed", description: "Closed; request is closed;" },
+    { status: "Open", description: "Open; order/position is open;" },
   ];
   states.forEach((state) => Publish(state));
 };
@@ -77,7 +79,7 @@ export async function Key<T extends TState>(props: Partial<T>): Promise<T["state
     args.push(status);
     sql += `status = ?`;
   } else return undefined;
-  
+
   const [key] = await Select<T>(sql, args);
   return key === undefined ? undefined : key.state;
 }

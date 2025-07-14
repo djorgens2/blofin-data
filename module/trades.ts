@@ -5,15 +5,18 @@
 "use strict";
 "use server";
 
+import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
 import type { IRequestAPI } from "@api/requests";
-import type { IOrderAPI } from "@api/orders";
+import type { TRequest } from "@db/interfaces/state";
 
 import { hexify } from "@lib/crypto.util";
 import { setExpiry } from "@lib/std.util";
 
-import * as Request from "@db/interfaces/request";
+import * as InstrumentPosition from "@db/interfaces/instrument_position";
 import * as RequestAPI from "@api/requests";
 import * as OrderAPI from "@api/orders";
+import * as Request from "@db/interfaces/request";
+import * as State from "@db/interfaces/state";
 
 export type TResponse = {
   orderId: string;
@@ -23,42 +26,57 @@ export type TResponse = {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Updates the request states via WSS or API;                                           |
+//| Sets request states based on changes recieved from WSS/API or POST ops;              |
 //+--------------------------------------------------------------------------------------+
-export async function Update(response: Array<TResponse>) {
-  for (const result of response) {
-    const { code, msg, orderId, clientOrderId } = result;
-    const request = hexify(clientOrderId);
-    const update = { request };
+const processResults = async (results: Array<TResponse>, success: TRequest, fail: TRequest) => {
+  const accepted = [];
+  const rejected = [];
 
-    code === "0"
-      ? Object.assign(update, { ...update, status: "Pending", memo: `[${code}]: ${msg}; ${orderId}` })
-      : Object.assign(update, { ...update, status: "Rejected", memo: `[${code}]: ${msg}` });
-    request && (await Request.Update(update));
+  if (Array.isArray(results)) {
+    for (const result of results) {
+      const { code, msg, orderId, clientOrderId } = result;
+      const request = hexify(clientOrderId);
+      const [{ state, status }] = await State.Fetch({ status: code ? success : fail });
+      const memo = `[${code}: ${msg}] [${orderId},${clientOrderId}] ${setExpiry("0s")} Order status set to ${status}`;
+
+      request && (await Request.Update({ request, state, memo }));
+      status === success ? accepted.push(result) : rejected.push(result);
+    }
   }
-}
+
+  return [accepted, rejected];
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Formats and emits order requests to broker for execution;                            |
+//| Reconciles request states with broker order history;                                 |
+//+--------------------------------------------------------------------------------------+
+const reconcileQueue = async () => {
+  const audit = await Request.Reconcile();
+  audit.length && console.log("Audit Corrections:", audit.length, audit);
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Resubmits rejected requests to broker for execution; closes rejects beyond expiry;   |
 //+--------------------------------------------------------------------------------------+
 const processRejected = async () => {
   const rejects = await Request.Fetch({ status: "Rejected" });
   const expiry = setExpiry("0s");
+  const queued = [];
+  const expired = [];
 
-  let queued: number = 0;
-  let closed: number = 0;
-
-  for (const id in rejects) {
-    const reject = rejects[id];
-    if (expiry < reject.expiry_time!) {
-      await Request.Update({ ...reject, status: "Queued" });
-      queued++;
-    } else {
-      await Request.Update({ ...reject, status: "Closed" });
-      closed++;
+  if (rejects.length) {
+    for (const reject of rejects) {
+      if (expiry < reject.expiry_time!) {
+        await Request.Update({ ...reject, status: "Queued" });
+        queued.push(reject);
+      } else {
+        await Request.Update({ ...reject, status: "Closed" });
+        expired.push(reject);
+      }
     }
+    queued.length && console.log("Request Retries:", queued.length, queued);
+    expired.length && console.log("Requests Expired:", expired.length, expired);
   }
-  return [queued, closed];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -67,19 +85,32 @@ const processRejected = async () => {
 const processPending = async () => {
   const requests = await Request.Fetch({ status: "Pending" });
   const expiry = setExpiry("0s");
+  const pending: Array<Partial<IInstrumentPosition>> = [];
+  const expired = [];
+  const closed = [];
 
-  let pending: number = 0;
-  let canceled: number = 0;
-
-  for (const request of requests) {
-    if (expiry < request.expiry_time!) {
-      pending++;
-    } else {
-      await Request.Update({ ...request, status: "Canceled" });
-      canceled++;
+  if (requests.length) {
+    for (const request of requests) {
+      const { instrument, position } = request;
+      if (expiry < request.expiry_time!) {
+        request.order_status === "Pending" ? pending.push({ instrument, position, status: "Pending" }) : closed.push(request);
+      } else {
+        await Request.Update({ ...request, status: "Canceled" });
+        expired.push(request);
+      }
     }
+
+    pending.length && (await InstrumentPosition.Update(pending));
+
+    if (closed.length)
+      for (const order of closed) {
+        await Request.Update({ ...order, state: order.order_state });
+      }
+
+    pending.length && console.log("Requests Pending:", pending.length);
+    expired.length && console.log("Requests Canceled:", expired.length, expired);
+    closed.length && console.log("Orders Closed:", closed.length, closed);
   }
-  return [pending, canceled];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -87,26 +118,20 @@ const processPending = async () => {
 //+--------------------------------------------------------------------------------------+
 const processQueued = async () => {
   const requests = await Request.Queue({ status: "Queued" });
-  const queue: Array<Partial<IRequestAPI>> = [];
 
-  for (const request of requests) {
-    const api: Partial<IRequestAPI> = {
-      instId: request.instId,
-      marginMode: request.marginMode,
-      positionSide: request.positionSide,
-      side: request.side,
-      orderType: request.orderType,
-      price: request.price,
-      size: request.size,
-      leverage: request.leverage,
-      reduceOnly: request.reduceOnly,
-      clientOrderId: request.clientOrderId,
-      brokerId: request.brokerId ? request.brokerId : undefined,
-    };
-    queue.push(api);
+  if (requests.length) {
+    const queue: Array<Partial<IRequestAPI>> = [];
+
+    for (const request of requests) {
+      const { status, ...order } = request;
+      queue.push(order);
+    }
+    const results = await RequestAPI.Submit(queue);
+    const [accepted, rejected] = await processResults(results, "Pending", "Rejected");
+
+    console.log("Orders Accepted:", accepted.length, accepted);
+    console.log("Orders Rejected:", rejected.length, rejected);
   }
-  await RequestAPI.Submit(queue);
-  return requests.length;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -114,30 +139,34 @@ const processQueued = async () => {
 //+--------------------------------------------------------------------------------------+
 const processCanceled = async () => {
   const requests = await Request.Fetch({ status: "Canceled" });
-  const cancels: Array<Partial<IOrderAPI>> = [];
+  const cancels = [];
 
-  for (const request of requests) {
-    if (request.order_status === 'Closed') {
-
-    } else {
-    const cancel: Partial<IOrderAPI> = {
-      orderId: request.order_id?.toString(),
-      instId: request.symbol,
-      clientOrderId: request.client_order_id,
-    };
-    cancels.push(cancel);
+  if (requests.length) {
+    for (const request of requests) {
+      if (request.order_status === "Closed") {
+        await Request.Update({ ...request, status: "Closed", memo: "Order canceled" });
+      } else {
+        cancels.push({
+          instId: request.symbol,
+          orderId: request.order_id?.toString(),
+        });
+      }
     }
+    const results = await OrderAPI.Cancel(cancels);
+    const [accepted, rejected] = await processResults(results, "Closed", "Canceled");
+
+    console.log("Cancels Closed:", accepted.length, accepted);
+    console.log("Cancels Rejected:", rejected.length, rejected);
   }
-  const response = await OrderAPI.Cancel(cancels);
-  return requests.length;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Main trade processing function;                                                      |
 //+--------------------------------------------------------------------------------------+
 export const Trades = async () => {
-  const [queued, closed] = await processRejected();
-  const pending = await processPending();
-  const canceled = await processCanceled();
-  const processed = await processQueued();
-}
+  await reconcileQueue();
+  await processRejected();
+  await processPending();
+  await processCanceled();
+  await processQueued();
+};

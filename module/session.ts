@@ -120,7 +120,7 @@ export function openWebSocket(props: Partial<TSession>) {
 
     if (message!.event === "pong") {
       setSession({ state: "connected" });
-      console.log(new Date().toLocaleTimeString());
+      console.log(new Date().toLocaleString());
       await PositionsAPI.Import();
       await OrderAPI.Import();
       await StopsAPI.Import();
@@ -140,7 +140,7 @@ export function openWebSocket(props: Partial<TSession>) {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
       message!.arg.channel === "account" && AccountAPI.Publish({ ...message!.data, account: account });
-      message!.arg.channel === "orders" && OrderAPI.Publish(message!.data);
+      message!.arg.channel === "orders" && OrderAPI.Publish("WSS", message!.data);
       message!.arg.channel === "positions" && PositionsAPI.Publish(message!.data);
     } else console.log("Unhandled message:", message!, Session());
   };

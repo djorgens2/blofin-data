@@ -9,7 +9,6 @@ import type { IRequest } from "@db/interfaces/request";
 import { Modify, parseColumns, Select } from "@db/query.utils";
 
 export interface IOrder extends IRequest {
-  instrument_type: Uint8Array;
   order_category: Uint8Array;
   category: string;
   cancel_source: Uint8Array;
@@ -24,14 +23,46 @@ export interface IOrder extends IRequest {
   update_time: Date | number;
 }
 
+export interface IOrderAudit extends IOrder {
+  base_currency: Uint8Array;
+  base_symbol: string;
+  contract: string;
+  contract_type: string;
+  instrument_type: string;
+  quote_currency: Uint8Array;
+  quote_symbol: string;
+  request_state: Uint8Array;
+  request_status: string;
+  suspense: boolean;
+  trade_period: Uint8Array;
+  trade_state: Uint8Array;
+  trade_status: string;
+  trade_timeframe: string;
+}
+
+export interface IOrderState {
+  state: Uint8Array;
+  status: string;
+  order_state: Uint8Array;
+  order_status: string;
+  description: string;
+}
+
 //+--------------------------------------------------------------------------------------+
-//| Publish - Conducts detail level scrub; updates order to local db;                    |
+//| Update - applies updates to Orders on select columns;                                |
 //+--------------------------------------------------------------------------------------+
 export async function Update(props: Partial<IOrder>) {
-const { request, order_id, client_order_id, instrument, create_time, update_time, ...updates } = props;
-const [fields, args] = parseColumns(updates);
-const sql = `UPDATE blofin.orders SET ${fields.join(" = ?, ")}${ create_time ? `, create_time = FROM_UNIXTIME(?/1000)` : ``}${update_time ? `, update_time = FROM_UNIXTIME(?/1000)` : ``} WHERE request = ?`;
-return Modify(sql,[...args, request]);
+  const { request, order_id, client_order_id, instrument, create_time, update_time, ...updates } = props;
+  const [fields, args] = parseColumns(updates);
+  const sql = `UPDATE blofin.orders SET ${fields.join(", ")}${create_time ? `, create_time = FROM_UNIXTIME(?/1000)` : ``}${
+    update_time ? `, update_time = FROM_UNIXTIME(?/1000)` : ``
+  } WHERE request = ?`;
+
+  create_time && args.push(create_time);
+  update_time && args.push(update_time);
+  args.push(request);
+
+  return Modify(sql, args);
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -87,3 +118,14 @@ export async function Key(props: Partial<IOrder>): Promise<IOrder["request"] | u
   }
   return undefined;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Returns the state key for both orders and requests based on select columns;          |
+//+--------------------------------------------------------------------------------------+
+export const State = async (props: Partial<IOrderState>): Promise<IOrderState["state"] | undefined> => {
+  const [fields, args] = parseColumns(props);
+  const sql = `SELECT state FROM blofin.vw_order_states ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const key = await Select<IOrder>(sql, args);
+
+  return key.length ? key[0].state : undefined;
+};
