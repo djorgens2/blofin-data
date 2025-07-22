@@ -9,36 +9,34 @@ import type { IRequest } from "@db/interfaces/request";
 import { Modify, parseColumns, Select } from "@db/query.utils";
 
 export interface IOrder extends IRequest {
+  orderId: string;
+  base_currency: Uint8Array;
+  base_symbol: string;
+  quote_currency: Uint8Array;
+  quote_symbol: string;
+  request_state: Uint8Array;
+  request_status: string;
+  contract: string;
+  contract_type: string;
+  instrument_type: string;
   order_category: Uint8Array;
   category: string;
   cancel_source: Uint8Array;
   canceled_by: string;
-  orderId: string;
   filled_amount: number;
   filled_size: number;
   average_price: number;
   fee: number;
   pnl: number;
-  create_time: Date | number;
-  update_time: Date | number;
-}
-
-export interface IOrderAudit extends IOrder {
-  base_currency: Uint8Array;
-  base_symbol: string;
-  contract: string;
-  contract_type: string;
-  instrument_type: string;
-  quote_currency: Uint8Array;
-  quote_symbol: string;
-  request_state: Uint8Array;
-  request_status: string;
-  suspense: boolean;
   trade_period: Uint8Array;
   trade_state: Uint8Array;
   trade_status: string;
   trade_timeframe: string;
+  suspense: boolean;
+  create_time: Date | number;
+  update_time: Date | number;
 }
+
 
 export interface IOrderState {
   state: Uint8Array;

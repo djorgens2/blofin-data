@@ -7,52 +7,57 @@
 import type { TRequest } from "@db/interfaces/state";
 import { Modify, parseColumns, Select } from "@db/query.utils";
 
-export interface IStopDetail {
-  stop_type: "tp" | "sl";
-  trigger_price: number;
-  order_price: number;
-}
-
 export interface IStopRequest {
-  request: Uint8Array;
+  stop_request: Uint8Array;
+  stop_type: "tp" | "sl";
   tpsl_id: string;
-  state: string;
+  order_state: string;
   action: "buy" | "sell";
   size: number;
   actual_size: number;
-  stops: Array<IStopDetail>;
+  trigger_price: number;
+  order_price: number;
   reduce_only: boolean;
   broker_id: string;
   create_time: Date | number;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Set-up/Configure order requests locally prior to posting request to broker;          |
+//| Publish request to broker;                                               |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IStopRequest>): Promise<IStopRequest["request"] | undefined> {
-  const { request, create_time, stops, ...publish } = props;
-  const { tpsl_id } = publish;
-  const [fields, args] = parseColumns({ ...publish }, "");
-  const sql = `INSERT IGNORE INTO blofin.stop_order (${fields.join(", ")}, request, create_time) VALUES (${Array(args.length)
-    .fill("?")
-    .join(", ")}, ?, FROM_UNIXTIME(?/1000))`;
+export async function Publish(props: Array<Partial<IStopRequest>>) {
+  if (props.length) console.log(props);
+  for (const publish of props) {
+    const stop_request = await Fetch({ stop_request: publish.stop_request });
 
-  try {
-    await Modify(sql, [...args, request, create_time, ...args, create_time]);
-
-    for (const id in stops!) {
-      const { stop_type, trigger_price, order_price } = stops[id];
-      await Modify(`INSERT IGNORE INTO blofin.position_stops (tpsl_id, stop_type, trigger_price, order_price) VALUES ( ?, ?, ?, ?)`, [
-        tpsl_id,
-        stop_type,
-        trigger_price,
-        order_price,
-      ]);
+    if (stop_request) {
+      //-- exists
+      console.log(stop_request);
+    } else {
+      //-- missing
+      //   const { stop_request, create_time, ...publish } = publish;
+      //   const { tpsl_id } = publish;
+      //   const [fields, args] = parseColumns({ ...publish }, "");
+      //   const sql = `INSERT IGNORE INTO blofin.stop_order (${fields.join(", ")}, request, create_time) VALUES (${Array(args.length)
+      //     .fill("?")
+      //     .join(", ")}, ?, FROM_UNIXTIME(?/1000))`;
+      //   try {
+      //     await Modify(sql, [...args, request, create_time, ...args, create_time]);
+      //     for (const id in stops!) {
+      //       const { stop_type, trigger_price, order_price } = stops[id];
+      //       await Modify(`INSERT IGNORE INTO blofin.position_stops (tpsl_id, stop_type, trigger_price, order_price) VALUES ( ?, ?, ?, ?)`, [
+      //         tpsl_id,
+      //         stop_type,
+      //         trigger_price,
+      //         order_price,
+      //       ]);
+      //     }
+      //     return request;
+      //   } catch (e) {
+      //     console.log({ sql, fields, args });
+      //     console.log(e);
+      //   }
     }
-    return request;
-  } catch (e) {
-    console.log({ sql, fields, args });
-    console.log(e);
   }
 }
 
@@ -61,6 +66,6 @@ export async function Publish(props: Partial<IStopRequest>): Promise<IStopReques
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IStopRequest>): Promise<Array<Partial<IStopRequest>>> {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM blofin.vw_stop_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IStopRequest>(sql, args);
 }

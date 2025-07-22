@@ -1082,3 +1082,25 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 
 // (async () => await Import())();
 
+
+//----------------------------- tp/sl test  -------------------------------------------------------//
+import { hexify } from "@lib/crypto.util";
+import { setSession } from "@module/session";
+import * as Stops from "@api/stops";
+import { IStopsAPI } from "@api/stops";
+
+//-- test 1; request w/ no tpsl; 100%
+const subtp1: Partial<IStopsAPI> = {
+  instId: 'BTC-USDT',
+  marginMode: "cross",
+  positionSide: "short",
+  side: "buy",
+  tpTriggerPrice: '108000',
+  tpOrderPrice: '107500',
+  size: '700',
+  reduceOnly: 'false',
+  clientOrderId: '00c0ffee-tp'
+};
+
+setSession({ account: hexify("145a6a")})
+const tp1 = Stops.Submit(subtp1);

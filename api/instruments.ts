@@ -1,5 +1,5 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                       instruments.ts |
+//|                                                                [api]  instruments.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
@@ -13,7 +13,6 @@ import * as ContractType from "@db/interfaces/contract_type";
 import * as InstrumentType from "@db/interfaces/instrument_type";
 import * as InstrumentDetail from "@db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
-import { error } from "node:console";
 
 export interface IInstrumentAPI {
   instId: string;
