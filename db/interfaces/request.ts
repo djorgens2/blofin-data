@@ -5,7 +5,7 @@
 "use strict";
 
 import type { IRequestAPI } from "@api/requests";
-import type { IOrderAudit } from "@db/interfaces/order";
+import type { IOrder } from "@db/interfaces/order";
 import type { IRequestState, TRequest } from "@db/interfaces/state";
 
 import { Modify, parseColumns, Select } from "@db/query.utils";
@@ -44,8 +44,8 @@ export interface IRequest {
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export const Reconcile = async (): Promise<Array<Partial<IOrderAudit>>> => {
-  const audit = await Select<IOrderAudit>(`SELECT * FROM blofin.vw_order_audit WHERE state != request_state`,[]);
+export const Reconcile = async (): Promise<Array<Partial<IOrder>>> => {
+  const audit = await Select<IOrder>(`SELECT * FROM blofin.vw_orders WHERE state != request_state`,[]);
   
   if (audit.length) {
     for (const order of audit) {

@@ -38,7 +38,7 @@ export async function Publish(props: Partial<IKeyProps>): Promise<IKeyProps["rol
   role === undefined && title && (await Key({ title }));
   if (role === undefined) {
     const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.role VALUES (?, ?, ?)`, [key, title, auth_rank]);
+    await Modify(`INSERT IGNORE INTO blofin.role VALUES (?, ?, ?)`, [key, title, auth_rank]);
     return key;
   }
   return role;

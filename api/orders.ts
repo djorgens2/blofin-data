@@ -15,7 +15,6 @@ import { isEqual, setExpiry } from "@lib/std.util";
 
 import * as Orders from "@db/interfaces/order";
 import * as Request from "@db/interfaces/request";
-import * as State from "@db/interfaces/state";
 import * as Reference from "@db/interfaces/reference";
 import * as Instrument from "@db/interfaces/instrument";
 
@@ -305,6 +304,6 @@ export const Import = async () => {
   const history = await History();
   const pending = await Pending();
 
-  history!.length && await Publish("History",history!);
-  pending!.length && await Publish("Pending",pending!);
+  history!.length && (await Publish("History", history!));
+  pending!.length && (await Publish("Pending", pending!));
 };

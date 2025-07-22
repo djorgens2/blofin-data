@@ -1,5 +1,5 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                         positions.ts |
+//|                                                                  [api]  positions.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
@@ -45,33 +45,34 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Array<IPositionsAPI>) {
   const active: Array<Partial<IInstrumentPosition>> = [];
-  for (const position of props) {
-    const positions = hexify(parseInt(position.positionId), 4);
-    const instrument = await Instrument.Key({ symbol: position.instId });
-    const update: Partial<IPositions> = {
-      positions,
-      instrument,
-      position: position.positionSide,
-      size: parseFloat(position.positions),
-      size_available: parseFloat(position.availablePositions),
-      leverage: parseInt(position.leverage!),
-      margin_mode: position.marginMode,
-      margin_used: format(position.margin),
-      margin_ratio: format(position.marginRatio, 3),
-      margin_initial: format(position.initialMargin),
-      margin_maint: format(position.maintenanceMargin),
-      average_price: format(position.averagePrice),
-      liquidation_price: format(position.liquidationPrice),
-      mark_price: format(position.markPrice),
-      unrealized_pnl: format(position.unrealizedPnl),
-      unrealized_pnl_ratio: format(position.unrealizedPnlRatio, 3),
-      adl: parseInt(position.adl),
-      create_time: parseInt(position.createTime!),
-      update_time: parseInt(position.updateTime!),
-    };
-    await Positions.Publish(update);
-    active.push({ instrument, position: update.position, status: "Open" });
-  }
+  if (props.length)
+    for (const position of props) {
+      const positions = hexify(parseInt(position.positionId), 4);
+      const instrument = await Instrument.Key({ symbol: position.instId });
+      const update: Partial<IPositions> = {
+        positions,
+        instrument,
+        position: position.positionSide,
+        size: parseFloat(position.positions),
+        size_available: parseFloat(position.availablePositions),
+        leverage: parseInt(position.leverage!),
+        margin_mode: position.marginMode,
+        margin_used: format(position.margin),
+        margin_ratio: format(position.marginRatio, 3),
+        margin_initial: format(position.initialMargin),
+        margin_maint: format(position.maintenanceMargin),
+        average_price: format(position.averagePrice),
+        liquidation_price: format(position.liquidationPrice),
+        mark_price: format(position.markPrice),
+        unrealized_pnl: format(position.unrealizedPnl),
+        unrealized_pnl_ratio: format(position.unrealizedPnlRatio, 3),
+        adl: parseInt(position.adl),
+        create_time: parseInt(position.createTime!),
+        update_time: parseInt(position.updateTime!),
+      };
+      await Positions.Publish(update);
+      active.push({ instrument, position: update.position, status: "Open" });
+    }
   return active;
 }
 
