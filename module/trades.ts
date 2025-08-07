@@ -5,16 +5,17 @@
 "use strict";
 "use server";
 
-import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
 import type { IRequestAPI } from "@api/requests";
 import type { TRequest } from "@db/interfaces/state";
+import type { IRequest } from "@db/interfaces/request";
 
 import { hexify } from "@lib/crypto.util";
 import { setExpiry } from "@lib/std.util";
 
-import * as InstrumentPosition from "@db/interfaces/instrument_position";
+import * as PositionsAPI from "@api/positions";
 import * as RequestAPI from "@api/requests";
 import * as OrderAPI from "@api/orders";
+import * as StopsAPI from "@api/stops";
 import * as Request from "@db/interfaces/request";
 import * as State from "@db/interfaces/state";
 
@@ -39,7 +40,7 @@ const processResults = async (results: Array<TResponse>, success: TRequest, fail
       const [{ state, status }] = await State.Fetch({ status: code ? success : fail });
       const memo = `[${code}: ${msg}] [${orderId},${clientOrderId}] ${setExpiry("0s")} Order status set to ${status}`;
 
-      request && (await Request.Update({ request, state, memo }));
+      request && (await Request.Update([{ request, state, memo }]));
       status === success ? accepted.push(result) : rejected.push(result);
     }
   }
@@ -48,11 +49,11 @@ const processResults = async (results: Array<TResponse>, success: TRequest, fail
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Reconciles request states with broker order history;                                 |
+//| Audits Request Queue; reconciles request state on change using broker order history; |
 //+--------------------------------------------------------------------------------------+
 const reconcileQueue = async () => {
-  const audit = await Request.Reconcile();
-  audit.length && console.log("Audit Corrections:", audit.length, audit);
+  const audit = await Request.Audit();
+  audit.length && console.log("Audit Updates:", audit.length, audit);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -61,20 +62,18 @@ const reconcileQueue = async () => {
 const processRejected = async () => {
   const rejects = await Request.Fetch({ status: "Rejected" });
   const expiry = setExpiry("0s");
-  const queued = [];
-  const expired = [];
+  const requeued: Array<Partial<IRequest>> = [];
+  const expired: Array<Partial<IRequest>> = [];
 
   if (rejects.length) {
     for (const reject of rejects) {
-      if (expiry < reject.expiry_time!) {
-        await Request.Update({ ...reject, status: "Queued" });
-        queued.push(reject);
-      } else {
-        await Request.Update({ ...reject, status: "Closed" });
-        expired.push(reject);
-      }
+      expiry < reject.expiry_time!
+        ? requeued.push({ ...reject, status: "Queued", memo: `Retry: Rejected request state changed from ${reject.status} to Queued` })
+        : expired.push({ ...reject, status: "Closed", memo: `Retry: Rejected request state changed from ${reject.status} to Closed` });
     }
-    queued.length && console.log("Request Retries:", queued.length, queued);
+    await Request.Update([...requeued, ...expired]);
+
+    requeued.length && console.log("Request Retries:", requeued.length, requeued);
     expired.length && console.log("Requests Expired:", expired.length, expired);
   }
 };
@@ -85,32 +84,21 @@ const processRejected = async () => {
 const processPending = async () => {
   const requests = await Request.Fetch({ status: "Pending" });
   const expiry = setExpiry("0s");
-  const pending: Array<Partial<IInstrumentPosition>> = [];
-  const expired = [];
-  const closed = [];
+  const pending: Array<Partial<IRequest>> = [];
+  const expired: Array<Partial<IRequest>> = [];
 
   if (requests.length) {
     for (const request of requests) {
-      const { instrument, position } = request;
-      if (expiry < request.expiry_time!) {
-        request.order_status === "Pending" ? pending.push({ instrument, position, status: "Pending" }) : closed.push(request);
-      } else {
-        await Request.Update({ ...request, status: "Canceled" });
-        expired.push(request);
-      }
+      expiry < request.expiry_time!
+        ? pending.push({ status: "Pending" })
+        : expired.push({ request: request.request, status: "Canceled", memo: `Expired: Pending request state changed from ${request.status} to Canceled` });
     }
-
-    pending.length && (await InstrumentPosition.Update(pending));
-
-    if (closed.length)
-      for (const order of closed) {
-        await Request.Update({ ...order, state: order.order_state });
-      }
-
-    pending.length && console.log("Requests Pending:", pending.length);
-    expired.length && console.log("Requests Canceled:", expired.length, expired);
-    closed.length && console.log("Orders Closed:", closed.length, closed);
   }
+
+  await Request.Update(expired);
+
+  pending.length && console.log("Requests Pending:", pending.length);
+  expired.length && console.log("Requests Canceled:", expired.length, expired);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -129,8 +117,8 @@ const processQueued = async () => {
     const results = await RequestAPI.Submit(queue);
     const [accepted, rejected] = await processResults(results, "Pending", "Rejected");
 
-    console.log("Orders Accepted:", accepted.length, accepted);
-    console.log("Orders Rejected:", rejected.length, rejected);
+    accepted.length && console.log("Orders Accepted:", accepted.length, accepted);
+    rejected.length && console.log("Orders Rejected:", rejected.length, rejected);
   }
 };
 
@@ -143,27 +131,29 @@ const processCanceled = async () => {
 
   if (requests.length) {
     for (const request of requests) {
-      if (request.order_status === "Closed") {
-        await Request.Update({ ...request, status: "Closed", memo: "Order canceled" });
-      } else {
-        cancels.push({
-          instId: request.symbol,
-          orderId: request.order_id?.toString(),
-        });
-      }
+      cancels.push({
+        instId: request.symbol,
+        orderId: request.order_id?.toString(),
+      });
     }
-    const results = await OrderAPI.Cancel(cancels);
-    const [accepted, rejected] = await processResults(results, "Closed", "Canceled");
-
-    console.log("Cancels Closed:", accepted.length, accepted);
-    console.log("Cancels Rejected:", rejected.length, rejected);
   }
+  const results = await OrderAPI.Cancel(cancels);
+  const [accepted, rejected] = await processResults(results, "Closed", "Canceled");
+
+  accepted.length && console.log("Cancels Closed:", accepted.length, accepted);
+  rejected.length && console.log("Cancels Rejected:", rejected.length, rejected);
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Main trade processing function;                                                      |
 //+--------------------------------------------------------------------------------------+
 export const Trades = async () => {
+  console.log("In Execute.Trades:", new Date().toLocaleString());
+
+  await PositionsAPI.Import();
+  await OrderAPI.Import();
+  await StopsAPI.Import();
+
   await reconcileQueue();
   await processRejected();
   await processPending();

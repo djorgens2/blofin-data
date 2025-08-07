@@ -5,7 +5,7 @@
 "use strict";
 "use server";
 
-import type { IStopRequest } from "@db/interfaces/stops";
+import type { IStopOrder } from "@db/interfaces/stops";
 
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
@@ -35,26 +35,29 @@ export interface IStopsAPI {
 //+--------------------------------------------------------------------------------------+
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Array<IStopsAPI>) {
+export async function Publish(active: Array<IStopsAPI>) {
   const stops = [];
-  if (props.length) {
-    for (const publish of props) {
-      const update: Partial<IStopRequest> = {
-        tpsl_id: publish.tpslId,
-        order_state: publish.state,
+  if (active.length) {
+    for (const publish of active) {
+      const update: Partial<IStopOrder> = {
+        symbol: publish.instId,
+        position: publish.positionSide,
+        tpsl_id: parseInt(publish.tpslId),
+        order_status: publish.state,
         action: publish.side,
         size: Number.isNaN(parseFloat(publish.size)) ? -1 : parseFloat(publish.size),
         actual_size: Number.isNaN(parseFloat(publish.actualSize)) ? -1 : parseFloat(publish.actualSize),
         reduce_only: publish.reduceOnly === "true" ? true : false,
+        system_generated: publish.clientOrderId.length ? true : false,
         broker_id: publish.brokerId?.length ? publish.brokerId : undefined,
         create_time: parseInt(publish.createTime),
       };
 
-      if (publish.clientOrderId.length) {
-        const req: Partial<IStopRequest> = {};
+      if (update.system_generated) {
+        const order: Partial<IStopOrder> = {};
         const [client_order_id, stop_type] = publish.clientOrderId.split("-");
-        Object.assign(req, { ...update, stop_request: hexify(client_order_id, 4), stop_type: stop_type as "tp" | "sl" });
-        stops.push(req);
+        Object.assign(order, { ...update, stop_request: hexify(client_order_id, 4), stop_type: stop_type as "tp" | "sl" });
+        stops.push(order);
       } else {
         const stop_request = hexify(parseInt(publish.tpslId).toString(16), 4);
         const tp_trigger_price = parseFloat(publish.tpTriggerPrice);
@@ -63,31 +66,33 @@ export async function Publish(props: Array<IStopsAPI>) {
         const sl_order_price = parseFloat(publish.slOrderPrice);
 
         if (!(Number.isNaN(tp_trigger_price) || Number.isNaN(tp_order_price))) {
-          const tp: Partial<IStopRequest> = {};
-          Object.assign(tp, {
+          const tp: Partial<IStopOrder> = {
             ...update,
             stop_request,
             stop_type: "tp",
-            trigger_price: tp_trigger_price ? tp_trigger_price : null,
+            trigger_price: tp_trigger_price ? tp_trigger_price : undefined,
             order_price: tp_order_price ? tp_order_price : -1,
-          });
+          };
           stops.push(tp);
         }
 
         if (!(Number.isNaN(sl_trigger_price) || Number.isNaN(sl_order_price))) {
-          const sl: Partial<IStopRequest> = {};
-          Object.assign(sl, {
+          const sl: Partial<IStopOrder> = {
             ...update,
             stop_request,
             stop_type: "sl",
-            trigger_price: sl_trigger_price ? sl_trigger_price : null,
+            trigger_price: sl_trigger_price ? sl_trigger_price : undefined,
             order_price: sl_order_price ? sl_order_price : -1,
-          });
+          };
           stops.push(sl);
         }
       }
     }
-    await Stops.Publish(stops);
+
+    const [missing, errors] = await Stops.Publish(stops);
+
+    missing.length && console.log("Orders Published:", missing.length, missing);
+    errors.length && console.log("Orders Errors:", errors.length, errors);
   }
 }
 
@@ -108,16 +113,19 @@ export async function Active() {
     "Content-Type": "application/json",
   };
 
-  fetch(rest_api_url!.concat(path), {
-    method,
-    headers,
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json?.code > 0) throw new Error(json);
-      Publish(json.data);
-    })
-    .catch((error) => console.log(error));
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.data;
+    }
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -139,19 +147,19 @@ export async function Cancel(cancel: Partial<IStopsAPI>) {
     "Content-Type": "application/json",
   };
 
-  fetch(rest_api_url!.concat(path), {
-    method,
-    headers,
-    body,
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      if (json?.code > 0) {
-        console.log(json);
-        throw new Error(json.data);
-      }
-    })
-    .catch((error) => console.log(error));
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.data;
+    }
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -186,4 +194,44 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
+//+--------------------------------------------------------------------------------------+
+export const Import = async () => {
+  const history = await Stops.Fetch({ order_status: "Pending" });
+  const active: Array<IStopsAPI> = await Active();
+  const closed: Array<Partial<IStopOrder>> = [];
+  const pending: Array<Partial<IStopOrder>> = [];
+
+  if (history.length)
+    for (const local of history) {
+      const { stop_request, stop_type, symbol, position } = local;
+
+      let found = false;
+
+      for (const activeStop of active) {
+        const { instId, positionSide, side, tpTriggerPrice, tpOrderPrice, slTriggerPrice, slOrderPrice } = activeStop;
+        const stopType =
+          stop_type === "tp"
+            ? !(Number.isNaN(tpTriggerPrice) || Number.isNaN(tpOrderPrice))
+              ? "tp"
+              : !(Number.isNaN(slTriggerPrice) || Number.isNaN(slOrderPrice))
+            : "sl";
+
+        if (instId === symbol && positionSide === position && stopType === stop_type) {
+          found = true;
+          break;
+        }
+      }
+
+      found ? pending.push({ status: "Pending" }) : closed.push({ stop_request, stop_type, status: "Closed", memo: "Closed: Stop order no longer active" });
+    }
+
+  await Publish(active);
+  await Stops.Update(closed);
+
+  console.log(`Pending Stops: [${history.length}, ${pending.length}]`);
+  console.log(`Stops Closed: [${closed.length, closed}]`);
 };

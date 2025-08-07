@@ -1082,25 +1082,94 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 
 // (async () => await Import())();
 
-
 //----------------------------- tp/sl test  -------------------------------------------------------//
-import { hexify } from "@lib/crypto.util";
+// import { hexify } from "@lib/crypto.util";
+// import { setSession } from "@module/session";
+// import * as Stops from "@api/stops";
+// import { IStopsAPI } from "@api/stops";
+
+// //-- test 1; request w/ no tpsl; 100%
+// const subtp1: Partial<IStopsAPI> = {
+//   instId: 'BTC-USDT',
+//   marginMode: "cross",
+//   positionSide: "short",
+//   side: "buy",
+//   tpTriggerPrice: '108000',
+//   tpOrderPrice: '107500',
+//   size: '700',
+//   reduceOnly: 'false',
+//   clientOrderId: '00c0ffee-tp'
+// };
+
+// setSession({ account: hexify("145a6a")})
+// const tp1 = Stops.Submit(subtp1);
+
+//----------------------------- runtime type test  -------------------------------------------------------//
+// import { IStopOrder, Submit } from "@db/interfaces/stops";
+// import * as Instruments from "@db/interfaces/instrument";
+// import { hexify } from "@lib/crypto.util";
+// const subtp1: Partial<IStopOrder> = {
+//   //stop_request: hexify("00abcdef",4),
+//   //order_state: 'live',
+//   symbol: "btc-USDT",
+//   position: "short",
+//   broker_id: "wtf",
+//   stop_type: "tp",
+//   action: "buy",
+//   trigger_price: parseFloat("108000"),
+//   order_price: parseFloat("107500"),
+//   size: parseFloat("700"),
+//   reduce_only: false,
+// //  create_time: parseInt("1748915537513"),
+// };
+
+// const request: Partial<IStopOrder> = {
+//   symbol: "BTC-USDT",
+//   position: "short",
+//   stop_type: "tp",
+//   action: "buy",
+//   trigger_price: parseFloat("108000"),
+//   order_price: parseFloat("107500"),
+//   size: parseFloat("700"),
+//   reduce_only: false,
+// };
+
+// //const parsed = Object.entries(subtp1).reduce((acc, [key, value]) => {
+// const parse = async (props: Partial<IStopOrder>) => {
+//   const request = await Submit(subtp1);
+//   console.log({request, props});
+// //  const key = await Instruments.Key({ symbol: subtp1.symbol });
+// //  const key = await Instruments.Key({});
+// //  console.log({key, props})
+// process.exit(1);
+// };
+// parse(subtp1);
+
+//----------------------------- order test  -------------------------------------------------------//
+import { setExpiry } from "@lib/std.util";
 import { setSession } from "@module/session";
-import * as Stops from "@api/stops";
-import { IStopsAPI } from "@api/stops";
+import { IStopOrder, Submit } from "@db/interfaces/stops";
+import { hexify } from "@lib/crypto.util";
+import * as Requests from "@db/interfaces/request";
+import * as Instruments from "@db/interfaces/instrument";
 
 //-- test 1; request w/ no tpsl; 100%
-const subtp1: Partial<IStopsAPI> = {
-  instId: 'BTC-USDT',
-  marginMode: "cross",
-  positionSide: "short",
-  side: "buy",
-  tpTriggerPrice: '108000',
-  tpOrderPrice: '107500',
-  size: '700',
-  reduceOnly: 'false',
-  clientOrderId: '00c0ffee-tp'
+const request: Partial<Requests.IRequest> = {
+//  instrument: hexify("4e3e8a")!,
+  symbol: "XRP-USDT",
+  margin_mode: "cross",
+  position: "short",
+  action: "sell",
+//  request_type: hexify("6eb6c5"),
+  order_type: 'limit',
+  price: 2.9985,
+  size: 100,
+  leverage: 50,
+//  expiry_time: setExpiry("30m"),
 };
 
 setSession({ account: hexify("145a6a")})
-const tp1 = Stops.Submit(subtp1);
+const submit = Requests.Submit(request);
+
+console.log({submit, request});
+

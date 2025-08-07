@@ -123,7 +123,7 @@ export const isLower = (source: number | string, benchmark: number | string, dig
 //+--------------------------------------------------------------------------------------+
 //| Returns a numeric value formatted to a specified precision                           |
 //+--------------------------------------------------------------------------------------+
-export const format = (value: number | string, digits: number = 8): number => {
+export const format = (value: number | string, digits: number = 14): number => {
   const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : typeof value === "number" ? value.toFixed(digits) : value;
 
   return isNaN(parseFloat(formatted)) ? 0 : Number(formatted);

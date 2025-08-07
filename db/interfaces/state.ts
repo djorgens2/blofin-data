@@ -10,7 +10,8 @@ import { hashKey } from "@lib/crypto.util";
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
 export type TAccount = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
-export type TPosition = "Pending" | "Open" | "Closed";
+export type TPosition = "Open" | "Closed";
+
 export type TState = {
   state: Uint8Array;
   status: TRequest | TSystem | TAccount | TPosition;

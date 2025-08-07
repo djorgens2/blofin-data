@@ -43,11 +43,11 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Array<IPositionsAPI>) {
-  const active: Array<Partial<IInstrumentPosition>> = [];
+export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partial<IInstrumentPosition>>> => {
+  const updates: Array<Partial<IInstrumentPosition>> = [];
   if (props.length)
     for (const position of props) {
-      const positions = hexify(parseInt(position.positionId), 4);
+      const positions = hexify(parseInt(position.positionId), 6);
       const instrument = await Instrument.Key({ symbol: position.instId });
       const update: Partial<IPositions> = {
         positions,
@@ -71,47 +71,15 @@ export async function Publish(props: Array<IPositionsAPI>) {
         update_time: parseInt(position.updateTime!),
       };
       await Positions.Publish(update);
-      active.push({ instrument, position: update.position, status: "Open" });
+      updates.push({ instrument, position: update.position, status: "Open" });
     }
-  return active;
-}
+  return updates.length ? updates : [];
+};
 
 //+--------------------------------------------------------------------------------------+
-//| History - retrieves position history; *** non-functional;                            |
+//| Retrieves active orders for reconciliation of local db;                              |
 //+--------------------------------------------------------------------------------------+
-// const History = async () => {
-//   const method = "GET";
-//   const path = "/api/v1/account/positions-history";
-//   const { api, phrase, rest_api_url } = Session();
-//   const { sign, timestamp, nonce } = await signRequest(method, path);
-//   const headers = {
-//     "ACCESS-KEY": api!,
-//     "ACCESS-SIGN": sign!,
-//     "ACCESS-TIMESTAMP": timestamp!,
-//     "ACCESS-NONCE": nonce!,
-//     "ACCESS-PASSPHRASE": phrase!,
-//     "Content-Type": "application/json",
-//   };
-
-//   try {
-//     const response = await fetch(rest_api_url!.concat(path), {
-//       method,
-//       headers,
-//     });
-//     if (response.ok) {
-//       const json = await response.json();
-//       return json.data;
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return [];
-//   }
-// };
-
-//+--------------------------------------------------------------------------------------+
-//| Import - retrieves active orders; reconciles with local db;                          |
-//+--------------------------------------------------------------------------------------+
-export async function Active() {
+export const Active = async () => {
   const method = "GET";
   const path = "/api/v1/account/positions";
   const { api, phrase, rest_api_url } = Session();
@@ -138,21 +106,21 @@ export async function Active() {
     console.log(error);
     return [];
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const history = await Select<IInstrumentPosition>(`SELECT * FROM blofin.vw_instrument_positions WHERE position_open = true`, []);
+  const history = await Select<IInstrumentPosition>(`SELECT * FROM blofin.vw_instrument_positions where status = "Open"`, []);
   const active: Array<IPositionsAPI> = await Active();
-  const publish = await Publish(active);
+  const updates = await Publish(active);
 
   if (history.length)
     for (const local of history) {
       const { instrument, symbol, position } = local;
       const found = active.find(({ instId, positionSide }) => instId === symbol && positionSide === position);
-      !found && publish.push({ instrument, position, status: "Closed" });
+      !found && updates.push({ instrument, position, status: "Closed" });
     }
-  publish.length && (await InstrumentPositions.Update(publish));
+  updates && (await InstrumentPositions.Update(updates));
 };

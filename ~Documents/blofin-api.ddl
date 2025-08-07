@@ -270,7 +270,7 @@ CREATE  TABLE blofin.instrument_position (
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
-	auto_trade           BINARY(3)    NOT NULL   ,
+	auto_state           BINARY(3)    NOT NULL   ,
 	update_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	close_time           DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT ak_instrument_position UNIQUE ( instrument, position ) ,
@@ -284,7 +284,7 @@ CREATE INDEX fk_ips_state ON blofin.instrument_position ( state );
 CREATE INDEX fk_ips_position ON blofin.instrument_position ( position );
 
 CREATE  TABLE blofin.positions ( 
-	positions            BINARY(4)    NOT NULL   PRIMARY KEY,
+	positions            BINARY(6)    NOT NULL   PRIMARY KEY,
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	size                 DOUBLE    NOT NULL   ,
@@ -326,7 +326,7 @@ CREATE  TABLE blofin.request (
 	request_type         BINARY(3)    NOT NULL   ,
 	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
-	memo                 VARCHAR(100)   COLLATE utf8mb4_0900_as_cs    ,
+	memo                 VARCHAR(200)   COLLATE utf8mb4_0900_as_cs    ,
 	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	expiry_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
@@ -377,13 +377,12 @@ CREATE  TABLE blofin.stop_request (
 	state                BINARY(3)    NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
 	size                 DOUBLE       ,
-	trigger_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
-	order_price          DOUBLE  DEFAULT (0)  NOT NULL   ,
+	trigger_price        DOUBLE  DEFAULT ('0')  NOT NULL   ,
+	order_price          DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT pk_position_request PRIMARY KEY ( stop_request, stop_type ),
-	CONSTRAINT unq_stop_request_stop_request UNIQUE ( stop_request ) ,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES blofin.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES blofin.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES blofin.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -526,12 +525,7 @@ CREATE  TABLE blofin.stop_order (
 	stop_type            CHAR(2)    NOT NULL   ,
 	tpsl_id              BIGINT    NOT NULL   ,
 	order_state          BINARY(3)    NOT NULL   ,
-	action               CHAR(4)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	size                 DOUBLE    NOT NULL   ,
 	actual_size          DOUBLE    NOT NULL   ,
-	trigger_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
-	order_price          DOUBLE  DEFAULT (0)  NOT NULL   ,
-	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
 	create_time          DATETIME  DEFAULT (now())  NOT NULL   ,
 	CONSTRAINT pk_stop_order PRIMARY KEY ( stop_request, stop_type ),
@@ -687,36 +681,6 @@ where
 							and (i.base_currency = b.currency)
 								and (i.quote_currency = q.currency));
 
-CREATE VIEW blofin.vw_instrument_positions AS
-select
-	vip.instrument_position AS instrument_position,
-	vip.instrument AS instrument,
-	vip.position AS position,
-	concat(b.symbol, '-', q.symbol) AS symbol,
-	b.currency AS base_currency,
-	b.symbol AS base_symbol,
-	q.currency AS quote_currency,
-	q.symbol AS quote_symbol,
-	s.state AS state,
-	s.status AS status,
-	i.margin_mode AS margin_mode,
-	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits,
-	(vip.update_time > vip.close_time) AS position_open,
-	vip.update_time AS update_time,
-	vip.close_time AS close_time
-from
-	(((((blofin.instrument_position vip
-join blofin.instrument i on
-	((vip.instrument = i.instrument)))
-join blofin.instrument_detail id on
-	((vip.instrument = id.instrument)))
-join blofin.currency b on
-	((i.base_currency = b.currency)))
-join blofin.currency q on
-	((i.quote_currency = q.currency)))
-join blofin.state s on
-	((vip.state = s.state)));
-
 CREATE VIEW blofin.vw_instruments AS
 select
 	i.instrument AS instrument,
@@ -826,6 +790,7 @@ select
 	blofin.i.trade_state AS trade_state,
 	blofin.i.trade_status AS trade_status,
 	blofin.i.suspense AS suspense,
+	r.memo AS memo,
 	o.create_time AS create_time,
 	o.update_time AS update_time,
 	r.expiry_time AS expiry_time
@@ -847,49 +812,6 @@ join blofin.state s on
 	((r.state = s.state)))
 join blofin.state rs on
 	((os.map_ref = rs.status)));
-
-CREATE VIEW blofin.vw_position_status AS
-select
-	ip.instrument_position AS instrument_position,
-	ip.state AS state,
-	s.status AS status,
-	ip.auto_trade AS auto_trade,
-	sip.status AS auto_trade_status,
-	ip.instrument AS instrument,
-	concat(b.symbol, '-', q.symbol) AS symbol,
-	b.currency AS base_currency,
-	b.symbol AS base_symbol,
-	q.currency AS quote_currency,
-	q.symbol AS quote_symbol,
-	ip.position AS position,
-	st.stop_type AS stop_type,
-	ifnull(srp.open, 0) AS open
-from
-	(((((((blofin.instrument_position ip
-join blofin.state s on
-	((ip.state = s.state)))
-join blofin.state sip on
-	((ip.auto_trade = sip.state)))
-join blofin.stop_type st)
-join blofin.instrument i on
-	((ip.instrument = i.instrument)))
-join blofin.currency b on
-	((i.base_currency = b.currency)))
-join blofin.currency q on
-	((i.quote_currency = q.currency)))
-left join (
-	select
-		sr.instrument_position AS instrument_position,
-		sr.stop_type AS stop_type,
-		count(0) AS open
-	from
-		(blofin.state s
-	join blofin.stop_request sr on
-		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')))))
-	group by
-		sr.instrument_position,
-		sr.stop_type) srp on
-	(((ip.instrument_position = srp.instrument_position) and (st.stop_type = srp.stop_type))));
 
 CREATE VIEW blofin.vw_positions AS
 select
@@ -1024,62 +946,6 @@ group by
 order by
 	s.area;
 
-CREATE VIEW blofin.vw_stop_orders AS
-select
-	sr.stop_request AS stop_request,
-	sr.stop_type AS stop_type,
-	so.tpsl_id AS tpsl_id,
-	concat(lower(cast(hex(so.stop_request) as char charset utf8mb4)), '-', so.stop_type) AS client_order_id,
-	blofin.vip.instrument AS instrument,
-	blofin.vip.symbol AS symbol,
-	blofin.vip.position AS position,
-	blofin.vip.state AS state,
-	blofin.vip.status AS status,
-	os.order_state AS order_state,
-	os.source_ref AS order_status,
-	so.action AS action,
-	so.size AS size,
-	so.actual_size AS actual_size,
-	so.trigger_price AS trigger_price,
-	so.order_price AS order_price,
-	so.reduce_only AS reduce_only,
-	so.broker_id AS broker_id,
-	so.create_time AS create_time
-from
-	(((blofin.stop_order so
-join blofin.order_state os on
-	((so.order_state = os.order_state)))
-join blofin.stop_request sr on
-	(((so.stop_request = sr.stop_request) and (so.stop_type = sr.stop_type))))
-join blofin.vw_instrument_positions vip on
-	((sr.instrument_position = blofin.vip.instrument_position)));
-
-CREATE VIEW blofin.vw_stop_requests AS
-select
-	sr.stop_request AS stop_request,
-	sr.stop_type AS stop_type,
-	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS client_order_id,
-	blofin.vip.instrument AS instrument,
-	blofin.vip.symbol AS symbol,
-	blofin.vip.position AS position,
-	s.state AS state,
-	s.status AS status,
-	blofin.vip.state AS position_state,
-	blofin.vip.status AS position_status,
-	sr.action AS action,
-	sr.size AS size,
-	sr.trigger_price AS trigger_price,
-	sr.order_price AS order_price,
-	sr.reduce_only AS reduce_only,
-	sr.memo AS memo,
-	sr.create_time AS create_time
-from
-	((blofin.stop_request sr
-join blofin.state s on
-	((sr.state = s.state)))
-join blofin.vw_instrument_positions vip on
-	((sr.instrument_position = blofin.vip.instrument_position)));
-
 CREATE VIEW blofin.vw_users AS
 select
 	u.user AS user,
@@ -1101,27 +967,6 @@ join blofin.state s)
 where
 	((u.role = r.role)
 		and (u.state = s.state));
-
-CREATE VIEW blofin.vw_api_stop_requests AS
-select
-	s.status AS status,
-	blofin.vp.symbol AS instId,
-	blofin.vp.margin_mode AS marginMode,
-	blofin.vp.position AS positionSide,
-	sr.action AS side,
-	sr.size AS size,
-	if((sr.stop_type = 'tp'), replace(format(sr.trigger_price, blofin.vp.digits), ',', ''), NULL) AS tpTriggerPrice,
-	if((sr.stop_type = 'tp'), replace(format(sr.order_price, blofin.vp.digits), ',', ''), NULL) AS tpOrderPrice,
-	if((sr.stop_type = 'sl'), replace(format(sr.trigger_price, blofin.vp.digits), ',', ''), NULL) AS slTriggerPrice,
-	if((sr.stop_type = 'sl'), replace(format(sr.order_price, blofin.vp.digits), ',', ''), NULL) AS slOrderPrice,
-	sr.reduce_only AS reduceOnly,
-	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS clientOrderId
-from
-	((blofin.stop_request sr
-join blofin.state s on
-	((sr.state = s.state)))
-join blofin.vw_instrument_positions vp on
-	((sr.instrument_position = blofin.vp.instrument_position)));
 
 CREATE VIEW blofin.vw_candles AS
 select
@@ -1158,6 +1003,161 @@ where
 				and (blofin.i.quote_currency = q.currency)
 					and (blofin.i.instrument = ip.instrument)
 						and (ip.period = pt.period));
+
+CREATE VIEW blofin.vw_instrument_positions AS
+select
+	ip.instrument_position AS instrument_position,
+	ip.instrument AS instrument,
+	ip.position AS position,
+	blofin.vi.symbol AS symbol,
+	ip.state AS state,
+	s.status AS status,
+	ip.auto_state AS auto_state,
+	auto.status AS auto_status,
+	id.digits AS digits,
+	ifnull(r.open_request, 0) AS open_request,
+	ifnull(tp.open_take_profit, 0) AS open_take_profit,
+	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
+	ip.update_time AS update_time,
+	ip.close_time AS close_time
+from
+	(((((((blofin.instrument_position ip
+join blofin.vw_instruments vi on
+	((ip.instrument = blofin.vi.instrument)))
+join blofin.state s on
+	((ip.state = s.state)))
+join blofin.state auto on
+	((ip.auto_state = auto.state)))
+join (
+	select
+		blofin.instrument_detail.instrument AS instrument,
+		(length(substring_index(cast(blofin.instrument_detail.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits
+	from
+		blofin.instrument_detail) id on
+	((ip.instrument = id.instrument)))
+left join (
+	select
+		rp.instrument_position AS instrument_position,
+		count(0) AS open_request
+	from
+		((blofin.state s
+	join blofin.request r on
+		(((r.state = s.state) and (s.status in ('Pending', 'Queued')))))
+	join blofin.instrument_position rp on
+		(((r.instrument = rp.instrument) and (r.position = rp.position))))
+	group by
+		rp.instrument_position) r on
+	((ip.instrument_position = r.instrument_position)))
+left join (
+	select
+		sr.instrument_position AS instrument_position,
+		count(0) AS open_take_profit
+	from
+		(blofin.state s
+	join blofin.stop_request sr on
+		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')))))
+	where
+		(sr.stop_type = 'tp')
+	group by
+		sr.instrument_position,
+		sr.stop_type) tp on
+	((ip.instrument_position = tp.instrument_position)))
+left join (
+	select
+		sr.instrument_position AS instrument_position,
+		count(0) AS open_stop_loss
+	from
+		(blofin.state s
+	join blofin.stop_request sr on
+		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')))))
+	where
+		(sr.stop_type = 'sl')
+	group by
+		sr.instrument_position,
+		sr.stop_type) sl on
+	((ip.instrument_position = sl.instrument_position)));
+
+CREATE VIEW blofin.vw_stop_orders AS
+select
+	sr.stop_request AS stop_request,
+	sr.stop_type AS stop_type,
+	so.tpsl_id AS tpsl_id,
+	concat(lower(cast(hex(so.stop_request) as char charset utf8mb4)), '-', so.stop_type) AS client_order_id,
+	blofin.vip.instrument_position AS instrument_position,
+	blofin.vip.instrument AS instrument,
+	blofin.vip.symbol AS symbol,
+	blofin.vip.position AS position,
+	blofin.vip.state AS position_state,
+	blofin.vip.status AS position_status,
+	rs.state AS request_state,
+	rs.status AS request_status,
+	os.order_state AS order_state,
+	os.source_ref AS order_status,
+	sr.action AS action,
+	sr.size AS size,
+	so.actual_size AS actual_size,
+	sr.trigger_price AS trigger_price,
+	sr.order_price AS order_price,
+	sr.reduce_only AS reduce_only,
+	sr.memo AS memo,
+	so.broker_id AS broker_id,
+	ifnull(so.create_time, sr.create_time) AS create_time
+from
+	((((blofin.stop_request sr
+left join blofin.stop_order so on
+	(((so.stop_request = sr.stop_request) and (so.stop_type = sr.stop_type))))
+left join blofin.order_state os on
+	((so.order_state = os.order_state)))
+join blofin.vw_instrument_positions vip on
+	((sr.instrument_position = blofin.vip.instrument_position)))
+join blofin.state rs on
+	((sr.state = rs.state)));
+
+CREATE VIEW blofin.vw_stop_requests AS
+select
+	sr.stop_request AS stop_request,
+	sr.stop_type AS stop_type,
+	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS client_order_id,
+	blofin.vip.instrument AS instrument,
+	blofin.vip.symbol AS symbol,
+	blofin.vip.position AS position,
+	s.state AS state,
+	s.status AS status,
+	blofin.vip.state AS position_state,
+	blofin.vip.status AS position_status,
+	sr.action AS action,
+	sr.size AS size,
+	sr.trigger_price AS trigger_price,
+	sr.order_price AS order_price,
+	sr.reduce_only AS reduce_only,
+	sr.memo AS memo,
+	sr.create_time AS create_time
+from
+	((blofin.stop_request sr
+join blofin.state s on
+	((sr.state = s.state)))
+join blofin.vw_instrument_positions vip on
+	((sr.instrument_position = blofin.vip.instrument_position)));
+
+CREATE VIEW blofin.vw_api_stop_requests AS
+select
+	s.status AS status,
+	blofin.vip.symbol AS instId,
+	blofin.vip.position AS positionSide,
+	sr.action AS side,
+	sr.size AS size,
+	if((sr.stop_type = 'tp'), replace(format(sr.trigger_price, blofin.vip.digits), ',', ''), NULL) AS tpTriggerPrice,
+	if((sr.stop_type = 'tp'), replace(format(sr.order_price, blofin.vip.digits), ',', ''), NULL) AS tpOrderPrice,
+	if((sr.stop_type = 'sl'), replace(format(sr.trigger_price, blofin.vip.digits), ',', ''), NULL) AS slTriggerPrice,
+	if((sr.stop_type = 'sl'), replace(format(sr.order_price, blofin.vip.digits), ',', ''), NULL) AS slOrderPrice,
+	sr.reduce_only AS reduce_only,
+	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS client_order_id
+from
+	((blofin.stop_request sr
+join blofin.state s on
+	((sr.state = s.state)))
+join blofin.vw_instrument_positions vip on
+	((sr.instrument_position = blofin.vip.instrument_position)));
 
 CREATE VIEW blofin.vw_candle_audit AS
 select
@@ -1222,3 +1222,4 @@ ioc: Immediate-or-cancel order';
 
 ALTER TABLE blofin.fractal_fibonacci MODIFY fractal_type CHAR(10)  NOT NULL   COMMENT 'Retrace
 Extension';
+
