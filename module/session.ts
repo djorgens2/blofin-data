@@ -12,9 +12,7 @@ import { TextEncoder } from "node:util";
 
 import * as PositionsAPI from "@api/positions";
 import * as AccountAPI from "@api/accounts";
-import * as RequestAPI from "@api/requests"
 import * as OrderAPI from "@api/orders";
-import * as StopsAPI from "@api/stops";
 import * as Execute from "@module/trades"
 
 export type IResponseProps = {
@@ -120,10 +118,6 @@ export function openWebSocket(props: Partial<TSession>) {
 
     if (message!.event === "pong") {
       setSession({ state: "connected" });
-      console.log(new Date().toLocaleString());
-      await PositionsAPI.Import();
-      await OrderAPI.Import();
-      await StopsAPI.Import();
       await Execute.Trades();
 
     } else if (message!.event === "login") {

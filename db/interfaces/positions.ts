@@ -55,10 +55,10 @@ export async function Publish(props: Partial<IPositions>): Promise<IPositions["p
     `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")}= ?, create_time = FROM_UNIXTIME(?/1000), update_time = FROM_UNIXTIME(?/1000)`;
 
   try {
-    await Modify(sql, [...args, positions, create_time, update_time, ...args, create_time, update_time]);
+    await Modify(sql, [...args, key, create_time, update_time, ...args, create_time, update_time]);
     return positions;
   } catch (e) {
-    console.log({ sql, fields, args, publish });
+    console.log({ sql, fields, args, props, publish: { ...args, key, create_time, update_time } });
     console.log(e);
   }
 }

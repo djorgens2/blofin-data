@@ -17,6 +17,8 @@ import * as Request from "@db/interfaces/request";
 import * as Order from "@db/interfaces/order";
 import * as Reference from "@db/interfaces/reference";
 import * as Positions from "@db/interfaces/positions";
+import * as InstrumentPosition from "@db/interfaces/instrument_position";
+import * as Stops from "@db/interfaces/stops";
 
 import { parseJSON } from "@lib/std.util";
 import { hexify } from "./lib/crypto.util";
@@ -41,7 +43,9 @@ enum Subject {
   Area = "-area",
   Environ = '-e',
   Reference = '-ref',
-  Positions = '-pos'
+  Positions = '-pos',
+  Stops = '-so',
+  InstrumentPosition = '-ip',
 }
 
 async function show(subject: string, args: string): Promise<string> {
@@ -186,6 +190,33 @@ async function show(subject: string, args: string): Promise<string> {
       const { table, ...props} = json;
       const key = await Reference.Fetch(table, props!);
       console.log("Fetch reference:", props, key);
+      return "ok";
+    }
+    case Subject.InstrumentPosition: {
+      const props = parseJSON< InstrumentPosition.IInstrumentPosition >(args);
+      Object.assign(props!, {
+        ...props, 
+        instrument_position: props?.instrument_position ? hexify(props.instrument_position) : undefined,
+        instrument: props?.instrument ? hexify(props.instrument) : undefined,
+        state: props?.state ? hexify(props.state) : undefined,
+        auto_state: props?.auto_state ? hexify(props.auto_state) : undefined
+      });
+      const key = await InstrumentPosition.Fetch(props!);
+      console.log(`Fetch Instrument Positions [ ${Object.keys(props!).length} ]:`, props, key);
+      return "ok";
+    }
+    case Subject.Stops: {
+      const props = parseJSON< Stops.IStopOrder >(args);
+      Object.assign(props!, {
+        ...props,
+        instrument_position: props?.instrument_position ? hexify(props.instrument_position) : undefined,
+        instrument: props?.instrument ? hexify(props.instrument) : undefined,
+        position_state: props?.state ? hexify(props.state) : undefined,
+        request_state: props?.state ? hexify(props.state) : undefined,
+        order_state: props?.state ? hexify(props.state) : undefined,
+        stop_request: props?.stop_request ? hexify(props.stop_request) : undefined});
+      const key = await Stops.Fetch(props!);
+      console.log(`Fetch Stop Orders [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Positions: {
