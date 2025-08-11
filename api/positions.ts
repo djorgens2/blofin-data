@@ -45,7 +45,7 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partial<IInstrumentPosition>>> => {
   const updates: Array<Partial<IInstrumentPosition>> = [];
-  if (props.length)
+  if (props && props.length)
     for (const position of props) {
       const positions = hexify(parseInt(position.positionId), 6);
       const instrument = await Instrument.Key({ symbol: position.instId });

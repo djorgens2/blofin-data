@@ -1162,14 +1162,18 @@ const request: Partial<Requests.IRequest> = {
   action: "sell",
 //  request_type: hexify("6eb6c5"),
   order_type: 'limit',
-  price: 2.9985,
+  price: 3.5,
   size: 100,
   leverage: 50,
-//  expiry_time: setExpiry("30m"),
+  expiry_time: setExpiry("2m"),
 };
 
-setSession({ account: hexify("145a6a")})
-const submit = Requests.Submit(request);
+setSession({ account: hexify("145a6a")});
 
-console.log({submit, request});
+const submit = async () => {
+  const op = await Requests.Submit(request);
+  console.log({op, request});
+  return op;
+};
 
+submit();

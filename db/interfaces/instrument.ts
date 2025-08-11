@@ -7,25 +7,20 @@
 import type { RowDataPacket } from "mysql2";
 import { TSystem } from "@db/interfaces/state";
 
-import { Select, Modify } from "@db/query.utils";
+import { Select, Modify, parseColumns } from "@db/query.utils";
 import { splitSymbol } from "@lib/app.util";
 
 import * as Currency from "@db/interfaces/currency";
 import * as State from "@db/interfaces/state";
 import { hashKey } from "@lib/crypto.util";
 
-export interface IKeyProps {
+export interface IInstrument {
   instrument?: Uint8Array;
   symbol?: string;
   base_symbol?: string;
   quote_symbol?: string;
   base_currency?: Uint8Array;
   quote_currency?: Uint8Array;
-  limit?: number;
-  fromSymbol?: string;
-}
-
-export interface IInstrument extends IKeyProps, RowDataPacket {
   instrument_type: string;
   contract_type: string;
   trade_period: Uint8Array;
@@ -54,7 +49,7 @@ export interface IInstrument extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Determines if instrument exists, if not, writes new to database; returns Key         |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Array): Promise<IKeyProps["instrument"]> {
+export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Array): Promise<IInstrument["instrument"]> {
   const instrument = await Key({ base_currency, quote_currency });
 
   if (instrument === undefined) {
@@ -77,7 +72,7 @@ export async function Publish(base_currency: Uint8Array, quote_currency: Uint8Ar
 //+--------------------------------------------------------------------------------------+
 //| Returns instrument by search method in props; executes search in priority sequence;  |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | undefined> {
+export async function Key(props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> {
   const keys: Array<Uint8Array | string> = [];
   const filters: Array<string> = [];
 
@@ -121,20 +116,11 @@ export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | u
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieves all trading-related instrument details by Key;                             |
+//| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<Partial<IInstrument>>> {
-  const instrument = await Key(props);
-  const args = [];
-  const sql: string =
-    `SELECT * FROM blofin.vw_instruments` +
-    (instrument ? ` WHERE instrument = ?` : ``) +
-    (props.fromSymbol ? (instrument ? ` AND ` : ` WHERE `) : ``) +
-    (props.fromSymbol ? `symbol >= ? ORDER BY symbol LIMIT ${props.limit || 1}` : ``);
-
-  instrument && args.push(instrument);
-  props.fromSymbol && args.push(props.fromSymbol);
-
+export const Fetch = async (props: Partial<IInstrument>): Promise<Array<Partial<IInstrument>>> => {
+  const [fields, args] = parseColumns(props);
+  const sql = `SELECT * FROM blofin.vw_instruments ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IInstrument>(sql, args);
 }
 

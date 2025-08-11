@@ -1151,7 +1151,7 @@ select
 	if((sr.stop_type = 'sl'), replace(format(sr.trigger_price, blofin.vip.digits), ',', ''), NULL) AS slTriggerPrice,
 	if((sr.stop_type = 'sl'), replace(format(sr.order_price, blofin.vip.digits), ',', ''), NULL) AS slOrderPrice,
 	sr.reduce_only AS reduce_only,
-	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS client_order_id
+	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS clientOrderId
 from
 	((blofin.stop_request sr
 join blofin.state s on

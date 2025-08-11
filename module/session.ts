@@ -122,6 +122,7 @@ export function openWebSocket(props: Partial<TSession>) {
 
     } else if (message!.event === "login") {
       if (message!.code === "0") {
+        console.log(`Connected to websocket: [${process.pid}` + `:${ws.url}]`);
         ws.send(
           JSON.stringify({
             op: "subscribe",

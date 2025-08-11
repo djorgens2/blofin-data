@@ -61,7 +61,7 @@ async function show(subject: string, args: string): Promise<string> {
     }
     case Subject.Bars: {
       const props = parseJSON<Candle.IKeyProps>(args);
-      const instrument: Instrument.IKeyProps["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
+      const instrument: Instrument.IInstrument["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
       const period = await Period.Key({ timeframe: props!.timeframe });
       const bars = await Candle.Fetch({ ...props!, instrument: instrument!, period: period! });
       console.log("Fetch filtered period:", props, bars);
@@ -82,7 +82,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.Instrument: {
-      const props = parseJSON<Instrument.IKeyProps>(args);
+      const props = parseJSON<Instrument.IInstrument>(args);
       props!.instrument && Object.assign(props!, { ...props, instrument: hexify(props!.instrument) });
       const row = await Instrument.Fetch(props!);
       console.log("Fetch Instrument", { props, row });
