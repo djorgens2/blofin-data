@@ -75,7 +75,6 @@ export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   const { account } = Session();
-  const expiry_time = props.expiry_time || setExpiry("8h"); //-- need to set expiry time if not provided
   const [fields, args] = parseColumns(
     {
       request: props.request ? props.request : hexify(uniqueKey(10), 6),
@@ -92,13 +91,21 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
       reduce_only: props.reduce_only || false,
       broker_id: props.broker_id,
       memo: props.memo,
-      expiry_time,
+      expiry_time: props.expiry_time || setExpiry("8h"), //-- set expiry time 8h if not provided; s/b set in configuration
     } as Partial<IRequest>,
     ""
   );
 
   const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
-  await Modify(sql, args);
+
+  try {
+    await Modify(sql, args);
+    console.log("Request submitted successfully:", { ...props, request: args[0] });
+  } catch (e) {
+    console.log({ sql, args, props });
+    console.log(e);
+    return undefined;
+  }
 
   return args[0] as IRequest["request"];
 };
@@ -131,9 +138,44 @@ export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"]
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
+//+--------------------------------------------------------------------------------------+
+export const Cancel = async (request: Partial<IRequest>) => {
+  const cancels = await Fetch(request);
+  const requests: Array<Partial<IRequest>> = [];
+
+  if (cancels && cancels.length) {
+    cancels.map((cancel) =>
+      requests.push({
+        request: cancel.request,
+        status: "Canceled",
+        memo: `Cancel: Request state changed from ${cancel.status} to Canceled`,
+      })
+    );
+
+    try {
+      console.log("Requests to cancel:", requests);
+      const updated = await Update(requests);
+      return updated;
+
+    } catch (e) {
+      console.log("Error during request cancellation:", e);
+      console.log("Request details:", requests);
+      return {updated: [], errors: requests};
+    }
+  }
+  
+  console.error("Test 1: No requests found to cancel with the provided criteria.");
+  return {updated: [], errors: request as Array<Partial<IRequest>>};
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Updates the request states via WSS or API;                                           |
 //+--------------------------------------------------------------------------------------+
 export const Update = async (updates: Array<Partial<IRequest>>) => {
+  const updated: Array<Partial<IRequest>> = [];
+  const errors: Array<Partial<IRequest>> = [];
+
   if (updates.length) {
     for (const update of updates) {
       const { request, status, memo } = update;
@@ -143,10 +185,13 @@ export const Update = async (updates: Array<Partial<IRequest>>) => {
 
       try {
         await Modify(sql, args);
+        updated.push({ request, status, memo });
       } catch (e) {
         console.log({ sql, args, update });
         console.log(e);
+        errors.push({ request, status });
       }
     }
   }
+  return { updated, errors };
 };
