@@ -36,9 +36,9 @@ export interface IOrderAPI extends IRequestAPI {
 type TCompare = "reject" | "accept" | "modify" | "missing";
 
 //+--------------------------------------------------------------------------------------+
-//| Processes WSS/API returns set of modified columns for update/insert locally     |
+//| Processes WSS/API orders; returns modified/full data for update/insert locally;      |
 //+--------------------------------------------------------------------------------------+
-const Compare = async (api: Partial<IOrderAPI>, request: IOrder["request"]): Promise<[TCompare, Partial<IOrder>]> => {
+const compare = async (api: Partial<IOrderAPI>, request: IOrder["request"]): Promise<[TCompare, Partial<IOrder>]> => {
   const [order] = await Orders.Fetch({ request, order_id: parseInt(api.orderId!) });
   const change: Partial<IOrder> = { request, order_id: parseInt(api.orderId!) };
 
@@ -131,28 +131,6 @@ const formatOrder = async (order: Partial<IOrderAPI>): Promise<Partial<IOrder>> 
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns formatted request object for replacement/missing/console entered requests;   |
-//+--------------------------------------------------------------------------------------+
-const formatRequest = async (order: Partial<IOrder>): Promise<Partial<IRequest>> => {
-  const state = await Orders.State({ order_state: order.order_state });
-  return {
-    request: order.request,
-    state,
-    instrument: order.instrument,
-    position: order.position,
-    action: order.action,
-    price: order.price,
-    size: order.size,
-    leverage: order.leverage,
-    request_type: order.request_type,
-    margin_mode: order.margin_mode,
-    reduce_only: order.reduce_only,
-    memo: `Request missing; imported locally;`,
-    expiry_time: setExpiry("1h"), //--- need a default expiry mechanism
-  };
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Publish - scrubs blofin api updates, applies keys, and executes merge to local db;   |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (source: string, orders: Array<Partial<IOrderAPI>>) => {
@@ -170,13 +148,11 @@ export const Publish = async (source: string, orders: Array<Partial<IOrderAPI>>)
 
         //-- handle missing requests
         if (request) {
-          const [compare, results] = await Compare(order, request);
-          compare === "modify" && modified.push(results);
-          compare === "missing" && missing.push(update);
+          const [result, changed] = await compare(order, request);
+          result === "modify" && modified.push(changed);
+          result === "missing" && missing.push(update);
         } else {
-          const request = await formatRequest(update);
-          await Request.Submit(request);
-          missing.push(update);
+          missing.push({ ...update, memo: `Request missing locally; imported;` });
         }
       } else {
         console.log(`Error: Bad/Missing Symbol [${order.instId}]`);
@@ -184,13 +160,20 @@ export const Publish = async (source: string, orders: Array<Partial<IOrderAPI>>)
     }
 
     if (missing.length) {
-      for (const order of missing) await Orders.Publish(order);
-    }
-    if (modified.length) {
-      for (const order of modified) await Orders.Update(order);
+      for (const order of missing) {
+        await Request.Submit(order);
+        await Orders.Publish(order);
+      }
     }
 
-    missing.length && console.log("Orders Imported:", missing.length, missing);
+    if (modified.length) {
+      for (const order of modified) {
+        await Request.Submit(order);
+        await Orders.Update(order);
+      }
+    }
+
+    missing.length && console.log("Orders Recieved:", missing.length, missing);
     modified.length && console.log("Orders Updated:", modified.length, modified);
   }
 };

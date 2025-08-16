@@ -16,6 +16,7 @@ import { setExpiry } from "@lib/std.util";
 import * as States from "@db/interfaces/state";
 import * as References from "@db/interfaces/reference";
 import * as Instruments from "@db/interfaces/instrument";
+import * as InstrumentPosition from "@db/interfaces/instrument_position";
 
 export interface IRequest {
   request: Uint8Array;
@@ -40,8 +41,78 @@ export interface IRequest {
   memo: string;
   reduce_only: boolean;
   broker_id: string;
-  expiry_time: Date;
+  create_time: Date | number;
+  expiry_time: Date | number;
+  update_time: Date | number;
 }
+
+//-- Private functions
+
+//+--------------------------------------------------------------------------------------+
+//| Applies updates to request on select columns;                                        |
+//+--------------------------------------------------------------------------------------+
+const updateRequest = async (update: Partial<IRequest>) =>{
+  const { request, create_time, update_time, ...updates } = update;
+  const [fields, args] = parseColumns(updates);
+  const sql = `UPDATE blofin.request SET ${fields.join(", ")}, update_time = now() WHERE request = ?`;
+
+  args.push(request);
+
+  try {
+    await Modify(sql, args);
+    return { ...updates, request, memo: `Request updated successfully` };
+  } catch (e) {
+    console.log({ sql, args, update });
+    console.log(e);
+    return { ...updates, request, memo: `Error updating request` };
+  }
+}
+
+//+--------------------------------------------------------------------------------------+
+//| Publishes new requests from all sources; API/WSS/APP/CLI and SQL Clients             |
+//+--------------------------------------------------------------------------------------+
+const publishRequest = async (request: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+  const [fields, args] = parseColumns(request, "");
+  const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
+
+  try {
+    await Modify(sql, args);
+    console.log("Request submitted successfully:", request);
+    return request.request;
+  } catch (e) {
+    console.log({ sql, args, request });
+    console.log(e);
+    return undefined;
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns formatted, validated, and keyed supplied request;                            |
+//+--------------------------------------------------------------------------------------+
+const formatRequest = async (request: Partial<IRequest>): Promise<Partial<IRequest>> => {
+  const { account } = Session();
+  return {
+    request: request.request ? request.request : hexify(uniqueKey(10), 6),
+    account,
+    instrument: request.instrument || (await Instruments.Key({ symbol: request.symbol })),
+    position: request.position,
+    action: request.action,
+    state: request.state || (await States.Key<IRequestState>({ status: "Queued" })),
+    price: request.price,
+    size: request.size,
+    leverage: request.leverage,
+    request_type: request.request_type || (await References.Key<Uint8Array>("request_type", { source_ref: request.order_type })),
+    margin_mode: request.margin_mode,
+    reduce_only: request.reduce_only || false,
+    broker_id: request.broker_id,
+    memo: request.memo,
+    create_time: request.create_time || Date.now(),
+    update_time: request.update_time || Date.now(),
+    expiry_time: request.expiry_time || setExpiry("8h"), //-- set expiry time 8h if not provided; s/b set in configuration
+  } as Partial<IRequest>;
+};
+
+//-- Public functions
 
 //+--------------------------------------------------------------------------------------+
 //| Reconciles changes triggered via diffs between local db and broker;                  |
@@ -50,13 +121,8 @@ export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
   const audit = await Select<IOrder>(`SELECT * FROM blofin.vw_orders WHERE state != request_state`, []);
   const items: Array<Partial<IRequest>> = [];
 
-  if (audit.length) {
-    for (const item of audit) {
-      const { request, request_state, status, request_status } = item;
-      items.push({ request, state: request_state, memo: `Audit: Request state changed from ${status} to ${request_status}` });
-    }
-  }
-  await Update(items);
+  if (audit.length) for (const item of audit) await updateRequest(item);
+
   return audit;
 };
 
@@ -68,46 +134,6 @@ export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<
   const sql = `SELECT * FROM blofin.vw_api_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   return Select<IRequestAPI>(sql, args);
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Set-up/Configure order requests locally prior to posting request to broker;          |
-//+--------------------------------------------------------------------------------------+
-export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  const { account } = Session();
-  const [fields, args] = parseColumns(
-    {
-      request: props.request ? props.request : hexify(uniqueKey(10), 6),
-      account,
-      instrument: props.instrument || (await Instruments.Key({ symbol: props.symbol })),
-      position: props.position,
-      action: props.action,
-      state: props.state || (await States.Key<IRequestState>({ status: "Queued" })),
-      price: props.price,
-      size: props.size,
-      leverage: props.leverage,
-      request_type: props.request_type || (await References.Key<Uint8Array>("request_type", { source_ref: props.order_type })),
-      margin_mode: props.margin_mode,
-      reduce_only: props.reduce_only || false,
-      broker_id: props.broker_id,
-      memo: props.memo,
-      expiry_time: props.expiry_time || setExpiry("8h"), //-- set expiry time 8h if not provided; s/b set in configuration
-    } as Partial<IRequest>,
-    ""
-  );
-
-  const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
-
-  try {
-    await Modify(sql, args);
-    console.log("Request submitted successfully:", { ...props, request: args[0] });
-  } catch (e) {
-    console.log({ sql, args, props });
-    console.log(e);
-    return undefined;
-  }
-
-  return args[0] as IRequest["request"];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -143,6 +169,8 @@ export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"]
 export const Cancel = async (request: Partial<IRequest>) => {
   const cancels = await Fetch(request);
   const requests: Array<Partial<IRequest>> = [];
+  const updated: Array<Partial<IRequest>> = [];
+  const errors: Array<Partial<IRequest>> = [];
 
   if (cancels && cancels.length) {
     cancels.map((cancel) =>
@@ -152,46 +180,45 @@ export const Cancel = async (request: Partial<IRequest>) => {
         memo: `Cancel: Request state changed from ${cancel.status} to Canceled`,
       })
     );
-
-    try {
-      console.log("Requests to cancel:", requests);
-      const updated = await Update(requests);
-      return updated;
-
-    } catch (e) {
-      console.log("Error during request cancellation:", e);
-      console.log("Request details:", requests);
-      return {updated: [], errors: requests};
-    }
   }
-  
-  console.error("Test 1: No requests found to cancel with the provided criteria.");
-  return {updated: [], errors: request as Array<Partial<IRequest>>};
-};
 
-//+--------------------------------------------------------------------------------------+
-//| Updates the request states via WSS or API;                                           |
-//+--------------------------------------------------------------------------------------+
-export const Update = async (updates: Array<Partial<IRequest>>) => {
-  const updated: Array<Partial<IRequest>> = [];
-  const errors: Array<Partial<IRequest>> = [];
+  if (requests.length) {
+    console.log("Requests to cancel:", requests);
 
-  if (updates.length) {
-    for (const update of updates) {
-      const { request, status, memo } = update;
-      const state = update.state || (await States.Key<IRequestState>({ status }));
-      const sql = `UPDATE blofin.request SET state = ?, memo = ? WHERE request = ?`;
-      const args = [state, memo, request];
-
+    for (const request of requests) {
       try {
-        await Modify(sql, args);
-        updated.push({ request, status, memo });
+        await updateRequest(request);
+        updated.push(request);
       } catch (e) {
-        console.log({ sql, args, update });
-        console.log(e);
-        errors.push({ request, status });
+        return { updated, errors: requests };
       }
     }
   }
-  return { updated, errors };
+
+  return { updated, errors: [] as Array<Partial<IRequest>> };
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Set-up/Configure order requests locally prior to posting request to broker;          |
+//+--------------------------------------------------------------------------------------+
+export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+  const submit = await formatRequest(submission);
+
+  if (submission.request) {
+    const exists = await Key({ request: submit.request });
+    if (exists) {
+      await updateRequest({ ...submit, memo: `Request exists and resubmitted; check db for modifications` });
+      console.log("Request already exists; updated and resubmitted:", exists);
+      return exists;
+    }
+  }
+
+  const [auto] = await InstrumentPosition.Fetch({ symbol: submit.symbol, position: submit.position, status: "Open", auto_status: "Enabled" });
+
+  if (auto)
+    if (auto.open_request && auto.create_time! < submit.create_time!) 
+      await Cancel({ instrument: submit.instrument, position: submit.position, status: "Pending" });
+
+  const request = await publishRequest(submit);
+  return request;
 };

@@ -3,7 +3,7 @@ import type { IRequest } from "@db/interfaces/request";
 
 import { setSession } from "@module/session";
 import { hexify } from "@lib/crypto.util";
-import { req_fcrt_1a } from "fcrt/2.1-cli-om/2.1.1-req-no-expiry/test/request";
+import { req_fcrt_1a } from "./request";
 
 import * as Requests from "@db/interfaces/request";
 
@@ -12,7 +12,7 @@ setSession({ account: hexify("145a6a") });
 const submit = async (request: Partial<IRequest>) => {
   const submitted = await Requests.Submit(request);
   console.log({ submitted, request });
-  return [submit, request];
+  return [submitted, request];
 };
 
 submit(req_fcrt_1a)

@@ -610,7 +610,7 @@ select
 	replace(format(r.price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS price,
 	replace(format(r.size,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS size,
 	if((r.reduce_only = 0), 'false', 'true') AS reduceOnly,
-	r.broker_id AS broker_id,
+	r.broker_id AS brokerId,
 	cast(hex(r.request) as char charset utf8mb4) AS clientOrderId,
 	r.memo AS memo,
 	r.expiry_time AS expiry_time
@@ -620,19 +620,18 @@ left join blofin.orders o on
 	((r.request = o.request)))
 left join blofin.order_state os on
 	((o.order_state = os.order_state)))
-join blofin.instrument i)
-join blofin.instrument_detail id)
-join blofin.currency b)
-join blofin.currency q)
-join blofin.request_type rt)
-join blofin.state rs)
-where
-	((r.instrument = i.instrument)
-		and (i.instrument = id.instrument)
-			and (i.base_currency = b.currency)
-				and (i.quote_currency = q.currency)
-					and (r.state = rs.state)
-						and (r.request_type = rt.request_type));
+join blofin.instrument i on
+	((r.instrument = i.instrument)))
+join blofin.instrument_detail id on
+	((i.instrument = id.instrument)))
+join blofin.currency b on
+	((i.base_currency = b.currency)))
+join blofin.currency q on
+	((i.quote_currency = q.currency)))
+join blofin.request_type rt on
+	((r.request_type = rt.request_type)))
+join blofin.state rs on
+	((r.state = rs.state)));
 
 CREATE VIEW blofin.vw_instrument_periods AS
 select
@@ -1019,7 +1018,8 @@ select
 	ifnull(tp.open_take_profit, 0) AS open_take_profit,
 	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
 	ip.update_time AS update_time,
-	ip.close_time AS close_time
+	ip.close_time AS close_time,
+	r.create_time AS create_time
 from
 	(((((((blofin.instrument_position ip
 join blofin.vw_instruments vi on
@@ -1038,6 +1038,7 @@ join (
 left join (
 	select
 		rp.instrument_position AS instrument_position,
+		max(r.create_time) AS create_time,
 		count(0) AS open_request
 	from
 		((blofin.state s
@@ -1150,7 +1151,7 @@ select
 	if((sr.stop_type = 'tp'), replace(format(sr.order_price, blofin.vip.digits), ',', ''), NULL) AS tpOrderPrice,
 	if((sr.stop_type = 'sl'), replace(format(sr.trigger_price, blofin.vip.digits), ',', ''), NULL) AS slTriggerPrice,
 	if((sr.stop_type = 'sl'), replace(format(sr.order_price, blofin.vip.digits), ',', ''), NULL) AS slOrderPrice,
-	sr.reduce_only AS reduce_only,
+	sr.reduce_only AS reduceOnly,
 	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS clientOrderId
 from
 	((blofin.stop_request sr

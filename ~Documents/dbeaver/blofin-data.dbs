@@ -1183,7 +1183,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_api_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`rs`.`status`) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`r`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `brokerId`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `blofin`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `blofin`.`instrument` `i`) join `blofin`.`instrument_detail` `id`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`request_type` `rt`) join `blofin`.`state` `rs`) where ((`r`.`instrument` = `i`.`instrument`) and (`i`.`instrument` = `id`.`instrument`) and (`i`.`base_currency` = `b`.`currency`) and (`i`.`quote_currency` = `q`.`currency`) and (`r`.`state` = `rs`.`state`) and (`r`.`request_type` = `rt`.`request_type`))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select ifnull(`os`.`map_ref`,`rs`.`status`) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`r`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `brokerId`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `blofin`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `blofin`.`instrument` `i` on((`r`.`instrument` = `i`.`instrument`))) join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) join `blofin`.`currency` `b` on((`i`.`base_currency` = `b`.`currency`))) join `blofin`.`currency` `q` on((`i`.`quote_currency` = `q`.`currency`))) join `blofin`.`request_type` `rt` on((`r`.`request_type` = `rt`.`request_type`))) join `blofin`.`state` `rs` on((`r`.`state` = `rs`.`state`)))]]></view_script>
 			<column name="status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="marginMode" type="VARCHAR" />
@@ -1266,11 +1266,11 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_instrument_positions" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ip`.`instrument_position` AS `instrument_position`,`ip`.`instrument` AS `instrument`,`ip`.`position` AS `position`,`blofin`.`vi`.`symbol` AS `symbol`,`ip`.`state` AS `state`,`s`.`status` AS `status`,`ip`.`auto_state` AS `auto_state`,`auto`.`status` AS `auto_status`,`id`.`digits` AS `digits`,ifnull(`r`.`open_request`,0) AS `open_request`,ifnull(`tp`.`open_take_profit`,0) AS `open_take_profit`,ifnull(`sl`.`open_stop_loss`,0) AS `open_stop_loss`,`ip`.`update_time` AS `update_time`,`ip`.`close_time` AS `close_time` from (((((((`blofin`.`instrument_position` `ip` join `blofin`.`vw_instruments` `vi` on((`ip`.`instrument` = `blofin`.`vi`.`instrument`))) join `blofin`.`state` `s` on((`ip`.`state` = `s`.`state`))) join `blofin`.`state` `auto` on((`ip`.`auto_state` = `auto`.`state`))) join (select `blofin`.`instrument_detail`.`instrument` AS `instrument`,(length(substring_index(cast(`blofin`.`instrument_detail`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits` from `blofin`.`instrument_detail`) `id` on((`ip`.`instrument` = `id`.`instrument`))) left join (select `rp`.`instrument_position` AS `instrument_position`,count(0) AS `open_request` from ((`blofin`.`state` `s` join `blofin`.`request` `r` on(((`r`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) join `blofin`.`instrument_position` `rp` on(((`r`.`instrument` = `rp`.`instrument`) and (`r`.`position` = `rp`.`position`)))) group by `rp`.`instrument_position`) `r` on((`ip`.`instrument_position` = `r`.`instrument_position`))) left join (select `sr`.`instrument_position` AS `instrument_position`,count(0) AS `open_take_profit` from (`blofin`.`state` `s` join `blofin`.`stop_request` `sr` on(((`sr`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) where (`sr`.`stop_type` = 'tp') group by `sr`.`instrument_position`,`sr`.`stop_type`) `tp` on((`ip`.`instrument_position` = `tp`.`instrument_position`))) left join (select `sr`.`instrument_position` AS `instrument_position`,count(0) AS `open_stop_loss` from (`blofin`.`state` `s` join `blofin`.`stop_request` `sr` on(((`sr`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) where (`sr`.`stop_type` = 'sl') group by `sr`.`instrument_position`,`sr`.`stop_type`) `sl` on((`ip`.`instrument_position` = `sl`.`instrument_position`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ip`.`instrument_position` AS `instrument_position`,`ip`.`instrument` AS `instrument`,`ip`.`position` AS `position`,`blofin`.`vi`.`symbol` AS `symbol`,`ip`.`state` AS `state`,`s`.`status` AS `status`,`ip`.`auto_state` AS `auto_state`,`auto`.`status` AS `auto_status`,`id`.`digits` AS `digits`,ifnull(`r`.`open_request`,0) AS `open_request`,ifnull(`tp`.`open_take_profit`,0) AS `open_take_profit`,ifnull(`sl`.`open_stop_loss`,0) AS `open_stop_loss`,`ip`.`update_time` AS `update_time`,`ip`.`close_time` AS `close_time`,`r`.`create_time` AS `create_time` from (((((((`blofin`.`instrument_position` `ip` join `blofin`.`vw_instruments` `vi` on((`ip`.`instrument` = `blofin`.`vi`.`instrument`))) join `blofin`.`state` `s` on((`ip`.`state` = `s`.`state`))) join `blofin`.`state` `auto` on((`ip`.`auto_state` = `auto`.`state`))) join (select `blofin`.`instrument_detail`.`instrument` AS `instrument`,(length(substring_index(cast(`blofin`.`instrument_detail`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits` from `blofin`.`instrument_detail`) `id` on((`ip`.`instrument` = `id`.`instrument`))) left join (select `rp`.`instrument_position` AS `instrument_position`,max(`r`.`create_time`) AS `create_time`,count(0) AS `open_request` from ((`blofin`.`state` `s` join `blofin`.`request` `r` on(((`r`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) join `blofin`.`instrument_position` `rp` on(((`r`.`instrument` = `rp`.`instrument`) and (`r`.`position` = `rp`.`position`)))) group by `rp`.`instrument_position`) `r` on((`ip`.`instrument_position` = `r`.`instrument_position`))) left join (select `sr`.`instrument_position` AS `instrument_position`,count(0) AS `open_take_profit` from (`blofin`.`state` `s` join `blofin`.`stop_request` `sr` on(((`sr`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) where (`sr`.`stop_type` = 'tp') group by `sr`.`instrument_position`,`sr`.`stop_type`) `tp` on((`ip`.`instrument_position` = `tp`.`instrument_position`))) left join (select `sr`.`instrument_position` AS `instrument_position`,count(0) AS `open_stop_loss` from (`blofin`.`state` `s` join `blofin`.`stop_request` `sr` on(((`sr`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) where (`sr`.`stop_type` = 'sl') group by `sr`.`instrument_position`,`sr`.`stop_type`) `sl` on((`ip`.`instrument_position` = `sl`.`instrument_position`)))]]></view_script>
 			<column name="instrument_position" type="BINARY" />
 			<column name="instrument" type="BINARY" />
-			<column name="position" type="CHAR" />
 			<column name="symbol" type="VARCHAR" />
+			<column name="position" type="CHAR" />
 			<column name="state" type="BINARY" />
 			<column name="status" type="VARCHAR" />
 			<column name="auto_state" type="BINARY" />
@@ -1281,6 +1281,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="open_stop_loss" type="BIGINT" />
 			<column name="update_time" type="DATETIME" />
 			<column name="close_time" type="DATETIME" />
+			<column name="create_time" type="DATETIME" />
 		</view>
 		<view name="vw_instruments" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1379,14 +1380,18 @@ ioc: Immediate-or-cancel order]]></comment>
 		<view name="vw_positions" >
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `p`.`positions` AS `positions`,`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`p`.`position` AS `position`,`it`.`source_ref` AS `instrument_type`,if((`p`.`positions` > 0),'buy','sell') AS `action`,if((`p`.`positions` < 0),'buy','sell') AS `counter_action`,`p`.`size` AS `size`,`p`.`size_available` AS `size_available`,`p`.`leverage` AS `leverage`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1) AS `digits`,`p`.`margin_mode` AS `margin_mode`,`p`.`margin_ratio` AS `margin_ratio`,replace(format(`p`.`margin_initial`,3),',','') AS `margin_initial`,replace(format(`p`.`margin_maint`,3),',','') AS `margin_maint`,replace(format(`p`.`average_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `average_price`,replace(format(`p`.`liquidation_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `liquidation_price`,replace(format(`p`.`mark_price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `mark_price`,replace(format(`p`.`unrealized_pnl`,3),',','') AS `unrealized_pnl`,`p`.`unrealized_pnl_ratio` AS `unrealized_pnl_ratio`,`p`.`adl` AS `adl`,`s`.`state` AS `state`,`s`.`status` AS `status`,`p`.`create_time` AS `create_time`,`p`.`update_time` AS `update_time` from (((((((`blofin`.`positions` `p` join `blofin`.`instrument` `i` on((`p`.`instrument` = `i`.`instrument`))) join `blofin`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) join `blofin`.`instrument_type` `it` on((`id`.`instrument_type` = `it`.`instrument_type`))) join `blofin`.`currency` `b` on((`i`.`base_currency` = `b`.`currency`))) join `blofin`.`currency` `q` on((`i`.`quote_currency` = `q`.`currency`))) join `blofin`.`instrument_position` `ip` on(((`ip`.`instrument` = `i`.`instrument`) and (`ip`.`position` = `p`.`position`)))) join `blofin`.`state` `s` on((`ip`.`state` = `s`.`state`)))]]></view_script>
-			<column name="position" type="CHAR" />
 			<column name="positions" type="BINARY" />
-			<column name="symbol" type="VARCHAR" />
 			<column name="instrument" type="BINARY" />
-			<column name="instrument_type" type="VARCHAR" />
+			<column name="symbol" type="VARCHAR" />
+			<column name="position" type="CHAR" />
+			<column name="state" type="BINARY" />
+			<column name="status" type="VARCHAR" />
 			<column name="action" type="VARCHAR" />
+			<column name="counter_action" type="VARCHAR" />
+			<column name="size" type="DOUBLE" />
+			<column name="size_available" type="DOUBLE" />
 			<column name="leverage" type="INT" />
-			<column name="digits" type="BIGINT" />
+			<column name="instrument_type" type="VARCHAR" />
 			<column name="margin_mode" type="VARCHAR" />
 			<column name="margin_ratio" type="DECIMAL" />
 			<column name="margin_initial" type="VARCHAR" />
@@ -1396,27 +1401,23 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="mark_price" type="VARCHAR" />
 			<column name="unrealized_pnl" type="VARCHAR" />
 			<column name="unrealized_pnl_ratio" type="DECIMAL" />
-			<column name="status" type="VARCHAR" />
+			<column name="digits" type="BIGINT" />
+			<column name="adl" type="TINYINT" />
 			<column name="create_time" type="DATETIME" />
 			<column name="update_time" type="DATETIME" />
-			<column name="counter_action" type="VARCHAR" />
-			<column name="size" type="DOUBLE" />
-			<column name="size_available" type="DOUBLE" />
-			<column name="adl" type="TINYINT" />
-			<column name="state" type="BINARY" />
 		</view>
 		<view name="vw_requests" >
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`request` AS `request`,`o`.`order_id` AS `order_id`,`r`.`account` AS `account`,`r`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`s`.`state` AS `state`,`s`.`status` AS `status`,`rs`.`state` AS `order_state`,`os`.`map_ref` AS `order_status`,`r`.`margin_mode` AS `margin_mode`,`r`.`position` AS `position`,`r`.`action` AS `action`,`r`.`request_type` AS `request_type`,`rt`.`source_ref` AS `order_type`,`r`.`price` AS `price`,`r`.`size` AS `size`,`r`.`leverage` AS `leverage`,`blofin`.`i`.`digits` AS `digits`,`r`.`memo` AS `memo`,`r`.`reduce_only` AS `reduce_only`,`r`.`broker_id` AS `broker_id`,`r`.`expiry_time` AS `expiry_time`,`r`.`create_time` AS `create_time` from ((((((((`blofin`.`request` `r` left join `blofin`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `blofin`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) left join `blofin`.`state` `rs` on((`os`.`map_ref` = `rs`.`status`))) join `blofin`.`vw_instruments` `i`) join `blofin`.`currency` `b`) join `blofin`.`currency` `q`) join `blofin`.`request_type` `rt`) join `blofin`.`state` `s`) where ((`r`.`instrument` = `blofin`.`i`.`instrument`) and (`r`.`request_type` = `rt`.`request_type`) and (`r`.`state` = `s`.`state`) and (`blofin`.`i`.`base_currency` = `b`.`currency`) and (`blofin`.`i`.`quote_currency` = `q`.`currency`))]]></view_script>
 			<column name="request" type="BINARY" />
+			<column name="order_id" type="BIGINT" />
 			<column name="account" type="BINARY" />
-			<column name="symbol" type="VARCHAR" />
 			<column name="instrument" type="BINARY" />
+			<column name="symbol" type="VARCHAR" />
 			<column name="state" type="BINARY" />
 			<column name="status" type="VARCHAR" />
 			<column name="order_state" type="BINARY" />
 			<column name="order_status" type="VARCHAR" />
-			<column name="margin_mode" type="VARCHAR" />
 			<column name="position" type="CHAR" />
 			<column name="action" type="CHAR" />
 			<column name="request_type" type="BINARY" />
@@ -1424,13 +1425,13 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="price" type="DOUBLE" />
 			<column name="size" type="DOUBLE" />
 			<column name="leverage" type="INT" />
-			<column name="digits" type="BIGINT" />
-			<column name="memo" type="VARCHAR" />
+			<column name="margin_mode" type="VARCHAR" />
 			<column name="reduce_only" type="BIT" />
+			<column name="digits" type="BIGINT" />
 			<column name="broker_id" type="VARCHAR" />
-			<column name="expiry_time" type="DATETIME" />
+			<column name="memo" type="VARCHAR" />
 			<column name="create_time" type="DATETIME" />
-			<column name="order_id" type="BIGINT" />
+			<column name="expiry_time" type="DATETIME" />
 		</view>
 		<view name="vw_role_privileges" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1519,42 +1520,41 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 	</schema>
 	<layout name="API Tables and Views" id="7db0907c-708f-4a04-85d4-b84169bdfed8" show_relation="columns" >
-		<entity schema="blofin" name="vw_instrument_periods" color="3986C1" x="418" y="1577" />
-		<entity schema="blofin" name="vw_instrument_positions" color="3986C1" x="646" y="1577" />
-		<entity schema="blofin" name="vw_instruments" color="3986C1" x="855" y="1577" />
-		<entity schema="blofin" name="vw_order_states" color="3986C1" x="1083" y="1577" />
-		<entity schema="blofin" name="vw_orders" color="3986C1" x="1235" y="1577" />
-		<entity schema="blofin" name="vw_positions" color="3986C1" x="1425" y="1577" />
-		<entity schema="blofin" name="vw_stop_orders" color="3986C1" x="1805" y="1577" />
-		<entity schema="blofin" name="vw_stop_requests" color="3986C1" x="2014" y="1577" />
-		<entity schema="blofin" name="vw_requests" color="3986C1" x="1634" y="1577" />
-		<entity schema="blofin" name="instrument_position" color="008080" x="1178" y="247" />
-		<entity schema="blofin" name="instrument_period" color="008080" x="703" y="95" />
-		<entity schema="blofin" name="position" color="008080" x="1216" y="95" />
-		<entity schema="blofin" name="stop_type" color="008080" x="1691" y="760" />
-		<entity schema="blofin" name="account_detail" color="008080" x="1406" y="646" />
-		<entity schema="blofin" name="stop_order" color="008080" x="1634" y="1102" />
-		<entity schema="blofin" name="request" color="008080" x="950" y="589" />
-		<entity schema="blofin" name="instrument" color="008080" x="665" y="380" />
-		<entity schema="blofin" name="account" color="008080" x="1178" y="760" />
-		<entity schema="blofin" name="state" color="008080" x="1216" y="551" />
-		<entity schema="blofin" name="request_type" color="008080" x="950" y="1083" />
-		<entity schema="blofin" name="order_state" color="008080" x="950" y="1235" />
-		<entity schema="blofin" name="order_category" color="008080" x="380" y="988" />
-		<entity schema="blofin" name="margin_mode" color="008080" x="684" y="703" />
-		<entity schema="blofin" name="positions" color="008080" x="361" y="342" />
-		<entity schema="blofin" name="orders" color="008080" x="665" y="912" />
-		<entity schema="blofin" name="stop_request" color="008080" x="1634" y="342" />
-		<entity schema="blofin" name="vw_api_stop_requests" color="3986C1" x="228" y="1577" />
-		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="57" y="1577" />
-		<group name="Order Processing" color="008080" >
+		<entity schema="blofin" name="instrument_position" color="FF00FF" x="874" y="304" />
+		<entity schema="blofin" name="instrument_period" color="FF00FF" x="399" y="152" />
+		<entity schema="blofin" name="position" color="FF00FF" x="912" y="152" />
+		<entity schema="blofin" name="stop_type" color="FF00FF" x="1387" y="817" />
+		<entity schema="blofin" name="account_detail" color="FF00FF" x="1102" y="703" />
+		<entity schema="blofin" name="stop_order" color="FF00FF" x="1330" y="1159" />
+		<entity schema="blofin" name="instrument" color="FF00FF" x="361" y="437" />
+		<entity schema="blofin" name="account" color="FF00FF" x="874" y="817" />
+		<entity schema="blofin" name="state" color="FF00FF" x="912" y="608" />
+		<entity schema="blofin" name="request_type" color="FF00FF" x="646" y="1140" />
+		<entity schema="blofin" name="order_state" color="FF00FF" x="646" y="1292" />
+		<entity schema="blofin" name="order_category" color="FF00FF" x="76" y="1045" />
+		<entity schema="blofin" name="margin_mode" color="FF00FF" x="380" y="760" />
+		<entity schema="blofin" name="positions" color="FF00FF" x="57" y="399" />
+		<entity schema="blofin" name="orders" color="FF00FF" x="361" y="969" />
+		<entity schema="blofin" name="stop_request" color="FF00FF" x="1330" y="399" />
+		<entity schema="blofin" name="vw_instruments" color="3986C1" x="1558" y="95" />
+		<entity schema="blofin" name="vw_instrument_positions" color="3986C1" x="1558" y="722" />
+		<entity schema="blofin" name="vw_instrument_periods" color="3986C1" x="1558" y="1064" />
+		<entity schema="blofin" name="vw_orders" color="3986C1" x="1786" y="95" />
+		<entity schema="blofin" name="vw_positions" color="3986C1" x="1976" y="95" />
+		<entity schema="blofin" name="vw_order_states" color="3986C1" x="1805" y="1083" />
+		<entity schema="blofin" name="vw_api_stop_requests" color="3986C1" x="1957" y="1159" />
+		<entity schema="blofin" name="vw_stop_orders" color="3986C1" x="2147" y="817" />
+		<entity schema="blofin" name="vw_stop_requests" color="3986C1" x="2185" y="418" />
+		<entity schema="blofin" name="vw_requests" color="3986C1" x="1976" y="646" />
+		<entity schema="blofin" name="request" color="FF00FF" x="646" y="646" />
+		<entity schema="blofin" name="vw_api_requests" color="3986C1" x="2185" y="95" />
+		<group name="Order Processing" color="FF00FF" >
 			<entity schema="blofin" name="instrument_position" />
 			<entity schema="blofin" name="instrument_period" />
 			<entity schema="blofin" name="position" />
 			<entity schema="blofin" name="stop_type" />
 			<entity schema="blofin" name="account_detail" />
 			<entity schema="blofin" name="stop_order" />
-			<entity schema="blofin" name="request" />
 			<entity schema="blofin" name="instrument" />
 			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="state" />
@@ -1565,6 +1565,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="margin_mode" />
 			<entity schema="blofin" name="positions" />
 			<entity schema="blofin" name="orders" />
+			<entity schema="blofin" name="request" />
 		</group>
 	</layout>
 	<layout name="Main ERD" id="fc7b74f6-9884-41b3-aeb9-0de2e2cc2be8" show_relation="columns" >
@@ -1715,10 +1716,10 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="subject" color="B34D1A" x="1995" y="1254" />
 		<entity schema="blofin" name="request" color="FF00FF" x="1083" y="152" />
 		<entity schema="blofin" name="orders" color="FF00FF" x="1653" y="95" />
-		<entity schema="blofin" name="vw_positions" color="00FFFF" x="2375" y="665" />
 		<entity schema="blofin" name="positions" color="0000FF" x="57" y="95" />
 		<entity schema="blofin" name="vw_api_stop_requests" color="00FFFF" x="2812" y="1140" />
 		<entity schema="blofin" name="vw_stop_orders" color="00FFFF" x="3021" y="1102" />
+		<entity schema="blofin" name="vw_positions" color="00FFFF" x="2375" y="665" />
 		<group name="user accounts" color="B34D1A" >
 			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="role" />
@@ -1775,9 +1776,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="vw_users" />
 			<entity schema="blofin" name="vw_stop_requests" />
 			<entity schema="blofin" name="vw_api_requests" />
-			<entity schema="blofin" name="vw_positions" />
 			<entity schema="blofin" name="vw_api_stop_requests" />
 			<entity schema="blofin" name="vw_stop_orders" />
+			<entity schema="blofin" name="vw_positions" />
 		</group>
 	</layout>
 </project>

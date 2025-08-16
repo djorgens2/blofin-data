@@ -40,7 +40,7 @@ const processResults = async (results: Array<TResponse>, success: TRequest, fail
       const [{ state, status }] = await State.Fetch({ status: code ? success : fail });
       const memo = `[${code}: ${msg}] [${orderId},${clientOrderId}] ${setExpiry("0s")} Order status set to ${status}`;
 
-      request && (await Request.Update([{ request, state, memo }]));
+      request && (await Request.Submit({ request, state, memo }));
       status === success ? accepted.push(result) : rejected.push(result);
     }
   }
@@ -68,10 +68,15 @@ const processRejected = async () => {
   if (rejects.length) {
     for (const reject of rejects) {
       expiry < reject.expiry_time!
-        ? requeued.push({ ...reject, status: "Queued", memo: `Retry: Rejected request state changed from ${reject.status} to Queued` })
-        : expired.push({ ...reject, status: "Closed", memo: `Retry: Rejected request state changed from ${reject.status} to Closed` });
+        ? requeued.push({ request: reject.request, status: "Queued", memo: `Retry: Rejected request state changed from ${reject.status} to Queued` })
+        : expired.push({ request: reject.request, status: "Closed", memo: `Retry: Rejected request state changed from ${reject.status} to Closed` });
     }
-    await Request.Update([...requeued, ...expired]);
+  }
+
+  const updated = [...requeued, ...expired];
+
+  if (updated.length) {
+    for (const request of updated) await Request.Submit(request);
 
     requeued.length && console.log("Request Retries:", requeued.length, requeued);
     expired.length && console.log("Requests Expired:", expired.length, expired);
@@ -95,10 +100,12 @@ const processPending = async () => {
     }
   }
 
-  await Request.Update(expired);
+  if (expired.length) {
+    for (const request of expired) await Request.Submit(request);
 
-  pending.length && console.log("Requests Pending:", pending.length);
-  expired.length && console.log("Requests Canceled:", expired.length, expired);
+    pending.length && console.log("Requests Pending:", pending.length);
+    expired.length && console.log("Requests Canceled:", expired.length, expired);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -111,9 +118,10 @@ const processQueued = async () => {
     const queue: Array<Partial<IRequestAPI>> = [];
 
     for (const request of requests) {
-      const { status, ...order } = request;
-      queue.push(order);
+      const { status, ...submit } = request;
+      queue.push(submit);
     }
+    
     const results = await RequestAPI.Submit(queue);
     const [accepted, rejected] = await processResults(results, "Pending", "Rejected");
 

@@ -21,11 +21,12 @@ export interface IInstrumentPosition {
   status: TPosition;
   auto_state: Uint8Array;
   auto_status: string;
-  open_request: number
-  open_take_profit: number
-  open_stop_loss: number
+  open_request: number;
+  open_take_profit: number;
+  open_stop_loss: number;
   update_time: Date | number;
   close_time: Date | number;
+  create_time: Date | number;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -33,7 +34,10 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 export async function Import() {
   const state = await State.Key({ status: "Closed" });
-  const keys = await Select<IInstrumentPosition>(`SELECT i.instrument, p.position, i.trade_state as auto_state FROM blofin.instrument i, blofin.position p`, []);
+  const keys = await Select<IInstrumentPosition>(
+    `SELECT i.instrument, p.position, i.trade_state as auto_state FROM blofin.instrument i, blofin.position p`,
+    []
+  );
   const sql = `INSERT IGNORE INTO blofin.instrument_position (instrument_position, instrument, position, state, auto_state ) VALUES (?, ?, ?, ?, ?)`;
 
   for (const key of keys) {

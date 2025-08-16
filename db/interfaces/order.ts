@@ -33,8 +33,6 @@ export interface IOrder extends IRequest {
   trade_status: string;
   trade_timeframe: string;
   suspense: boolean;
-  create_time: Date | number;
-  update_time: Date | number;
 }
 
 
