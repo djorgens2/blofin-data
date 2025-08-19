@@ -16,7 +16,6 @@ export interface IOrder extends IRequest {
   quote_symbol: string;
   request_state: Uint8Array;
   request_status: string;
-  contract: string;
   contract_type: string;
   instrument_type: string;
   order_category: Uint8Array;
@@ -35,7 +34,6 @@ export interface IOrder extends IRequest {
   suspense: boolean;
 }
 
-
 export interface IOrderState {
   state: Uint8Array;
   status: string;
@@ -47,40 +45,61 @@ export interface IOrderState {
 //+--------------------------------------------------------------------------------------+
 //| Update - applies updates to Orders on select columns;                                |
 //+--------------------------------------------------------------------------------------+
-export async function Update(props: Partial<IOrder>) {
-  const { request, order_id, client_order_id, instrument, create_time, update_time, ...updates } = props;
-  const [fields, args] = parseColumns(updates);
-  const sql = `UPDATE blofin.orders SET ${fields.join(", ")}${create_time ? `, create_time = FROM_UNIXTIME(?/1000)` : ``}${
-    update_time ? `, update_time = FROM_UNIXTIME(?/1000)` : ``
-  } WHERE request = ?`;
+const formatOrder = (unformatted: Partial<IOrder>): Partial<IOrder> => {
+  const formatted = {
+    request: unformatted.request,
+    order_id: unformatted.order_id,
+    price: unformatted.price,
+    size: unformatted.size,
+    request_type: unformatted.request_type,
+    position: unformatted.position,
+    action: unformatted.action,
+    margin_mode: unformatted.margin_mode,
+    filled_size: unformatted.filled_size,
+    filled_amount: unformatted.filled_amount,
+    average_price: unformatted.average_price,
+    order_state: unformatted.order_state,
+    leverage: unformatted.leverage,
+    fee: unformatted.fee,
+    pnl: unformatted.pnl,
+    cancel_source: unformatted.cancel_source,
+    order_category: unformatted.order_category,
+    reduce_only: unformatted.reduce_only,
+    broker_id: unformatted.broker_id,
+    create_time: unformatted.create_time && new Date(unformatted.create_time),
+    update_time: unformatted.update_time && new Date(unformatted.update_time),
+  } as Partial<IOrder>;
+  return formatted;
+};
 
-  create_time && args.push(create_time);
-  update_time && args.push(update_time);
+//+--------------------------------------------------------------------------------------+
+//| Update - applies updates to Orders on select columns;                                |
+//+--------------------------------------------------------------------------------------+
+export const Update = async (order: Partial<IOrder>) => {
+  const { request, ...updates } = formatOrder(order);
+  const [fields, args] = parseColumns(updates);
+  const sql = `UPDATE blofin.orders SET ${fields.join(", ")} WHERE request = ?`;
+
   args.push(request);
 
   return Modify(sql, args);
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Publish - Conducts high level scrub; updates/adds new order to local db;             |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IOrder>) {
-  const { request, instrument, create_time, update_time, ...order } = props;
-  const [fields, args] = parseColumns(order, "");
-  if (fields) {
-    try {
-      const sql =
-        `INSERT INTO blofin.orders (${fields.join(", ")}, request, create_time, update_time) VALUES (${Array(args.length)
-          .fill("?")
-          .join(", ")}, ?, FROM_UNIXTIME(?/1000), FROM_UNIXTIME(?/1000)) ` +
-        `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")} = ?, create_time = FROM_UNIXTIME(?/1000), update_time = FROM_UNIXTIME(?/1000)`;
-      await Modify(sql, [...args, request, create_time, update_time, ...args, create_time, update_time]);
-      return 1;
-    } catch (e) {
-      console.log(e, props!);
-    }
+export const Publish = async (order: Partial<IOrder>) => {
+  const request = formatOrder(order);
+  const [fields, args] = parseColumns(request, "");
+  const sql = `INSERT INTO blofin.orders (${fields.join(", ")}) VALUES (${Array(args.length).fill("?").join(", ")})`;
+
+  try {
+    await Modify(sql, args);
+  } catch (e) {
+    console.log({ sql, args, request });
+    console.log(e);
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches orders from local db that meet props criteria;                               |

@@ -93,9 +93,14 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 //+--------------------------------------------------------------------------------------+
 //| Returns true on equal comparison at a specified precision                            |
 //+--------------------------------------------------------------------------------------+
-export const isEqual = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
+export const isEqual = (source: number | string | Uint8Array, benchmark: number | string | Uint8Array, digits: number = 8): boolean => {
+  if (source instanceof Uint8Array)
+    if (benchmark instanceof Uint8Array)
+      return  source.every((value, index) => value === benchmark[index]);
+    else return false;
+
   const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
-  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits);
+  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : typeof benchmark === "number" ?  benchmark.toFixed(digits) : ``;
 
   return arg1 === arg2;
 };

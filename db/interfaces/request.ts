@@ -51,7 +51,7 @@ export interface IRequest {
 //+--------------------------------------------------------------------------------------+
 //| Applies updates to request on select columns;                                        |
 //+--------------------------------------------------------------------------------------+
-const updateRequest = async (update: Partial<IRequest>) =>{
+const update = async (update: Partial<IRequest>) => {
   const { request, create_time, update_time, ...updates } = update;
   const [fields, args] = parseColumns(updates);
   const sql = `UPDATE blofin.request SET ${fields.join(", ")}, update_time = now() WHERE request = ?`;
@@ -66,18 +66,18 @@ const updateRequest = async (update: Partial<IRequest>) =>{
     console.log(e);
     return { ...updates, request, memo: `Error updating request` };
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Publishes new requests from all sources; API/WSS/APP/CLI and SQL Clients             |
 //+--------------------------------------------------------------------------------------+
-const publishRequest = async (request: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+const publish = async (request: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   const [fields, args] = parseColumns(request, "");
   const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
 
   try {
     await Modify(sql, args);
-    console.log("Request submitted successfully:", request);
+//    console.log("Request submitted successfully:", request);
     return request.request;
   } catch (e) {
     console.log({ sql, args, request });
@@ -86,42 +86,18 @@ const publishRequest = async (request: Partial<IRequest>): Promise<IRequest["req
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns formatted, validated, and keyed supplied request;                            |
-//+--------------------------------------------------------------------------------------+
-const formatRequest = async (request: Partial<IRequest>): Promise<Partial<IRequest>> => {
-  const { account } = Session();
-  return {
-    request: request.request ? request.request : hexify(uniqueKey(10), 6),
-    account,
-    instrument: request.instrument || (await Instruments.Key({ symbol: request.symbol })),
-    position: request.position,
-    action: request.action,
-    state: request.state || (await States.Key<IRequestState>({ status: "Queued" })),
-    price: request.price,
-    size: request.size,
-    leverage: request.leverage,
-    request_type: request.request_type || (await References.Key<Uint8Array>("request_type", { source_ref: request.order_type })),
-    margin_mode: request.margin_mode,
-    reduce_only: request.reduce_only || false,
-    broker_id: request.broker_id,
-    memo: request.memo,
-    create_time: request.create_time || Date.now(),
-    update_time: request.update_time || Date.now(),
-    expiry_time: request.expiry_time || setExpiry("8h"), //-- set expiry time 8h if not provided; s/b set in configuration
-  } as Partial<IRequest>;
-};
-
 //-- Public functions
 
 //+--------------------------------------------------------------------------------------+
 //| Reconciles changes triggered via diffs between local db and broker;                  |
 //+--------------------------------------------------------------------------------------+
 export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
+  console.log("In Audit");
   const audit = await Select<IOrder>(`SELECT * FROM blofin.vw_orders WHERE state != request_state`, []);
-  const items: Array<Partial<IRequest>> = [];
 
-  if (audit.length) for (const item of audit) await updateRequest(item);
+  if (audit.length)
+    for (const item of audit)
+      await Submit({ ...item, state: item.request_state, memo: `Audit: Request State updated from ${item.status} to ${item.request_status}` });
 
   return audit;
 };
@@ -187,7 +163,7 @@ export const Cancel = async (request: Partial<IRequest>) => {
 
     for (const request of requests) {
       try {
-        await updateRequest(request);
+        await update(request);
         updated.push(request);
       } catch (e) {
         return { updated, errors: requests };
@@ -202,23 +178,45 @@ export const Cancel = async (request: Partial<IRequest>) => {
 //| Set-up/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  const submit = await formatRequest(submission);
+  const { account } = Session();
+  const submit = {
+    request: submission.request ? submission.request : hexify(uniqueKey(10), 6),
+    account,
+    instrument: submission.instrument || (await Instruments.Key({ symbol: submission.symbol })),
+    position: submission.position,
+    action: submission.action,
+    state: submission.state || (await States.Key<IRequestState>({ status: "Queued" })),
+    price: submission.price,
+    size: submission.size,
+    leverage: submission.leverage,
+    request_type: submission.request_type || (await References.Key<Uint8Array>("request_type", { source_ref: submission.order_type })),
+    margin_mode: submission.margin_mode,
+    reduce_only: submission.reduce_only || false,
+    broker_id: submission.broker_id,
+    memo: submission.memo,
+    create_time: submission.create_time && new Date(submission.create_time),
+    update_time: new Date(Date.now()),
+    expiry_time: submission.expiry_time || setExpiry("8h"), //-- set expiry time 8h if not provided; s/b set in configuration
+  } as Partial<IRequest>;
 
   if (submission.request) {
-    const exists = await Key({ request: submit.request });
+    const [exists] = await Fetch({ request: submit.request });
     if (exists) {
-      await updateRequest({ ...submit, memo: `Request exists and resubmitted; check db for modifications` });
-      console.log("Request already exists; updated and resubmitted:", exists);
-      return exists;
+      if (submit.create_time! >exists.create_time! ) {
+        await update({ ...submit, memo: `Request exists and resubmitted; check db for modifications` });
+        console.log("Request already exists; updated and resubmitted:", exists);
+        return exists.request;
+      }
+      return undefined;
     }
   }
 
   const [auto] = await InstrumentPosition.Fetch({ symbol: submit.symbol, position: submit.position, status: "Open", auto_status: "Enabled" });
 
   if (auto)
-    if (auto.open_request && auto.create_time! < submit.create_time!) 
+    if (auto.open_request && submit.create_time! > auto.create_time! )
       await Cancel({ instrument: submit.instrument, position: submit.position, status: "Pending" });
 
-  const request = await publishRequest(submit);
+  const request = await publish(submit);
   return request;
 };

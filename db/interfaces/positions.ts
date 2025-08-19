@@ -10,6 +10,7 @@ import { Modify, parseColumns, Select } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
 
 import * as States from "@db/interfaces/state";
+import { isEqual } from "@lib/std.util";
 
 export interface IPositions {
   positions: Uint8Array;
@@ -71,7 +72,7 @@ export async function Update(props: Array<Partial<IPositions>>) {
   const closed = await States.Key({ status: "Closed" });
 
   for (const update of fulfilled) {
-    const active = props.find(({ positions }) => positions?.toString() === update.positions?.toString());
+    const active = props.find(({ positions }) => isEqual(positions!, update.positions!));
 
     try {
       if (!active) {

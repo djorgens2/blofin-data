@@ -1,6 +1,9 @@
 //----------------------------------- KeySet tests ------------------------------------------//
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
+import { hexify } from "@lib/crypto.util";
+import { isEqual } from "@lib/std.util";
+
 // async function getKeys<T extends IKeyProps>(props: T)  {
 // const keyset: IKeyProps = await KeySet(props);
 //   console.log(keyset);
@@ -1146,34 +1149,56 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // parse(subtp1);
 
 //----------------------------- order test  -------------------------------------------------------//
-import { setExpiry } from "@lib/std.util";
-import { setSession } from "@module/session";
-import { IStopOrder, Submit } from "@db/interfaces/stops";
-import { hexify } from "@lib/crypto.util";
-import * as Requests from "@db/interfaces/request";
-import * as Instruments from "@db/interfaces/instrument";
+// import { setExpiry } from "@lib/std.util";
+// import { setSession } from "@module/session";
+// import { IStopOrder, Submit } from "@db/interfaces/stops";
+// import { hexify } from "@lib/crypto.util";
+// import * as Requests from "@db/interfaces/request";
+// import * as Instruments from "@db/interfaces/instrument";
 
-//-- test 1; request w/ no tpsl; 100%
-const request: Partial<Requests.IRequest> = {
-//  instrument: hexify("4e3e8a")!,
-  symbol: "XRP-USDT",
-  margin_mode: "cross",
-  position: "short",
-  action: "sell",
-//  request_type: hexify("6eb6c5"),
-  order_type: 'limit',
-  price: 3.5,
-  size: 100,
-  leverage: 50,
-  expiry_time: setExpiry("2m"),
-};
+// //-- test 1; request w/ no tpsl; 100%
+// const request: Partial<Requests.IRequest> = {
+// //  instrument: hexify("4e3e8a")!,
+//   symbol: "XRP-USDT",
+//   margin_mode: "cross",
+//   position: "short",
+//   action: "sell",
+// //  request_type: hexify("6eb6c5"),
+//   order_type: 'limit',
+//   price: 3.5,
+//   size: 100,
+//   leverage: 50,
+//   expiry_time: setExpiry("2m"),
+// };
 
-setSession({ account: hexify("145a6a")});
+// setSession({ account: hexify("145a6a")});
 
-const submit = async () => {
-  const op = await Requests.Submit(request);
-  console.log({op, request});
-  return op;
-};
+// const submit = async () => {
+//   const op = await Requests.Submit(request);
+//   console.log({op, request});
+//   return op;
+// };
 
-submit();
+// submit();
+
+//----------------------------- uint compare test ----------------------------------------------//
+// const inUint = hexify('c0ffee',3);
+// const outUint = hexify('c0fefe',3);
+// //const outUint = hexify('c0ffee',3);
+
+// const test = inUint!.every((value, index) => value === outUint![index]);
+// console.log(`inUint ${test ? 'equals' : 'does NOT equal'} outUint`);
+// console.log(isEqual(inUint!,outUint!));
+
+//----------------------------- datetime conversion test ----------------------------------------------//
+import { Modify } from "@db/query.utils";
+
+const put = async( ts1: number, ts2: number ) => {
+  const dt1 = new Date(ts1);
+  const dt2 = '';
+  console.log(dt1, dt2);
+
+  const db = await Modify("insert into fractional_time_test2 values (? ,?)", [dt1,dt2]);
+}
+
+put( 1754602401957, 1754602402012);

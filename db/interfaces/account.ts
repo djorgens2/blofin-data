@@ -8,10 +8,11 @@ import type { RowDataPacket } from "mysql2";
 import type { TSession } from "@module/session";
 import type { TAccount, IAccountState } from "@db/interfaces/state";
 
-import { setUserToken } from "@cli/interfaces/user";
-import { hashHmac } from "@lib/crypto.util";
-import { Session } from "@module/session";
 import { Select, Modify, parseColumns } from "@db/query.utils";
+import { hashHmac } from "@lib/crypto.util";
+import { isEqual } from "@lib/std.util";
+import { Session } from "@module/session";
+import { setUserToken } from "@cli/interfaces/user";
 
 import * as States from "@db/interfaces/state";
 import * as Brokers from "@db/interfaces/broker";
@@ -150,7 +151,7 @@ export async function Key(props: Partial<TSession>): Promise<IKeyProps["account"
       const slot = parseInt(account![0].toFixed(), 10);
       const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
       
-      if (hash.toString() === account?.toString()) return hash;
+      if (isEqual(hash, account!)) return hash;
     }
     return undefined;
   } else return undefined;
