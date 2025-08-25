@@ -67,8 +67,8 @@ export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partia
         unrealized_pnl: format(position.unrealizedPnl),
         unrealized_pnl_ratio: format(position.unrealizedPnlRatio, 3),
         adl: parseInt(position.adl),
-        create_time: parseInt(position.createTime!),
-        update_time: parseInt(position.updateTime!),
+        create_time: position.createTime ? new Date(parseInt(position.createTime)) : new Date(Date.now()),
+        update_time: position.updateTime ? new Date(parseInt(position.updateTime)) : new Date(Date.now()),
       };
       await Positions.Publish(update);
       updates.push({ instrument, position: update.position, status: "Open" });

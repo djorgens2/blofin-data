@@ -232,6 +232,6 @@ export const Import = async () => {
   await Publish(active);
   await Stops.Update(closed);
 
-  console.log(`Pending Stops: [${history.length}, ${pending.length}]`);
-  console.log(`Stops Closed: [${closed.length, closed}]`);
+  pending.length && console.log(`# Pending Stops: [${history.length}, ${pending.length}]`);
+  closed.length && console.log(`# Stops Closed: [${closed.length}]`, closed);
 };

@@ -139,8 +139,11 @@ export async function Key(props: Partial<IOrder>): Promise<IOrder["request"] | u
 //+--------------------------------------------------------------------------------------+
 export const State = async (props: Partial<IOrderState>): Promise<IOrderState["state"] | undefined> => {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT state FROM blofin.vw_order_states ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
-  const key = await Select<IOrder>(sql, args);
 
-  return key.length ? key[0].state : undefined;
+  if (fields.length) {
+    const sql = `SELECT state FROM blofin.vw_order_states ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
+    const key = await Select<IOrder>(sql, args);
+    return key.length ? key[0].state : undefined;
+  }
+  return undefined;
 };

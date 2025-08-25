@@ -3,11 +3,12 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-"use server";
 
 import type { TRequest } from "@db/interfaces/state";
 
 import { Session, signRequest } from "@module/session";
+
+import * as Response from "@api/response";
 
 export interface IRequestAPI {
   status?: TRequest;
@@ -29,6 +30,7 @@ export interface IRequestAPI {
   brokerId: string | undefined;
   createTime: string;
   updateTime: string;
+  expiryTime?: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -59,11 +61,12 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
       });
       if (response.ok) {
         const json = await response.json();
-        return json.data;
+        const [accepted, rejected, errors] = await Response.Request({results: json.data, success: "Pending", fail:"Rejected"});
+        return [accepted, rejected, errors];
       }
     } catch (error) {
       console.log(error, method, headers, body);
-      return [];
     }
-  }
+  } 
+  return [[], [], []];
 };

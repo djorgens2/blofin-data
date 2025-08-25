@@ -37,29 +37,26 @@ export interface IPositions {
   adl: number;
   state: Uint8Array;
   status: TPosition;
-  create_time: Date | number;
-  update_time: Date | number;
+  create_time: Date;
+  update_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Set-up/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: Partial<IPositions>): Promise<IPositions["positions"] | undefined> {
-  //const fulfilled = await States.Key({ status: "Fulfilled" });
-  const { positions, create_time, update_time, ...publish } = props;
+  const { positions, ...publish } = props;
   const [fields, args] = parseColumns({ ...publish }, "");
   const key = hexify(positions!, 8);
   const sql =
-    `INSERT INTO blofin.positions (${fields.join(", ")}, positions, create_time, update_time) VALUES (${Array(args.length)
-      .fill("?")
-      .join(", ")}, ?, FROM_UNIXTIME(?/1000), FROM_UNIXTIME(?/1000)) ` +
-    `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")}= ?, create_time = FROM_UNIXTIME(?/1000), update_time = FROM_UNIXTIME(?/1000)`;
+    `INSERT INTO blofin.positions (${fields.join(", ")}, positions) VALUES (${Array(args.length).fill("?").join(", ")}, ?) ` +
+    `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")}= ?`;
 
   try {
-    await Modify(sql, [...args, key, create_time, update_time, ...args, create_time, update_time]);
+    await Modify(sql, [...args, key, ...args]);
     return positions;
   } catch (e) {
-    console.log({ sql, fields, args, props, publish: { ...args, key, create_time, update_time } });
+    console.log({ sql, fields, args, props, publish: { ...args, key } });
     console.log(e);
   }
 }

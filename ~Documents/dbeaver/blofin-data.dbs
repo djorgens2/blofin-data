@@ -22,7 +22,7 @@
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_account" unique="PRIMARY_KEY" >
 				<column name="account" />
@@ -96,7 +96,7 @@
 				<defo><![CDATA[0]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_account_detail" unique="PRIMARY_KEY" >
 				<column name="account" />
@@ -478,10 +478,10 @@ Extension]]></comment>
 			<column name="state" type="BINARY" length="3" mandatory="y" />
 			<column name="auto_state" prior="auto_trade" type="BINARY" length="3" mandatory="y" />
 			<column name="update_time" prior="open_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="close_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_instrument_position" unique="PRIMARY_KEY" >
 				<column name="instrument_position" />
@@ -623,10 +623,10 @@ sl]]></comment>
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_orders" unique="PRIMARY_KEY" >
 				<column name="request" />
@@ -738,10 +738,10 @@ Close]]></comment>
 				<defo><![CDATA[0]]></defo>
 			</column>
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_positions" unique="PRIMARY_KEY" >
 				<column name="positions" />
@@ -809,13 +809,13 @@ mark: mark price]]></comment>
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="expiry_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_request" unique="PRIMARY_KEY" >
 				<column name="request" />
@@ -955,7 +955,7 @@ ioc: Immediate-or-cancel order]]></comment>
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="fk_so_order_state" unique="NORMAL" >
 				<column name="order_state" />
@@ -1003,7 +1003,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			</column>
 			<column name="memo" type="VARCHAR" length="100" />
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[now()]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<index name="pk_position_request" unique="PRIMARY_KEY" >
 				<column name="stop_request" />
@@ -1080,10 +1080,10 @@ ioc: Immediate-or-cancel order]]></comment>
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="create_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 			</column>
 			<column name="update_time" type="DATETIME" length="3" mandatory="y" >
-				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+				<defo><![CDATA[now(3)]]></defo>
 				<column_options><![CDATA[ON UPDATE CURRENT_TIMESTAMP]]></column_options>
 			</column>
 			<index name="pk_user" unique="PRIMARY_KEY" >
@@ -1696,7 +1696,6 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="vw_requests" color="00FFFF" x="2831" y="95" />
 		<entity schema="blofin" name="vw_orders" color="00FFFF" x="3021" y="95" />
 		<entity schema="blofin" name="vw_order_states" color="00FFFF" x="2831" y="608" />
-		<entity schema="blofin" name="vw_role_subjects" color="00FFFF" x="2166" y="1159" />
 		<entity schema="blofin" name="vw_role_privileges" color="00FFFF" x="2166" y="893" />
 		<entity schema="blofin" name="vw_users" color="00FFFF" x="2166" y="1330" />
 		<entity schema="blofin" name="vw_stop_requests" color="00FFFF" x="2394" y="1235" />
@@ -1709,15 +1708,16 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="vw_api_stop_requests" color="00FFFF" x="2812" y="1140" />
 		<entity schema="blofin" name="vw_positions" color="00FFFF" x="2375" y="665" />
 		<entity schema="blofin" name="vw_stop_orders" color="00FFFF" x="3021" y="1064" />
-		<entity schema="blofin" name="positions" color="0000FF" x="57" y="95" />
 		<entity schema="blofin" name="instrument_detail" color="0000FF" x="437" y="1083" />
+		<entity schema="blofin" name="vw_role_subjects" color="00FFFF" x="2166" y="1159" />
+		<entity schema="blofin" name="user" color="B34D1A" x="1368" y="969" />
+		<entity schema="blofin" name="account" color="B34D1A" x="1102" y="1140" />
+		<entity schema="blofin" name="account_detail" color="B34D1A" x="798" y="1216" />
 		<entity schema="blofin" name="instrument_position" color="FF00FF" x="855" y="456" />
+		<entity schema="blofin" name="positions" color="0000FF" x="57" y="95" />
 		<entity schema="blofin" name="request" color="FF00FF" x="1083" y="152" />
 		<entity schema="blofin" name="stop_request" color="FF00FF" x="1387" y="570" />
 		<entity schema="blofin" name="orders" color="FF00FF" x="1653" y="95" />
-		<entity schema="blofin" name="account_detail" color="B34D1A" x="798" y="1216" />
-		<entity schema="blofin" name="account" color="B34D1A" x="1102" y="1140" />
-		<entity schema="blofin" name="user" color="B34D1A" x="1368" y="969" />
 		<entity schema="blofin" name="stop_order" color="FF00FF" x="1976" y="570" />
 		<group name="user accounts" color="B34D1A" >
 			<entity schema="blofin" name="user_account" />
@@ -1730,9 +1730,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="role_authority" />
 			<entity schema="blofin" name="authority" />
 			<entity schema="blofin" name="subject" />
-			<entity schema="blofin" name="account_detail" />
-			<entity schema="blofin" name="account" />
 			<entity schema="blofin" name="user" />
+			<entity schema="blofin" name="account" />
+			<entity schema="blofin" name="account_detail" />
 		</group>
 		<group name="orders" color="FF00FF" >
 			<entity schema="blofin" name="order_state" />
@@ -1757,8 +1757,8 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="currency" />
 			<entity schema="blofin" name="instrument_type" />
 			<entity schema="blofin" name="contract_type" />
-			<entity schema="blofin" name="positions" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="positions" />
 		</group>
 		<group name="views" color="00FFFF" >
 			<entity schema="blofin" name="vw_accounts" />
@@ -1770,7 +1770,6 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="vw_requests" />
 			<entity schema="blofin" name="vw_orders" />
 			<entity schema="blofin" name="vw_order_states" />
-			<entity schema="blofin" name="vw_role_subjects" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_users" />
 			<entity schema="blofin" name="vw_stop_requests" />
@@ -1778,6 +1777,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="vw_api_stop_requests" />
 			<entity schema="blofin" name="vw_positions" />
 			<entity schema="blofin" name="vw_stop_orders" />
+			<entity schema="blofin" name="vw_role_subjects" />
 		</group>
 	</layout>
 </project>

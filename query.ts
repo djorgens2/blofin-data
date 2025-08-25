@@ -37,6 +37,7 @@ enum Subject {
   Broker = "-b",
   Role = "-r",
   Order = "-ord",
+  OrderState = "-os",
   Request = "-req",
   User = "-u",
   Login = "-login",
@@ -176,6 +177,17 @@ async function show(subject: string, args: string): Promise<string> {
       });
       const key = await Order.Fetch(props!);
       console.log(`Fetch Orders [ ${Object.keys(props!).length} ]:`, props, key);
+      return "ok";
+    }
+    case Subject.OrderState: {
+      const props = parseJSON< Order.IOrder >(args);
+      Object.assign(props!, {
+        ...props, 
+        state: props?.state ? hexify(props.state) :undefined,
+        order_state: props?.order_state ? hexify(props.order_state): undefined
+      });
+      const key = await Order.State(props!);
+      console.log(`Fetch Order State [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Detail: {

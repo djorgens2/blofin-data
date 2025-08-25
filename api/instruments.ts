@@ -101,8 +101,8 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
       }
     });
   }
-  console.log("Instruments Suspended: ", suspense.length, suspense);
-  console.log("Instruments Updated: ", modified.length, modified);
+  suspense.length && console.log("# Instruments:Suspended: ", suspense.length, suspense);
+  modified.length && console.log("# Instruments Updated: ", modified.length, modified);
 
   await Currency.Suspend(suspense);
   await Instrument.Suspend(suspense);

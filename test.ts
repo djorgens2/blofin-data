@@ -2,7 +2,7 @@
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
 import { hexify } from "@lib/crypto.util";
-import { isEqual } from "@lib/std.util";
+import { isEqual, setExpiry } from "@lib/std.util";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
 // const keyset: IKeyProps = await KeySet(props);
@@ -1191,14 +1191,16 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(isEqual(inUint!,outUint!));
 
 //----------------------------- datetime conversion test ----------------------------------------------//
-import { Modify } from "@db/query.utils";
+import { Modify, Select } from "@db/query.utils";
 
-const put = async( ts1: number, ts2: number ) => {
+const put = async (ts1: number, ts2?: number) => {
   const dt1 = new Date(ts1);
-  const dt2 = '';
+  const dt2 = ts2 ? new Date(ts2) : setExpiry("1h");
   console.log(dt1, dt2);
 
-  const db = await Modify("insert into fractional_time_test2 values (? ,?)", [dt1,dt2]);
-}
+  const db = await Modify("insert into fractional_time_test2 values (? ,?)", [dt1, dt2]);
+  const [time] = await Select<{ in_time: Date; out_time: Date }>(`select * from blofin.fractional_time_test2`, []);
+  console.log({ time, in_date: new Date(time.in_time!), out_date: new Date(time.out_time!), in_time: time.in_time!, out_time: time.out_time });
+};
 
-put( 1754602401957, 1754602402012);
+put(1754602401957, setExpiry("1h"));
