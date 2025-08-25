@@ -1,0 +1,42 @@
+{
+  canceled: [
+    {
+      account: <Buffer 14 5a 6a>,
+      instrument: undefined,
+      position: undefined,
+      action: undefined,
+      state: <Buffer 3e a3 a4>,
+      price: undefined,
+      size: undefined,
+      leverage: undefined,
+      request_type: undefined,
+      margin_mode: undefined,
+      reduce_only: undefined,
+      broker_id: undefined,
+      memo: '[Update]: Request updated successfully',
+      update_time: 2025-08-25T19:11:37.851Z,
+      expiry_time: undefined,
+      request: <Buffer 00 51 4f e1 fe ed>
+    }
+  ]
+}
+Test 2: Request canceled, check db for results. [
+  {
+    account: <Buffer 14 5a 6a>,
+    instrument: undefined,
+    position: undefined,
+    action: undefined,
+    state: <Buffer 3e a3 a4>,
+    price: undefined,
+    size: undefined,
+    leverage: undefined,
+    request_type: undefined,
+    margin_mode: undefined,
+    reduce_only: undefined,
+    broker_id: undefined,
+    memo: '[Update]: Request updated successfully',
+    update_time: 2025-08-25T19:11:37.851Z,
+    expiry_time: undefined,
+    request: <Buffer 00 51 4f e1 fe ed>
+  }
+]

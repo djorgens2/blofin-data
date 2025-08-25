@@ -1,0 +1,862 @@
+Connected to websocket: [1271607:wss://demo-trading-openapi.blofin.com/ws/private]
+Subscriptions: { channel: 'account' }
+Subscriptions: { channel: 'positions' }
+Subscriptions: { channel: 'orders' }
+Instruments Suspended:  0 []
+Instruments Updated:  0 []
+In WSS.Publish [API]
+In WSS.Publish [API]
+In Execute.Trades: 8/13/2025, 1:50:15 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Request submitted successfully: {
+  request: <Buffer 00 79 cc 33 7d 25>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 3.5,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:15.876Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 3e 92 af 39 02>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 3.5,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:16.099Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 96 c9 cf 17 07>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 3.5,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:16.262Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 f7 2e 43 67 2f>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 3.5,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:16.405Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 94 44 89 47 ca>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 3.5,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:16.987Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 2e 08 51>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'buy',
+  price: 0,
+  size: 5700,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: true,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.105Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 2d 91 d5>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'buy',
+  price: 0,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: true,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.252Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 53 8e 54 2f ac>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 2.9985,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.446Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 0d 1c 46 0b 14>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 2.9985,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.606Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 1e 0c cc a1 09>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 2.9985,
+  size: 100,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.698Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 2c 8d bd>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 0,
+  size: 300,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:17.871Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 2b b4 3a>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 113414.2,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.031Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 2b 43 64>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 114151,
+  size: 300,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.206Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 25 de 04>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 0,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.335Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 25 dd f9>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 0,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.484Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 25 3b b6>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 0,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 72 3d 13>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.577Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 24 d5 be>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 119200,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.657Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 24 80 5a>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'sell',
+  price: 118750,
+  size: 600,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.750Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 20 28 55>,
+  state: <Buffer 47 df 92>,
+  instrument: <Buffer 4e 3e 8a>,
+  position: 'short',
+  action: 'buy',
+  price: 118500,
+  size: 1800,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: true,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.835Z
+}
+Request submitted successfully: {
+  request: <Buffer 00 e8 db 1c 15 c5>,
+  state: <Buffer ed c2 67>,
+  instrument: <Buffer cb 42 a5>,
+  position: 'short',
+  action: 'sell',
+  price: 2.95,
+  size: 1,
+  leverage: 10,
+  request_type: <Buffer 6e b6 c5>,
+  margin_mode: 'cross',
+  reduce_only: false,
+  memo: 'Request missing; imported locally;',
+  expiry_time: 2025-08-13T09:50:18.950Z
+}
+Orders Imported: 20 [
+  {
+    request: <Buffer 00 79 cc 33 7d 25>,
+    order_id: 1000109796837,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1755002005098,
+    update_time: 1755062503937
+  },
+  {
+    request: <Buffer 00 3e 92 af 39 02>,
+    order_id: 1000109740922,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754874514118,
+    update_time: 1754924028270
+  },
+  {
+    request: <Buffer 00 96 c9 cf 17 07>,
+    order_id: 1000109733443,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754858221420,
+    update_time: 1754873498686
+  },
+  {
+    request: <Buffer 00 f7 2e 43 67 2f>,
+    order_id: 1000109643347,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754609037377,
+    update_time: 1754609182240
+  },
+  {
+    request: <Buffer 00 94 44 89 47 ca>,
+    order_id: 1000109642958,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754607992684,
+    update_time: 1754608346328
+  },
+  {
+    request: <Buffer 00 e8 db 2e 08 51>,
+    order_id: 1000109639761,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 0,
+    size: 5700,
+    request_type: <Buffer 72 3d 13>,
+    action: 'buy',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 5700,
+    filled_amount: undefined,
+    average_price: 117201.8,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 400.830156,
+    pnl: -13047.615,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: true,
+    broker_id: undefined,
+    create_time: 1754602401957,
+    update_time: 1754602402012
+  },
+  {
+    request: <Buffer 00 e8 db 2d 91 d5>,
+    order_id: 1000109609429,
+    instrument: <Buffer cb 42 a5>,
+    price: 0,
+    size: 100,
+    request_type: <Buffer 72 3d 13>,
+    action: 'buy',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 100,
+    filled_amount: undefined,
+    average_price: 2.9915,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 17.949,
+    pnl: 70,
+    order_category: <Buffer 77 b8 a5>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: true,
+    broker_id: undefined,
+    create_time: 1754512760573,
+    update_time: 1754512760629
+  },
+  {
+    request: <Buffer 00 53 8e 54 2f ac>,
+    order_id: 1000109582662,
+    instrument: <Buffer cb 42 a5>,
+    price: 2.9985,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 100,
+    filled_amount: undefined,
+    average_price: 2.9985,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 5.997,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754435078935,
+    update_time: 1754495885020
+  },
+  {
+    request: <Buffer 00 0d 1c 46 0b 14>,
+    order_id: 1000109582380,
+    instrument: <Buffer cb 42 a5>,
+    price: 2.9985,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754433346764,
+    update_time: 1754433983816
+  },
+  {
+    request: <Buffer 00 1e 0c cc a1 09>,
+    order_id: 1000109582335,
+    instrument: <Buffer cb 42 a5>,
+    price: 2.9985,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754433027085,
+    update_time: 1754433222017
+  },
+  {
+    request: <Buffer 00 e8 db 2c 8d bd>,
+    order_id: 1000109542845,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 0,
+    size: 300,
+    request_type: <Buffer 72 3d 13>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 300,
+    filled_amount: undefined,
+    average_price: 114575,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 20.6235,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754322394085,
+    update_time: 1754322394165
+  },
+  {
+    request: <Buffer 00 e8 db 2b b4 3a>,
+    order_id: 1000109487162,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 113414.2,
+    size: 600,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 113414.2,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 13.609704,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754163126375,
+    update_time: 1754189794014
+  },
+  {
+    request: <Buffer 00 e8 db 2b 43 64>,
+    order_id: 1000109458276,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 114151,
+    size: 300,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1754090203480,
+    update_time: 1754159200285
+  },
+  {
+    request: <Buffer 00 e8 db 25 de 04>,
+    order_id: 1000109104644,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 0,
+    size: 600,
+    request_type: <Buffer 72 3d 13>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 115783.1,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 41.681916,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1753461195636,
+    update_time: 1753461195701
+  },
+  {
+    request: <Buffer 00 e8 db 25 dd f9>,
+    order_id: 1000109104633,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 0,
+    size: 600,
+    request_type: <Buffer 72 3d 13>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 115840.8,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 41.702688,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1753461159417,
+    update_time: 1753461159473
+  },
+  {
+    request: <Buffer 00 e8 db 25 3b b6>,
+    order_id: 1000109063094,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 0,
+    size: 600,
+    request_type: <Buffer 72 3d 13>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 115500.3,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 41.580108,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1753432485629,
+    update_time: 1753432485688
+  },
+  {
+    request: <Buffer 00 e8 db 24 d5 be>,
+    order_id: 1000109036990,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 119200,
+    size: 600,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 119200,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 14.304,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1753383637567,
+    update_time: 1753383800062
+  },
+  {
+    request: <Buffer 00 e8 db 24 80 5a>,
+    order_id: 1000109015130,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 118750,
+    size: 600,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 600,
+    filled_amount: undefined,
+    average_price: 118750,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 14.25,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1753345777253,
+    update_time: 1753345861523
+  },
+  {
+    request: <Buffer 00 e8 db 20 28 55>,
+    order_id: 1000108730453,
+    instrument: <Buffer 4e 3e 8a>,
+    price: 118500,
+    size: 1800,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'buy',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 1800,
+    filled_amount: undefined,
+    average_price: 118434,
+    order_state: <Buffer 9f ea bf>,
+    leverage: 10,
+    fee: 127.90872,
+    pnl: -11644.095,
+    order_category: <Buffer cc 85 a5>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: true,
+    broker_id: undefined,
+    create_time: 1752896274027,
+    update_time: 1752896274085
+  },
+  {
+    request: <Buffer 00 e8 db 1c 15 c5>,
+    order_id: 1000108463557,
+    instrument: <Buffer cb 42 a5>,
+    price: 2.95,
+    size: 1,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: undefined,
+    average_price: 0,
+    order_state: <Buffer 7d 5c 89>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 4e 8b 73>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1752407801073,
+    update_time: 1752407889429
+  }
+]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:50:44 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:51:13 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:51:42 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:52:11 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:52:40 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:53:09 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:53:38 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 1:54:07 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]

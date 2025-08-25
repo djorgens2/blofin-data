@@ -1,0 +1,17 @@
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.base.csv	2025-08-25 11:49:59.293424470 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.comp.csv	2025-08-25 11:49:59.119419750 -0700
+@@ -1 +1 @@
+-REQUEST,223,,,,,,,,,,,,,,,
++REQUEST,224,,,,,,,,,,,,,,,
+@@ -25,0 +26 @@
++00514FE1FEED,23334E,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 1: request w/o expiry; w/o tpsl",,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696","2025/08/25 11:47:44.681"
+@@ -451 +452 @@
+-VW_REQUESTS,223,,,,,,,,,,,,,,,,,,,,,
++VW_REQUESTS,224,,,,,,,,,,,,,,,,,,,,,
+@@ -475,0 +477 @@
++00514FE1FEED,,23334E,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1: request w/o expiry; w/o tpsl",0,,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696"
+@@ -901 +903 @@
+-VW_API_REQUESTS,,223,,,,,,,,,,
++VW_API_REQUESTS,,224,,,,,,,,,,
+@@ -925,0 +928 @@
++Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,00514FE1FEED,"Test 1: request w/o expiry; w/o tpsl","2025/08/25 19:47:44.679"

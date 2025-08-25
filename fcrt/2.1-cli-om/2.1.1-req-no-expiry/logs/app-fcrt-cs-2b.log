@@ -1,0 +1,242 @@
+Connected to websocket: [2690793:wss://demo-trading-openapi.blofin.com/ws/private]
+Subscriptions: { channel: 'account' }
+Subscriptions: { channel: 'positions' }
+Subscriptions: { channel: 'orders' }
+-> WSS.Publish [API]
+# Instruments Updated:  5 [
+  {
+    instrument: <Buffer 45 6a 7e>,
+    instId: 'HEI-USDT',
+    baseCurrency: 'HEI',
+    quoteCurrency: 'USDT',
+    contractValue: '1',
+    listTime: '1739438100000',
+    expireTime: '4909748819562',
+    maxLeverage: '50',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.0001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '1000000',
+    maxMarketSize: '100000',
+    state: 'live',
+    thresholdX: '0.04',
+    thresholdY: '0.04',
+    thresholdZ: '0.3',
+    settleCurrency: 'USDT'
+  },
+  {
+    instrument: <Buffer eb b2 0e>,
+    instId: 'JST-USDT',
+    baseCurrency: 'JST',
+    quoteCurrency: 'USDT',
+    contractValue: '1',
+    listTime: '1700123405000',
+    expireTime: '4909748878965',
+    maxLeverage: '20',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.00001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '450600000',
+    maxMarketSize: '258400',
+    state: 'live',
+    thresholdX: '0.04',
+    thresholdY: '0.04',
+    thresholdZ: '0.3',
+    settleCurrency: 'USDT'
+  },
+  {
+    instrument: <Buffer aa b0 ee>,
+    instId: 'KOMA-USDT',
+    baseCurrency: 'KOMA',
+    quoteCurrency: 'USDT',
+    contractValue: '10',
+    listTime: '1733835600000',
+    expireTime: '4909748840743',
+    maxLeverage: '15',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.00001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '800000',
+    maxMarketSize: '500000',
+    state: 'live',
+    thresholdX: '0.04',
+    thresholdY: '0.04',
+    thresholdZ: '0.3',
+    settleCurrency: 'USDT'
+  },
+  {
+    instrument: <Buffer ce 0a 5b>,
+    instId: 'NKN-USDT',
+    baseCurrency: 'NKN',
+    quoteCurrency: 'USDT',
+    contractValue: '1',
+    listTime: '1697617800000',
+    expireTime: '4909748860649',
+    maxLeverage: '25',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.00001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '10000000',
+    maxMarketSize: '2000000',
+    state: 'live',
+    thresholdX: '0.06',
+    thresholdY: '0.06',
+    thresholdZ: '0.3',
+    settleCurrency: 'USDT'
+  },
+  {
+    instrument: <Buffer 30 5c e4>,
+    instId: 'NTRN-USDT',
+    baseCurrency: 'NTRN',
+    quoteCurrency: 'USDT',
+    contractValue: '1',
+    listTime: '1700037005000',
+    expireTime: '4909748799781',
+    maxLeverage: '50',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.00001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '1000000',
+    maxMarketSize: '600000',
+    state: 'live',
+    thresholdX: '0.06',
+    thresholdY: '0.06',
+    thresholdZ: '0.3',
+    settleCurrency: 'USDT'
+  }
+]
+In Execute.Trades: 8/25/2025, 12:18:40 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+In Request.Audit [1]
+Request exists; was canceled and not resubmitted: {
+  exists: {
+    request: <Buffer 00 51 4f e1 fe ed>,
+    order_id: 1000110431834,
+    account: <Buffer 14 5a 6a>,
+    instrument: <Buffer cb 42 a5>,
+    symbol: 'XRP-USDT',
+    state: <Buffer 3e a3 a4>,
+    status: 'Canceled',
+    order_state: <Buffer 37 0a 0e>,
+    order_status: 'Pending',
+    margin_mode: 'cross',
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer 6e b6 c5>,
+    order_type: 'limit',
+    price: 3.5,
+    size: 100,
+    leverage: 50,
+    digits: 5,
+    memo: '[Cancel]: Request canceled by user/system',
+    reduce_only: 0,
+    broker_id: null,
+    expiry_time: 2025-08-26T02:47:44.679Z,
+    create_time: 2025-08-25T18:47:44.696Z
+  },
+  submit: {
+    request: <Buffer 00 51 4f e1 fe ed>,
+    account: <Buffer 23 33 4e>,
+    instrument: <Buffer cb 42 a5>,
+    position: 'short',
+    action: 'sell',
+    state: <Buffer 37 0a 0e>,
+    price: 3.5,
+    size: 100,
+    leverage: 10,
+    request_type: <Buffer 6e b6 c5>,
+    margin_mode: 'cross',
+    reduce_only: 0,
+    broker_id: null,
+    memo: '[Audit]: Request State updated from Canceled to Pending',
+    create_time: 2025-08-25T18:54:15.743Z,
+    update_time: 2025-08-25T19:18:41.662Z,
+    expiry_time: 2025-08-26T02:47:44.679Z
+  }
+}
+   [Trades.Audit] INFO Audit Updates: 1
+-> Cancel [API]
+-> WSS.Publish [API]
+-> Process.Modified [1]
+Request exists; was canceled and not resubmitted: {
+  exists: {
+    request: <Buffer 00 51 4f e1 fe ed>,
+    order_id: 1000110431834,
+    account: <Buffer 14 5a 6a>,
+    instrument: <Buffer cb 42 a5>,
+    symbol: 'XRP-USDT',
+    state: <Buffer 3e a3 a4>,
+    status: 'Canceled',
+    order_state: <Buffer 37 0a 0e>,
+    order_status: 'Pending',
+    margin_mode: 'cross',
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer 6e b6 c5>,
+    order_type: 'limit',
+    price: 3.5,
+    size: 100,
+    leverage: 50,
+    digits: 5,
+    memo: '[Cancel]: Request canceled by user/system',
+    reduce_only: 0,
+    broker_id: null,
+    expiry_time: 2025-08-26T02:47:44.679Z,
+    create_time: 2025-08-25T18:47:44.696Z
+  },
+  submit: {
+    request: <Buffer 00 51 4f e1 fe ed>,
+    account: <Buffer 23 33 4e>,
+    instrument: <Buffer cb 42 a5>,
+    position: 'short',
+    action: undefined,
+    state: <Buffer ed c2 67>,
+    price: undefined,
+    size: undefined,
+    leverage: undefined,
+    request_type: undefined,
+    margin_mode: undefined,
+    reduce_only: undefined,
+    broker_id: undefined,
+    memo: undefined,
+    create_time: 2025-08-25T18:54:15.743Z,
+    update_time: 2025-08-25T19:18:41.973Z,
+    expiry_time: 2025-08-26T03:18:41.973Z
+  }
+}
+   [Trades.Canceled] INFO Cancels Closed: 1 accepted
+   # Orders Updated: 1 [
+  {
+    request: <Buffer 00 51 4f e1 fe ed>,
+    instrument: <Buffer cb 42 a5>,
+    position: 'short',
+    create_time: 2025-08-25T18:54:15.743Z,
+    update_time: 2025-08-25T19:18:41.877Z,
+    order_state: <Buffer 7d 5c 89>
+  }
+]
+In Execute.Trades: 8/25/2025, 12:19:09 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Cancel [API]
+-> WSS.Publish [API]
+-> WSS.Publish [API]
+In Execute.Trades: 8/25/2025, 12:19:38 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Cancel [API]

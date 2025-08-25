@@ -1,0 +1,172 @@
+Connected to websocket: [1277654:wss://demo-trading-openapi.blofin.com/ws/private]
+Instruments Suspended:  0 []
+Instruments Updated:  1 [
+  {
+    instrument: <Buffer 4d 75 07>,
+    instId: 'ZORA-USDT',
+    baseCurrency: 'ZORA',
+    quoteCurrency: 'USDT',
+    contractValue: '10',
+    listTime: '1753442100000',
+    expireTime: '4878180000000',
+    maxLeverage: '75',
+    minSize: '1',
+    lotSize: '1',
+    tickSize: '0.00001',
+    instType: 'SWAP',
+    contractType: 'linear',
+    maxLimitSize: '2000000',
+    maxMarketSize: '100000',
+    state: 'live',
+    thresholdX: '0.04',
+    thresholdY: '0.04',
+    thresholdZ: '0.15',
+    settleCurrency: 'USDT'
+  }
+]
+Subscriptions: { channel: 'account' }
+Subscriptions: { channel: 'positions' }
+Subscriptions: { channel: 'orders' }
+In WSS.Publish [API]
+In Execute.Trades: 8/13/2025, 2:49:43 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In WSS.Publish [API]
+Orders Accepted: 1 [
+  {
+    orderId: '1000109837973',
+    clientOrderId: '003426C873D1',
+    msg: 'success',
+    code: '0'
+  }
+]
+Orders Imported: 1 [
+  {
+    request: <Buffer 00 34 26 c8 73 d1>,
+    order_id: 1000109837973,
+    instrument: <Buffer cb 42 a5>,
+    price: 3.5,
+    size: 100,
+    request_type: <Buffer 6e b6 c5>,
+    action: 'sell',
+    position: 'short',
+    margin_mode: 'cross',
+    filled_size: 0,
+    filled_amount: 0,
+    average_price: 0,
+    order_state: <Buffer aa 16 01>,
+    leverage: 10,
+    fee: 0,
+    pnl: 0,
+    order_category: <Buffer 85 e8 4f>,
+    cancel_source: <Buffer 64 56 04>,
+    reduce_only: false,
+    broker_id: undefined,
+    create_time: 1755078584497,
+    update_time: 1755078584497
+  }
+]
+In Execute.Trades: 8/13/2025, 2:50:12 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+In Pending.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+Requests Canceled: 1 [
+  {
+    request: <Buffer 00 34 26 c8 73 d1>,
+    status: 'Canceled',
+    memo: 'Expired: Pending request state changed from Pending to Canceled'
+  }
+]
+In Cancel [API]: Cancellations [1]
+In WSS.Publish [API]
+Cancels Closed: 1 [
+  {
+    orderId: '1000109837973',
+    clientOrderId: '003426C873D1',
+    msg: 'Order canceled',
+    code: '0'
+  }
+]
+Orders Updated: 1 [
+  {
+    request: <Buffer 00 34 26 c8 73 d1>,
+    order_id: 1000109837973,
+    order_state: <Buffer 7d 5c 89>,
+    cancel_source: undefined,
+    update_time: 1755078613485
+  }
+]
+In WSS.Publish [API]
+In WSS.Publish [API]
+In Execute.Trades: 8/13/2025, 2:50:41 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Orders Updated: 1 [
+  {
+    request: <Buffer 00 34 26 c8 73 d1>,
+    order_id: 1000109837973,
+    cancel_source: <Buffer 4e 8b 73>
+  }
+]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:51:10 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:51:39 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:52:08 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:52:37 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:53:06 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]
+In Execute.Trades: 8/13/2025, 2:53:35 AM
+In Orders.Import [API]
+In History Fetch [API]
+In Pending Fetch [API]
+In History.Publish [API]
+Pending Stops: [0, 0]
+Stops Closed: []
+In Cancel [API]: Cancellations [0]

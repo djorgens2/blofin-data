@@ -1,0 +1,15 @@
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-08-13 03:13:09.929506292 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-08-13 03:13:09.799501081 -0700
+@@ -4 +4 @@
+-003426C873D1,145A6A,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 2: request w/ expiry; w/o tpsl",,"2025/08/13 02:21:37","2025/08/13 02:19:37","2025/08/13 02:19:37"
++003426C873D1,145A6A,CB42A5,short,sell,EDC267,3.5,100,50,6EB6C5,cross,0,"[0: Order canceled] [1000109837973,003426C873D1] Wed Aug 13 2025 02:50:13 GMT-0700 (Pacific Daylight Time) Order status set to Closed",,"2025/08/13 02:21:37","2025/08/13 02:19:37","2025/08/13 02:19:37"
+@@ -25,0 +26 @@
++003426C873D1,1000109837973,3.5,100,6EB6C5,short,sell,cross,0,0,0,7D5C89,10,0,0,4E8B73,85E84F,0,,"2025/08/13 02:49:44","2025/08/13 02:50:13"
+@@ -47 +48 @@
+-Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,003426C873D1,"Test 2: request w/ expiry; w/o tpsl","2025/08/13 02:21:37"
++Closed,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,003426C873D1,"[0: Order canceled] [1000109837973,003426C873D1] Wed Aug 13 2025 02:50:13 GMT-0700 (Pacific Daylight Time) Order status set to Closed","2025/08/13 02:21:37"
+@@ -73 +74 @@
+-003426C873D1,,145A6A,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 2: request w/ expiry; w/o tpsl",0,,"2025/08/13 02:21:37","2025/08/13 02:19:37"
++003426C873D1,1000109837973,145A6A,CB42A5,XRP-USDT,EDC267,Closed,EDC267,Closed,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"[0: Order canceled] [1000109837973,003426C873D1] Wed Aug 13 2025 02:50:13 GMT-0700 (Pacific Daylight Time) Order status set to Closed",0,,"2025/08/13 02:21:37","2025/08/13 02:19:37"
+@@ -94,0 +96 @@
++003426C873D1,1000109837973,003426C873D1,145A6A,CB42A5,XRP-USDT,B5CDB2,XRP,350FE2,USDT,SWAP,EDC267,Closed,7D5C89,canceled,EDC267,Closed,6EB6C5,limit,short,sell,3.5,100,10,cross,85E84F,normal,linear,linear,CA3449,15m,0,0,0,0,0,4E8B73,user_canceled,0,,5,7C7AB8,Enabled,0,"[0: Order canceled] [1000109837973,003426C873D1] Wed Aug 13 2025 02:50:13 GMT-0700 (Pacific Daylight Time) Order status set to Closed","2025/08/13 02:49:44","2025/08/13 02:50:13","2025/08/13 02:21:37"
