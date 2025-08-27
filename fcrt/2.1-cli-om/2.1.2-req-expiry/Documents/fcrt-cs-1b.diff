@@ -1,0 +1,11 @@
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-08-26 17:35:54.310135252 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-08-26 17:35:54.132130069 -0700
+@@ -34 +34 @@
+-006318E0AE39,23334E,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/08/26 16:39:20.736","2025/08/26 16:34:20.779","2025/08/26 16:34:20.774"
++006318E0AE39,23334E,CB42A5,short,sell,3EA3A4,3.5,100,50,6EB6C5,cross,0,"[Expired]: Queued request state changed to Canceled",,"2025/08/26 16:39:20.736","2025/08/26 16:34:20.779","2025/08/26 17:20:46.254"
+@@ -489 +489 @@
+-006318E0AE39,,23334E,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1a: request w/ expiry; w/o tpsl",0,,"2025/08/26 16:39:20.736","2025/08/26 16:34:20.779"
++006318E0AE39,,23334E,CB42A5,XRP-USDT,3EA3A4,Canceled,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"[Expired]: Queued request state changed to Canceled",0,,"2025/08/26 16:39:20.736","2025/08/26 16:34:20.779"
+@@ -944 +944 @@
+-Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,006318E0AE39,"Test 1a: request w/ expiry; w/o tpsl","2025/08/26 16:39:20.736"
++Canceled,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,006318E0AE39,"[Expired]: Queued request state changed to Canceled","2025/08/26 16:39:20.736"
