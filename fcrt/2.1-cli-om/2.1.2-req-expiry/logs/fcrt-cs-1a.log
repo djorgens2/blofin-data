@@ -1,18 +1,5 @@
-Request submitted successfully: {
-  symbol: 'XRP-USDT',
-  margin_mode: 'cross',
-  position: 'short',
-  action: 'sell',
-  order_type: 'limit',
-  price: 3.5,
-  size: 100,
-  leverage: 50,
-  memo: 'Test 2: request w/ expiry; w/o tpsl',
-  expiry_time: 2025-08-13T09:21:37.240Z,
-  request: <Buffer 00 34 26 c8 73 d1>
-}
 {
-  submitted: <Buffer 00 34 26 c8 73 d1>,
+  submitted: <Buffer 00 63 18 e0 ae 39>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -22,8 +9,8 @@ Request submitted successfully: {
     price: 3.5,
     size: 100,
     leverage: 50,
-    memo: 'Test 2: request w/ expiry; w/o tpsl',
-    expiry_time: 2025-08-13T09:21:37.240Z
+    expiry_time: 2025-08-26T23:39:20.736Z,
+    memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }
-Test 1: Request submitted, check db for results. <Buffer 00 34 26 c8 73 d1>
+Test 1a: Request submitted, check db for results. <Buffer 00 63 18 e0 ae 39>

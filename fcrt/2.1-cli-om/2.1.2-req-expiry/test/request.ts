@@ -11,6 +11,5 @@ export const req_fcrt_1a: Partial<IRequest> = {
   price: 3.5,
   size: 100,
   leverage: 50,
-  memo: "Test 2: request w/ expiry; w/o tpsl",
-  expiry_time: setExpiry("2m"),
+  expiry_time: setExpiry("5m"),
 };
