@@ -8,4 +8,4 @@ log/*
 *.bak
 .vscode*
 build/*
-!fcrt/
+!fcrt/*
