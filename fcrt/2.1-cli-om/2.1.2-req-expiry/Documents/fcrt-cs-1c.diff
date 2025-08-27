@@ -1,0 +1,11 @@
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-08-26 18:03:28.120556275 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-08-26 18:03:27.940550944 -0700
+@@ -2 +2 @@
+-226,225,226,225,226
++227,225,227,225,227
+@@ -22,0 +23 @@
++002B672F7CE0,23334E,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 1b: request w/ expiry; w/o tpsl",,"2025/08/26 17:51:27.956","2025/08/26 17:46:27.983","2025/08/26 17:46:27.980"
+@@ -477,0 +479 @@
++002B672F7CE0,,23334E,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1b: request w/ expiry; w/o tpsl",0,,"2025/08/26 17:51:27.956","2025/08/26 17:46:27.983"
+@@ -932,0 +935 @@
++Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,002B672F7CE0,"Test 1b: request w/ expiry; w/o tpsl","2025/08/26 17:51:27.956"

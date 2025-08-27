@@ -8,4 +8,8 @@ log/*
 *.bak
 .vscode*
 build/*
-!fcrt/
+!fcrt/*
+!fcrt/*/Documents/*.xlsx
+!fcrt/*/Documents/*.docx
+!fcrt/*/Documents/*.diff
+!fcrt/*/logs/*.log

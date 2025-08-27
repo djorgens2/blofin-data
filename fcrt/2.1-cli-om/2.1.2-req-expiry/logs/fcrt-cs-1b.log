@@ -1,0 +1,16 @@
+{
+  submitted: <Buffer 00 2b 67 2f 7c e0>,
+  request: {
+    symbol: 'XRP-USDT',
+    margin_mode: 'cross',
+    position: 'short',
+    action: 'sell',
+    order_type: 'limit',
+    price: 3.5,
+    size: 100,
+    leverage: 50,
+    expiry_time: 2025-08-27T00:51:27.956Z,
+    memo: 'Test 1b: request w/ expiry; w/o tpsl'
+  }
+}
+Test 1b: Request submitted, check db for results. <Buffer 00 2b 67 2f 7c e0>
