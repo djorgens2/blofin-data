@@ -54,6 +54,7 @@ export const Request = async (props: { results: TResponse[]; success: TRequest; 
         create_time: new Date(Date.now()),
         update_time: new Date(Date.now()),
       };
+
       const sql = `UPDATE blofin.request SET state = ?, update_time = now(3) WHERE request = ?`;
       const args = [response.state, response.request];
 

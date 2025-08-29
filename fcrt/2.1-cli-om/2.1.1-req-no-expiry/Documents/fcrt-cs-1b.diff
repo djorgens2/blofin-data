@@ -1,21 +1,18 @@
---- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.base.csv	2025-08-25 12:09:47.896635880 -0700
-+++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.comp.csv	2025-08-25 12:09:47.719630794 -0700
-@@ -26 +26 @@
--00514FE1FEED,23334E,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 1: request w/o expiry; w/o tpsl",,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696","2025/08/25 11:47:44.681"
-+00514FE1FEED,23334E,CB42A5,short,sell,370A0E,3.5,100,50,6EB6C5,cross,0,"Test 1: request w/o expiry; w/o tpsl",,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696","2025/08/25 11:54:15.812"
-@@ -227 +227 @@
--ORDER,223,,,,,,,,,,,,,,,,,,,
-+ORDER,224,,,,,,,,,,,,,,,,,,,
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.base.csv	2025-08-28 14:13:15.029758232 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.1-req-no-expiry/Documents/.comp.csv	2025-08-28 14:13:14.828751966 -0700
+@@ -2 +2 @@
+-227,226,227,226,227
++227,227,227,227,227
+@@ -23 +23 @@
+-001E6B321CAA,23334E,CB42A5,short,sell,8A591F,3.5,100,50,6EB6C5,cross,0,"Test 1: request w/o expiry; w/o tpsl",,"2025/08/28 20:51:38.457","2025/08/28 12:51:38.462","2025/08/28 12:51:38.459"
++001E6B321CAA,23334E,CB42A5,short,sell,370A0E,3.5,100,50,6EB6C5,cross,0,"Test 1: request w/o expiry; w/o tpsl",,"2025/08/28 20:51:38.457","2025/08/28 12:51:38.462","2025/08/28 13:01:05.586"
 @@ -251,0 +252 @@
-+00514FE1FEED,1000110431834,3.5,100,6EB6C5,short,sell,cross,0,0,0,AA1601,10,0,0,645604,85E84F,0,,"2025/08/25 11:54:15.743","2025/08/25 11:54:15.743"
-@@ -477 +478 @@
--00514FE1FEED,,23334E,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1: request w/o expiry; w/o tpsl",0,,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696"
-+00514FE1FEED,1000110431834,23334E,CB42A5,XRP-USDT,370A0E,Pending,370A0E,Pending,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1: request w/o expiry; w/o tpsl",0,,"2025/08/25 19:47:44.679","2025/08/25 11:47:44.696"
-@@ -678 +679 @@
--VW_ORDERS,223,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-+VW_ORDERS,224,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-@@ -702,0 +704 @@
-+00514FE1FEED,1000110431834,00514FE1FEED,23334E,CB42A5,XRP-USDT,B5CDB2,XRP,350FE2,USDT,SWAP,370A0E,Pending,AA1601,live,370A0E,Pending,6EB6C5,limit,short,sell,3.5,100,10,cross,85E84F,normal,linear,CA3449,15m,0,0,0,0,0,645604,not_canceled,0,,5,7C7AB8,Enabled,0,"Test 1: request w/o expiry; w/o tpsl","2025/08/25 11:54:15.743","2025/08/25 11:54:15.743","2025/08/25 19:47:44.679"
-@@ -928 +930 @@
--Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,00514FE1FEED,"Test 1: request w/o expiry; w/o tpsl","2025/08/25 19:47:44.679"
-+Pending,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,00514FE1FEED,"Test 1: request w/o expiry; w/o tpsl","2025/08/25 19:47:44.679"
++001E6B321CAA,1000110626896,3.5,100,6EB6C5,short,sell,cross,0,0,0,AA1601,10,0,0,645604,85E84F,0,,"2025/08/28 13:01:05.501","2025/08/28 13:01:05.501"
+@@ -480 +481 @@
+-001E6B321CAA,,23334E,CB42A5,XRP-USDT,8A591F,Queued,,,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1: request w/o expiry; w/o tpsl",0,,"2025/08/28 20:51:38.457","2025/08/28 12:51:38.462"
++001E6B321CAA,1000110626896,23334E,CB42A5,XRP-USDT,370A0E,Pending,370A0E,Pending,cross,short,sell,6EB6C5,limit,3.5,100,50,5,"Test 1: request w/o expiry; w/o tpsl",0,,"2025/08/28 20:51:38.457","2025/08/28 12:51:38.462"
+@@ -708,0 +710 @@
++001E6B321CAA,1000110626896,001E6B321CAA,23334E,CB42A5,XRP-USDT,B5CDB2,XRP,350FE2,USDT,SWAP,370A0E,Pending,AA1601,live,370A0E,Pending,6EB6C5,limit,short,sell,3.5,100,10,cross,85E84F,normal,linear,CA3449,15m,0,0,0,0,0,645604,not_canceled,0,,5,7C7AB8,Enabled,0,"Test 1: request w/o expiry; w/o tpsl","2025/08/28 13:01:05.501","2025/08/28 13:01:05.501","2025/08/28 20:51:38.457"
+@@ -937 +939 @@
+-23334E,Queued,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,001E6B321CAA,"Test 1: request w/o expiry; w/o tpsl","2025/08/28 20:51:38.457"
++23334E,Pending,XRP-USDT,cross,short,sell,limit,3.5,100,FALSE,,001E6B321CAA,"Test 1: request w/o expiry; w/o tpsl","2025/08/28 20:51:38.457"

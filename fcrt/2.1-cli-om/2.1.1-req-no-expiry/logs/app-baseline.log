@@ -1,51 +1,52 @@
-Connected to websocket: [2683219:wss://demo-trading-openapi.blofin.com/ws/private]
+Connected to websocket: [2990102:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
-In Execute.Trades: 8/25/2025, 11:31:56 AM
+In Execute.Trades: 8/28/2025, 12:28:29 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:32:25 AM
+In Execute.Trades: 8/28/2025, 12:28:58 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:32:54 AM
+In Execute.Trades: 8/28/2025, 12:29:27 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:33:23 AM
+In Execute.Trades: 8/28/2025, 12:29:56 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:33:52 AM
+-> WSS.Publish [API]
+In Execute.Trades: 8/28/2025, 12:30:25 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:34:22 AM
+In Execute.Trades: 8/28/2025, 12:30:54 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:34:51 AM
+In Execute.Trades: 8/28/2025, 12:31:23 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -53,48 +54,47 @@ In Orders.Import [API]
 -> Process.Resubmit [8]
    # Orders Rejected: 12 rejected
 -> Cancel [API]
--> WSS.Publish [API]
-In Execute.Trades: 8/25/2025, 11:35:20 AM
+In Execute.Trades: 8/28/2025, 12:31:52 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:35:49 AM
+In Execute.Trades: 8/28/2025, 12:32:21 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:36:18 AM
+In Execute.Trades: 8/28/2025, 12:32:50 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:36:47 AM
+In Execute.Trades: 8/28/2025, 12:33:19 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
 -> Process.Resubmit [20]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:37:16 AM
+In Execute.Trades: 8/28/2025, 12:33:48 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
--> Process.Resubmit [15]
+-> Process.Resubmit [18]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:37:45 AM
+In Execute.Trades: 8/28/2025, 12:34:17 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> Cancel [API]
-In Execute.Trades: 8/25/2025, 11:38:14 AM
+In Execute.Trades: 8/28/2025, 12:34:46 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]

@@ -79,7 +79,7 @@ CREATE  TABLE blofin.order_category (
 CREATE  TABLE blofin.order_state ( 
 	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(20)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	status               VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	status             VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	map_ref              VARCHAR(10)   COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
@@ -121,7 +121,7 @@ CREATE  TABLE blofin.role (
 
 CREATE  TABLE blofin.state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
-	status               VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	status             VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_trade_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
@@ -136,7 +136,7 @@ CREATE  TABLE blofin.subject (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE blofin.user ( 
-	user                 BINARY(3)    NOT NULL   PRIMARY KEY,
+	user               BINARY(3)    NOT NULL   PRIMARY KEY,
 	email                VARCHAR(80)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	role                 BINARY(3)    NOT NULL   ,
 	hash                 BINARY(16)    NOT NULL   ,
@@ -405,7 +405,7 @@ CREATE  TABLE blofin.task_authority (
 CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
 
 CREATE  TABLE blofin.user_account ( 
-	user                 BINARY(3)    NOT NULL   ,
+	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
 	owner                BINARY(3)    NOT NULL   ,
 	alias                VARCHAR(30)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -601,6 +601,7 @@ where
 
 CREATE VIEW blofin.vw_api_requests AS
 select
+	r.account AS account,
 	ifnull(os.map_ref, rs.status) AS status,
 	concat(b.symbol, '-', q.symbol) AS instId,
 	r.margin_mode AS marginMode,

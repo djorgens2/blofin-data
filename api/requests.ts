@@ -11,6 +11,7 @@ import { Session, signRequest } from "@module/session";
 import * as Response from "@api/response";
 
 export interface IRequestAPI {
+  account: Uint8Array;
   status?: TRequest;
   orderId?: number | string | undefined | null;
   instId: string;
@@ -28,9 +29,10 @@ export interface IRequestAPI {
   slTriggerPrice: undefined | null;
   slOrderPrice: undefined | null;
   brokerId: string | undefined;
+  memo: string;
   createTime: string;
   updateTime: string;
-  expiryTime?: Date;
+  expiry_time?: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
