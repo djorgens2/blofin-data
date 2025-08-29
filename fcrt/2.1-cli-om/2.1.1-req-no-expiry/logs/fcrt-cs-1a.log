@@ -1,5 +1,5 @@
 {
-  submitted: <Buffer 00 51 4f e1 fe ed>,
+  submitted: <Buffer 00 e7 48 3a 24 3e>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -12,4 +12,4 @@
     memo: 'Test 1: request w/o expiry; w/o tpsl'
   }
 }
-Test 1: Request submitted, check db for results. <Buffer 00 51 4f e1 fe ed>
+Test 1: Request submitted, check db for results. <Buffer 00 e7 48 3a 24 3e>

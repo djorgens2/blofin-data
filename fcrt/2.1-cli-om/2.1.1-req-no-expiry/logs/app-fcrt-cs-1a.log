@@ -1,25 +1,24 @@
-Connected to websocket: [2687195:wss://demo-trading-openapi.blofin.com/ws/private]
+Connected to websocket: [2998351:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
-In Execute.Trades: 8/25/2025, 11:54:14 AM
+In Execute.Trades: 8/28/2025, 1:01:04 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> Cancel [API]
 -> WSS.Publish [API]
 -> Process.Missing [1]
-# Orders Accepted: 1 accepted
+>> [Info: Trades.Queued] Orders Accepted: 1 accepted
    # Orders Recieved: 1 missing
-In Execute.Trades: 8/25/2025, 11:54:43 AM
+In Execute.Trades: 8/28/2025, 1:01:33 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> Pending.Publish [API]
 -> Cancel [API]
--> WSS.Publish [API]
-In Execute.Trades: 8/25/2025, 11:55:12 AM
+In Execute.Trades: 8/28/2025, 1:02:02 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
