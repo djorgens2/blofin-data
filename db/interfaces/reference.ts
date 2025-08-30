@@ -49,12 +49,12 @@ export const Import = async () => {
   ["tp", "sl"].forEach((stop_type) => Add("stop_type", { stop_type }));
   ["long", "short"].forEach((position) => Add("position", { position }));
   [
-    { order_category: 0, source_ref: "normal", description: "Normal", trigger_type: false },
-    { order_category: 0, source_ref: "full_liquidation", description: "Full Liquidation", trigger_type: false },
-    { order_category: 0, source_ref: "partial_liquidation", description: "Partial Liquidation", trigger_type: false },
-    { order_category: 0, source_ref: "adl", description: "Auto-Deleveraging", trigger_type: false },
-    { order_category: 0, source_ref: "tp", description: "Take Profit", trigger_type: true },
-    { order_category: 0, source_ref: "sl", description: "Stop Loss", trigger_type: true },
+    { order_category: 0, source_ref: "normal", description: "Normal" },
+    { order_category: 0, source_ref: "full_liquidation", description: "Full Liquidation" },
+    { order_category: 0, source_ref: "partial_liquidation", description: "Partial Liquidation" },
+    { order_category: 0, source_ref: "adl", description: "Auto-Deleveraging" },
+    { order_category: 0, source_ref: "tp", description: "Take Profit" },
+    { order_category: 0, source_ref: "sl", description: "Stop Loss" },
   ].forEach((category) => Add("order_category", category));
 };
 
@@ -63,7 +63,6 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export async function Add(table: string, data: object) {
   const [fields, args] = parseColumns(data, "");
-
   if (fields) {
     args[0] === 0 && (args[0] = hashKey(6));
     const sql = `INSERT IGNORE INTO blofin.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;

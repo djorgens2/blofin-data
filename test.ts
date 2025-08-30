@@ -1,8 +1,10 @@
 //----------------------------------- KeySet tests ------------------------------------------//
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
+import { parseColumns } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
 import { isEqual, setExpiry } from "@lib/std.util";
+import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
 // const keyset: IKeyProps = await KeySet(props);
@@ -1191,16 +1193,56 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(isEqual(inUint!,outUint!));
 
 //----------------------------- datetime conversion test ----------------------------------------------//
-import { Modify, Select } from "@db/query.utils";
+// import { Modify, Select } from "@db/query.utils";
 
-const put = async (ts1: number, ts2?: number) => {
-  const dt1 = new Date(ts1);
-  const dt2 = ts2 ? new Date(ts2) : setExpiry("1h");
-  console.log(dt1, dt2);
+// const put = async (ts1: number, ts2?: number) => {
+//   const dt1 = new Date(ts1);
+//   const dt2 = ts2 ? new Date(ts2) : setExpiry("1h");
+//   console.log(dt1, dt2);
 
-  const db = await Modify("insert into fractional_time_test2 values (? ,?)", [dt1, dt2]);
-  const [time] = await Select<{ in_time: Date; out_time: Date }>(`select * from blofin.fractional_time_test2`, []);
-  console.log({ time, in_date: new Date(time.in_time!), out_date: new Date(time.out_time!), in_time: time.in_time!, out_time: time.out_time });
+//   const db = await Modify("insert into fractional_time_test2 values (? ,?)", [dt1, dt2]);
+//   const [time] = await Select<{ in_time: Date; out_time: Date }>(`select * from blofin.fractional_time_test2`, []);
+//   console.log({ time, in_date: new Date(time.in_time!), out_date: new Date(time.out_time!), in_time: time.in_time!, out_time: time.out_time });
+// };
+
+// put(1754602401957, setExpiry("1h"));
+
+//----------------------------- parsecolums test ----------------------------------------------//
+const submit = {
+  request: hexify("00bbb8267a54", 6),
+  account: hexify("23334e", 3),
+  instrument: hexify("cb42a5", 3),
+  position: "short",
+  action: undefined,
+  state: hexify("edc267", 3),
+  price: undefined,
+  size: undefined,
+  leverage: undefined,
+  request_type: undefined,
+  margin_mode: undefined,
+  reduce_only: undefined,
+  broker_id: undefined,
+  memo: undefined,
+  create_time: new Date("2025-08-29T17:15:58.975Z"),
+  update_time: new Date("2025-08-29T17:34:59.365Z"),
+  expiry_time: new Date("2025-08-30T01:34:59.365Z"),
 };
 
-put(1754602401957, setExpiry("1h"));
+const [fields, args] = Object.entries(submit).reduce(
+  ([fields, args], [key, value]) => {
+    if (value !== undefined) {
+      fields.push(key);
+      args.push(value);
+    }
+    return [fields, args];
+  },
+  [[], []] as [string[], any[]]
+);
+
+console.log(fields, args);
+
+const [f2, a2] = parseColumns(submit);
+console.log(f2, a2);
+
+const [f3, a3] = parseColumns(submit, "");
+console.log(f3, a3);

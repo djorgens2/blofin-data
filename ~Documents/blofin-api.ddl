@@ -1175,6 +1175,7 @@ having
 order by
 	blofin.vc.symbol,
 	hour desc;
+
 ALTER TABLE blofin.cancel_source COMMENT 'not_canceled
 user_canceled
 system_canceled';
