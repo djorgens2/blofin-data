@@ -201,7 +201,7 @@ export const Publish = async (source: string, orders: Array<Partial<IOrderAPI>>)
       }
     }
 
-    missing.length && console.log("   # Orders Recieved:", missing.length, "missing");
+    missing.length && console.log("   # Orders Recieved:", missing.length, "imported");
     modified.length && console.log("   # Orders Updated:", modified.length, modified);
     rejected.length && console.log("   # Orders Rejected:", rejected.length, "rejected");
   }

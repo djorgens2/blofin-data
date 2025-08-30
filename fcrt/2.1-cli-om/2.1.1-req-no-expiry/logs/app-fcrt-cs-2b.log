@@ -1,147 +1,30 @@
-Connected to websocket: [3031311:wss://demo-trading-openapi.blofin.com/ws/private]
+Connected to websocket: [83565:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
-In Execute.Trades: 8/28/2025, 5:51:24 PM
+In Execute.Trades: 8/29/2025, 5:28:22 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> Pending.Publish [API]
 In Request.Audit [1]
->> [Warning: Request.Submit] Request exists; was canceled and not resubmitted: {
-  exists: {
-    request: <Buffer 00 1e 6b 32 1c aa>,
-    order_id: 1000110626896,
-    account: <Buffer 23 33 4e>,
-    instrument: <Buffer cb 42 a5>,
-    symbol: 'XRP-USDT',
-    state: <Buffer 3e a3 a4>,
-    status: 'Canceled',
-    order_state: <Buffer 37 0a 0e>,
-    order_status: 'Pending',
-    margin_mode: 'cross',
-    position: 'short',
-    action: 'sell',
-    request_type: <Buffer 6e b6 c5>,
-    order_type: 'limit',
-    price: 3.5,
-    size: 100,
-    leverage: 50,
-    digits: 5,
-    memo: '[Cancel]: Request canceled by user/system',
-    reduce_only: 0,
-    broker_id: null,
-    expiry_time: 2025-08-29T03:51:38.457Z,
-    create_time: 2025-08-28T19:51:38.462Z
-  },
-  submit: {
-    request: <Buffer 00 1e 6b 32 1c aa>,
-    account: <Buffer 23 33 4e>,
-    instrument: <Buffer cb 42 a5>,
-    position: 'short',
-    action: 'sell',
-    state: <Buffer 37 0a 0e>,
-    price: 3.5,
-    size: 100,
-    leverage: 10,
-    request_type: <Buffer 6e b6 c5>,
-    margin_mode: 'cross',
-    reduce_only: 0,
-    broker_id: null,
-    memo: '[Audit]: Request State updated from Canceled to Pending',
-    create_time: 2025-08-28T20:01:05.501Z,
-    update_time: 2025-08-29T00:51:25.541Z,
-    expiry_time: 2025-08-29T03:51:38.457Z
-  }
-}
->> [Info: Trades.Audit] Audit Updates: 1
+>> [Info: Trades.Audit] Total items audited: 1
 -> Cancel [API]
 -> WSS.Publish [API]
 -> Process.Modified [1]
->> [Warning: Request.Submit] Request exists; was canceled and not resubmitted: {
-  exists: {
-    request: <Buffer 00 1e 6b 32 1c aa>,
-    order_id: 1000110626896,
-    account: <Buffer 23 33 4e>,
-    instrument: <Buffer cb 42 a5>,
-    symbol: 'XRP-USDT',
-    state: <Buffer 3e a3 a4>,
-    status: 'Canceled',
-    order_state: <Buffer 37 0a 0e>,
-    order_status: 'Pending',
-    margin_mode: 'cross',
-    position: 'short',
-    action: 'sell',
-    request_type: <Buffer 6e b6 c5>,
-    order_type: 'limit',
-    price: 3.5,
-    size: 100,
-    leverage: 50,
-    digits: 5,
-    memo: '[Cancel]: Request canceled by user/system',
-    reduce_only: 0,
-    broker_id: null,
-    expiry_time: 2025-08-29T03:51:38.457Z,
-    create_time: 2025-08-28T19:51:38.462Z
-  },
-  submit: {
-    request: <Buffer 00 1e 6b 32 1c aa>,
-    account: <Buffer 23 33 4e>,
-    instrument: <Buffer cb 42 a5>,
-    position: 'short',
-    action: undefined,
-    state: <Buffer ed c2 67>,
-    price: undefined,
-    size: undefined,
-    leverage: undefined,
-    request_type: undefined,
-    margin_mode: undefined,
-    reduce_only: undefined,
-    broker_id: undefined,
-    memo: undefined,
-    create_time: 2025-08-28T20:01:05.501Z,
-    update_time: 2025-08-29T00:51:25.744Z,
-    expiry_time: 2025-08-29T08:51:25.744Z
-  }
-}
 >> [Info:  Trades.Canceled] Cancels Closed: 1 accepted
    # Orders Updated: 1 [
   {
-    request: <Buffer 00 1e 6b 32 1c aa>,
+    request: <Buffer 00 a6 f4 7e 39 79>,
     instrument: <Buffer cb 42 a5>,
     position: 'short',
-    create_time: 2025-08-28T20:01:05.501Z,
-    update_time: 2025-08-29T00:51:25.673Z,
+    create_time: 2025-08-30T00:13:06.198Z,
+    update_time: 2025-08-30T00:28:23.625Z,
     order_state: <Buffer 7d 5c 89>
   }
 ]
-In Execute.Trades: 8/28/2025, 5:51:53 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Cancel [API]
-In Execute.Trades: 8/28/2025, 5:52:22 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Cancel [API]
-In Execute.Trades: 8/28/2025, 5:52:51 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Cancel [API]
-In Execute.Trades: 8/28/2025, 5:53:20 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Cancel [API]
-In Execute.Trades: 8/28/2025, 5:53:49 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Cancel [API]
-In Execute.Trades: 8/28/2025, 5:54:18 PM
+In Execute.Trades: 8/29/2025, 5:28:51 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]

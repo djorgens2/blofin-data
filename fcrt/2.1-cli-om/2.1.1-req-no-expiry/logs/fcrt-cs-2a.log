@@ -1,7 +1,7 @@
 Test 2: Request canceled, check db for results.
 {
   account: <Buffer 23 33 4e>,
-  request: <Buffer 00 1e 6b 32 1c aa>,
+  request: <Buffer 00 a6 f4 7e 39 79>,
   symbol: 'XRP-USDT',
   status: 'Canceled',
   memo: '[Update]: Request updated successfully'

@@ -24,7 +24,7 @@ import * as Order from "@db/interfaces/request";
 //+--------------------------------------------------------------------------------------+
 const processAudit = async () => {
   const audit = await Request.Audit();
-  audit.length && console.log(">> [Info: Trades.Audit] Audit Updates:", audit.length);
+  audit.length && console.log(">> [Info: Trades.Audit] Total items audited:", audit.length);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -45,8 +45,8 @@ const processRejected = async () => {
   if (requeued.length) for (const request of requeued) await Request.Submit(request);
   if (expired.length) for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
 
-  requeued.length && console.log(">> [Info: Trades.Rejected] Request Retries:", requeued.length, "requeued");
-  expired.length && console.log(">> [Warning: Trades.Rejected] Requests Expired:", expired.length, "expired");
+  requeued.length && console.log(">> [Info: Trades.Rejected] Request retries:", requeued.length, "requeued");
+  expired.length && console.log(">> [Warning: Trades.Rejected] Requests expired:", expired.length, "expired");
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -67,8 +67,8 @@ const processPending = async () => {
   if (expired.length) {
     for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
 
-    pending.length && console.log(">> [Info: Trades.Pending] Requests Pending:", pending.length);
-    expired.length && console.log(">> [Warning: Trades.Pending] Requests Canceled:", expired.length, expired);
+    pending.length && console.log(">> [Info: Trades.Pending] Requests pending:", pending.length);
+    expired.length && console.log(">> [Warning: Trades.Pending] Requests canceled:", expired.length, expired);
   }
 };
 
@@ -93,10 +93,10 @@ const processQueued = async () => {
 
     const [accepted, rejected, errors] = await RequestAPI.Submit(queue);
 
-    accepted.length && console.log(">> [Info: Trades.Queued] Orders Accepted:", accepted.length, "accepted");
-    rejected.length && console.log(">> [Error: Trades.Queued] Requests Rejected:", rejected.length, "rejected");
-    expired.length && console.log(">> [Warning: Trades.Queued] Requests Expired:", expired.length, "expired");
-    errors.length && console.log(">> [Error: Trades.Queued] Cancellation Errors:", errors.length, "errors");
+    accepted.length && console.log(">> [Info: Trades.Queued] Orders accepted:", accepted.length, "accepted");
+    rejected.length && console.log(">> [Error: Trades.Queued] Requests rejected:", rejected.length, "rejected");
+    expired.length && console.log(">> [Warning: Trades.Queued] Requests expired:", expired.length, "expired");
+    errors.length && console.log(">> [Error: Trades.Queued] Cancellation errors:", errors.length, "errors");
   }
 };
 
@@ -111,9 +111,9 @@ const processCanceled = async () => {
 
   const [accepted, rejected, errors] = await OrderAPI.Cancel(cancels);
 
-  accepted.length && console.log(">> [Info:  Trades.Canceled] Cancels Closed:", accepted.length, "accepted");
-  rejected.length && console.log(">> [Warning: Trades.Canceled] Cancels Rejected:", rejected.length, "rejected");
-  errors.length && console.log(">> [Error: Trades.Canceled] Cancellation Errors:", errors.length, "errors");
+  accepted.length && console.log(">> [Info:  Trades.Canceled] Cancels closed:", accepted.length, "accepted");
+  rejected.length && console.log(">> [Warning: Trades.Canceled] Cancels rejected:", rejected.length, "rejected");
+  errors.length && console.log(">> [Error: Trades.Canceled] Cancellation errors:", errors.length, "errors");
 };
 
 // Public functions

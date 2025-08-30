@@ -226,7 +226,7 @@ export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"]
 //+--------------------------------------------------------------------------------------+
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
-export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<IRequest>> > => {
+export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<IRequest>>> => {
   const { request, account, memo } = cancel;
   const cancels: Array<Partial<IRequest>> = [];
 
@@ -240,8 +240,8 @@ export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<I
     }
 
   const requests = await Fetch({ ...cancel, account: Session().account });
-  for (const request of requests) {
-    const canceled = await update({ request: request.request, status: "Canceled", memo: memo || `[Cancel]: Request canceled by user/system` });
+  for (const cancel of requests) {
+    const canceled = await update({ request: cancel.request, status: "Canceled", memo: memo || `[Cancel]: Request canceled by user/system` });
     canceled && cancels.push(canceled);
   }
 
@@ -249,7 +249,7 @@ export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<I
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Set-up/Configure order requests locally prior to posting request to broker;          |
+//| Verify/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   if (submission.account && !isEqual(submission.account!, Session().account!)) {
@@ -270,16 +270,16 @@ export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["r
     if (exists) {
       const { request, status, create_time, expiry_time } = exists;
       if (status === "Canceled") {
-        console.log(">> [Warning: Request.Submit] Request exists; was canceled and not resubmitted:", { exists, submit });
+        //        console.log(">> [Warning: Request.Submit] Request exists; was canceled and not resubmitted:", { exists, submit });
         return undefined;
       }
       if (status === "Rejected") {
-        console.log(">> [Error: Request.Submit] Request exists; was previously rejected and resubmitted:", { exists, submit });
-        await update({ request, ...submit, create_time: exists.create_time, memo: `[SUB] Request replaced; prior reject resubmitted` });
+        console.log(">> [Warning: Request.Submit] Request exists; previously rejected and resubmitted:");
+        await update({ request, ...submit, state: queued, memo: `[SUB] Previously rejected request resubmitted` });
         return request;
       }
       if (status === "Queued") {
-        console.log(">> [Info: Request.Submit] Request exists; was unprocessed; updated and resubmitted:", { exists, submit });
+        console.log(">> [Info: Request.Submit] Request exists; was unprocessed; updated and resubmitted:", { exists });
         await update({
           request,
           ...submit,
