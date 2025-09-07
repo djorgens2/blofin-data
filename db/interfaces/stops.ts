@@ -7,7 +7,6 @@
 import type { IRequestState, TRequest, TPosition } from "@db/interfaces/state";
 
 import { Modify, Select, parseColumns } from "@db/query.utils";
-import { State } from "@db/interfaces/order";
 import { hexify, uniqueKey } from "@lib/crypto.util";
 
 import * as Instrument from "@db/interfaces/instrument";
@@ -130,7 +129,6 @@ export async function Publish(orders: Array<Partial<IStopOrder>>) {
   //--- Verify or replace missing stop requests
   const verify = async (order: Partial<IStopOrder>) => {
     const instrument = await Instrument.Key({ symbol: order.symbol });
-    const state = await State({ status: order.order_status });
     const [{ instrument_position, auto_status }] = await InstrumentPosition.Fetch({ instrument, position: order.position });
 
     if (auto_status === "Enabled") {

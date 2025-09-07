@@ -16,7 +16,7 @@ const submit = async (request: Partial<IRequest>) => {
   return [submitted, request];
 };
 
-submit({...req_fcrt_1a, memo: `Test ${cli_test}: request w/ expiry; w/o tpsl`})
+submit({ ...req_fcrt_1a, memo: `Test ${cli_test}: request w/ expiry; w/o tpsl` })
   .then(([submitted, request]) => {
     if (submitted === undefined) {
       console.error("Test 1: Request submission failed.");
@@ -25,7 +25,10 @@ submit({...req_fcrt_1a, memo: `Test ${cli_test}: request w/ expiry; w/o tpsl`})
       console.error("Exiting process with code 1.");
       process.exit(1);
     }
-    console.log(`Test ${cli_test}: Request submitted, check db for results.`, submitted);
+    Requests.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+      console.log(`Test ${cli_test}: Request submitted, check db for results.`, submitted);
+      console.log("Fetched order from DB:", order);
+    });
     process.exit(0);
   })
   .catch((error) => {

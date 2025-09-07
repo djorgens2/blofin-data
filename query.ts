@@ -1,3 +1,4 @@
+import type { IRequestAPI } from "@api/requests";
 import * as Candle from "@db/interfaces/candle";
 import * as Instrument from "@db/interfaces/instrument";
 import * as Broker from "@db/interfaces/broker";
@@ -37,8 +38,8 @@ enum Subject {
   Broker = "-b",
   Role = "-r",
   Order = "-ord",
-  OrderState = "-os",
   Request = "-req",
+  Queue = "-q",
   User = "-u",
   Login = "-login",
   Area = "-area",
@@ -61,7 +62,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.Bars: {
-      const props = parseJSON<Candle.IKeyProps>(args);
+      const props = parseJSON<Candle.ICandle>(args);
       const instrument: Instrument.IInstrument["instrument"] = await Instrument.Key({ symbol: props!.symbol }!);
       const period = await Period.Key({ timeframe: props!.timeframe });
       const bars = await Candle.Fetch({ ...props!, instrument: instrument!, period: period! });
@@ -163,6 +164,16 @@ async function show(subject: string, args: string): Promise<string> {
       console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
+    case Subject.Queue: {
+      const props = parseJSON<IRequestAPI >(args);
+      Object.assign(props!, {
+        ...props, 
+        account: props?.account ? hexify(props.account) :undefined
+      });
+      const key = await Request.Queue(props!);
+      console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
+      return "ok";
+    }
     case Subject.Order: {
       const props = parseJSON< Order.IOrder >(args);
       Object.assign(props!, {
@@ -177,17 +188,6 @@ async function show(subject: string, args: string): Promise<string> {
       });
       const key = await Order.Fetch(props!);
       console.log(`Fetch Orders [ ${Object.keys(props!).length} ]:`, props, key);
-      return "ok";
-    }
-    case Subject.OrderState: {
-      const props = parseJSON< Order.IOrder >(args);
-      Object.assign(props!, {
-        ...props, 
-        state: props?.state ? hexify(props.state) :undefined,
-        order_state: props?.order_state ? hexify(props.order_state): undefined
-      });
-      const key = await Order.State(props!);
-      console.log(`Fetch Order State [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Detail: {

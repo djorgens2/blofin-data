@@ -17,18 +17,12 @@ import { hashKey } from "@lib/crypto.util";
 export interface IInstrument {
   instrument?: Uint8Array;
   symbol?: string;
-  base_symbol?: string;
-  quote_symbol?: string;
   base_currency?: Uint8Array;
+  base_symbol?: string;
   quote_currency?: Uint8Array;
+  quote_symbol?: string;
   instrument_type: string;
   contract_type: string;
-  trade_period: Uint8Array;
-  trade_timeframe: string;
-  timeframe_units: number;
-  bulk_collection_rate: number;
-  interval_collection_rate: number;
-  sma_factor: number;
   contract_value: number;
   max_leverage: number;
   min_size: number;
@@ -37,13 +31,20 @@ export interface IInstrument {
   digits: number;
   max_limit_size: number;
   max_market_size: number;
-  list_time: Date;
-  list_timestamp: number;
-  expiry_time: Date;
-  expiry_timestamp: number;
+  leverage: number;
+  margin_mode: string;
+  martingale_factor: number;
+  bulk_collection_rate: number;
+  interval_collection_rate: number;
+  sma_factor: number;
+  trade_period: Uint8Array;
+  trade_timeframe: string;
+  timeframe_units: number;
   trade_state: Uint8Array;
   trade_status: TSystem;
   suspense: boolean;
+  list_time: Date;
+  expiry_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+

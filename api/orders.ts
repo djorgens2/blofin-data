@@ -39,9 +39,15 @@ type TCompare = "reject" | "accept" | "modify" | "missing";
 //+--------------------------------------------------------------------------------------+
 //| Processes WSS/API orders; returns modified/full data for update/insert locally;      |
 //+--------------------------------------------------------------------------------------+
-const compare = async (api: Partial<IOrder>, request: IOrder["request"]): Promise<[TCompare, Partial<IOrder>]> => {
-  const [order] = await Orders.Fetch({ request });
-  const change: Partial<IOrder> = { request, instrument: api.instrument, position: api.position, create_time: api.create_time, update_time: api.update_time };
+const compare = async (api: Partial<IOrder>, order: Partial<IOrder>): Promise<[TCompare, Partial<IOrder>]> => {
+  const request = order.request!;
+  const change: Partial<IOrder> = {
+    request,
+    instrument: api.instrument,
+    position: api.position,
+    create_time: api.create_time,
+    update_time: api.update_time,
+  };
   const changeThreshold = Object.keys(change).length;
 
   if (order) {
@@ -82,7 +88,7 @@ const compare = async (api: Partial<IOrder>, request: IOrder["request"]): Promis
     return ["accept", { request, memo: `[COMP] Request ${bufferString(request)} accepted; latest update already applied;` }];
   } else {
     //--- missing
-    return ["missing", change];
+    return ["missing", { ...change, memo: `[COMP] Request ${bufferString(request)} missing locally; imported and resubmitted;` }];
   }
 };
 
@@ -152,31 +158,37 @@ export const Publish = async (source: string, orders: Array<Partial<IOrderAPI>>)
   const rejected: Array<Partial<IOrder>> = [];
 
   if (orders.length) {
-    for (const order of orders) {
-      const update = await formatOrder(order);
+    for (const incoming of orders) {
+      const order = await formatOrder(incoming);
+      const request = order.request;
 
-      if (update.instrument) {
-        const request = await Request.Key({ request: update.request });
+      if (order.instrument) {
+        const [exists] = await Orders.Fetch({ request });
 
         //-- handle request changes
-        if (request) {
-          const [result, changed] = await compare(update, request);
-          result === "modify" && modified.push(changed);
-          result === "missing" && missing.push(update);
-          result === "reject" && rejected.push(changed);
+        if (exists) {
+          if (exists.request_status === "Queued") {
+            missing.push({ ...order });
+          } else {
+            const [result, changed] = await compare(order, exists);
+            result === "modify" && modified.push(changed);
+            result === "missing" && missing.push({...changed, memo: `[PUB] Queued Request missing and reprocessed; check db for possible duplicates;`});
+            result === "reject" && rejected.push(changed);
+          }
         } else {
           //-- handle missing requests
-          const index = resubmit.findIndex((resub) => isEqual(resub.request!, update.request!));
+          const index = resubmit.findIndex((resub) => isEqual(resub.request!, request!));
 
           if (index < 0) {
-            resubmit.push({ ...update, memo: `[PUB] Request missing locally; imported and resubmitted;` });
-          } else if (resubmit[index].create_time! < update.create_time!) {
-            Object.assign(resubmit[index], { ...update, memo: `[PUB] Request replaced; latest update applied;` });
+            const [order_state] = await Reference.Fetch("order_state", { order_state: order.order_state });
+            resubmit.push({ ...order, request_status: order_state!.map_ref, memo: `[PUB] Request missing locally; imported and resubmitted;` });
+          } else if (resubmit[index].create_time! < order.create_time!) {
+            Object.assign(resubmit[index], { ...order, memo: `[PUB] Request replaced; latest update applied;` });
           } else {
-            rejected.push({ ...update, memo: `[PUB] Request rejected; latest update already applied;` });
+            rejected.push({ ...order, memo: `[PUB] Request rejected; latest update already applied;` });
           }
         }
-      } else rejected.push({ ...update, memo: `[PUB] Request [${update.order_id!}:${update.symbol!}] rejected; invalid symbol/instrument;` });
+      } else rejected.push({ ...order, memo: `[PUB] Request [${order.order_id!}:${order.symbol!}] rejected; invalid symbol/instrument;` });
     }
 
     if (resubmit.length) {

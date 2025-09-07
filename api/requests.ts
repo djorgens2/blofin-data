@@ -38,8 +38,10 @@ export interface IRequestAPI {
 //+--------------------------------------------------------------------------------------+
 //| Submit queued status requests for entry/opening at broker;                           |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
+const submit = async (requests: Array<Partial<IRequestAPI>>) => {
   if (requests.length > 0) {
+    console.log("In Requests.Submit [API]");
+
     const method = "POST";
     const path = "/api/v1/trade/batch-orders";
     const body = JSON.stringify(requests);
@@ -61,14 +63,66 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
         headers,
         body,
       });
+
       if (response.ok) {
         const json = await response.json();
-        const [accepted, rejected, errors] = await Response.Request({results: json.data, success: "Pending", fail:"Rejected"});
+        const [accepted, rejected, errors] = await Response.Request({ results: json.data, success: "Pending", fail: "Rejected" });
+        console.log(">> [Info: Orders.Submit] Requests submitted:", { results: json.data, accepted, rejected, errors });
         return [accepted, rejected, errors];
       }
     } catch (error) {
       console.log(error, method, headers, body);
     }
-  } 
+  }
   return [[], [], []];
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Submit queued status requests for entry/opening at broker;                           |
+//+--------------------------------------------------------------------------------------+
+const setLeverage = async (props: Partial<IRequestAPI>) => {
+  console.log("In Requests.Leverage [API]", props);
+  const method = "POST";
+  const path = "/api/v1/account/set-leverage";
+  const body = JSON.stringify(props);
+  const { api, phrase, rest_api_url } = Session();
+  const { sign, timestamp, nonce } = await signRequest(method, path, body);
+
+  const headers = {
+    "ACCESS-KEY": api!,
+    "ACCESS-SIGN": sign!,
+    "ACCESS-TIMESTAMP": timestamp!,
+    "ACCESS-NONCE": nonce!,
+    "ACCESS-PASSPHRASE": phrase!,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+      body,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      console.log(">> [Info: Orders.Leverage] Leverage set:", json);
+      await Response.Leverage({ results: json.data });
+    }
+  } catch (error) {
+    console.log(error, method, headers, body);
+  }
+};
+
+export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
+  const accepted: Array<Partial<IRequestAPI>> = [];
+  const rejected: Array<Partial<IRequestAPI>> = [];
+  const errors: Array<Partial<IRequestAPI>> = [];
+
+  requests.map(async (req) => {
+    const instrument = await 
+    await setLeverage({ instId: req.instId, leverage: req.leverage, marginMode: req.marginMode, positionSide: req.positionSide });
+    push;
+  });
+
+  submit(requests);
 };

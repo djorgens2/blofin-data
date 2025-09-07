@@ -4,23 +4,26 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICandle, IKeyProps } from "@db/interfaces/candle";
+import type { ICandle } from "@db/interfaces/candle";
 import type { IMessage } from "@lib/app.util";
 
 import { isEqual } from "@lib/std.util";
+import { clear } from "@lib/app.util";
 
 import * as Candle from "@db/interfaces/candle";
+import * as Period from "@db/interfaces/period";
+import * as Instrument from "@db/interfaces/instrument";
 
 export interface ICandleAPI {
-  ts: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  vol: number;
-  volCurrency: number;
-  volCurrencyQuote: number;
-  confirm: boolean;
+  ts: string;
+  open: string;
+  high: string;
+  low: string;
+  close: string;
+  vol: string;
+  volCurrency: string;
+  volCurrencyQuote: string;
+  confirm: string;
 }
 
 export interface IResult {
@@ -32,73 +35,135 @@ export interface IResult {
 //+--------------------------------------------------------------------------------------+
 //| Retrieves blofin rest api data and merges locally;                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Merge(message: IMessage, props: IKeyProps, apiCandles: Array<ICandleAPI>) {
-  const candles = await Candle.Fetch({ ...props, limit: apiCandles.length });
-  const modified: Array<ICandleAPI & IKeyProps> = [];
-  const missing: Array<ICandleAPI & IKeyProps> = [];
+const merge = async (message: IMessage, props: Partial<ICandle>, api: Array<ICandleAPI>) => {
+  const modified: Array<Partial<ICandle>> = [];
+  const missing: Array<Partial<ICandle>> = [];
 
-  const db: Array<Partial<ICandle>> = candles.sort((a, b) => {
-    return a.timestamp! < b.timestamp! ? +1 : a.timestamp! > b.timestamp! ? -1 : 0;
-  });
-  const api: Array<ICandleAPI> = apiCandles.sort((a, b) => {
-    return a.ts < b.ts ? +1 : a.ts > b.ts ? -1 : 0;
-  });
+  if (api.length) {
+    const { instrument, period } = props;
 
-  let candle = 0;
+    for (const candle of api) {
+      const timestamp = parseInt(candle.ts);
+      const [local] = await Candle.Fetch({ instrument, period, bar_time: new Date(timestamp), limit: 1 });
+      const bar: Partial<ICandle> = { instrument, period, bar_time: new Date(timestamp) };
+      const changeThreshold = Object.keys(bar).length;
 
-  api.forEach((remote) => {
-    if (remote.ts / 1000 === db[candle].timestamp) {
-      let updated: boolean = false;
+      if (local) {
+        !isEqual(candle.open, local.open!) && (bar.open = parseFloat(candle.open));
+        !isEqual(candle.high, local.high!) && (bar.high = parseFloat(candle.high));
+        !isEqual(candle.low, local.low!) && (bar.low = parseFloat(candle.low));
+        !isEqual(candle.close, local.close!) && (bar.close = parseFloat(candle.close));
+        !isEqual(candle.vol, local.volume!) && (bar.volume = parseInt(candle.vol));
+        !isEqual(candle.volCurrency, local.vol_currency!) && (bar.vol_currency = parseFloat(candle.volCurrency));
+        !isEqual(candle.volCurrencyQuote, local.vol_currency_quote!) && (bar.vol_currency_quote = parseFloat(candle.volCurrencyQuote));
 
-      !isEqual(remote.open, db[candle].open!) && (updated = true);
-      !isEqual(remote.high, db[candle].high!) && (updated = true);
-      !isEqual(remote.low, db[candle].low!) && (updated = true);
-      !isEqual(remote.close, db[candle].close!) && (updated = true);
-      !isEqual(remote.vol, db[candle].volume!) && (updated = true);
-      !isEqual(remote.volCurrency, db[candle].vol_currency!) && (updated = true);
-      !isEqual(remote.volCurrencyQuote, db[candle].vol_currency_quote!) && (updated = true);
+        !!parseInt(candle.confirm) !== !!local.completed! && (bar.completed = !!parseInt(candle.confirm));
 
-      remote.confirm !== !!db[candle].completed! && (updated = true);
-
-      if (updated) {
-        const update = Object.assign({}, props, remote);
-        modified.push(update);
+        Object.keys(bar).length > changeThreshold && modified.push(bar);
+        Object.keys(bar).length > changeThreshold && console.log(bar);
+      } else {
+        missing.push({
+          ...bar,
+          open: parseFloat(candle.open),
+          high: parseFloat(candle.high),
+          low: parseFloat(candle.low),
+          close: parseFloat(candle.close),
+          volume: parseInt(candle.vol),
+          vol_currency: parseFloat(candle.volCurrency),
+          vol_currency_quote: parseFloat(candle.volCurrencyQuote),
+          completed: !!parseInt(candle.confirm),
+        });
       }
-
-      candle++;
-    } else if (remote.ts / 1000 > db[candle].timestamp!) {
-      const insert = Object.assign({}, props, remote);
-      missing.push(insert);
     }
-  });
 
-  await Candle.Update(modified);
-  await Candle.Insert(missing);
+    modified.length && (await Candle.Update(modified));
+    missing.length && (await Candle.Insert(missing));
 
-  process.send && process.send({ ...message, db: { insert: missing.length, update: modified.length } });
-}
+    missing.length && console.log(`   # Candles:Imported [${props.symbol}, ${props.timeframe}]: `, missing.length, "inserted");
+    modified.length && console.log(`   # Candles Merged: [${props.symbol}, ${props.timeframe}]:`, modified.length, "updated");
+
+    process.send && process.send({ ...message, db: { insert: missing.length, update: modified.length } });
+  }
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export async function Import(message: IMessage, props: IKeyProps) {
-  fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=${props.limit}&bar=${props.timeframe}`)
-    .then((response) => response.json())
-    .then((result: IResult) => {
-      const apiCandles: ICandleAPI[] = result.data.map((field: string[]) => ({
-        ts: parseInt(field[0]),
-        open: parseFloat(field[1]),
-        high: parseFloat(field[2]),
-        low: parseFloat(field[3]),
-        close: parseFloat(field[4]),
-        vol: parseInt(field[5]),
-        volCurrency: parseInt(field[6]),
-        volCurrencyQuote: parseInt(field[7]),
-        confirm: parseInt(field[8]) === 1,
+export const Import = async (message: IMessage, props: Partial<ICandle>) => {
+  try {
+    const [{ interval_collection_rate, timeframe_units, symbol }] = await Instrument.Fetch(
+      props.symbol ? { symbol: props.symbol } : { instrument: props.instrument }
+    );
+    const { limit, timestamp, timeframe } = props;
+    const start = timestamp ? `&before=${parseInt(timestamp) - (interval_collection_rate || 1) * (timeframe_units || 1) * 60 * 1000}` : "";
+    const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}${start}`);
+    if (response.ok) {
+      const json = await response.json();
+      const result: IResult = json;
+      const api = result.data.map((field: string[]) => ({
+        ts: field[0],
+        open: field[1],
+        high: field[2],
+        low: field[3],
+        close: field[4],
+        vol: field[5],
+        volCurrency: field[6],
+        volCurrencyQuote: field[7],
+        confirm: field[8],
       }));
-      Merge(message, props, apiCandles);
-    })
-    .catch((error) => {
-      console.log("Bad request in Candles.Import", { props });
-    });
-}
+
+      merge(message, props, api);
+    }
+  } catch (error) {
+    console.log("Bad request in Candles.Import", { props, response: error });
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Retrieve and merge full-history, candle data; format,  pass to publisher;            |
+//+--------------------------------------------------------------------------------------+
+export const Loader = async (props: { symbol: string; timeframe: string; start_time: number }) => {
+  const { symbol, timeframe } = props;
+  const instrument = await Instrument.Key({ symbol });
+  const period = await Period.Key({ timeframe });
+
+  Object.assign(props, { instrument, period: period, timestamp: props.start_time });
+
+  do {
+    const after = props.start_time ? `&after=${props.start_time}` : "";
+    console.log(`Fetching candles for ${props.symbol} with ${after}`);
+
+    try {
+      const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=100&bar=${timeframe}${after}`);
+
+      if (response.ok) {
+        const json = await response.json();
+        const result: IResult = json;
+        if (result.data.length) {
+          const api = result.data.map((field: string[]) => ({
+            ts: field[0],
+            open: field[1],
+            high: field[2],
+            low: field[3],
+            close: field[4],
+            vol: field[5],
+            volCurrency: field[6],
+            volCurrencyQuote: field[7],
+            confirm: field[8],
+          }));
+
+          props.start_time = parseInt(api[api.length - 1].ts);
+          merge(clear({ state: "start", symbol: symbol, node: 1 }), {...props, timestamp: props.start_time.toString()}, api);
+
+        } else {
+          await new Promise((r) => setTimeout(r, 30000));   //--- wait 30 seconds for data to apply ---
+          return `Process finished, last timestamp: ${props.start_time}`;
+        }
+      }
+    } catch (error) {
+      return (error as Error).message;
+    }
+
+    await new Promise((r) => setTimeout(r, 5000));
+  } while (true);
+};

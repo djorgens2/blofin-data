@@ -14,8 +14,8 @@ export interface IOrder extends IRequest {
   base_symbol: string;
   quote_currency: Uint8Array;
   quote_symbol: string;
-  request_state: Uint8Array;
-  request_status: string;
+  order_state: Uint8Array;
+  order_status: string;
   contract_type: string;
   instrument_type: string;
   order_category: Uint8Array;
@@ -32,14 +32,6 @@ export interface IOrder extends IRequest {
   trade_status: string;
   trade_timeframe: string;
   suspense: boolean;
-}
-
-export interface IOrderState {
-  state: Uint8Array;
-  status: string;
-  order_state: Uint8Array;
-  order_status: string;
-  description: string;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -133,17 +125,3 @@ export async function Key(props: Partial<IOrder>): Promise<IOrder["request"] | u
   }
   return undefined;
 }
-
-//+--------------------------------------------------------------------------------------+
-//| Returns the state key for both orders and requests based on select columns;          |
-//+--------------------------------------------------------------------------------------+
-export const State = async (props: Partial<IOrderState>): Promise<IOrderState["state"] | undefined> => {
-  const [fields, args] = parseColumns(props);
-
-  if (fields.length) {
-    const sql = `SELECT state FROM blofin.vw_order_states ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
-    const key = await Select<IOrder>(sql, args);
-    return key.length ? key[0].state : undefined;
-  }
-  return undefined;
-};

@@ -1208,41 +1208,86 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // put(1754602401957, setExpiry("1h"));
 
 //----------------------------- parsecolums test ----------------------------------------------//
-const submit = {
-  request: hexify("00bbb8267a54", 6),
-  account: hexify("23334e", 3),
-  instrument: hexify("cb42a5", 3),
-  position: "short",
-  action: undefined,
-  state: hexify("edc267", 3),
-  price: undefined,
-  size: undefined,
-  leverage: undefined,
-  request_type: undefined,
-  margin_mode: undefined,
-  reduce_only: undefined,
-  broker_id: undefined,
-  memo: undefined,
-  create_time: new Date("2025-08-29T17:15:58.975Z"),
-  update_time: new Date("2025-08-29T17:34:59.365Z"),
-  expiry_time: new Date("2025-08-30T01:34:59.365Z"),
-};
+// const submit = {
+//   request: hexify("00bbb8267a54", 6),
+//   account: hexify("23334e", 3),
+//   instrument: hexify("cb42a5", 3),
+//   position: "short",
+//   action: undefined,
+//   state: hexify("edc267", 3),
+//   price: undefined,
+//   size: undefined,
+//   leverage: undefined,
+//   request_type: undefined,
+//   margin_mode: undefined,
+//   reduce_only: undefined,
+//   broker_id: undefined,
+//   memo: undefined,
+//   create_time: new Date("2025-08-29T17:15:58.975Z"),
+//   update_time: new Date("2025-08-29T17:34:59.365Z"),
+//   expiry_time: new Date("2025-08-30T01:34:59.365Z"),
+// };
 
-const [fields, args] = Object.entries(submit).reduce(
-  ([fields, args], [key, value]) => {
-    if (value !== undefined) {
-      fields.push(key);
-      args.push(value);
-    }
-    return [fields, args];
-  },
-  [[], []] as [string[], any[]]
-);
+// const [fields, args] = Object.entries(submit).reduce(
+//   ([fields, args], [key, value]) => {
+//     if (value !== undefined) {
+//       fields.push(key);
+//       args.push(value);
+//     }
+//     return [fields, args];
+//   },
+//   [[], []] as [string[], any[]]
+// );
 
-console.log(fields, args);
+// console.log(fields, args);
 
-const [f2, a2] = parseColumns(submit);
-console.log(f2, a2);
+// const [f2, a2] = parseColumns(submit);
+// console.log(f2, a2);
 
-const [f3, a3] = parseColumns(submit, "");
-console.log(f3, a3);
+// const [f3, a3] = parseColumns(submit, "");
+// console.log(f3, a3);
+
+//----------------------------- Candle Finder Test ---------------------------------------//
+// interface IResult {
+//   code: string;
+//   msg: string;
+//   data: Array<Array<any>>;
+// }
+
+// export const finder = async (props: { symbol: string; timeframe: string; start_timestamp: number }): Promise<number> => {
+//   let last_timestamp = props.start_timestamp;
+
+//   do {
+//     let after = last_timestamp ? `&after=${last_timestamp}` : "";
+//     console.log(`Fetching candles for ${props.symbol} after ${after}`);
+//     try {
+//       const response = await fetch(
+//         `https://openapi.blofin.com/api/v1/market/candles?instId=${props.symbol}&limit=100&bar=${props.timeframe}${after ? after : ""}`
+//       );
+
+//       if (response.ok) {
+//         const json = await response.json();
+//         const result: IResult = json;
+//         if (result.data.length) {
+//           last_timestamp = result.data[result.data.length - 1][0];
+//         } else return last_timestamp;
+//       }
+//     } catch (error) {
+//       console.log(error);
+//       return last_timestamp;
+//     }
+
+//     await new Promise((r) => setTimeout(r, 5000));
+//   } while (true);
+// };
+
+// finder({ symbol: "XRP-USDT", timeframe: "15m", start_timestamp: 1673741700000 }).then((res) => console.log(res));
+
+//----------------------------- Candle Loader Test ---------------------------------------//
+import * as Candles from "@api/candles";
+
+//Candles.Loader({ symbol: "BTC-USDT", timeframe: "15m", start_time: 1673604000000 }).then((res) => {
+Candles.Loader({ symbol: "ORCA-USDT", timeframe: "15m", start_time: new Date().getTime() }).then((res) => {
+  console.log(res);
+  process.exit(0);
+});

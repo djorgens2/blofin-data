@@ -5,6 +5,19 @@ CREATE  TABLE blofin.activity (
 	task                 VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE blofin.api_error ( 
+	error_code           INT    NOT NULL   PRIMARY KEY,
+	http_status_code     SMALLINT    NOT NULL   ,
+	error_message        VARCHAR(200)   COLLATE utf8mb4_0900_as_cs NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE blofin.audit_request ( 
+	request              BINARY(6)       ,
+	old_state            BINARY(3)       ,
+	new_state            BINARY(3)       ,
+	update_time          DATETIME(6)       
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
 CREATE  TABLE blofin.authority ( 
 	authority            BINARY(3)    NOT NULL   PRIMARY KEY,
 	privilege            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -209,10 +222,10 @@ CREATE  TABLE blofin.instrument (
 	quote_currency       BINARY(3)    NOT NULL   ,
 	trade_period         BINARY(3)       ,
 	trade_state          BINARY(3)    NOT NULL   ,
-	lot_scale_factor     INT  DEFAULT (0)  NOT NULL   ,
-	martingale_factor    INT  DEFAULT (0)  NOT NULL   ,
-	leverage             INT  DEFAULT ('0')  NOT NULL   ,
 	margin_mode          VARCHAR(10)    NOT NULL   ,
+	leverage             SMALLINT  DEFAULT (10)     ,
+	lot_scale_factor     SMALLINT  DEFAULT (1)     ,
+	martingale_factor    SMALLINT  DEFAULT (1)     ,
 	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
 	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES blofin.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -328,8 +341,8 @@ CREATE  TABLE blofin.request (
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	memo                 VARCHAR(200)   COLLATE utf8mb4_0900_as_cs    ,
 	broker_id            VARCHAR(16)   COLLATE utf8mb4_0900_as_cs    ,
-	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	CONSTRAINT fk_r_account FOREIGN KEY ( account ) REFERENCES blofin.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -399,7 +412,7 @@ CREATE  TABLE blofin.task_authority (
 	activity             BINARY(3)    NOT NULL   ,
 	CONSTRAINT pk_task_authority PRIMARY KEY ( role_authority, activity ),
 	CONSTRAINT fk_ta_activity FOREIGN KEY ( activity ) REFERENCES blofin.activity( activity ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ta_subject_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ta_role_authority FOREIGN KEY ( role_authority ) REFERENCES blofin.role_authority( role_authority ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ta_activity ON blofin.task_authority ( activity );
@@ -429,8 +442,8 @@ CREATE  TABLE blofin.candle (
 	low                  DOUBLE    NOT NULL   ,
 	close                DOUBLE    NOT NULL   ,
 	volume               INT    NOT NULL   ,
-	vol_currency         INT    NOT NULL   ,
-	vol_currency_quote   INT    NOT NULL   ,
+	vol_currency         DECIMAL(15,6)    NOT NULL   ,
+	vol_currency_quote   DECIMAL(15,6)    NOT NULL   ,
 	completed            BOOLEAN    NOT NULL   ,
 	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
 	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES blofin.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -610,6 +623,7 @@ select
 	rt.source_ref AS orderType,
 	replace(format(r.price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS price,
 	replace(format(r.size,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS size,
+	cast(r.leverage as char charset utf8mb4) AS leverage,
 	if((r.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	r.broker_id AS brokerId,
 	cast(hex(r.request) as char charset utf8mb4) AS clientOrderId,
@@ -691,12 +705,6 @@ select
 	q.symbol AS quote_symbol,
 	it.source_ref AS instrument_type,
 	ct.source_ref AS contract_type,
-	tp.period AS trade_period,
-	tp.timeframe AS trade_timeframe,
-	tp.timeframe_units AS timeframe_units,
-	ip.bulk_collection_rate AS bulk_collection_rate,
-	if(((ip.bulk_collection_rate = 0) or (ip.bulk_collection_rate is null)), NULL, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
-	ip.sma_factor AS sma_factor,
 	id.contract_value AS contract_value,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
@@ -705,13 +713,20 @@ select
 	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
-	id.list_time AS list_time,
-	unix_timestamp(id.list_time) AS list_timestamp,
-	id.expiry_time AS expiry_time,
-	unix_timestamp(id.expiry_time) AS expiry_timestamp,
+	i.leverage AS leverage,
+	i.margin_mode AS margin_mode,
+	i.martingale_factor AS martingale_factor,
+	ip.bulk_collection_rate AS bulk_collection_rate,
+	if(((ip.bulk_collection_rate = 0) or (ip.bulk_collection_rate is null)), NULL, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
+	ip.sma_factor AS sma_factor,
+	tp.period AS trade_period,
+	tp.timeframe AS trade_timeframe,
+	tp.timeframe_units AS timeframe_units,
 	s.state AS trade_state,
 	s.status AS trade_status,
-	b.suspense AS suspense
+	b.suspense AS suspense,
+	id.list_time AS list_time,
+	id.expiry_time AS expiry_time
 from
 	((((((((blofin.instrument i
 left join blofin.instrument_period ip on
@@ -724,93 +739,83 @@ left join blofin.contract_type ct on
 	((id.contract_type = ct.contract_type)))
 left join blofin.period tp on
 	((i.trade_period = tp.period)))
-join blofin.state s)
-join blofin.currency b)
-join blofin.currency q)
-where
-	((i.trade_state = s.state)
-		and (i.base_currency = b.currency)
-			and (i.quote_currency = q.currency));
-
-CREATE VIEW blofin.vw_order_states AS
-select
-	s.state AS state,
-	s.status AS status,
-	os.order_state AS order_state,
-	os.source_ref AS order_status,
-	s.description AS description
-from
-	(blofin.state s
-join blofin.order_state os on
-	((s.status = os.map_ref)));
+join blofin.state s on
+	((i.trade_state = s.state)))
+join blofin.currency b on
+	((i.base_currency = b.currency)))
+join blofin.currency q on
+	((i.quote_currency = q.currency)));
 
 CREATE VIEW blofin.vw_orders AS
 select
-	o.request AS request,
+	r.account AS account,
+	r.request AS request,
 	o.order_id AS order_id,
 	cast(hex(r.request) as char charset utf8mb4) AS client_order_id,
-	r.account AS account,
+	ip.instrument_position AS instrument_position,
 	r.instrument AS instrument,
-	blofin.i.symbol AS symbol,
-	blofin.i.base_currency AS base_currency,
-	blofin.i.base_symbol AS base_symbol,
-	blofin.i.quote_currency AS quote_currency,
-	blofin.i.quote_symbol AS quote_symbol,
-	blofin.i.instrument_type AS instrument_type,
+	blofin.vi.symbol AS symbol,
+	blofin.vi.base_currency AS base_currency,
+	blofin.vi.base_symbol AS base_symbol,
+	blofin.vi.quote_currency AS quote_currency,
+	blofin.vi.quote_symbol AS quote_symbol,
 	s.state AS state,
 	s.status AS status,
+	ifnull(rs.state, s.state) AS request_state,
+	ifnull(os.map_ref, s.status) AS request_status,
 	os.order_state AS order_state,
 	os.source_ref AS order_status,
-	rs.state AS request_state,
-	rs.status AS request_status,
-	rt.request_type AS request_type,
+	r.position AS position,
+	r.action AS action,
+	r.request_type AS request_type,
 	rt.source_ref AS order_type,
-	o.position AS position,
-	o.action AS action,
-	o.price AS price,
-	o.size AS size,
-	o.leverage AS leverage,
-	o.margin_mode AS margin_mode,
-	cat.order_category AS order_category,
-	cat.source_ref AS category,
-	blofin.i.contract_type AS contract_type,
-	blofin.i.trade_period AS trade_period,
-	blofin.i.trade_timeframe AS trade_timeframe,
+	r.margin_mode AS margin_mode,
+	r.price AS price,
+	r.size AS size,
+	r.leverage AS leverage,
 	o.filled_size AS filled_size,
 	o.filled_amount AS filled_amount,
 	o.average_price AS average_price,
 	o.fee AS fee,
 	o.pnl AS pnl,
+	blofin.vi.digits AS digits,
+	cat.order_category AS order_category,
+	cat.source_ref AS category,
 	can.cancel_source AS cancel_source,
 	can.source_ref AS canceled_by,
-	o.reduce_only AS reduce_only,
-	o.broker_id AS broker_id,
-	blofin.i.digits AS digits,
-	blofin.i.trade_state AS trade_state,
-	blofin.i.trade_status AS trade_status,
-	blofin.i.suspense AS suspense,
+	blofin.vi.contract_type AS contract_type,
+	blofin.vi.instrument_type AS instrument_type,
+	r.reduce_only AS reduce_only,
+	r.broker_id AS broker_id,
+	blofin.vi.trade_period AS trade_period,
+	blofin.vi.trade_timeframe AS trade_timeframe,
+	blofin.vi.trade_state AS trade_state,
+	blofin.vi.trade_status AS trade_status,
+	blofin.vi.suspense AS suspense,
 	r.memo AS memo,
-	o.create_time AS create_time,
-	o.update_time AS update_time,
+	ifnull(o.create_time, r.create_time) AS create_time,
+	ifnull(o.update_time, r.update_time) AS update_time,
 	r.expiry_time AS expiry_time
 from
-	((((((((blofin.orders o
-join blofin.request r on
+	(((((((((blofin.request r
+left join blofin.orders o on
 	((r.request = o.request)))
-join blofin.request_type rt on
-	((o.request_type = rt.request_type)))
-join blofin.order_state os on
+left join blofin.order_state os on
 	((o.order_state = os.order_state)))
-join blofin.cancel_source can on
+left join blofin.state rs on
+	((os.map_ref = rs.status)))
+left join blofin.cancel_source can on
 	((o.cancel_source = can.cancel_source)))
-join blofin.order_category cat on
+left join blofin.order_category cat on
 	((o.order_category = cat.order_category)))
-join blofin.vw_instruments i on
-	((r.instrument = blofin.i.instrument)))
+join blofin.vw_instruments vi on
+	((r.instrument = blofin.vi.instrument)))
+left join blofin.instrument_position ip on
+	(((r.instrument = ip.instrument) and (r.position = ip.position))))
 join blofin.state s on
 	((r.state = s.state)))
-join blofin.state rs on
-	((os.map_ref = rs.status)));
+join blofin.request_type rt on
+	((r.request_type = rt.request_type)));
 
 CREATE VIEW blofin.vw_positions AS
 select
@@ -855,51 +860,6 @@ join blofin.instrument_position ip on
 	(((ip.instrument = i.instrument) and (ip.position = p.position))))
 join blofin.state s on
 	((ip.state = s.state)));
-
-CREATE VIEW blofin.vw_requests AS
-select
-	r.request AS request,
-	o.order_id AS order_id,
-	r.account AS account,
-	r.instrument AS instrument,
-	concat(b.symbol, '-', q.symbol) AS symbol,
-	s.state AS state,
-	s.status AS status,
-	rs.state AS order_state,
-	os.map_ref AS order_status,
-	r.margin_mode AS margin_mode,
-	r.position AS position,
-	r.action AS action,
-	r.request_type AS request_type,
-	rt.source_ref AS order_type,
-	r.price AS price,
-	r.size AS size,
-	r.leverage AS leverage,
-	blofin.i.digits AS digits,
-	r.memo AS memo,
-	r.reduce_only AS reduce_only,
-	r.broker_id AS broker_id,
-	r.expiry_time AS expiry_time,
-	r.create_time AS create_time
-from
-	((((((((blofin.request r
-left join blofin.orders o on
-	((r.request = o.request)))
-left join blofin.order_state os on
-	((o.order_state = os.order_state)))
-left join blofin.state rs on
-	((os.map_ref = rs.status)))
-join blofin.vw_instruments i)
-join blofin.currency b)
-join blofin.currency q)
-join blofin.request_type rt)
-join blofin.state s)
-where
-	((r.instrument = blofin.i.instrument)
-		and (r.request_type = rt.request_type)
-			and (r.state = s.state)
-				and (blofin.i.base_currency = b.currency)
-					and (blofin.i.quote_currency = q.currency));
 
 CREATE VIEW blofin.vw_role_privileges AS
 select
@@ -969,7 +929,7 @@ where
 
 CREATE VIEW blofin.vw_candles AS
 select
-	blofin.i.instrument AS instrument,
+	blofin.vi.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
@@ -978,7 +938,7 @@ select
 	pt.period AS period,
 	pt.timeframe AS timeframe,
 	c.bar_time AS bar_time,
-	unix_timestamp(c.bar_time) AS timestamp,
+	(unix_timestamp(c.bar_time) * 1000) AS timestamp,
 	c.open AS open,
 	c.high AS high,
 	c.low AS low,
@@ -986,22 +946,20 @@ select
 	c.volume AS volume,
 	c.vol_currency AS vol_currency,
 	c.vol_currency_quote AS vol_currency_quote,
-	blofin.i.digits AS digits,
+	blofin.vi.digits AS digits,
 	c.completed AS completed
 from
-	(((((blofin.vw_instruments i
-join blofin.instrument_period ip)
-join blofin.period pt)
-join blofin.currency b)
-join blofin.currency q)
-join blofin.candle c)
-where
-	((c.instrument = blofin.i.instrument)
-		and (c.period = pt.period)
-			and (blofin.i.base_currency = b.currency)
-				and (blofin.i.quote_currency = q.currency)
-					and (blofin.i.instrument = ip.instrument)
-						and (ip.period = pt.period));
+	(((((blofin.candle c
+join blofin.vw_instruments vi on
+	((c.instrument = blofin.vi.instrument)))
+join blofin.period pt on
+	((c.period = pt.period)))
+join blofin.instrument_period ip on
+	(((blofin.vi.instrument = ip.instrument) and (ip.period = pt.period))))
+join blofin.currency b on
+	((blofin.vi.base_currency = b.currency)))
+join blofin.currency q on
+	((blofin.vi.quote_currency = q.currency)));
 
 CREATE VIEW blofin.vw_instrument_positions AS
 select
@@ -1175,6 +1133,10 @@ having
 order by
 	blofin.vc.symbol,
 	hour desc;
+
+CREATE TRIGGER blofin.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
+    INSERT INTO blofin.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
+  END;
 
 ALTER TABLE blofin.cancel_source COMMENT 'not_canceled
 user_canceled

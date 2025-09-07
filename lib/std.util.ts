@@ -91,7 +91,7 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on equal comparison at a specified precision                            |
+//| Returns true on equal comparison of number/binary at specified precision             |
 //+--------------------------------------------------------------------------------------+
 export const isEqual = (source: number | string | Uint8Array, benchmark: number | string | Uint8Array, digits: number = 8): boolean => {
   if (source instanceof Uint8Array)

@@ -30,8 +30,8 @@ export interface IRequest {
   symbol: string;
   state: Uint8Array;
   status: TRequest;
-  order_state: Uint8Array;
-  order_status: TRequest;
+  request_state: Uint8Array;
+  request_status: TRequest;
   margin_mode: "cross" | "isolated";
   position: "short" | "long" | "net";
   action: "buy" | "sell";
@@ -107,7 +107,7 @@ const compare = async (compare: Partial<IRequest>): Promise<[Partial<IOrderAPI>,
   }
 
   compare.state && !isEqual(local.state!, compare.state) && (submit.state = compare.state);
-  compare.memo && !isEqual(local.memo!, compare.memo) && (submit.memo = compare.memo);
+  compare.memo && local.memo! !== compare.memo && (submit.memo = compare.memo);
   compare.expiry_time && local.expiry_time! !== compare.expiry_time && (submit.expiry_time = compare.expiry_time);
 
   return [cancel, submit];
@@ -152,7 +152,7 @@ const update = async (update: Partial<IRequest>): Promise<Partial<IRequest> | un
       }
     }
 
-    const [fields, args] = parseColumns(updates);
+    const [fields, args] = parseColumns(submit);
     const sql = `UPDATE blofin.request SET ${fields.join(", ")}, update_time = now(3) WHERE request = ? AND account = ?`;
     args.push(request, account);
 
@@ -181,7 +181,7 @@ export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
   if (audit.length) {
     console.log(`In Request.Audit [${audit.length}]`);
     for (const item of audit)
-      await Submit({ ...item, order_state: item.order_state, memo: `[Audit]: Request State updated from ${item.status} to ${item.request_status}` });
+      await Submit({ ...item, request_state: item.request_state, memo: `[Audit]: Request State updated from ${item.status} to ${item.request_status}` });
   }
   return audit;
 };
@@ -200,8 +200,9 @@ export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IRequest>): Promise<Array<Partial<IRequest>>> => {
+  Object.assign(props, { account: props.account || Session().account });
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM blofin.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   return Select<IRequest>(sql, args);
 };
@@ -210,8 +211,9 @@ export const Fetch = async (props: Partial<IRequest>): Promise<Array<Partial<IRe
 //| Fetches a request key from local db that meet props criteria; notfound returns undef |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+  Object.assign(props, { account: props.account || Session().account });
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT request FROM blofin.vw_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT request FROM blofin.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   try {
     const key = await Select<IRequest>(sql, args);
@@ -239,7 +241,7 @@ export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<I
       return [];
     }
 
-  const requests = await Fetch({ ...cancel, account: Session().account });
+  const requests = await Fetch({ request, account });
   for (const cancel of requests) {
     const canceled = await update({ request: cancel.request, status: "Canceled", memo: memo || `[Cancel]: Request canceled by user/system` });
     canceled && cancels.push(canceled);
@@ -251,7 +253,7 @@ export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<I
 //+--------------------------------------------------------------------------------------+
 //| Verify/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+export const Submit = async (submission: Partial<IOrder>): Promise<IRequest["request"] | undefined> => {
   if (submission.account && !isEqual(submission.account!, Session().account!)) {
     console.log(">> [Error: Request.Submit] Request.Submit] Unauthorized submit attempt; account mismatch", {
       submission,
@@ -262,7 +264,7 @@ export const Submit = async (submission: Partial<IRequest>): Promise<IRequest["r
   }
 
   const queued = await States.Key<IRequestState>({ status: "Queued" });
-  const state = await Order.State({ order_state: submission.order_state });
+  const state = await States.Key<IRequestState>({ status: submission.request_status });
   const submit = await formatRequest({ ...submission, state: state || queued, expiry_time: submission.expiry_time || setExpiry("8h") });
 
   if (submission.request) {
