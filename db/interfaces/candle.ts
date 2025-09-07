@@ -4,115 +4,78 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-import type { ICandleAPI } from "@api/candles";
+import { Select, Modify, parseColumns } from "@db/query.utils";
 
-import { Select, Modify } from "@db/query.utils";
-
-export interface IKeyProps {
+export interface ICandle {
   instrument: Uint8Array;
   symbol: string;
   period: Uint8Array;
   timeframe: string;
-  timestamp?: number;
-  limit?: number;
-}
-
-export interface ICandle extends IKeyProps, RowDataPacket {
-  base_currency?: Uint8Array;
-  base_symbol?: string;
-  quote_currency?: Uint8Array;
-  quote_symbol?: string;
+  timestamp: string;
+  limit: number;
+  base_currency: Uint8Array;
+  base_symbol: string;
+  quote_currency: Uint8Array;
+  quote_symbol: string;
   bar_time: Date;
   open: number;
   high: number;
   low: number;
   close: number;
-  volume?: number;
-  vol_currency?: number;
-  vol_currency_quote?: number;
+  volume: number;
+  vol_currency: number;
+  vol_currency_quote: number;
   completed: boolean;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Updates all differences between local db and candle provider                         |
 //+--------------------------------------------------------------------------------------+
-export async function Update(modified: Array<ICandleAPI & IKeyProps>) {
+export const Update = async (modified: Array<Partial<ICandle>>) => {
   for (const update of modified) {
-    await Modify(
-      `UPDATE blofin.candle 
-            SET open = ?,
-                high = ?,
-                low = ?,
-                close = ?,
-                volume = ?,
-                vol_currency = ?,
-                vol_currency_quote = ?,
-                completed = ?
-          WHERE instrument = ?
-            AND period = ?
-            AND bar_time = FROM_UNIXTIME(?/1000)`,
-      [
-        update.open,
-        update.high,
-        update.low,
-        update.close,
-        update.vol,
-        update.volCurrency,
-        update.volCurrencyQuote,
-        update.confirm,
-        update.instrument,
-        update.period,
-        update.ts,
-      ]
-    );
+    const { instrument, period, bar_time, ...updates } = update;
+    const [fields, args] = parseColumns(updates);
+    const sql = `UPDATE blofin.candle SET ${fields.join(", ")} WHERE instrument = ? AND period = ? AND bar_time = ?`;
+
+    args.push(instrument, period, bar_time);
+
+    try {
+      await Modify(sql, args);
+    } catch (e) {
+      console.log({ sql, args, update });
+      console.log(e);
+    }
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Inserts new candles retrieved from the blofin rest api;                              |
 //+--------------------------------------------------------------------------------------+
-export async function Insert(missing: Array<ICandleAPI & IKeyProps>) {
+export const Insert = async (missing: Array<Partial<ICandle>>) =>{
   for (const insert of missing) {
-    await Modify(
-      `INSERT INTO blofin.candle 
-            SET instrument = ?,
-                period = ?,
-                bar_time = FROM_UNIXTIME(?/1000),
-                open = ?,
-                high = ?,
-                low = ?,
-                close = ?,
-                volume = ?,
-                vol_currency = ?,
-                vol_currency_quote = ?,
-                completed = ?`,
-      [
-        insert.instrument,
-        insert.period,
-        insert.ts,
-        insert.open,
-        insert.high,
-        insert.low,
-        insert.close,
-        insert.vol,
-        insert.volCurrency,
-        insert.volCurrencyQuote,
-        insert.confirm,
-      ]
-    );
+    const [fields, args] = parseColumns(insert, "");
+    const sql = `INSERT INTO blofin.candle (${fields.join(", ")}) VALUES (${Array(args.length).fill("?").join(", ")})`;
+
+    try {
+      await Modify(sql, args);
+    } catch (e) {
+      console.log({ sql, args, insert });
+      console.log(e);
+    }
   }
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
-export function Fetch(props: IKeyProps): Promise<Array<Partial<ICandle>>> {
-  const { instrument, period, timestamp, limit } = props;
-  let sql: string = `SELECT timestamp, open, high, low, close, volume, vol_currency, vol_currency_quote, completed
-   FROM blofin.vw_candles
-   WHERE instrument = ?	AND period = ? and timestamp > ?
-   ORDER BY	timestamp DESC`;
-  sql += limit ? ` LIMIT ${limit || 1}` : ``;
-  return Select<ICandle>(sql, [instrument, period, timestamp || 0]);
-}
+export const Fetch = (candle: Partial<ICandle>): Promise<Array<Partial<ICandle>>> => {
+  const { limit, timestamp, ...filtered } = candle;
+  const [fields, args] = parseColumns(filtered);
+  const sql = `SELECT * FROM blofin.vw_candles ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}${
+    timestamp ? ` AND bar_time >= ?` : ``
+  } ORDER BY bar_time DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
+
+  timestamp && args.push(new Date(parseInt(timestamp || "0")));
+
+  return Select<ICandle>(sql, args);
+};

@@ -41,7 +41,9 @@ export interface IResult {
 //+--------------------------------------------------------------------------------------+
 //| Publish - Creates new instruments; populates periods on new Blofin receipts          |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Array<IInstrumentAPI>> {
+const publish = async (apiInstrument: Array<IInstrumentAPI>): Promise<Array<IInstrumentAPI>> => {
+  console.log("-> Instrument:Publish [API]");
+
   for (const api of apiInstrument) {
     const symbol: string[] = splitSymbol(api.instId);
     const base_currency = await Currency.Publish(symbol[0], api.state !== "live");
@@ -53,12 +55,14 @@ export async function Publish(apiInstrument: Array<IInstrumentAPI>): Promise<Arr
     await InstrumentDetail.Publish(instrument!, instrument_type!, contract_type!, api);
   }
   return apiInstrument;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Merge Instruments/details stored locally w/Blofin json; applies diffs                |
 //+--------------------------------------------------------------------------------------+
-export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
+const merge = async (apiInstruments: Array<IInstrumentAPI>) =>{
+  console.log("-> Instrument:Merge [API]");
+
   const instruments = await Instrument.Fetch({});
   const modified: Array<IInstrumentAPI> = [];
   const suspense: Array<Currency.IKeyProps> = [];
@@ -77,14 +81,14 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
         let updated: boolean = false;
 
         !isEqual(local.contract_value!, api[instrument].contractValue) && (updated = true);
-        !isEqual(local.list_timestamp!, parseInt(api[instrument].listTime) / 1000, 0) && (updated = true);
-        !isEqual(local.expiry_timestamp!, parseInt(api[instrument].expireTime) / 1000, 0) && (updated = true);
         !isEqual(local.max_leverage!, api[instrument].maxLeverage) && (updated = true);
         !isEqual(local.min_size!, api[instrument].minSize) && (updated = true);
         !isEqual(local.lot_size!, api[instrument].lotSize) && (updated = true);
         !isEqual(local.tick_size!, api[instrument].tickSize) && (updated = true);
         !isEqual(local.max_limit_size!, api[instrument].maxLimitSize) && (updated = true);
         !isEqual(local.max_market_size!, api[instrument].maxMarketSize) && (updated = true);
+        !isEqual(local.list_time!.getTime(), api[instrument].listTime) && (updated = true);
+        !isEqual(local.expiry_time!.getTime(), api[instrument].expireTime) && (updated = true);
 
         local.instrument_type !== api[instrument].instType && (updated = true);
         local.contract_type !== api[instrument].contractType && (updated = true);
@@ -101,8 +105,8 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
       }
     });
   }
-  suspense.length && console.log("# Instruments:Suspended: ", suspense.length, suspense);
-  modified.length && console.log("# Instruments Updated: ", modified.length, modified);
+  suspense.length && console.log("   # Instruments:Suspended: ", suspense.length, {suspense});
+  modified.length && console.log("   # Instruments Updated: ", modified.length, {modified});
 
   await Currency.Suspend(suspense);
   await Instrument.Suspend(suspense);
@@ -115,10 +119,12 @@ export async function Merge(apiInstruments: Array<IInstrumentAPI>) {
 //| Import - Retrieve api Instrument, pass to publisher                                  |
 //+--------------------------------------------------------------------------------------+
 export function Import() {
+  console.log("In Instruments.Import [API]:", new Date().toLocaleString());
+
   fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
     .then((response) => response.json())
-    .then(async (result: IResult) => await Publish(result.data))
-    .then(async (data: Array<IInstrumentAPI>) => await Merge(data))
+    .then(async (result: IResult) => await publish(result.data))
+    .then(async (data: Array<IInstrumentAPI>) => await merge(data))
     .catch((error) => {
       console.log(`Error fetching instruments;`, error);
     });

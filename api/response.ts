@@ -1,5 +1,5 @@
 //+---------------------------------------------------------------------------------------+
-//|                                                                           response.ts |
+//|                                                                    [api]  response.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
@@ -72,4 +72,15 @@ export const Request = async (props: { results: TResponse[]; success: TRequest; 
   }
 
   return [accepted, rejected, errors];
-}; 
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Sets request states based on changes recieved from WSS/API or POST ops;              |
+//+--------------------------------------------------------------------------------------+
+export const Leverage = async (props: { results: TResponse[] }) => {
+  const accepted = [];
+  const rejected = [];
+  const errors = [];
+
+  console.log("In Response.Leverage", props);
+};

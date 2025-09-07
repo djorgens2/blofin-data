@@ -7,8 +7,7 @@ export const req_fcrt_1a: Partial<IRequest> = {
   position: "short",
   action: "sell",
   order_type: "limit",
-  price: 3.5,
-  size: 100,
+  price: 2.95,
   leverage: 50,
-  memo: "Test 1: request w/o expiry; w/o tpsl",
+  size: 100,
 };

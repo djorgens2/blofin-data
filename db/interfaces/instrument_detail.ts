@@ -52,8 +52,8 @@ export async function Publish(
     const tickSize = parseFloat(api.tickSize);
     const maxLimitSize = parseFloat(api.maxLimitSize);
     const maxMarketSize = parseFloat(api.maxMarketSize);
-    const listTime = parseInt(api.listTime);
-    const expireTime = parseInt(api.expireTime);
+    const listTime = new Date(parseInt(api.listTime));
+    const expireTime = new Date(parseInt(api.expireTime));
 
     await Modify(
       `INSERT INTO blofin.instrument_detail 
@@ -67,8 +67,8 @@ export async function Publish(
               tick_size = ?,
               max_limit_size = ?,
               max_market_size = ?,
-              list_time = FROM_UNIXTIME(?/1000),
-              expiry_time = FROM_UNIXTIME(?/1000)`,
+              list_time = ?,
+              expiry_time = ?`,
       [
         instrument,
         instrument_type,
@@ -119,8 +119,8 @@ export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
     const tickSize = parseFloat(update.tickSize);
     const maxLimitSize = parseFloat(update.maxLimitSize);
     const maxMarketSize = parseFloat(update.maxMarketSize);
-    const listTime = parseInt(update.listTime);
-    const expireTime = parseInt(update.expireTime);
+    const listTime = new Date(parseInt(update.listTime));
+    const expireTime = new Date(parseInt(update.expireTime));
 
     if (update.instrument) {
       await Modify(
@@ -134,8 +134,8 @@ export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
                 tick_size = ?,
                 max_limit_size = ?,
                 max_market_size = ?,
-                list_time = FROM_UNIXTIME(?/1000),
-                expiry_time = FROM_UNIXTIME(?/1000)
+                list_time = ?,
+                expiry_time = ?
           WHERE instrument = ?`,
         [
           instrument_type,
