@@ -1284,10 +1284,16 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // finder({ symbol: "XRP-USDT", timeframe: "15m", start_timestamp: 1673741700000 }).then((res) => console.log(res));
 
 //----------------------------- Candle Loader Test ---------------------------------------//
-import * as Candles from "@api/candles";
+// import * as Candles from "@api/candles";
 
-//Candles.Loader({ symbol: "BTC-USDT", timeframe: "15m", start_time: 1673604000000 }).then((res) => {
-Candles.Loader({ symbol: "ORCA-USDT", timeframe: "15m", start_time: new Date().getTime() }).then((res) => {
-  console.log(res);
-  process.exit(0);
-});
+// //Candles.Loader({ symbol: "BTC-USDT", timeframe: "15m", start_time: 1673604000000 }).then((res) => {
+// const symbol = process.argv[2] || "BTC-USDT";
+// const timeframe = process.argv[3] || "15m";
+// const start_time = process.argv[4] ? parseInt(process.argv[4]) : new Date().getTime();
+
+// console.log({symbol, timeframe, start_time});
+
+// Candles.Loader({ symbol, timeframe, start_time }).then((res) => {
+//   console.log(res);
+//   process.exit(0);
+// });
