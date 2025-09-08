@@ -127,11 +127,16 @@ export const Loader = async (props: { symbol: string; timeframe: string; start_t
   const instrument = await Instrument.Key({ symbol });
   const period = await Period.Key({ timeframe });
 
+  if (!instrument) return `Instrument not found: ${symbol}`;
+  if (!period) return `Period not found: ${timeframe}`;
+
   Object.assign(props, { instrument, period: period, timestamp: props.start_time });
 
+  console.log(`Loader start for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
+  
   do {
     const after = props.start_time ? `&after=${props.start_time}` : "";
-    console.log(`Fetching candles for ${props.symbol} with ${after}`);
+    console.log(`Fetching candles for ${props.symbol} after [${props.start_time},${new Date(props.start_time).toISOString()}]`);
 
     try {
       const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=100&bar=${timeframe}${after}`);
@@ -151,16 +156,18 @@ export const Loader = async (props: { symbol: string; timeframe: string; start_t
             volCurrencyQuote: field[7],
             confirm: field[8],
           }));
-
+          
           props.start_time = parseInt(api[api.length - 1].ts);
           merge(clear({ state: "start", symbol: symbol, node: 1 }), {...props, timestamp: props.start_time.toString()}, api);
-
+          
         } else {
           await new Promise((r) => setTimeout(r, 30000));   //--- wait 30 seconds for data to apply ---
+          console.log(`Loader end for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
           return `Process finished, last timestamp: ${props.start_time}`;
         }
       }
     } catch (error) {
+      console.log(`Loader error for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
       return (error as Error).message;
     }
 

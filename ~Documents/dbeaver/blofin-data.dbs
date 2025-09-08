@@ -203,7 +203,7 @@ system_canceled]]></comment>
 			<column name="close" type="DOUBLE" mandatory="y" />
 			<column name="volume" type="INT" mandatory="y" />
 			<column name="vol_currency" type="DECIMAL" length="15" decimal="6" mandatory="y" />
-			<column name="vol_currency_quote" type="DECIMAL" length="15" decimal="6" mandatory="y" />
+			<column name="vol_currency_quote" type="DECIMAL" length="17" decimal="7" mandatory="y" />
 			<column name="completed" type="BOOLEAN" mandatory="y" />
 			<index name="pk_candle" unique="PRIMARY_KEY" >
 				<column name="instrument" />
@@ -1235,10 +1235,13 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_candle_audit" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `blofin`.`vc`.`symbol` AS `symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `samplecount` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`symbol`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (count(0) < 4) order by `blofin`.`vc`.`symbol`,`hour` desc]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `audit`.`instrument` AS `instrument`,`audit`.`symbol` AS `symbol`,`audit`.`period` AS `period`,`audit`.`timeframe` AS `timeframe`,`audit`.`hour` AS `hour`,`audit`.`entries` AS `entries` from ((select `blofin`.`vc`.`instrument` AS `instrument`,`blofin`.`vc`.`symbol` AS `symbol`,`blofin`.`vc`.`period` AS `period`,`blofin`.`vc`.`timeframe` AS `timeframe`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) AS `hour`,count(0) AS `entries` from `blofin`.`vw_candles` `vc` group by `blofin`.`vc`.`instrument`,`blofin`.`vc`.`symbol`,`blofin`.`vc`.`period`,`blofin`.`vc`.`timeframe`,cast(date_format(`blofin`.`vc`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime) having (`entries` < 4)) `audit` join (select `c`.`instrument` AS `instrument`,`c`.`period` AS `period`,min(cast(date_format(`c`.`bar_time`,'%Y-%m-%d %k:00:00') as datetime)) AS `hour` from `blofin`.`candle` `c` group by `c`.`instrument`,`c`.`period`) `exclusions` on(((`audit`.`instrument` = `exclusions`.`instrument`) and (`audit`.`period` = `exclusions`.`period`)))) where (`audit`.`hour` > `exclusions`.`hour`) order by `audit`.`symbol`,`audit`.`timeframe`,`audit`.`hour` desc]]></view_script>
+			<column name="instrument" type="BINARY" />
 			<column name="symbol" type="VARCHAR" />
+			<column name="period" type="BINARY" />
+			<column name="timeframe" type="VARCHAR" />
 			<column name="hour" type="DATETIME" />
-			<column name="samplecount" type="BIGINT" />
+			<column name="entries" type="BIGINT" />
 		</view>
 		<view name="vw_candles" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1668,24 +1671,18 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="state" color="B34D1A" x="1007" y="912" />
 		<entity schema="blofin" name="margin_mode" color="0000FF" x="608" y="95" />
 		<entity schema="blofin" name="position" color="FF00FF" x="798" y="760" />
-		<entity schema="blofin" name="candle" color="0000FF" x="380" y="779" />
 		<entity schema="blofin" name="instrument_period" color="0000FF" x="57" y="551" />
 		<entity schema="blofin" name="period" color="0000FF" x="133" y="855" />
 		<entity schema="blofin" name="currency" color="0000FF" x="570" y="1482" />
 		<entity schema="blofin" name="activity" color="B34D1A" x="2014" y="1520" />
 		<entity schema="blofin" name="vw_candles" color="00FFFF" x="2394" y="95" />
-		<entity schema="blofin" name="vw_candle_audit" color="00FFFF" x="2413" y="532" />
-		<entity schema="blofin" name="vw_instrument_positions" color="00FFFF" x="2831" y="779" />
 		<entity schema="blofin" name="vw_role_privileges" color="00FFFF" x="2185" y="893" />
 		<entity schema="blofin" name="vw_users" color="00FFFF" x="2185" y="1330" />
-		<entity schema="blofin" name="vw_stop_requests" color="00FFFF" x="2413" y="1235" />
 		<entity schema="blofin" name="vw_api_requests" color="00FFFF" x="2641" y="1140" />
 		<entity schema="blofin" name="instrument_type" color="0000FF" x="76" y="1121" />
 		<entity schema="blofin" name="contract_type" color="0000FF" x="76" y="1292" />
 		<entity schema="blofin" name="authority" color="B34D1A" x="1995" y="1121" />
 		<entity schema="blofin" name="subject" color="B34D1A" x="1995" y="1254" />
-		<entity schema="blofin" name="vw_api_stop_requests" color="00FFFF" x="2831" y="1140" />
-		<entity schema="blofin" name="vw_positions" color="00FFFF" x="2394" y="665" />
 		<entity schema="blofin" name="vw_role_subjects" color="00FFFF" x="2185" y="1159" />
 		<entity schema="blofin" name="user" color="B34D1A" x="1368" y="969" />
 		<entity schema="blofin" name="account" color="B34D1A" x="1102" y="1140" />
@@ -1703,9 +1700,15 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="instrument_detail" color="0000FF" x="437" y="1083" />
 		<entity schema="blofin" name="vw_instruments" color="3986C1" x="2603" y="95" />
 		<entity schema="blofin" name="vw_instrument_periods" color="00FFFF" x="2603" y="741" />
-		<entity schema="blofin" name="api_error" color="3986C1" x="2831" y="1444" />
-		<entity schema="blofin" name="instrument" color="0000FF" x="532" y="399" />
 		<entity schema="blofin" name="price_type" color="FF00FF" x="1216" y="722" />
+		<entity schema="blofin" name="candle" color="0000FF" x="380" y="779" />
+		<entity schema="blofin" name="instrument" color="0000FF" x="532" y="399" />
+		<entity schema="blofin" name="vw_positions" color="00FFFF" x="2394" y="532" />
+		<entity schema="blofin" name="vw_stop_requests" color="00FFFF" x="2413" y="1083" />
+		<entity schema="blofin" name="api_error" color="3986C1" x="2394" y="1482" />
+		<entity schema="blofin" name="vw_api_stop_requests" color="00FFFF" x="2850" y="1273" />
+		<entity schema="blofin" name="vw_instrument_positions" color="00FFFF" x="2831" y="874" />
+		<entity schema="blofin" name="vw_candle_audit" color="00FFFF" x="2850" y="646" />
 		<group name="user accounts" color="B34D1A" >
 			<entity schema="blofin" name="user_account" />
 			<entity schema="blofin" name="role" />
@@ -1737,7 +1740,6 @@ ioc: Immediate-or-cancel order]]></comment>
 		</group>
 		<group name="instruments" color="0000FF" >
 			<entity schema="blofin" name="margin_mode" />
-			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="instrument_period" />
 			<entity schema="blofin" name="period" />
 			<entity schema="blofin" name="currency" />
@@ -1745,22 +1747,23 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="contract_type" />
 			<entity schema="blofin" name="positions" />
 			<entity schema="blofin" name="instrument_detail" />
+			<entity schema="blofin" name="candle" />
 			<entity schema="blofin" name="instrument" />
 		</group>
 		<group name="views" color="00FFFF" >
 			<entity schema="blofin" name="vw_candles" />
-			<entity schema="blofin" name="vw_candle_audit" />
-			<entity schema="blofin" name="vw_instrument_positions" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_users" />
-			<entity schema="blofin" name="vw_stop_requests" />
 			<entity schema="blofin" name="vw_api_requests" />
-			<entity schema="blofin" name="vw_api_stop_requests" />
-			<entity schema="blofin" name="vw_positions" />
 			<entity schema="blofin" name="vw_role_subjects" />
 			<entity schema="blofin" name="vw_accounts" />
 			<entity schema="blofin" name="vw_stop_orders" />
 			<entity schema="blofin" name="vw_instrument_periods" />
+			<entity schema="blofin" name="vw_positions" />
+			<entity schema="blofin" name="vw_stop_requests" />
+			<entity schema="blofin" name="vw_api_stop_requests" />
+			<entity schema="blofin" name="vw_instrument_positions" />
+			<entity schema="blofin" name="vw_candle_audit" />
 		</group>
 		<script name="SQL_Editor" id="aedf1790-e515-4cfd-a4fa-953f6db4070c" language="SQL" >
 			<string><![CDATA[SELECT
