@@ -6,7 +6,7 @@
 
 import type { TPosition } from "@db/interfaces/state";
 
-import { Select, Modify, parseColumns } from "@db/query.utils";
+import { Select, Modify, parseColumns, DB_SCHEMA } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
 import * as Instrument from "@db/interfaces/instrument";
@@ -35,10 +35,10 @@ export interface IInstrumentPosition {
 export async function Import() {
   const state = await State.Key({ status: "Closed" });
   const keys = await Select<IInstrumentPosition>(
-    `SELECT i.instrument, p.position, i.trade_state as auto_state FROM blofin.instrument i, blofin.position p`,
+    `SELECT i.instrument, p.position, i.state as auto_state FROM ${DB_SCHEMA}.instrument i, ${DB_SCHEMA}.position p`,
     []
   );
-  const sql = `INSERT IGNORE INTO blofin.instrument_position (instrument_position, instrument, position, state, auto_state ) VALUES (?, ?, ?, ?, ?)`;
+  const sql = `INSERT IGNORE INTO ${DB_SCHEMA}.instrument_position (instrument_position, instrument, position, state, auto_state ) VALUES (?, ?, ?, ?, ?)`;
 
   for (const key of keys) {
     const instrument_position = hashKey(6);
@@ -61,7 +61,7 @@ export const Update = async (updates: Array<Partial<IInstrumentPosition>>) => {
       const instrument = update.instrument ? update.instrument : symbol ? await Instrument.Key({ symbol }) : undefined;
       const state = update.state ? update.state : status ? await State.Key({ status }) : undefined;
       const field = state && status === "Closed" ? "close" : "update";
-      const sql = `UPDATE blofin.instrument_position SET state = ?, ${field}_time = now() where instrument = ? and position = ?`;
+      const sql = `UPDATE ${DB_SCHEMA}.instrument_position SET state = ?, ${field}_time = now() where instrument = ? and position = ?`;
       const args = [state, instrument, position];
 
       try {
@@ -78,7 +78,7 @@ export const Update = async (updates: Array<Partial<IInstrumentPosition>>) => {
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IInstrumentPosition>) {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IInstrumentPosition>(sql, args);
 }
 
@@ -87,7 +87,7 @@ export async function Fetch(props: Partial<IInstrumentPosition>) {
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: Partial<IInstrumentPosition>) {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT instrument_position FROM blofin.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT instrument_position FROM ${DB_SCHEMA}.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   const [key] = await Select<IInstrumentPosition>(sql, args);
   return key ? key.instrument_position : undefined;
 }

@@ -86,10 +86,11 @@ const processQueued = async () => {
   if (queue.length) {
     for (const request of queue) {
       const { status, account, expiry_time, ...api } = request;
-      const instrument = await Instrument.Fetch({symbol: api.instId!});
-      expiry < expiry_time!
-        ? requests.push(api)
-        : expired.push({ request: hexify(api.clientOrderId!, 6), account, memo: `[Expired]: Queued request state changed to Canceled` });
+      
+      if (expiry < expiry_time!) {
+        const [instrument] = await Instrument.Fetch({ symbol: api.instId! });
+        requests.push(api);
+      } else expired.push({ request: hexify(api.clientOrderId!, 6), account, memo: `[Expired]: Queued request state changed to Canceled` });
     }
 
     if (expired.length) for (const request of expired) await Request.Cancel(request);

@@ -3,7 +3,8 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-"use server";
+
+import { Session } from "@module/session";
 
 import * as Accounts from "@db/interfaces/account";
 import * as Currency from "@db/interfaces/currency";
@@ -12,7 +13,6 @@ export interface IAccountAPI {
   ts: string;
   totalEquity: string;
   isolatedEquity: string;
-  account: Uint8Array;
   details: [
     {
       currency: string;
@@ -40,28 +40,27 @@ export interface IAccountAPI {
 //| Retrieve blofin account data and details; apply updates to local db;                 |
 //+--------------------------------------------------------------------------------------+
 export async function Publish(props: IAccountAPI) {
-  const [account] = await Accounts.Fetch({ account: props!.account });
+  const account = await Accounts.Fetch({ account: Session().account });
 
   if (account) {
-    Accounts.Update({
-      account: props!.account,
-      total_equity: parseFloat(props!.totalEquity),
-      isolated_equity: parseFloat(props!.isolatedEquity),
-      update_time: parseInt(props!.ts),
+    Accounts.Publish({
+      account: Session().account,
+      total_equity: parseFloat(parseFloat(props!.totalEquity).toFixed(3)),
+      isolated_equity: parseFloat(parseFloat(props!.isolatedEquity).toFixed(3)),
+      update_time: new Date(parseInt(props!.ts)),
     });
 
-    for (let id in props.details) {
-      const detail = props.details[id];
+    for (const detail of props.details) {
       const currency = await Currency.Key({ symbol: detail.currency });
 
       currency &&
-        Accounts.UpdateDetail({
-          account: props!.account,
+        Accounts.PublishDetail({
+          account: Session().account,
           currency,
           balance: parseFloat(detail.balance!),
-          equity: parseFloat(detail.equity!),
-          isolated_equity: parseFloat(detail.isolatedEquity!),
           available: parseFloat(detail.available!),
+          currency_equity: parseFloat(detail.equity!),
+          currency_isolated_equity: parseFloat(detail.isolatedEquity!),
           available_equity: parseFloat(detail.availableEquity!),
           equity_usd: parseFloat(detail.equityUsd!),
           frozen: parseFloat(detail.frozen!),
@@ -73,7 +72,7 @@ export async function Publish(props: IAccountAPI) {
           margin_ratio: parseFloat(detail.marginRatio!),
           spot_available: parseFloat(detail.spotAvailable!),
           liability: parseFloat(detail.liability!),
-          update_time: parseInt(detail.ts!),
+          update_time: new Date(parseInt(detail.ts!)),
         });
     }
   }

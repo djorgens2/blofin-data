@@ -4,122 +4,106 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-import type { SubjectArea } from "@db/interfaces/subject";
+import type { TAccess, IAccess, TState } from "db/interfaces/state";
 
-import { Modify, Select } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import { Select, Distinct, Update, Load } from "db/query.utils";
 
-import * as Role from "@db/interfaces/role";
-import * as Authority from "@db/interfaces/authority";
-import * as Subject from "@db/interfaces/subject";
+import * as State from "db/interfaces/state";
 
-export interface IKeyProps {
-  role_authority?: Uint8Array;
-  subject?: Uint8Array;
-  role?: Uint8Array;
-  authority?: Uint8Array;
-  area?: SubjectArea;
-  title?: string;
-  privilege?: string;
-  enabled?: boolean;
+export interface IRoleAuthority {
+  role: Uint8Array;
+  title: string;
+  subject_area: Uint8Array;
+  subject_area_title: string;
+  activity: Uint8Array;
+  task: string;
+  authority: Uint8Array;
+  privilege: string;
+  priority: number;
+  state: Uint8Array;
+  status: TAccess;
 }
-export interface IRoleAuthority extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports all role access privileges with the supplied state; ** Admin Use Only;       |
+//| -- cartesian prod to create all *missing* role authorities; set initial state;       |
 //+--------------------------------------------------------------------------------------+
-export const Import = async (props: { enabled: boolean }) => {
-  const imports = await Select<IKeyProps>(`SELECT subject, role, authority FROM blofin.subject, blofin.role, blofin.authority`, []);
-  for (let key = 0; key < imports.length; key++) {
-    Object.assign(imports[key], { ...imports[key], role_authority: hashKey(6), ...props });
-    const { role_authority, subject, role, authority, enabled } = imports[key];
-    await Modify(`INSERT IGNORE INTO blofin.role_authority VALUES ( ?, ?, ?, ?, ?)`, [role_authority, subject, role, authority, enabled]);
+export const Import = async (props: { status: TState }) => {
+  console.log("In Role.Authority.Import:", new Date().toLocaleString());
+
+  const role_authority = await Select<IRoleAuthority>({}, { table: `vw_audit_role_authority` });
+  const state = await State.Key({ status: props.status });
+
+  if (role_authority && state) {
+    role_authority.forEach((auth) => (auth.state = state));
+    Load<IRoleAuthority>(role_authority, { table: `role_authority` });
+    console.log("   # Role Authority imports: ", role_authority.length, "verified");
   }
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Disables authority based on supplied properties;                                     |
 //+--------------------------------------------------------------------------------------+
-export async function Disable(props: IKeyProps): Promise<number> {
-  const { where, args } = await setWhere(props);
-  const sql = `UPDATE blofin.role_authority SET enabled = false`.concat(where);
-  const result = await Modify(sql, args);
-  return result.affectedRows;
-}
+export const Disable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuthority["state"] | undefined> => {
+  const { role, authority, activity } = props;
+
+  if (role && authority && activity) {
+    const revised: Partial<IRoleAuthority> = {
+      role,
+      authority,
+      activity,
+      state: await State.Key<IAccess>({ status: "Disabled" }),
+    };
+    const result = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
+    return result ? result.state : undefined;
+  } else return undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Enables authority based on supplied properties;                                      |
 //+--------------------------------------------------------------------------------------+
-export async function Enable(props: IKeyProps): Promise<number> {
-  const { where, args } = await setWhere(props);
-  const sql = `UPDATE blofin.role_authority SET enabled = true`.concat(where);
-  const result = await Modify(sql, args);
-  return result.affectedRows;
-}
+export const Enable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuthority["state"] | undefined> => {
+  const { role, authority, activity } = props;
 
-//+--------------------------------------------------------------------------------------+
-//| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
-//+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
-  const { where, args } = await setWhere(props);
-  const sql = `SELECT * FROM blofin.role_authority`.concat(where);
-  return Select<IRoleAuthority>(sql, args);
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns formatted where and args;                                                    |
-//+--------------------------------------------------------------------------------------+
-const setWhere = async (props: IKeyProps) => {
-  const { area, title, privilege, enabled } = props;
-  const subject = props.subject ? props.subject : await Subject.Key({ area });
-  const role = props.role ? props.role : await Role.Key({ title });
-  const authority = props.authority ? props.authority : await Authority.Key({ privilege });
-
-  const args = [];
-  const filters = [];
-
-  if (role) {
-    args.push(role);
-    filters.push(`role = ?`);
-  }
-
-  if (subject) {
-    args.push(subject);
-    filters.push(`subject = ?`);
-  }
-
-  if (authority) {
-    args.push(authority);
-    filters.push(`authority = ?`);
-  }
-
-  if (enabled) {
-    args.push(enabled);
-    filters.push(`enabled = ?`);
-  }
-  let where: string = "";
-  filters.forEach((filter, id) => (where += (id ? " AND " : " WHERE ") + filter));
-
-  return { where, args };
+  if (role && authority && activity) {
+    const revised: Partial<IRoleAuthority> = {
+      role,
+      authority,
+      activity,
+      state: await State.Key<IAccess>({ status: "Enabled" }),
+    };
+    const result = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
+    return result ? result.state : undefined;
+  } else return undefined;
 };
 
-//----------------------------------- views ------------------------------------------------------------------//
+//+--------------------------------------------------------------------------------------+
+//| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
+//+--------------------------------------------------------------------------------------+
+export const Fetch = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
+  const results = await Select<IRoleAuthority>(props, { table: `vw_role_authority` });
+  return results.length ? results : [];
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function FetchSubjects(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
-  const { where, args } = await setWhere(props);
-  const sql = `SELECT * FROM blofin.vw_role_subjects`.concat(where);
-  return Select<IRoleAuthority>(sql, args);
-}
+export const Subjects = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
+  const results = await Distinct<IRoleAuthority>(
+    { role: props.role, subject_area: undefined, subject_area_title: undefined, status: props.status },
+    { table: `vw_role_authority`, keys: [{ key: `role` }, { key: `status` }] }
+  );
+
+  return results.length ? results : [];
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function FetchPrivileges(props: IKeyProps): Promise<Array<Partial<IRoleAuthority>>> {
-  const { where, args } = await setWhere(props);
-  const sql = `SELECT * FROM blofin.vw_role_privileges`.concat(where);
-  return Select<IRoleAuthority>(sql, args);
-}
+export const Privileges = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
+  const results = await Distinct<IRoleAuthority>(
+    { role: props.role, authority: undefined, privilege: undefined, status: props.status },
+    { table: `vw_role_authority`, keys: [{ key: `role` }, { key: "status" }] }
+  );
+  return results.length ? results : [];
+};

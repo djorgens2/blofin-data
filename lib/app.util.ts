@@ -38,7 +38,7 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 //-- IPC message header
 export interface IMessage {
-  state: string; //-- may convert to enum
+  state: `init` | `api` | `update` | `ready`;
   symbol: string;
   node: number;
   code?: number;
@@ -89,13 +89,13 @@ export function clear(message: IMessage): IMessage {
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
 //+--------------------------------------------------------------------------------------+
-export const splitSymbol = (symbol: string | Array<string>): Array<string> => {
+export const splitSymbol = (symbol: string | Array<string>) => {
   const symbols: Array<string> = typeof symbol === "string" ? symbol.split("-") : typeof Array.isArray(symbol) ? symbol[0].split("-") : [];
 
-  symbols.length === 1 && symbols.push("USDT");
-  symbols[1].length === 0 && symbols.splice(1, 1, "USDT");
+  const base_symbol = symbols.length ? symbols[0] : ``;
+  const quote_symbol = symbols.length === 1 ? "USDT" : symbols.length > 1 ? symbols[1] : ``;
 
-  return symbols.slice(0, 2);
+  return [base_symbol, quote_symbol];
 };
 
 //+--------------------------------------------------------------------------------------+

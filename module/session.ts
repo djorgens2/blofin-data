@@ -2,7 +2,6 @@
 //|                                                                           session.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
 import { parseJSON } from "lib/std.util";
@@ -13,7 +12,7 @@ import { TextEncoder } from "node:util";
 import * as PositionsAPI from "@api/positions";
 import * as AccountAPI from "@api/accounts";
 import * as OrderAPI from "@api/orders";
-import * as Execute from "@module/trades"
+import * as Execute from "@module/trades";
 
 export type IResponseProps = {
   event: string;
@@ -27,25 +26,24 @@ export type IResponseProps = {
   data: any;
 };
 
-export type TState = "disconnected" | "connected" | "connecting" | "error" | "closed";
-export type TSession = {
+export interface ISession {
   account: Uint8Array;
   alias: string;
-  state: TState;
+  state: "disconnected" | "connected" | "connecting" | "error" | "closed";
   api: string;
   secret: string;
   phrase: string;
-  wss_url: string;
   rest_api_url: string;
-  wss_public_url: string;
-};
+  private_wss_url: string;
+  public_wss_url: string;
+}
 
-const session: Partial<TSession> = {};
+const session: Partial<ISession> = {};
 
 export const Session = () => {
   return session;
 };
-export const setSession = (props: Partial<TSession>) => Object.assign(session, { ...session, ...props });
+export const setSession = (props: Partial<ISession>) => Object.assign(session, { ...session, ...props });
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
@@ -83,11 +81,11 @@ export const signLogon = async (key: string) => {
 //+--------------------------------------------------------------------------------------+
 //| Opens the ws to Blofin and establishes com channels/listeners;                       |
 //+--------------------------------------------------------------------------------------+
-export function openWebSocket(props: Partial<TSession>) {
-  const { account, api, secret, phrase, wss_url, rest_api_url, wss_public_url } = props;
-  const ws = new WebSocket(wss_url!);
+export function openWebSocket(props: Partial<ISession>) {
+  const { account, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
+  const ws = new WebSocket(private_wss_url!);
 
-  setSession({ account, state: "connecting", api, secret, phrase, wss_url, rest_api_url, wss_public_url });
+  setSession({ account, state: "connecting", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
 
   ws.onopen = () => {
     const login = async () => {
@@ -119,7 +117,6 @@ export function openWebSocket(props: Partial<TSession>) {
     if (message!.event === "pong") {
       setSession({ state: "connected" });
       await Execute.Trades();
-
     } else if (message!.event === "login") {
       if (message!.code === "0") {
         console.log(`Connected to websocket: [${process.pid}` + `:${ws.url}]`);
@@ -129,12 +126,12 @@ export function openWebSocket(props: Partial<TSession>) {
             args: [{ channel: "account" }, { channel: "positions" }, { channel: "orders" }],
           })
         );
-        setSession({ account, state: "connected", api, secret, phrase, wss_url, rest_api_url, wss_public_url });
+        setSession({ account, state: "connected", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
       } else setSession({ state: "error" });
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      message!.arg.channel === "account" && AccountAPI.Publish({ ...message!.data, account: account });
+      message!.arg.channel === "account" && AccountAPI.Publish(message!.data);
       message!.arg.channel === "orders" && OrderAPI.Publish("WSS", message!.data);
       message!.arg.channel === "positions" && PositionsAPI.Publish(message!.data);
     } else console.log("Unhandled message:", message!, Session());

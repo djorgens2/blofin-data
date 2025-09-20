@@ -121,7 +121,6 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
   requests.map(async (req) => {
     const instrument = await 
     await setLeverage({ instId: req.instId, leverage: req.leverage, marginMode: req.marginMode, positionSide: req.positionSide });
-    push;
   });
 
   submit(requests);

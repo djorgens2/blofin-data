@@ -15,7 +15,7 @@ const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  database: process.env.DB_SCHEMA || process.env.DB_DATABASE,
   connectionLimit: parseInt(process.env.DB_CONNECTIONLIMIT!),
   maxIdle: parseInt(process.env.DB_MAXIDLE!),
   connectTimeout: parseInt(process.env.DB_CONNECTTIMEOUT!),

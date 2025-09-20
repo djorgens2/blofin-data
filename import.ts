@@ -1,4 +1,11 @@
+//+---------------------------------------------------------------------------------------+
+//|                                                                             import.ts |
+//|                                                      Copyright 2018, Dennis Jorgenson |
+//+---------------------------------------------------------------------------------------+
+"use strct"
+
 import { Import } from "@api/candles";
+import { clear } from "@lib/app.util";
 
 import * as State from "@db/interfaces/state";
 import * as Period from "@db/interfaces/period";
@@ -8,8 +15,6 @@ import * as Periods from "@db/interfaces/instrument_period";
 import * as InstrumentPosition from "@db/interfaces/instrument_position";
 import * as Brokers from "@db/interfaces/broker";
 import * as Roles from "@db/interfaces/role";
-
-import { clear } from "./lib/app.util";
 
 State.Import();
 Period.Import();
@@ -28,8 +33,8 @@ async function importCandles() {
   instruments?.forEach(async (db, id) => {
     const { instrument, period, symbol, timeframe, bulk_collection_rate } = db;
     const [candle] = await Candles.Fetch({ instrument, period, completed: true, limit: 1 });
-    const start_time = candle.bar_time?.getTime().toString() || new Date().getTime().toString();
-    const ipc = clear({ state: "start", symbol: symbol!, node: id });
+    const start_time = candle.bar_time?.getTime() || new Date().getTime();
+    const ipc = clear({ state: `api`, symbol: symbol!, node: id });
     const props: Partial<Candles.ICandle> = {
       instrument,
       symbol,

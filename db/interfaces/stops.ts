@@ -6,7 +6,7 @@
 
 import type { IRequestState, TRequest, TPosition } from "@db/interfaces/state";
 
-import { Modify, Select, parseColumns } from "@db/query.utils";
+import { DB_SCHEMA, Modify, Select, parseColumns } from "@db/query.utils";
 import { hexify, uniqueKey } from "@lib/crypto.util";
 
 import * as Instrument from "@db/interfaces/instrument";
@@ -108,7 +108,7 @@ export const Submit = async (request: Partial<IStopRequest>): Promise<IStopReque
   console.log("Inserting new stop request:", submit.stop_request);
   const { symbol, instrument, position, create_time, ...props } = submit;
   const [fields, args] = parseColumns({ ...props }, "");
-  const sql = `INSERT INTO blofin.stop_request (${fields.join(", ")}, create_time) VALUES (${Array(args.length).fill("?").join(", ")}, FROM_UNIXTIME(?/1000))`;
+  const sql = `INSERT INTO ${DB_SCHEMA}.stop_request (${fields.join(", ")}, create_time) VALUES (${Array(args.length).fill("?").join(", ")}, FROM_UNIXTIME(?/1000))`;
 
   try {
     await Modify(sql, [...args, create_time]);
@@ -189,7 +189,7 @@ export async function Publish(orders: Array<Partial<IStopOrder>>) {
               ""
             );
 
-            const sql = `INSERT INTO blofin.stop_order (${fields.join(", ")}, create_time) VALUES (${Array(args.length)
+            const sql = `INSERT INTO ${DB_SCHEMA}.stop_order (${fields.join(", ")}, create_time) VALUES (${Array(args.length)
               .fill("?")
               .join(", ")}, FROM_UNIXTIME(?/1000))`;
 
@@ -216,7 +216,7 @@ export async function Publish(orders: Array<Partial<IStopOrder>>) {
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IStopOrder>): Promise<Array<Partial<IStopOrder>>> {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_stop_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_stop_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IStopRequest>(sql, args);
 }
 
@@ -225,7 +225,7 @@ export async function Fetch(props: Partial<IStopOrder>): Promise<Array<Partial<I
 //+--------------------------------------------------------------------------------------+
 export async function Key(props: Partial<IStopOrder>): Promise<IStopOrder["stop_request"] | undefined> {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT stop_request FROM blofin.vw_stop_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT stop_request FROM ${DB_SCHEMA}.vw_stop_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   const key = await Select<IStopOrder>(sql, args);
   const stop_request = key.length === 1 ? key[0].stop_request : undefined;
   return stop_request;
@@ -239,7 +239,7 @@ export const Update = async (updates: Array<Partial<IStopOrder>>) => {
     for (const update of updates) {
       const { stop_request, stop_type, status, memo } = update;
       const state = update.state || (await States.Key<IRequestState>({ status }));
-      const sql = `UPDATE blofin.stop_request SET state = ?, memo = ? WHERE stop_request = ? AND stop_type = ?`;
+      const sql = `UPDATE ${DB_SCHEMA}.stop_request SET state = ?, memo = ? WHERE stop_request = ? AND stop_type = ?`;
       const args = [state, memo, stop_request, stop_type];
 
       try {

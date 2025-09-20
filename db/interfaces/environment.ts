@@ -4,75 +4,58 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
+import { Select, Insert } from "@db/query.utils";
+import { hashKey } from "@lib/crypto.util";
 
-import { Select, Modify } from "@db/query.utils";
-import { hashKey } from "lib/crypto.util";
-
-export interface IKeyProps {
-  environment?: Uint8Array;
-  environ?: string;
+export interface IEnvironment {
+  environment: Uint8Array;
+  environ: string;
 }
 
-export interface IEnvironment extends IKeyProps, RowDataPacket {}
-
 //+--------------------------------------------------------------------------------------+
-//| Imports period seed data to the database;                                            |
+//| Imports environments seed data to the database;                                      |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  ["Production", "Development", "Test"].forEach((environ) => Add(environ));
+  console.log("In Environment.Import:", new Date().toLocaleString());
+ 
+  const success: Array<Partial<IEnvironment>> = [];
+  const errors: Array<Partial<IEnvironment>> = [];
+  const environments: Array<string> = ["Production", "Development", "Test", "Quality Assurance (QA)"];
+
+  for (const environ of environments) {
+    const result = await Add({ environ });
+    result ? success.push({ environment: result }) : errors.push({ environ });
+  }
+
+  success.length && console.log("   # Environment imports: ", success.length, "verified");
+  errors.length && console.log("   # Environment rejects: ", errors.length, { errors });
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds seed environments to local database;                                            |
 //+--------------------------------------------------------------------------------------+
-export async function Add(environ: string): Promise<IKeyProps["environment"]> {
-  const environment = await Key({ environ });
-  if (environment === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.environment VALUES (?, ?)`, [key, environ]);  
-    return key;
-  }
-  return environment;
-}
+export const Add = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
+  if (props.environment === undefined) {
+    Object.assign(props, { environment: hashKey(6) });
+    const result = await Insert<IEnvironment>(props, { table: `environment`, ignore: true });
+    return result ? result.environment : undefined;
+  } else return props.environment;
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Examines contract type search methods in props; executes first in priority sequence; |
+//| Returns an environment key using supplied params;                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["environment"] | undefined> {
-  const { environment, environ } = props;
-  const args = [];
-
-  let sql: string = `SELECT environment FROM blofin.environment WHERE `;
-
-  if (environment) {
-    args.push(environment);
-    sql += `environment = ?`;
-  } else if (environ) {
-    args.push(environ);
-    sql += `environ = ?`;
+export const Key = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IEnvironment>(props, { table: `environment` });
+    return key ? key.environment : undefined;
   } else return undefined;
-
-  const [key] = await Select<IEnvironment>(sql, args);
-  return key === undefined ? undefined : key.environment;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Examines environment search methods in props; executes once on supplied keys;        |
+//| Returns environments meeting supplied criteria; returns all if empty props supplied; |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { environment, environ } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.environment`;
-
-  if (environment) {
-    args.push(environment);
-    sql += ` WHERE environment = ?`;
-  } else if (environ) {
-    args.push(environ);
-    sql += ` WHERE environ = ?`;
-  }
-
-  return await Select<IEnvironment>(sql, args);
-}
+export const Fetch = async (props: Partial<IEnvironment>): Promise<Array<Partial<IEnvironment>> | undefined> => {
+  const result = await Select<IEnvironment>(props, { table: `environment` });
+  return result.length ? result : undefined;
+};

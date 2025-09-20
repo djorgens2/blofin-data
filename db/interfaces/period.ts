@@ -4,81 +4,76 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
+import { Select, Insert } from "@db/query.utils";
+import { hashKey } from "@lib/crypto.util";
 
-import { Select, Modify } from "@db/query.utils";
-import { hashKey } from "lib/crypto.util";
-
-const Period: Array<{ timeframe: string; description: string; units: number }> = [
-  { timeframe: "1m", description: "1 Minute", units: 1 },
-  { timeframe: "3m", description: "3 Minutes", units: 3 },
-  { timeframe: "5m", description: "5 Minutes", units: 5 },
-  { timeframe: "15m", description: "15 Minutes", units: 15 },
-  { timeframe: "30m", description: "30 Minutes", units: 30 },
-  { timeframe: "1H", description: "1 Hour", units: 60 },
-  { timeframe: "2H", description: "2 Hours", units: 120 },
-  { timeframe: "4H", description: "4 Hours", units: 240 },
-  { timeframe: "6H", description: "6 Hours", units: 360 },
-  { timeframe: "8H", description: "8 Hours", units: 480 },
-  { timeframe: "12H", description: "12 Hours", units: 720 },
-  { timeframe: "1D", description: "1 Day", units: 1440 },
-  { timeframe: "3D", description: "3 Days", units: 4320 },
-  { timeframe: "1W", description: "1 Week", units: 10080 },
-  { timeframe: "1M", description: "1 Month", units: 0 },
-];
-
-export interface IKeyProps {
-  period?: Uint8Array;
-  timeframe?: string;
-}
-
-export interface IPeriod extends IKeyProps, RowDataPacket {
+export interface IPeriod {
+  period: Uint8Array;
+  timeframe: string;
   description: string;
-  units: number;
+  timeframe_units: number;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Imports period seed data to the database;                                            |
 //+--------------------------------------------------------------------------------------+
-export function Import() {
-  Period.forEach((period) => {
-    const { timeframe, description, units } = period;
-    Publish(timeframe, description, units);
-  });
-}
+export const Import = async () => {
+  console.log("In Period.Import:", new Date().toLocaleString());
 
-//+--------------------------------------------------------------------------------------+
-//| Adds all new contract types recieved from Blofin to the database;                    |
-//+--------------------------------------------------------------------------------------+
-export async function Publish(timeframe: string, description: string, units: number): Promise<IKeyProps["period"]> {
-  const period = await Key({ timeframe });
+  const success: Array<Partial<IPeriod>> = [];
+  const errors: Array<Partial<IPeriod>> = [];
+  const periods: Array<Partial<IPeriod>> = [
+    { timeframe: "1m", description: "1 Minute", timeframe_units: 1 },
+    { timeframe: "3m", description: "3 Minutes", timeframe_units: 3 },
+    { timeframe: "5m", description: "5 Minutes", timeframe_units: 5 },
+    { timeframe: "15m", description: "15 Minutes", timeframe_units: 15 },
+    { timeframe: "30m", description: "30 Minutes", timeframe_units: 30 },
+    { timeframe: "1H", description: "1 Hour", timeframe_units: 60 },
+    { timeframe: "2H", description: "2 Hours", timeframe_units: 120 },
+    { timeframe: "4H", description: "4 Hours", timeframe_units: 240 },
+    { timeframe: "6H", description: "6 Hours", timeframe_units: 360 },
+    { timeframe: "8H", description: "8 Hours", timeframe_units: 480 },
+    { timeframe: "12H", description: "12 Hours", timeframe_units: 720 },
+    { timeframe: "1D", description: "1 Day", timeframe_units: 1440 },
+    { timeframe: "3D", description: "3 Days", timeframe_units: 4320 },
+    { timeframe: "1W", description: "1 Week", timeframe_units: 10080 },
+    { timeframe: "1M", description: "1 Month", timeframe_units: 0 },
+  ];
 
-  if (period === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.period VALUES (?, ?, ?, ?)`, [key, timeframe, description, units]);
-
-    return key;
+  for (const period of periods) {
+    const result = await Add(period);
+    result ? success.push({ period: result }) : errors.push({ timeframe: period.timeframe });
   }
-  return period;
-}
+
+  success.length && console.log("   # Period imports: ", success.length, "verified");
+  errors.length && console.log("   # Period rejects: ", errors.length, { errors });
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Examines contract type search methods in props; executes first in priority sequence; |
+//| Adds periods/timeframes to local database;                                           |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["period"] | undefined> {
-  const { period, timeframe } = props;
-  const args = [];
+export const Add = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | undefined> => {
+  if (props.period === undefined) {
+    Object.assign(props, { period: hashKey(6) });
+    const result = await Insert<IPeriod>(props, { table: `period`, ignore: true });
+    return result ? result.period : undefined;
+  } else return props.period;
+};
 
-  let sql: string = `SELECT period FROM blofin.period WHERE `;
-
-  if (period) {
-    args.push(period);
-    sql += `period = ?`;
-  } else if (timeframe) {
-    args.push(timeframe);
-    sql += `timeframe = ?`;
+//+--------------------------------------------------------------------------------------+
+//| Returns period/timeframe key from local db                                           |
+//+--------------------------------------------------------------------------------------+
+export const Key = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IPeriod>(props, { table: `period` });
+    return key ? key.period : undefined;
   } else return undefined;
+};
 
-  const [key] = await Select<IPeriod>(sql, args);
-  return key === undefined ? undefined : key.period;
-}
+//+--------------------------------------------------------------------------------------+
+//| Fetches periods/timeframes on supplied params; returns all on empty prop set {};     |
+//+--------------------------------------------------------------------------------------+
+export const Fetch = async (props: Partial<IPeriod>): Promise<Array<Partial<IPeriod>> | undefined> => {
+  const result = await Select<IPeriod>(props, { table: `period` });
+  return result.length ? result : undefined;
+};

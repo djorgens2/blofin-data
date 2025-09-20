@@ -1,36 +1,52 @@
 //+---------------------------------------------------------------------------------------+
-//|                                                                              order.ts |
+//|                                                                          reference.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Modify, parseColumns, Select } from "@db/query.utils";
+import { Select, Insert, TOptions } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
-import { TRequest } from "./state";
+import { TRequest } from "@db/interfaces/state";
 
-export interface IKeyProps {
-  table: string | undefined;
-  order_state?: Uint8Array | undefined;
-  request_type?: Uint8Array;
-  cancel_source?: Uint8Array | undefined;
-  order_category?: Uint8Array | undefined;
+export interface IReference {
+  table: string;
+  order_state: Uint8Array;
+  request_type: Uint8Array;
+  cancel_source: Uint8Array;
+  order_category: Uint8Array;
   source_ref: string;
   map_ref: TRequest;
+  [key: string]: unknown;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Imports period seed data to the database;                                            |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
+  console.log("In Reference.Import:", new Date().toLocaleString());
+
+  const counts = {
+    orderState: 0,
+    requestType: 0,
+    cancelSource: 0,
+    priceType: 0,
+    marginMode: 0,
+    stopType: 0,
+    position: 0,
+    orderCategory: 0,
+  };
+
   [
-    { state: 0, source_ref: "live", map_ref: "Pending", status: "Live" },
-    { state: 0, source_ref: "effective", map_ref: "Pending", status: "Effective" },
-    { state: 0, source_ref: "canceled", map_ref: "Closed", status: "Canceled" },
-    { state: 0, source_ref: "order_failed", map_ref: "Rejected", status: "Order Failed" },
-    { state: 0, source_ref: "filled", map_ref: "Fulfilled", status: "Filled" },
-    { state: 0, source_ref: "partially_canceled", map_ref: "Closed", status: "Partially Canceled" },
-    { state: 0, source_ref: "partially_filled", map_ref: "Pending", status: "Partially Filled" },
-  ].forEach((state) => Add("order_state", state));
+    { order_state: 0, source_ref: "live", map_ref: "Pending", status: "Live" },
+    { order_state: 0, source_ref: "effective", map_ref: "Pending", status: "Effective" },
+    { order_state: 0, source_ref: "canceled", map_ref: "Closed", status: "Canceled" },
+    { order_state: 0, source_ref: "order_failed", map_ref: "Rejected", status: "Order Failed" },
+    { order_state: 0, source_ref: "filled", map_ref: "Fulfilled", status: "Filled" },
+    { order_state: 0, source_ref: "partially_canceled", map_ref: "Closed", status: "Partially Canceled" },
+    { order_state: 0, source_ref: "partially_filled", map_ref: "Pending", status: "Partially Filled" },
+  ].forEach((state) => {
+    Add("order_state", state), counts.orderState++;
+  });
   [
     { request_type: 0, source_ref: "market", description: "Market order" },
     { request_type: 0, source_ref: "limit", description: "Limit order" },
@@ -38,16 +54,28 @@ export const Import = async () => {
     { request_type: 0, source_ref: "fok", description: "Fill-or-kill order" },
     { request_type: 0, source_ref: "ioc", description: "Immediate-or-cancel order" },
     { request_type: 0, source_ref: "trigger", description: "Trigger or algo order" },
-  ].forEach((type) => Add("request_type", type));
+  ].forEach((type) => {
+    Add("request_type", type), counts.requestType++;
+  });
   [
     { cancel_source: 0, source_ref: "not_canceled", source: "None" },
     { cancel_source: 0, source_ref: "user_canceled", source: "User" },
     { cancel_source: 0, source_ref: "system_canceled", source: "System" },
-  ].forEach((type) => Add("cancel", type));
-  ["last", "index", "mark"].forEach((price_type) => Add("price_type", { price_type }));
-  ["cross", "isolated"].forEach((margin_mode) => Add("margin_mode", { margin_mode }));
-  ["tp", "sl"].forEach((stop_type) => Add("stop_type", { stop_type }));
-  ["long", "short", "net"].forEach((position) => Add("position", { position }));
+  ].forEach((type) => {
+    Add("cancel_source", type), counts.cancelSource++;
+  });
+  ["last", "index", "mark"].forEach((price_type) => {
+    Add("price_type", { price_type }), counts.priceType++;
+  });
+  ["cross", "isolated"].forEach((margin_mode) => {
+    Add("margin_mode", { margin_mode }), counts.marginMode++;
+  });
+  ["tp", "sl"].forEach((stop_type) => {
+    Add("stop_type", { stop_type }), counts.stopType++;
+  });
+  ["long", "short", "net"].forEach((position) => {
+    Add("position", { position }), counts.position++;
+  });
   [
     { order_category: 0, source_ref: "normal", description: "Normal" },
     { order_category: 0, source_ref: "full_liquidation", description: "Full Liquidation" },
@@ -55,45 +83,48 @@ export const Import = async () => {
     { order_category: 0, source_ref: "adl", description: "Auto-Deleveraging" },
     { order_category: 0, source_ref: "tp", description: "Take Profit" },
     { order_category: 0, source_ref: "sl", description: "Stop Loss" },
-  ].forEach((category) => Add("order_category", category));
+  ].forEach((category) => {
+    Add("order_category", category), counts.orderCategory++;
+  });
+
+  Object.entries(counts).forEach(([Key, value]) =>
+    console.log(
+      `   # ${
+        Key.charAt(0).toUpperCase() +
+        Key.slice(1)
+          .replace(/([a-z])([A-Z])/g, "$1 $2")
+          .split(" ")
+          .join(" ")
+      } imports:  ${value} verified`
+    )
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds seed references for fk's/referential integrity to local database;               |
 //+--------------------------------------------------------------------------------------+
-export async function Add(table: string, data: object) {
-  const [fields, args] = parseColumns(data, "");
-  if (fields) {
-    args[0] === 0 && (args[0] = hashKey(6));
-    const sql = `INSERT IGNORE INTO blofin.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")} )`;
-    await Modify(sql, args);
-    return args[0];
+export async function Add(table: string, props: { [key: string]: any }) {
+  if (Object.keys(props).length) {
+    props[Object.keys(props)[0]] === 0 && (props[Object.keys(props)[0]] = hashKey(6));
+    const result = await Insert<IReference>(props, { table, ignore: true });
+    return result ? result[Object.keys(result)[0]] : undefined;
   }
-  return undefined;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns data;   |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(table: string, props: Partial<IKeyProps>): Promise<Array<Partial<IKeyProps> | undefined>> {
-  const [fields, args] = parseColumns(props);
-  const sql: string = `SELECT * FROM blofin.${table} ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-
-  if (Object.keys(props).length && !fields.length) return [undefined];
-
-  return Select<IKeyProps>(sql, args);
-}
+export const Fetch = async (props: Partial<IReference>, options: TOptions): Promise<Array<Partial<IReference>> | undefined> => {
+  const result = await Select<IReference>(props, options);
+  return result.length ? result : undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T>(table: string, props: Partial<IKeyProps>): Promise<T | undefined> {
-  const [fields, args] = parseColumns(props);
-  const sql: string = `SELECT ${table} FROM blofin.${table} ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-
-  if (Object.keys(props).length && !fields.length) return undefined;
-
-  const [key] = await Select<T>(sql, args);
-  //@ts-ignore
-  return key ? key[table] : undefined;
-}
+export const Key = async (props: Partial<IReference>, options: TOptions) => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IReference>(props, options);
+    return key ? Object.values(key)[0] : undefined;
+  } else return undefined;
+};

@@ -6,7 +6,7 @@
 
 import type { TRequest, IRequestState } from "@db/interfaces/state";
 
-import { Modify, parseColumns, Select } from "@db/query.utils";
+import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
 
 import * as States from "@db/interfaces/state";
@@ -55,7 +55,7 @@ export const Request = async (props: { results: TResponse[]; success: TRequest; 
         update_time: new Date(Date.now()),
       };
 
-      const sql = `UPDATE blofin.request SET state = ?, update_time = now(3) WHERE request = ?`;
+      const sql = `UPDATE ${DB_SCHEMA}.request SET state = ?, update_time = now(3) WHERE request = ?`;
       const args = [response.state, response.request];
 
       if (response.code === "0") {

@@ -4,80 +4,77 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-import type { SubjectArea } from "@db/interfaces/subject";
+import type { ISubjectArea } from "@db/interfaces/subject_area";
 
-import { Modify, Select } from "@db/query.utils";
+import { Select, Insert } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-import * as Subject from "@db/interfaces/subject";
+import * as SubjectArea from "@db/interfaces/subject_area";
 
-export interface IKeyProps {
-  activity?: Uint8Array;
-  task?: string;
+export interface IActivity extends ISubjectArea {
+  activity: Uint8Array;
+  task: string;
 }
-export interface IActivity extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
-//| Imports seed task data to define user access privileges;                             |
+//| Imports activity seed data to the database;                                          |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => {
-  Publish("Users", "User");
-  Publish("Accounts", "Account");
-  Publish("Jobs", "Account");
+export const Import = async () => {
+  console.log("In Activity.Import:", new Date().toLocaleString());
+
+  const success: Array<Partial<IActivity>> = [];
+  const errors: Array<Partial<IActivity>> = [];
+
+  const activities: Array<Partial<IActivity>> = [
+    { title: "Instruments", task: "Manage Instruments" },
+    { title: "Instruments", task: "View/Modify Contracts" },
+    { title: "Instruments", task: "View/Modify Instrument Types" },
+    { title: "Trading", task: "Configure trading options" },
+    { title: "Users", task: "Manage Users" },
+    { title: "Accounts", task: "Account Administration" },
+    { title: "Jobs", task: "Configure jobs" },
+    { title: "Jobs", task: "Monitor jobs" },
+  ];
+
+  for (const activity of activities) {
+    const result = await Add(activity);
+    result ? success.push({ subject_area: result }) : errors.push({ task: activity.title });
+  }
+
+  success.length && console.log("   # Activity imports: ", success.length, "verified");
+  errors.length && console.log("   # Activity rejects: ", errors.length, { errors });
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Adds new Tasks to local database;                                                    |
+//| Add an activity to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(task: string, area: SubjectArea): Promise<IKeyProps["activity"]> {
-  const activity = await Key({ task });
-  if (activity === undefined) {
-    const [{ subject }] = await Subject.Fetch({ area });
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.activity VALUES (?, ?, ?)`, [key, task, subject]);
-    return key;
-  }
-  return activity;
-}
+export const Add = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
+  if (props.activity === undefined) {
+    const subject_area = await SubjectArea.Key({ title: props.title });
+
+    if (subject_area === undefined) throw new Error("Unauthorized data import attempt; Subject Area not found;");
+    else {
+      const activity = hashKey(6);
+      const result = await Insert<IActivity>({ activity, subject_area, task: props.task }, { table: `activity`, ignore: true });
+      return result ? result.activity : undefined;
+    }
+  } else return props.activity;
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//| Returns an activity key using supplied params;                                       |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["activity"] | undefined> {
-  const { activity, task } = props;
-  const args = [];
-
-  let sql: string = `SELECT task FROM blofin.activity WHERE `;
-
-  if (activity) {
-    args.push(activity);
-    sql += `activity = ?`;
-  } else if (task) {
-    args.push(task);
-    sql += `task = ?`;
+export const Key = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IActivity>(props, { table: `activity` });
+    return key ? key.activity : undefined;
   } else return undefined;
-
-  const [key] = await Select<IActivity>(sql, args);
-  return key === undefined ? undefined : key.activity;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches activities/tasks by key/task; returns all when requesting an empty set {};   |
+//| Returns activities meeting supplied criteria; returns all on empty prop set {};      |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { activity, task } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.activity`;
-
-  if (activity) {
-    args.push(activity);
-    sql += ` WHERE activity = ?`;
-  } else if (task) {
-    args.push(task);
-    sql += ` WHERE task = ?`;
-  }
-
-  return Select<IActivity>(sql, args);
-}
+export const Fetch = async (props: Partial<IActivity>): Promise<Array<Partial<IActivity>> | undefined> => {
+  const result = await Select<IActivity>(props, { table: `activity` });
+  return result.length ? result : undefined;
+};

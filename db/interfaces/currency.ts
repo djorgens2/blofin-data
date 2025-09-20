@@ -4,17 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
+import type { ISymbol } from "db/interfaces/state";
 
-import { Select, Modify } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import { Select, Insert, Update } from "db/query.utils";
+import { hashKey } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
 
-export interface IKeyProps {
-  currency?: Uint8Array;
-  symbol?: string;
-}
+import * as States from "db/interfaces/state";
 
-export interface ICurrency extends IKeyProps, RowDataPacket {
+export interface ICurrency {
+  currency: Uint8Array;
+  symbol: string;
+  state: Uint8Array;
+  status: string;
   image_url: string;
   suspense: boolean;
 }
@@ -22,58 +24,83 @@ export interface ICurrency extends IKeyProps, RowDataPacket {
 //+--------------------------------------------------------------------------------------+
 //| Adds all new currencies recieved from Blofin to the database; defaults image         |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(symbol: string, suspense: boolean): Promise<IKeyProps["currency"]> {
-  const currency = await Key({ symbol });
+export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
+  const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
+  const state = await States.Key(props.suspense ? { status: `Suspended` } : { status: "Enabled" });
 
   if (currency === undefined) {
-    const key = hashKey(6);
-    const defaultImage: string = "./public/images/currency/no-image.png";
-
-    await Modify(`INSERT INTO blofin.currency (currency, symbol, image_url, suspense) VALUES (?, ?, ?, ?)`, [key, symbol, defaultImage, suspense]);
-    return key;
+    const result = await Insert<ICurrency>(
+      {
+        currency: hashKey(6),
+        symbol: props.symbol,
+        state,
+        image_url: `./public/images/currency/no-image.png`,
+      },
+      { table: `currency` }
+    );
+    return result ? result.currency : undefined;
   }
-  return currency;
-}
+
+  const [revised] = currency;
+  const result = await Update<ICurrency>(
+    {
+      currency: revised.currency,
+      symbol: revised.symbol,
+      state: isEqual(state!, revised.state!) ? undefined : props.suspense ? state : await States.Key({ status: "Disabled" }),
+      image_url: props.image_url ? (props.image_url === revised.image_url ? undefined : props.image_url) : undefined,
+    },
+    { table: `currency`, keys: [{ key: `currency` }] }
+  );
+  return result ? revised.currency : undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Examines currency search methods in props; executes first in priority sequence;      |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["currency"] | undefined> {
-  const { currency, symbol } = props;
-  const args = [];
-
-  let sql: string = `SELECT currency FROM blofin.currency WHERE `;
-
-  if (currency) {
-    args.push(currency);
-    sql += `currency = ?`;
-  } else if (symbol) {
-    args.push(symbol);
-    sql += `symbol = ?`;
+export const Key = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<ICurrency>(props, { table: `vw_currency` });
+    return key ? key.currency : undefined;
   } else return undefined;
-
-  const [key] = await Select<ICurrency>(sql, args);
-  return key === undefined ? undefined : key.currency;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Suspends provided currency upon receipt of an 'unalive' state from Blofin;           |
+//| Returns contract types meeting supplied criteria; all on prop set {};                |
 //+--------------------------------------------------------------------------------------+
-export async function Suspend(suspensions: Array<IKeyProps>) {
-  for (const props of suspensions) {
-    const { currency, symbol } = props;
-    const args = [];
+export const Fetch = async (props: Partial<ICurrency>): Promise<Array<Partial<ICurrency>> | undefined> => {
+  const result = await Select<ICurrency>(props, { table: `vw_currency` });
+  return result.length ? result : undefined;
+};
 
-    let sql: string = `UPDATE blofin.currency SET suspense = true WHERE `;
+//+--------------------------------------------------------------------------------------+
+//| Suspends currency on receipt of an 'unalive' state from Blofin;                      |
+//+--------------------------------------------------------------------------------------+
+export const Suspend = async (props: Array<Partial<ICurrency>>) => {
+  if (props.length) {
+    console.log("-> Currency:Suspend");
 
-    if (currency) {
-      args.push(currency);
-      sql += `currency = ?`;
-    } else if (symbol) {
-      args.push(symbol);
-      sql += `symbol = ?`;
-    } else return;
+    const state = await States.Key<ISymbol>({ status: "Suspended" });
+    const counts = {
+      success: 0,
+      errors: 0,
+    };
 
-    await Modify(sql, args);
+    for (const suspense of props) {
+      const { currency, symbol } = suspense;
+      const keys = [];
+      const columns = {
+        currency: currency || undefined,
+        symbol: symbol || undefined,
+        state,
+      };
+
+      currency && keys.push({ key: `currency` });
+      symbol && keys.push({ key: `symbol` });
+      
+      const result = await Update(columns, { table: `currency`, keys });
+      result ? counts.success++ : counts.errors++;
+    }
+
+    console.log(`   # Suspensions processed [${props.length}]:  ${counts.success} ok${counts.errors ? `; errors: ${counts.errors}` : ``}`);
   }
-}
+};

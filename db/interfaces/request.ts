@@ -9,7 +9,7 @@ import type { IOrderAPI } from "@api/orders";
 import type { IOrder } from "@db/interfaces/order";
 import type { IRequestState, TRequest } from "@db/interfaces/state";
 
-import { Modify, Select, parseColumns } from "@db/query.utils";
+import { DB_SCHEMA, Modify, Select, parseColumns } from "@db/query.utils";
 import { uniqueKey, hexify } from "@lib/crypto.util";
 import { isEqual, setExpiry } from "@lib/std.util";
 import { Session } from "@module/session";
@@ -118,7 +118,7 @@ const compare = async (compare: Partial<IRequest>): Promise<[Partial<IOrderAPI>,
 //+--------------------------------------------------------------------------------------+
 const publish = async (request: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   const [fields, args] = parseColumns(request, "");
-  const sql = `INSERT INTO blofin.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
+  const sql = `INSERT INTO ${DB_SCHEMA}.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
 
   try {
     await Modify(sql, args);
@@ -153,7 +153,7 @@ const update = async (update: Partial<IRequest>): Promise<Partial<IRequest> | un
     }
 
     const [fields, args] = parseColumns(submit);
-    const sql = `UPDATE blofin.request SET ${fields.join(", ")}, update_time = now(3) WHERE request = ? AND account = ?`;
+    const sql = `UPDATE ${DB_SCHEMA}.request SET ${fields.join(", ")}, update_time = now(3) WHERE request = ? AND account = ?`;
     args.push(request, account);
 
     try {
@@ -176,7 +176,7 @@ const update = async (update: Partial<IRequest>): Promise<Partial<IRequest> | un
 //| Reconciles changes triggered via diffs between local db and broker;                  |
 //+--------------------------------------------------------------------------------------+
 export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
-  const audit = await Select<IOrder>(`SELECT * FROM blofin.vw_orders WHERE account = ? AND state != request_state`, [Session().account]);
+  const audit = await Select<IOrder>(`SELECT * FROM ${DB_SCHEMA}.vw_orders WHERE account = ? AND state != request_state`, [Session().account]);
 
   if (audit.length) {
     console.log(`In Request.Audit [${audit.length}]`);
@@ -191,7 +191,7 @@ export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
 //+--------------------------------------------------------------------------------------+
 export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<IRequestAPI>>> => {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_api_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_api_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   return Select<IRequestAPI>(sql, args);
 };
@@ -202,7 +202,7 @@ export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<
 export const Fetch = async (props: Partial<IRequest>): Promise<Array<Partial<IRequest>>> => {
   Object.assign(props, { account: props.account || Session().account });
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   return Select<IRequest>(sql, args);
 };
@@ -213,7 +213,7 @@ export const Fetch = async (props: Partial<IRequest>): Promise<Array<Partial<IRe
 export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT request FROM blofin.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT request FROM ${DB_SCHEMA}.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
 
   try {
     const key = await Select<IRequest>(sql, args);

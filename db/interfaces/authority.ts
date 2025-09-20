@@ -4,77 +4,60 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-
-import { Modify, Select } from "@db/query.utils";
+import { Select, Insert } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-export interface IKeyProps {
-  authority?: Uint8Array;
-  privilege?: string;
-  priority?: number;
+export interface IAuthority {
+  authority: Uint8Array;
+  privilege: string;
+  priority: number;
 }
-export interface IAuthority extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
-//| Imports seed Privilege data to define user access privileges;                             |
+//| Imports authority seed data to the database;                                         |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => {
-  const Privileges: Array<string> = ["View", "Edit", "Create", "Delete", "Operate", "Configure"];
-  Privileges.forEach((privilege, priority) => Publish({ privilege, priority }));
+export const Import = async () => {
+ console.log("In Authority.Import:", new Date().toLocaleString());
+
+  const success: Array<Partial<IAuthority>> = [];
+  const errors: Array<Partial<IAuthority>> = [];
+
+  const privileges: Array<string> = ["View", "Edit", "Create", "Delete", "Operate", "Configure"];
+
+  for (const [priority, privilege] of privileges.entries()) {
+      const result = await Add({privilege, priority});
+      result ? success.push({authority: result}) : errors.push({privilege});
+    };
+  
+    success.length && console.log("   # Authority imports: ", success.length, "verified");
+    errors.length && console.log("   # Authority rejects: ", errors.length, { errors });
+  };
+
+//+--------------------------------------------------------------------------------------+
+//| Add an authority to local database;                                                  |
+//+--------------------------------------------------------------------------------------+
+export const Add = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined>  => {
+  if (props.authority === undefined) {
+    Object.assign(props, { authority: hashKey(6) });
+    const result = await Insert<IAuthority>(props, { table: `authority`, ignore: true });
+    return result ? result.authority : undefined;
+  } else return props.authority;
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Adds new Privileges to local database;                                                    |
+//| Returns an authority key using supplied params;                                      |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: IKeyProps): Promise<IKeyProps["authority"]> {
-  const { privilege, priority } = props;
-  const authority = await Key({ privilege });
-  if (authority === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.authority VALUES (?, ?, ?)`, [key, privilege, priority]);
-    return key;
-  }
-  return authority;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["authority"] | undefined> {
-  const { authority, privilege } = props;
-  const args = [];
-
-  let sql: string = `SELECT privilege FROM blofin.authority WHERE `;
-
-  if (authority) {
-    args.push(authority);
-    sql += `authority = ?`;
-  } else if (privilege) {
-    args.push(privilege);
-    sql += `privilege = ?`;
+export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IAuthority>(props, { table: `authority` });
+    return key ? key.authority : undefined;
   } else return undefined;
-
-  const [key] = await Select<IAuthority>(sql, args);
-  return key === undefined ? undefined : key.authority;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches privileges by auth/priv or returns all when requesting an empty set {};      |
+//| Returns authorities meeting supplied criteria; returns all on empty prop set {};     |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { authority, privilege } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.authority`;
-
-  if (authority) {
-    args.push(authority);
-    sql += ` WHERE authority = ?`;
-  } else if (privilege) {
-    args.push(privilege);
-    sql += ` WHERE privilege = ?`;
-  }
-
-  return Select<IAuthority>(sql, args);
-}
+export const Fetch = async (props: Partial<IAuthority>): Promise<Array<Partial<IAuthority>> | undefined> => {
+  const result = await Select<IAuthority>(props, {table: `authority` });
+  return result.length ? result : undefined;
+};

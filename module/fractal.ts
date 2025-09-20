@@ -143,7 +143,7 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
   const Bar: Partial<IBar> = {};
   const SMA: Partial<IBar> = {};
   const Fractal: Partial<IFractal> = {};
-  const props: Candle.IKeyProps = {
+  const props: Partial<Candle.ICandle> = {
     instrument: instrument.instrument!,
     symbol: instrument.symbol!,
     period: instrument.trade_period!,

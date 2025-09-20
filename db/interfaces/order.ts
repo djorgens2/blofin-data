@@ -6,7 +6,7 @@
 
 import type { IRequest } from "@db/interfaces/request";
 
-import { Modify, parseColumns, Select } from "@db/query.utils";
+import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
 
 export interface IOrder extends IRequest {
   orderId: string;
@@ -70,7 +70,7 @@ const formatOrder = (unformatted: Partial<IOrder>): Partial<IOrder> => {
 export const Update = async (order: Partial<IOrder>) => {
   const { request, ...updates } = formatOrder(order);
   const [fields, args] = parseColumns(updates);
-  const sql = `UPDATE blofin.orders SET ${fields.join(", ")} WHERE request = ?`;
+  const sql = `UPDATE ${DB_SCHEMA}.orders SET ${fields.join(", ")} WHERE request = ?`;
 
   args.push(request);
 
@@ -83,7 +83,7 @@ export const Update = async (order: Partial<IOrder>) => {
 export const Publish = async (order: Partial<IOrder>) => {
   const request = formatOrder(order);
   const [fields, args] = parseColumns(request, "");
-  const sql = `INSERT INTO blofin.orders (${fields.join(", ")}) VALUES (${Array(args.length).fill("?").join(", ")})`;
+  const sql = `INSERT INTO ${DB_SCHEMA}.orders (${fields.join(", ")}) VALUES (${Array(args.length).fill("?").join(", ")})`;
 
   try {
     await Modify(sql, args);
@@ -98,7 +98,7 @@ export const Publish = async (order: Partial<IOrder>) => {
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IOrder>): Promise<Array<Partial<IOrder>>> {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IRequest>(sql, args);
 }
 
@@ -108,7 +108,7 @@ export async function Fetch(props: Partial<IOrder>): Promise<Array<Partial<IOrde
 export async function Key(props: Partial<IOrder>): Promise<IOrder["request"] | undefined> {
   const { order_id, client_order_id } = props;
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT request FROM blofin.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT request FROM ${DB_SCHEMA}.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
   const keys = await Select<IOrder>(sql, args);
 
   if (keys.length === 1) {
