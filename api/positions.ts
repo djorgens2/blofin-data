@@ -11,7 +11,7 @@ import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
 import { format } from "@lib/std.util";
-import { Select } from "@db/query.utils";
+import { DB_SCHEMA, Select } from "@db/query.utils";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as Positions from "@db/interfaces/positions";
@@ -112,7 +112,7 @@ export const Active = async () => {
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const history = await Select<IInstrumentPosition>(`SELECT * FROM blofin.vw_instrument_positions where status = "Open"`, []);
+  const history = await Select<IInstrumentPosition>(`SELECT * FROM ${DB_SCHEMA}.vw_instrument_positions where status = "Open"`, []);
   const active: Array<IPositionsAPI> = await Active();
   const updates = await Publish(active);
 

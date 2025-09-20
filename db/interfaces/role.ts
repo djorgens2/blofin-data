@@ -4,83 +4,65 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
+import { Select, Insert } from "@db/query.utils";
+import { hashKey } from "@lib/crypto.util";
 
-import { Modify, Select } from "@db/query.utils";
-import { hashKey } from "lib/crypto.util";
-
-export interface IKeyProps {
-  role?: Uint8Array;
-  title?: string;
-  auth_rank?: number;
+export interface IRole {
+  role: Uint8Array;
+  title: string;
+  auth_rank: number;
 }
-export interface IRole extends IKeyProps, RowDataPacket {}
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed Role data to define user access privileges;                             |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => {
-  const Roles: Array<Partial<IKeyProps>> = [
-    { title: "Admin", auth_rank: 40, },
+export const Import = async () => {
+  console.log("In Role.Import:", new Date().toLocaleString());
+
+  const success: Array<Partial<IRole>> = [];
+  const errors: Array<Partial<IRole>> = [];
+
+  const roles: Array<Partial<IRole>> = [
+    { title: "Admin", auth_rank: 40 },
     { title: "Editor", auth_rank: 20 },
     { title: "Operator", auth_rank: 30 },
     { title: "Viewer", auth_rank: 10 },
   ];
 
-  Roles.forEach((role) => Publish(role));
+  for (const role of roles) {
+    const result = await Add(role);
+    result ? success.push({ role: result }) : errors.push({ title: role.title });
+  }
+
+  success.length && console.log("   # Role imports: ", success.length, "verified");
+  errors.length && console.log("   # Role rejects: ", errors.length, { errors });
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Adds new Roles to local database;                                                    |
+//| Adds roles to local database;                                                        |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IKeyProps>): Promise<IKeyProps["role"]> {
-  const { role, title, auth_rank } = props;
-  role === undefined && title && (await Key({ title }));
-  if (role === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT IGNORE INTO blofin.role VALUES (?, ?, ?)`, [key, title, auth_rank]);
-    return key;
-  }
-  return role;
-}
+export const Add = async (props: Partial<IRole>) => {
+  if (props.role === undefined) {
+    Object.assign(props, { role: hashKey(6) });
+    const result = await Insert<IRole>(props, { table: `role`, ignore: true });
+    return result ? result.role : undefined;
+  } else return props.role;
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//| Returns roles key based on supplied seek params;                                     |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["role"] | undefined> {
-  const { role, title } = props;
-  const args = [];
-
-  let sql: string = `SELECT role FROM blofin.role WHERE `;
-
-  if (role) {
-    args.push(role);
-    sql += `role = ?`;
-  } else if (title) {
-    args.push(title);
-    sql += `title = ?`;
+export const Key = async (props: Partial<IRole>): Promise<IRole["role"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IRole>(props, { table: `role` });
+    return key ? key.role : undefined;
   } else return undefined;
-
-  const [key] = await Select<IRole>(sql, args);
-  return key === undefined ? undefined : key.role;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//| Fetches roles by matching supplied props; returns all if no props supplied;          |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: IKeyProps): Promise<Array<IKeyProps>> {
-  const { role, title } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.role`;
-
-  if (role) {
-    args.push(role);
-    sql += ` WHERE role = ?`;
-  } else if (title) {
-    args.push(title);
-    sql += ` WHERE title = ?`;
-  }
-
-  return Select<IRole>(sql, args);
-}
+export const Fetch = async (props: IRole): Promise<Array<Partial<IRole>> | undefined> => {
+  const result = await Select<IRole>(props, { table: `role` });
+  return result.length ? result : undefined;
+};

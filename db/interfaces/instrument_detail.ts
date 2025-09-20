@@ -4,154 +4,56 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-import type { IInstrumentAPI } from "@api/instruments";
+import type { IInstrument } from "@db/interfaces/instrument";
 
-import { Modify, Select } from "@db/query.utils";
+import { Insert, Update } from "@db/query.utils";
+import { isEqual } from "@lib/std.util";
 
-import * as Instrument from "@db/interfaces/instrument";
-import * as ContractType from "@db/interfaces/contract_type";
-import * as InstrumentType from "@db/interfaces/instrument_type";
-
-export interface IKeyProps {
-  instrument?: Uint8Array;
-}
-
-export interface IInstrumentDetail extends IKeyProps, RowDataPacket {
-  instrument_type: Uint8Array;
-  contract_type: Uint8Array;
-  contract_value: number;
-  max_leverage: number;
-  min_size: number;
-  lot_size: number;
-  tick_size: number;
-  max_limit_size: number;
-  max_market_size: number;
-  list_time: number;
-  expiry_time: number;
-}
+import * as Instruments from "@db/interfaces/instrument";
+import * as InstrumentTypes from "@db/interfaces/instrument_type";
+import * as ContractTypes from "@db/interfaces/contract_type";
 
 //+--------------------------------------------------------------------------------------+
 //| Inserts Instrument Details on receipt of a new Instrument from Blofin; returns key;  |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(
-  instrument: Uint8Array,
-  instrument_type: Uint8Array,
-  contract_type: Uint8Array,
-  api: IInstrumentAPI
-): Promise<IKeyProps["instrument"] | undefined> {
-  const key = await Instrument.Key({ instrument });
-  const confirm = await Key({ instrument });
+export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
+  if (props.instrument === undefined) throw new Error(`Unauthorized instrument publication; missing instrument`);
+  else {
+    const instrument_detail = await Instruments.Fetch({ instrument: props.instrument });
 
-  if (key === undefined) return key;
-  if (confirm === undefined) {
-    const contractValue = parseFloat(api.contractValue);
-    const maxLeverage = parseInt(api.maxLeverage);
-    const minSize = parseFloat(api.minSize);
-    const lotSize = parseFloat(api.lotSize);
-    const tickSize = parseFloat(api.tickSize);
-    const maxLimitSize = parseFloat(api.maxLimitSize);
-    const maxMarketSize = parseFloat(api.maxMarketSize);
-    const listTime = new Date(parseInt(api.listTime));
-    const expireTime = new Date(parseInt(api.expireTime));
+    if (instrument_detail === undefined) throw new Error(`Unathorized instrument publication; instrument not found`);
+    else {
+      const [current] = instrument_detail;
+      const instrument_type =
+        typeof props.instrument_type === "string" && props.instrument_type !== current.instrument_type
+          ? await InstrumentTypes.Publish({ source_ref: props.instrument_type })
+          : undefined;
+      const contract_type =
+        typeof props.contract_type === "string" && props.contract_type !== current.contract_type
+          ? await ContractTypes.Publish({ source_ref: props.contract_type })
+          : undefined;
 
-    await Modify(
-      `INSERT INTO blofin.instrument_detail 
-          SET instrument = ?,
-              instrument_type = ?,
-              contract_type = ?,
-              contract_value = ?,
-              max_leverage = ?,
-              min_size = ?,
-              lot_size = ?,
-              tick_size = ?,
-              max_limit_size = ?,
-              max_market_size = ?,
-              list_time = ?,
-              expiry_time = ?`,
-      [
-        instrument,
-        instrument_type,
-        contract_type,
-        contractValue,
-        maxLeverage,
-        minSize,
-        lotSize,
-        tickSize,
-        maxLimitSize,
-        maxMarketSize,
-        listTime,
-        expireTime,
-      ]
-    );
-  }
-  return key;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Performs a lookup on instrument_detail; returns key if instrument detail exists      |
-//+--------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["instrument"] | undefined> {
-  const args = [];
-
-  let sql: string = `SELECT instrument FROM blofin.instrument_detail WHERE instrument = ?`;
-
-  if (props.instrument) {
-    args.push(props.instrument);
-  } else return undefined;
-
-  const [key] = await Select<IInstrumentDetail>(sql, args);
-  return key === undefined ? undefined : key.instrument;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Updates instrument detail on all identified changes                                  |
-//+--------------------------------------------------------------------------------------+
-export async function Update(updates: Array<IInstrumentAPI & IKeyProps>) {
-  for (const update of updates) {
-    const instrument = update.instrument;
-    const contract_type = await ContractType.Key({ source_ref: update.contractType });
-    const instrument_type = await InstrumentType.Key({ source_ref: update.instType });
-    const contractValue = parseFloat(update.contractValue);
-    const maxLeverage = parseInt(update.maxLeverage);
-    const minSize = parseFloat(update.minSize);
-    const lotSize = parseFloat(update.lotSize);
-    const tickSize = parseFloat(update.tickSize);
-    const maxLimitSize = parseFloat(update.maxLimitSize);
-    const maxMarketSize = parseFloat(update.maxMarketSize);
-    const listTime = new Date(parseInt(update.listTime));
-    const expireTime = new Date(parseInt(update.expireTime));
-
-    if (update.instrument) {
-      await Modify(
-        `UPDATE blofin.instrument_detail 
-            SET instrument_type = ?,
-                contract_type = ?,
-                contract_value = ?,
-                max_leverage = ?,
-                min_size = ?,
-                lot_size = ?,
-                tick_size = ?,
-                max_limit_size = ?,
-                max_market_size = ?,
-                list_time = ?,
-                expiry_time = ?
-          WHERE instrument = ?`,
-        [
+      if (current.list_time) {
+        const revised: Partial<IInstrument> = {
+          instrument: current.instrument,
           instrument_type,
           contract_type,
-          contractValue,
-          maxLeverage,
-          minSize,
-          lotSize,
-          tickSize,
-          maxLimitSize,
-          maxMarketSize,
-          listTime,
-          expireTime,
-          instrument,
-        ]
-      );
+          contract_value: props.contract_value && isEqual(props.contract_value, current.contract_value!) ? undefined : props.contract_value,
+          max_leverage: props.max_leverage && isEqual(props.max_leverage, current.max_leverage!) ? undefined : props.max_leverage,
+          min_size: props.min_size && isEqual(props.min_size, current.min_size!) ? undefined : props.min_size,
+          lot_size: props.lot_size && isEqual(props.lot_size, current.lot_size!) ? undefined : props.lot_size,
+          tick_size: props.tick_size && isEqual(props.tick_size, current.tick_size!) ? undefined : props.tick_size,
+          max_limit_size: props.max_limit_size && isEqual(props.max_limit_size, current.max_limit_size!) ? undefined : props.max_limit_size,
+          max_market_size: props.max_market_size && isEqual(props.max_market_size, current.max_market_size!) ? undefined : props.max_market_size,
+          list_time: props.list_time && isEqual(props.list_time, current.list_time) ? undefined : props.list_time,
+          expiry_time: props.expiry_time && isEqual(props.expiry_time, current.expiry_time!) ? undefined : props.expiry_time,
+        };
+        const result = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
+        return result ? current.instrument : undefined;
+      } else {
+        const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail` });
+        return result ? props.instrument : undefined;
+      }
     }
   }
-}
+};

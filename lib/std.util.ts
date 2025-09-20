@@ -6,6 +6,11 @@
 
 import Prompt from "@cli/modules/Prompts";
 
+export const formatterUSD = Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD'
+});
+
 //+--------------------------------------------------------------------------------------+
 //| Pauses console app execution;                                                        |
 //+--------------------------------------------------------------------------------------+
@@ -93,14 +98,27 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 //+--------------------------------------------------------------------------------------+
 //| Returns true on equal comparison of number/binary at specified precision             |
 //+--------------------------------------------------------------------------------------+
-export const isEqual = (source: number | string | Uint8Array, benchmark: number | string | Uint8Array, digits: number = 8): boolean => {
+export const isEqual = (source: number | string | Uint8Array | Date, benchmark: number | string | Uint8Array | Date, digits: number = 8): boolean => {
   if (source instanceof Uint8Array)
-    if (benchmark instanceof Uint8Array)
-      return  source.every((value, index) => value === benchmark[index]);
+    if (benchmark instanceof Uint8Array) return source.every((value, index) => value === benchmark[index]);
     else return false;
 
-  const arg1: string = typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits);
-  const arg2: string = typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : typeof benchmark === "number" ?  benchmark.toFixed(digits) : ``;
+  const arg1: string =
+    typeof source === "string"
+      ? parseFloat(source).toFixed(digits)
+      : source instanceof Date
+      ? source.getTime().toString()
+      : typeof source === "number"
+      ? source.toFixed(digits)
+      : ``;
+  const arg2: string =
+    typeof benchmark === "string"
+      ? parseFloat(benchmark).toFixed(digits)
+      : benchmark instanceof Date
+      ? benchmark.getTime().toString()
+      : typeof benchmark === "number"
+      ? benchmark.toFixed(digits)
+      : ``;
 
   return arg1 === arg2;
 };
@@ -132,6 +150,29 @@ export const format = (value: number | string, digits: number = 14): number => {
   const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : typeof value === "number" ? value.toFixed(digits) : value;
 
   return isNaN(parseFloat(formatted)) ? 0 : Number(formatted);
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns the max length of each object key from array; default maximums in keylens;   |
+//+--------------------------------------------------------------------------------------+
+export const getLengths = async <T>(keylens: Record<string, number>, record: Array<Partial<T>>) => {
+  if (record === undefined) return keylens;
+
+  return record.reduce((maxLengthObj: Record<string, number>, currentObj) => {
+    Object.keys(currentObj).forEach((key) => {
+      const currentValue = currentObj[key as keyof T];
+
+      if (typeof currentValue === 'string') {
+        const currentLength = currentValue.length;
+        const existingLength = maxLengthObj[key] || 0;
+
+        if (currentLength > existingLength) {
+          maxLengthObj[key] = currentLength;
+        }
+      }
+    });
+    return maxLengthObj;
+  }, { ...keylens } as Record<string, number>);
 };
 
 //+--------------------------------------------------------------------------------------+

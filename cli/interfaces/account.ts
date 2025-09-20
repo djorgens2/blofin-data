@@ -2,13 +2,14 @@
 //|                                                                           account.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
-import Prompt, { IOption } from "@cli/modules/Prompts";
+import type { ISession } from "@module/session";
+import type { IAccount } from "@db/interfaces/account";
+import type { TAccess } from "@db/interfaces/state";
 
-import { green, red, yellow, cyan, bold, dim } from "console-log-colors";
-import { Pause } from "@lib/std.util";
+import { green, red, yellow, cyan, gray, bold, dim } from "console-log-colors";
+import { formatterUSD, getLengths, Pause } from "@lib/std.util";
 
 import { setHeader } from "@cli/modules/Header";
 import { setState } from "@cli/modules/State";
@@ -17,7 +18,8 @@ import { setUser } from "@cli/interfaces/user";
 import { setEnviron } from "@cli/modules/Environ";
 
 import * as Accounts from "@db/interfaces/account";
-import { TSession } from "@module/session";
+
+import Prompt from "@cli/modules/Prompts";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves accounts from local server; if new, prompts to create;                     |
@@ -33,11 +35,15 @@ export const setAccount = async (props: any) => {
     message: "  Public REST API URL:",
     initial: props?.rest_api_url ? props?.rest_api_url : ``,
   });
-  const wss_url = await Prompt(["text"], { name: "wss_url", message: "  Websocket URL:", initial: props?.wss_url ? props?.wss_url : `` });
-  const wss_public_url = await Prompt(["text"], {
-    name: "wss_public_url",
+  const private_wss_url = await Prompt(["text"], {
+    name: "private_wss_url",
+    message: "  Private WSS URL:",
+    initial: props?.private_wss_url ? props?.private_wss_url : ``,
+  });
+  const public_wss_url = await Prompt(["text"], {
+    name: "public_wss_url",
     message: "  Public URL:",
-    initial: props?.wss_public_url ? props?.wss_public_url : ``,
+    initial: props?.public_wss_url ? props?.public_wss_url : ``,
   });
   const api = props?.api === undefined ? await Prompt(["text"], { name: "api", message: "  API Key:" }) : { api: props.api };
   const secret = props?.secret === undefined ? await Prompt(["text"], { name: "secret", message: "  Secret Key:" }) : { secret: props.secret };
@@ -53,15 +59,31 @@ export const setAccount = async (props: any) => {
   });
 
   if (choice) {
-    await Accounts.Add({
+    console.error({
       ...alias,
       ...owner,
       ...broker,
       ...state,
       ...environ,
       ...rest_api_url,
-      ...wss_url,
-      ...wss_public_url,
+      ...private_wss_url,
+      ...public_wss_url,
+      ...api,
+      ...secret,
+      ...phrase,
+    });
+
+    await Accounts.Add({
+      ...alias,
+      ...owner,
+      ...broker,
+      state: state?.state,
+      status: state?.status as TAccess,
+      ...environ,
+      ...rest_api_url,
+      ...private_wss_url,
+      ...public_wss_url,
+    },{
       ...api,
       ...secret,
       ...phrase,
@@ -74,30 +96,52 @@ export const setAccount = async (props: any) => {
 //+--------------------------------------------------------------------------------------+
 export const menuViewAccount = async () => {
   setHeader("View Accounts");
+
+  const colBuffer = 3;
+  const accounts = await Accounts.Fetch({});
+  const keylen = await getLengths<IAccount>(
+    {
+      alias: 16,
+      owner_name: 20,
+      environ: 16,
+      status: 12,
+      symbol: 8,
+      balance: 12,
+      available: 12,
+    },
+    accounts!
+  );
+
   console.log(
     `\n✔️ `,
-    `${bold("Job Name".padEnd(16, " "))}`,
-    `${bold("Account Holder".padEnd(20, " "))}`,
-    `${bold("Environment".padEnd(16, " "))}`,
-    `${bold("Status".padEnd(12, " "))}`,
-    `${bold("Web Socket Address".padEnd(52, " "))}`,
-    `${bold("REST API Address".padEnd(52, " "))}`,
-    `${bold("Available".padEnd(12, " "))}`
+    `${bold("Account".padEnd(keylen.alias+colBuffer, " "))}`,
+    `${bold("Account Holder".padEnd(keylen.owner_name+colBuffer, " "))}`,
+    `${bold("Environment".padEnd(keylen.environ+colBuffer, " "))}`,
+    `${bold("Status".padEnd(keylen.status+colBuffer, " "))}`,
+    `${bold("Currency".padEnd(keylen.symbol+colBuffer, " "))}`,
+    `${bold("Balance".padStart(keylen.balance+colBuffer, " "))}`,
+    `${bold("Available".padStart(keylen.available+colBuffer, " "))}`
   );
-  (await Accounts.Fetch({})).forEach((account) => {
-    const { alias, owner_name, environ, status, wss_url, rest_api_url } = account;
-    const available = "No";
-    console.log(
-      `${status! === "Enabled" ? "🔹" : "🔸"} `,
-      `${alias!.padEnd(16, " ")}`,
-      `${owner_name.padEnd(20, " ")}`,
-      `${environ!.padEnd(16, " ")}`,
-      `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
-      `${wss_url!.padEnd(52, " ")}`,
-      `${rest_api_url!.padEnd(52, " ")}`,
-      `   ${available.padEnd(12, " ")}`
-    );
-  });
+
+  if (accounts)
+    for (const account of accounts) {
+      const { alias, owner_name, environ, status, symbol, balance, available } = account;
+      console.log(
+        `${status! === "Enabled" ? "🔹" : "🔸"} `,
+        `${gray(alias!.padEnd(keylen.alias+colBuffer, " "))}`,
+        `${gray(owner_name!.padEnd(keylen.owner_name+colBuffer, " "))}`,
+        `${gray(environ!.padEnd(keylen.environ+colBuffer, " "))}`,
+        `${status === "Enabled"
+            ? cyan(status!.padEnd(keylen.status+colBuffer, " "))
+            : status === "Disabled"
+            ? red(status!.padEnd(keylen.status+colBuffer, " "))
+            : yellow(status!.padEnd(keylen.status+colBuffer, " "))
+        }`,
+        `${gray((symbol ? symbol : "Pending").padEnd(keylen.symbol+colBuffer, " ") )}`,
+        `${gray(formatterUSD.format(balance || 0).padStart(keylen.balance+colBuffer, " "))}`,
+        `${gray(formatterUSD.format(available || 0).padStart(keylen.available+colBuffer, " "))}`
+      );
+    }
   console.log(``);
   const { choice } = await Prompt(["choice"], { message: "  ", active: "Refresh", inactive: "Finished", initial: false });
 };
@@ -105,23 +149,25 @@ export const menuViewAccount = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Presents the Imports view;                                                           |
 //+--------------------------------------------------------------------------------------+
-const setImports = async (imports: Array<Partial<TSession>>) => {
-  for (let id = 0; id < imports.length; id++) {
-    const { alias, api, secret, phrase, wss_url, rest_api_url, wss_public_url } = imports[id];
+const setImports = async (imports: Array<Partial<ISession>>) => {
+  let id = 1;
 
-    console.log(`\n >>> ${green("Imports")}: ${bold(id + 1)} of ${bold(imports.length)}\n`);
+  for (const key of imports) {
+    const { alias, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = key;
 
-    alias && console.log(`            ${yellow("Alias")}: ${dim(alias)}`);
-    api && console.log(`         ${yellow("API Key")}: ${dim(api)}`);
-    secret && console.log(`     ${yellow("Private Key")}: ${dim(secret)}`);
-    phrase && console.log(`          ${yellow("Phrase")}: ${dim(phrase)}`);
-    rest_api_url && console.log(`         ${yellow("API URL")}: ${dim(rest_api_url)}`);
-    wss_url && console.log(`      ${yellow("Socket URL")}: ${dim(wss_url)}`);
-    wss_public_url && console.log(`      ${yellow("Public URL")}: ${dim(wss_public_url)}`);
+    console.log(`\n >>> ${green("Imports")}: ${bold(id++)} of ${bold(imports.length)}\n`);
+
+    alias && console.log(`      ${yellow("Alias")}: ${dim(alias)}`);
+    api && console.log(`      ${yellow("API Key")}: ${dim(api)}`);
+    secret && console.log(`      ${yellow("Private Key")}: ${dim(secret)}`);
+    phrase && console.log(`      ${yellow("Phrase")}: ${dim(phrase)}`);
+    rest_api_url && console.log(`      ${yellow("Public REST API URL")}: ${dim(rest_api_url)}`);
+    private_wss_url && console.log(`      ${yellow("Priate Websocket (WSS) URL")}: ${dim(private_wss_url)}`);
+    public_wss_url && console.log(`      ${yellow("Public Websocket (WSS) URL")}: ${dim(public_wss_url)}`);
 
     console.log(" ");
 
-    await setAccount(imports[id]);
+    await setAccount(key);
   }
 };
 

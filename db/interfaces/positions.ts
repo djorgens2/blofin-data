@@ -6,7 +6,7 @@
 
 import type { TPosition } from "@db/interfaces/state";
 
-import { Modify, parseColumns, Select } from "@db/query.utils";
+import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
 
 import * as States from "@db/interfaces/state";
@@ -49,7 +49,7 @@ export async function Publish(props: Partial<IPositions>): Promise<IPositions["p
   const [fields, args] = parseColumns({ ...publish }, "");
   const key = hexify(positions!, 8);
   const sql =
-    `INSERT INTO blofin.positions (${fields.join(", ")}, positions) VALUES (${Array(args.length).fill("?").join(", ")}, ?) ` +
+    `INSERT INTO ${DB_SCHEMA}.positions (${fields.join(", ")}, positions) VALUES (${Array(args.length).fill("?").join(", ")}, ?) ` +
     `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")}= ?`;
 
   try {
@@ -65,7 +65,7 @@ export async function Publish(props: Partial<IPositions>): Promise<IPositions["p
 //| Sets the state of the position; closes all inactive (closed, missing) positions;     |
 //+--------------------------------------------------------------------------------------+
 export async function Update(props: Array<Partial<IPositions>>) {
-  const fulfilled = await Select<IPositions>(`SELECT * FROM blofin.vw_positions WHERE status = "Fulfilled"`, []);
+  const fulfilled = await Select<IPositions>({status: "Fulfilled"}, {table: `vw_positions`});
   const closed = await States.Key({ status: "Closed" });
 
   for (const update of fulfilled) {
@@ -73,11 +73,11 @@ export async function Update(props: Array<Partial<IPositions>>) {
 
     try {
       if (!active) {
-        await Modify(`UPDATE blofin.positions set state = ? WHERE positions = ?`, [closed, update.positions]);
+        await Modify(`UPDATE ${DB_SCHEMA}.positions set state = ? WHERE positions = ?`, [closed, update.positions]);
       }
     } catch (e) {
       console.log({
-        sql: `UPDATE blofin.positions set state = ? WHERE positions = ?`,
+        sql: `UPDATE ${DB_SCHEMA}.positions set state = ? WHERE positions = ?`,
         fields: ["state", "positions"],
         args: [closed, update.positions],
       });
@@ -91,6 +91,6 @@ export async function Update(props: Array<Partial<IPositions>>) {
 //+--------------------------------------------------------------------------------------+
 export async function Fetch(props: Partial<IPositions>): Promise<Array<Partial<IPositions>>> {
   const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM blofin.vw_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
+  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
   return Select<IPositions>(sql, args);
 }

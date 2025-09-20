@@ -4,53 +4,63 @@
 //+----------------------------------------------------------------------------------------+
 "use strict";
 
-import type { RowDataPacket } from "mysql2";
-
-import { Select, Modify } from "@db/query.utils";
+import { Select, Insert } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
-export interface IKeyProps {
-  instrument_type?: Uint8Array;
-  source_ref?: string;
-}
-
-export interface IInstrumentType extends IKeyProps, RowDataPacket {
+export interface IInstrumentType {
+  instrument_type: Uint8Array;
+  source_ref: string;
   description: string;
 }
+
+//+--------------------------------------------------------------------------------------+
+//| Imports known instrument types seed data to the database;                            |
+//+--------------------------------------------------------------------------------------+
+export const Import = async () => {
+  console.log("In Instrument.Type.Import:", new Date().toLocaleString());
+
+  const success: Array<Partial<IInstrumentType>> = [];
+  const errors: Array<Partial<IInstrumentType>> = [];
+  const types: Array<string> = ["SWAP"];
+
+  for (const type of types) {
+    const result = await Publish({ source_ref: type, description: "Description pending;" });
+    result ? success.push({ instrument_type: result }) : errors.push({ source_ref: type });
+  }
+
+  success.length && console.log("   # Instrument Type imports: ", success.length, "verified");
+  errors.length && console.log("   # Instrument Type rejects: ", errors.length, { errors });
+};
 
 //+----------------------------------------------------------------------------------------+
 //| Adds all new instrument types recieved from Blofin to the database;                    |
 //+----------------------------------------------------------------------------------------+
-export async function Publish(source_ref: string): Promise<IKeyProps["instrument_type"]> {
-  const instrument_type = await Key({ source_ref });
+export const Publish = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
+  if (props.instrument_type === undefined) {
+    const instrument_type = await Key({ source_ref: props.source_ref });
 
-  if (instrument_type === undefined) {
-    const key = hashKey(6);
-
-    await Modify(`INSERT INTO blofin.instrument_type VALUES (?, ?, 'Description Pending')`, [key, source_ref]);
-
-    return key;
+    if (instrument_type === undefined) {
+      Object.assign(props, { instrument_type: hashKey(6) });
+      const result = await Insert<IInstrumentType>(props, { table: `instrument_type` });
+      return result ? result.instrument_type : undefined;
+    } else return instrument_type;
   }
-  return instrument_type;
-}
+};
 
-//+----------------------------------------------------------------------------------------+
-//| Examines instrument type search methods in props; executes first in priority sequence; |
-//+----------------------------------------------------------------------------------------+
-export async function Key(props: IKeyProps): Promise<IKeyProps["instrument_type"] | undefined> {
-  const { instrument_type, source_ref } = props;
-  const args = [];
-
-  let sql: string = `SELECT instrument_type FROM blofin.instrument_type WHERE `;
-
-  if (instrument_type) {
-    args.push(instrument_type);
-    sql += `instrument_type = ?`;
-  } else if (source_ref) {
-    args.push(source_ref);
-    sql += `source_ref = ?`;
+//+--------------------------------------------------------------------------------------+
+//| Returns an instrument type key using supplied params;                                      |
+//+--------------------------------------------------------------------------------------+
+export const Key = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IInstrumentType>(props, { table: `instrument_type` });
+    return key ? key.instrument_type : undefined;
   } else return undefined;
+};
 
-  const [key] = await Select<IInstrumentType>(sql, args);
-  return key === undefined ? undefined : key.instrument_type;
-}
+//+--------------------------------------------------------------------------------------+
+//| Returns instrument types meeting supplied criteria; retrieves all on empty props {}; |
+//+--------------------------------------------------------------------------------------+
+export const Fetch = async (props: Partial<IInstrumentType>): Promise<Array<Partial<IInstrumentType>> | undefined> => {
+  const result = await Select<IInstrumentType>(props, { table: `instrument_type` });
+  return result.length ? result : undefined;
+};

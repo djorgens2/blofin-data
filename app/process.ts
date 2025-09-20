@@ -2,6 +2,9 @@
 //|                                                                           process.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
+"use strict"
+
+import type { IInstrument } from "@db/interfaces/instrument";
 import type { IMessage } from "@lib/app.util";
 
 import { CFractal } from "@module/fractal";
@@ -17,8 +20,8 @@ import * as Instrument from "@db/interfaces/instrument";
 export const CProcess = async () => {
   const [cli_message] = process.argv.slice(2);
   const message: IMessage | undefined = parseJSON<IMessage>(cli_message);
-  const [instrument]: Array<Partial<Instrument.IInstrument>> = await Instrument.Fetch({ symbol: message!.symbol });
-  const props: Candle.IKeyProps = {
+  const [instrument]: Array<Partial<IInstrument>> = (await Instrument.Fetch({ symbol: message!.symbol })) ?? [];
+  const props: Partial<Candle.ICandle> = {
     instrument: instrument.instrument!,
     symbol: instrument.symbol!,
     period: instrument.trade_period!,
@@ -27,9 +30,9 @@ export const CProcess = async () => {
   const Fractal = await CFractal(message!, instrument);
 
   process.on("message", (message: IMessage) => {
-    message.state === "init" && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
-    message.state === "api" && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });
-    message.state === "update" && Fractal.Update(message);
+    message.state === `init` && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
+    message.state === `api` && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });
+    message.state === `update` && Fractal.Update(message);
   });
 
   process.on("exit", (code) => {

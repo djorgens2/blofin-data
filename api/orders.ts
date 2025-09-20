@@ -11,7 +11,7 @@ import type { IOrder } from "@db/interfaces/order";
 import { Session, signRequest } from "@module/session";
 import { bufferString, isEqual } from "@lib/std.util";
 import { hexify } from "@lib/crypto.util";
-import { Select } from "@db/query.utils";
+import { DB_SCHEMA, Select } from "@db/query.utils";
 
 import * as Response from "@api/response";
 import * as Orders from "@db/interfaces/order";
@@ -134,8 +134,8 @@ const formatOrder = async (order: Partial<IOrderAPI>): Promise<Partial<IOrder>> 
 const startOrderId = async () => {
   const sql =
     `SELECT MIN(ord.start_order_id) AS start_order_id FROM (` +
-    ` SELECT MIN(order_id) AS start_order_id FROM orders WHERE create_time = update_time` +
-    ` UNION SELECT MAX(order_id) start_order_id FROM orders ) ord`;
+    ` SELECT MIN(order_id) AS start_order_id FROM ${DB_SCHEMA}.orders WHERE create_time = update_time` +
+    ` UNION SELECT MAX(order_id) start_order_id FROM ${DB_SCHEMA}.orders ) ord`;
 
   try {
     const [{ start_order_id }] = await Select<{ start_order_id: number }>(sql, []);

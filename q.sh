@@ -6,28 +6,29 @@ if [ -z "$1" ]; then
     echo "Usage: q.sh <subject> <json>"
     printf "\nSubjects:\n\n"
     echo "-a: Accounts"
+    echo "-auth: Authority"
+    echo "-sym: Currency Symbol"
+    echo "-p: Periods"
     echo "-i: Instruments"
     echo "-ctype: Instrument Contract"
-    echo "-sym: Currency Symbol"
     echo "-itype: Instrument Type"
-    echo "-p: Instrument Periods"
-    echo "-d: Instrument Detail"
+    echo "-ip: Instrument Periods"
+    echo "-ipos: Instrument Positions"
     echo "-s: States"
-    echo "-K: KeySet"
     echo "-bars: Bars"
     echo "-b: Brokers"
     echo "-r: Roles"
     echo "-ord: Orders"
     echo "-req: Requests"
-    echo "-q: Quotes"
+    echo "-q: Request Queue"
     echo "-pos: Positions"
     echo "-so: Stop Orders"
     echo "-u: Users"
     echo "-login: Login"
+    echo "-task: Tasks \{Activities\}"
     echo "-area: Subject Areas"
     echo "-e: Environs"
     echo "-ref: References"
-    echo "-ip: Instrument Positions"
 
     printf "\nExamples:\n\n"
     echo "Example: q.sh -a '{\"account\":\"0x1234567890abcdef\"}'"
@@ -42,7 +43,7 @@ if [ -z "$2" ]; then
     echo "JSON argument is required."
     exit 1
 fi
-if [[ "$1" != "-a" && "$1" != "-i" && "$1" != "-ctype" && "$1" != "-sym" && "$1" != "-itype" && "$1" != "-p" && "$1" != "-d" && "$1" != "-q" && "$1" != "-s" && "$1" != "-K" && "$1" != "-bars" && "$1" != "-b" && "$1" != "-r" && "$1" != "-ord" && "$1" != "-req" && "$1" != "-pos" && "$1" != "-so" && "$1" != "-u" && "$1" != "-login" && "$1" != "-area" && "$1" != "-e" && "$1" != "-ref" && "$1" != "-ip" ]]; then
+if [[ "$1" != "-a" && "$1" != "-auth" && "$1" != "-i" && "$1" != "-ctype" && "$1" != "-sym" && "$1" != "-itype" && "$1" != "-p" && "$1" != "-d" && "$1" != "-q" && "$1" != "-s" &&  "$1" != "-bars" && "$1" != "-b" && "$1" != "-r" && "$1" != "-ord" && "$1" != "-req" && "$1" != "-pos" && "$1" != "-so" && "$1" != "-u" && "$1" != "-login" && "$1" != "-task" && "$1" != "-area" && "$1" != "-e" && "$1" != "-ref" && "$1" != "-ip" && "$1" != "-ipos" ]]; then
     echo "Invalid subject: $1"
     exit 1
 fi

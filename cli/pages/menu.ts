@@ -12,16 +12,17 @@ import { setMenu } from "@cli/modules/Menu";
 
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "@cli/interfaces/user";
 import { menuCreateAccount, menuEditAccount, menuViewAccount, menuDropAccount } from "@cli/interfaces/account";
+import { isEqual } from "@lib/std.util";
 
 //+--------------------------------------------------------------------------------------+
 //| View menu; displays the rows for the supplied subject area;                          |
 //+--------------------------------------------------------------------------------------+
 export const menuView = async (area: string) => {
   switch (area) {
-    case "User":
+    case "Users":
       await menuViewUser();
       break;
-    case "Account":
+    case "Accounts":
       await menuViewAccount();
       break;
     default:
@@ -34,7 +35,7 @@ export const menuView = async (area: string) => {
 //+--------------------------------------------------------------------------------------+
 export const menuEdit = async (area: string) => {
   switch (area) {
-    case "User":
+    case "Users":
       await menuEditUser();
     default:
       console.log(`${area} not enabled.`);
@@ -46,10 +47,10 @@ export const menuEdit = async (area: string) => {
 //+--------------------------------------------------------------------------------------+
 export const menuCreate = async (area: string) => {
   switch (area) {
-    case "User":
+    case "Users":
       await menuCreateUser();
       break;
-    case "Account":
+    case "Accounts":
       await menuCreateAccount();
       break;
     default:
@@ -62,7 +63,7 @@ export const menuCreate = async (area: string) => {
 //+--------------------------------------------------------------------------------------+
 export const menuDrop = async (area: string) => {
   switch (area) {
-    case "User":
+    case "Users":
       await menuDropUser();
     default:
       console.log(`${area} not enabled.`);
@@ -99,7 +100,7 @@ export const Menu = async () => {
     const menu: Array<IOption> = await setMenu();
     const { select } = await Prompt(["select"], { message: " Main Menu:", choices: menu });
     const key = select ? select : Buffer.from([0, 0, 0]);
-    const option = menu.find(({ value }) => value.toString() === key.toString());
+    const option = menu.find(({ value }) => isEqual(value,key));
 
     switch (option?.title) {
       case "End Session": {
@@ -111,7 +112,7 @@ export const Menu = async () => {
       default: {
         const { select } = await Prompt(["select"], { message: " Authorized options:", choices: option?.choices });
         const key = select ? select : Buffer.from([0, 0, 0]);
-        const suboption = option?.choices!.find(({ value }) => value.toString() === key.toString());
+        const suboption = option?.choices!.find(({ value }) => isEqual(value,key));
         suboption?.func && (await eval(suboption?.func));
       }
     }

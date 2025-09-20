@@ -4,33 +4,44 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Modify, Select } from "@db/query.utils";
+import { Select, Insert } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
-export type TAccount = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 export type TPosition = "Open" | "Closed";
+export type TAccess = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
+export type TSymbol = "Enabled" | "Disabled" | "Suspended"
+export type TState = TRequest | TSystem | TAccess | TPosition | TSymbol;
 
-export type TState = {
+export type IState = {
   state: Uint8Array;
-  status: TRequest | TSystem | TAccount | TPosition;
+  status: TState;
   description: string;
 };
 
-export interface IRequestState extends TState {
+export interface IRequestState extends IState {
   status: TRequest;
 }
 
-export interface IAccountState extends TState {
-  status: TAccount;
+export interface IAccess extends IState {
+  status: TAccess;
+}
+
+export interface ISymbol extends IState {
+  status: TSymbol;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Imports seed States to define accounts/trading operational status;                   |
 //+--------------------------------------------------------------------------------------+
-export const Import = () => {
-  const states: Array<Partial<TState>> = [
+export const Import = async () => {
+    console.log("In State.Import:", new Date().toLocaleString());
+  
+    const success: Array<Partial<IState>> = [];
+    const errors: Array<Partial<IState>> = [];
+  
+  const states: Array<Partial<IState>> = [
     { status: "Enabled", description: "Enabled for trading" },
     { status: "Disabled", description: "Disabled from trading" },
     { status: "Halted", description: "Adverse event halt" },
@@ -46,61 +57,41 @@ export const Import = () => {
     { status: "Closed", description: "Closed; request is closed;" },
     { status: "Open", description: "Open; order/position is open;" },
   ];
-  states.forEach((state) => Publish(state));
+
+  for (const state of states) {
+    const result = await Add(state);
+    result ? success.push({ state: result }) : errors.push({ status: state.status });
+  }
+
+  success.length && console.log("   # State imports: ", success.length, "verified");
+  errors.length && console.log("   # State rejects: ", errors.length, { errors });
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<TState>): Promise<TState["state"]> {
-  const { status, description } = props;
-  const state = await Key({ status });
-
-  if (state === undefined) {
-    const key = hashKey(6);
-    await Modify(`INSERT INTO blofin.state VALUES (?, ?, ?)`, [key, status, description]);
-    return key;
-  }
-  return state;
-}
+export const Add = async (props: Partial<IState>): Promise<IState["state"] | undefined> => {
+  if (props.state === undefined) {
+    Object.assign(props, { state: hashKey(6) });
+    const result = await Insert<IState>(props, { table: `state`, ignore: true });
+    return result ? result.state : undefined;
+  } else return props.state;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Key<T extends TState>(props: Partial<T>): Promise<T["state"] | undefined> {
-  const { status, state } = props;
-  const args = [];
-
-  let sql: string = `SELECT state FROM blofin.state WHERE `;
-
-  if (state) {
-    args.push(state);
-    sql += `state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += `status = ?`;
+export const Key = async <T extends IState>(props: Partial<T>): Promise<T["state"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IState>(props, { table: `state` });
+    return key ? key.state : undefined;
   } else return undefined;
-
-  const [key] = await Select<T>(sql, args);
-  return key === undefined ? undefined : key.state;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch<T extends TState>(props: Partial<T>): Promise<Array<Partial<T>>> {
-  const { state, status } = props;
-  const args = [];
-
-  let sql: string = `SELECT * FROM blofin.state`;
-
-  if (state) {
-    args.push(state);
-    sql += ` WHERE state = ?`;
-  } else if (status) {
-    args.push(status);
-    sql += ` WHERE status = ?`;
-  }
-
-  return Select<T>(sql, args);
-}
+export const Fetch = async <T extends IState>(props: Partial<T>): Promise<Array<Partial<T>> | undefined> => {
+  const result = await Select<T>(props, { table: `state` });
+  return result.length ? result : undefined;
+};

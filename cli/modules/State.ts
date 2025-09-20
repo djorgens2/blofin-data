@@ -14,7 +14,7 @@ import * as States from "@db/interfaces/state";
 //+--------------------------------------------------------------------------------------+
 export const setState = async () => {
   const states = await States.Fetch({});
-  const options = ["Disabled", "Enabled"];
+  const options:Array<TState> = ["Disabled", "Enabled"];
   const choices: Array<IOption> = [];
 
   if (states) {

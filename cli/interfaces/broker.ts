@@ -9,30 +9,19 @@ import Prompt, { IOption } from "@cli/modules/Prompts";
 
 import { setHeader } from "@cli/modules/Header";
 import { green, red, yellow, cyan, bold } from "console-log-colors";
-import { Answers } from "prompts";
-import UserToken, { setUserToken } from "@cli/interfaces/user";
-import { Pause } from "@lib/std.util";
 
+import * as Accounts from "@db/interfaces/account";
 import * as Brokers from "@db/interfaces/broker";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves broker assignments in prompt format;                                       |
 //+--------------------------------------------------------------------------------------+
 export const setBroker = async () => {
-  const count = async () => {
-    const brokers = await Brokers.Fetch({});
-    if (brokers.length === 0) {
-      await Brokers.Import();
-      return 1;
-    }
-    return brokers.length;
-  };
-  await count();
-
   const brokers = await Brokers.Fetch({});
-  const choices: Array<IOption> = [];
 
   if (brokers) {
+    const choices: Array<IOption> = [];
+
     brokers.forEach((option) => {
       choices.push({
         title: option.name!,
@@ -52,6 +41,9 @@ export const setBroker = async () => {
 //+--------------------------------------------------------------------------------------+
 export const menuViewBroker = async () => {
   setHeader("View Accounts");
+
+  const accounts = await Accounts.Fetch({});
+
   console.log(
     `\n✔️ `,
     `${bold("Broker".padEnd(32, " "))}`,
@@ -62,19 +54,20 @@ export const menuViewBroker = async () => {
     `${bold("REST API Address".padEnd(36, " "))}`,
     `${bold("Installed".padEnd(12, " "))}`
   );
-  (await Brokers.Fetch({})).forEach((account) => {
-    const { broker_name, short_name, owner_name, status, wss_url, rest_api_url } = account;
-    const installed = "No";
-    console.log(
-      `${status! === "Enabled" ? "🔹" : "🔸"}`,
-      `${broker_name!.padEnd(32, " ")}`,
-      `${owner_name!.padEnd(24, " ")}`,
-      `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
-      `${wss_url!.padEnd(36, " ")}`,
-      `${rest_api_url!.padEnd(36, " ")}`,
-      `${installed!.padEnd(12, " ")}`
-    );
-  });
+  if (accounts)
+    for (const account of accounts) {
+      const { broker_name, owner_name, status, private_wss_url, rest_api_url } = account;
+      const installed = "No";
+      console.log(
+        `${status! === "Enabled" ? "🔹" : "🔸"}`,
+        `${broker_name!.padEnd(32, " ")}`,
+        `${owner_name!.padEnd(24, " ")}`,
+        `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
+        `${private_wss_url!.padEnd(36, " ")}`,
+        `${rest_api_url!.padEnd(36, " ")}`,
+        `${installed!.padEnd(12, " ")}`
+      );
+    }
   console.log(``);
   const { choice } = await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
 };

@@ -3,7 +3,8 @@
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
-"use server";
+
+import type { ISession } from "@module/session";
 
 import { createHmac, createHash } from "node:crypto";
 import { customAlphabet } from "nanoid";
@@ -20,12 +21,18 @@ const secret = process.env.USER_SECRET ? process.env.USER_SECRET : ``;
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |
 //+--------------------------------------------------------------------------------------+
-export const hashHmac = async (keys: Array<any>) => {
-  const key = keys.join("");
-  const encoded = new TextEncoder().encode(key);
-  const hmac = createHmac("sha256", secret).update(encoded).digest("hex");
-  const hex = Buffer.from(hmac).toString("hex");
-  return Buffer.from(hex, "hex").toString("base64");
+export const hashHmac = async (props: Partial<ISession>) => {
+  const { api, secret, phrase } = props;
+
+  if (api && secret && phrase) {
+    const key = api.concat(secret, phrase);
+    const encoded = new TextEncoder().encode(key);
+    const hmac = createHmac("sha256", secret).update(encoded).digest("hex");
+    const hex = Buffer.from(hmac).toString("hex");
+    return hex ? Buffer.from(hex, "hex").toString("base64") : undefined;
+  };
+  
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -60,7 +67,7 @@ export const hexify = (key: string | Uint8Array | number | object, size?: number
     const bytes = new Uint8Array(key.length / 2);
 
     if (regex.test(key)) {
-      size && (key = key.padStart(size*2, "0"));
+      size && (key = key.padStart(size * 2, "0"));
       return Buffer.from(key, "hex");
     }
   }

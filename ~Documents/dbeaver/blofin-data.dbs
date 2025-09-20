@@ -1675,7 +1675,6 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="period" color="0000FF" x="133" y="855" />
 		<entity schema="blofin" name="currency" color="0000FF" x="570" y="1482" />
 		<entity schema="blofin" name="activity" color="B34D1A" x="2014" y="1520" />
-		<entity schema="blofin" name="vw_candles" color="00FFFF" x="2394" y="95" />
 		<entity schema="blofin" name="vw_role_privileges" color="00FFFF" x="2185" y="893" />
 		<entity schema="blofin" name="vw_users" color="00FFFF" x="2185" y="1330" />
 		<entity schema="blofin" name="vw_api_requests" color="00FFFF" x="2641" y="1140" />
@@ -1708,6 +1707,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="blofin" name="api_error" color="3986C1" x="2394" y="1482" />
 		<entity schema="blofin" name="vw_api_stop_requests" color="00FFFF" x="2850" y="1273" />
 		<entity schema="blofin" name="vw_instrument_positions" color="00FFFF" x="2831" y="874" />
+		<entity schema="blofin" name="vw_candles" color="00FFFF" x="2394" y="95" />
 		<entity schema="blofin" name="vw_candle_audit" color="00FFFF" x="2850" y="646" />
 		<group name="user accounts" color="B34D1A" >
 			<entity schema="blofin" name="user_account" />
@@ -1751,7 +1751,6 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="instrument" />
 		</group>
 		<group name="views" color="00FFFF" >
-			<entity schema="blofin" name="vw_candles" />
 			<entity schema="blofin" name="vw_role_privileges" />
 			<entity schema="blofin" name="vw_users" />
 			<entity schema="blofin" name="vw_api_requests" />
@@ -1763,6 +1762,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<entity schema="blofin" name="vw_stop_requests" />
 			<entity schema="blofin" name="vw_api_stop_requests" />
 			<entity schema="blofin" name="vw_instrument_positions" />
+			<entity schema="blofin" name="vw_candles" />
 			<entity schema="blofin" name="vw_candle_audit" />
 		</group>
 		<script name="SQL_Editor" id="aedf1790-e515-4cfd-a4fa-953f6db4070c" language="SQL" >

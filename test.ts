@@ -1,9 +1,9 @@
 //----------------------------------- KeySet tests ------------------------------------------//
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
-import { parseColumns } from "@db/query.utils";
+//import { parseColumns, parseKeys } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
-import { isEqual, setExpiry } from "@lib/std.util";
+import { bufferString, isEqual, setExpiry } from "@lib/std.util";
 import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
@@ -109,7 +109,7 @@ import { parse } from "path";
 
 //----------------------------- Role/Privs Import ---------------------------------------//
 //import * as Authority from "@db/interfaces/authority";
-//import * as Subject from "@db/interfaces/subject";
+//import * as Subject from "@db/interfaces/subject_area";
 //import * as Activity from "@db/interfaces/activity";
 
 // Authority.Import();
@@ -1207,46 +1207,6 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 
 // put(1754602401957, setExpiry("1h"));
 
-//----------------------------- parsecolums test ----------------------------------------------//
-// const submit = {
-//   request: hexify("00bbb8267a54", 6),
-//   account: hexify("23334e", 3),
-//   instrument: hexify("cb42a5", 3),
-//   position: "short",
-//   action: undefined,
-//   state: hexify("edc267", 3),
-//   price: undefined,
-//   size: undefined,
-//   leverage: undefined,
-//   request_type: undefined,
-//   margin_mode: undefined,
-//   reduce_only: undefined,
-//   broker_id: undefined,
-//   memo: undefined,
-//   create_time: new Date("2025-08-29T17:15:58.975Z"),
-//   update_time: new Date("2025-08-29T17:34:59.365Z"),
-//   expiry_time: new Date("2025-08-30T01:34:59.365Z"),
-// };
-
-// const [fields, args] = Object.entries(submit).reduce(
-//   ([fields, args], [key, value]) => {
-//     if (value !== undefined) {
-//       fields.push(key);
-//       args.push(value);
-//     }
-//     return [fields, args];
-//   },
-//   [[], []] as [string[], any[]]
-// );
-
-// console.log(fields, args);
-
-// const [f2, a2] = parseColumns(submit);
-// console.log(f2, a2);
-
-// const [f3, a3] = parseColumns(submit, "");
-// console.log(f3, a3);
-
 //----------------------------- Candle Finder Test ---------------------------------------//
 // interface IResult {
 //   code: string;
@@ -1297,3 +1257,329 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //   console.log(res);
 //   process.exit(0);
 // });
+
+//----------------------------- parsecolums test ----------------------------------------------//
+// const submit = {
+//   request: hexify("00bbb8267a54", 6),
+//   account: hexify("23334e", 3),
+//   instrument: hexify("cb42a5", 3),
+//   position: "short",
+//   action: undefined,
+//   state: hexify("edc267", 3),
+//   price: undefined,
+//   size: undefined,
+//   leverage: undefined,
+//   request_type: undefined,
+//   margin_mode: undefined,
+//   reduce_only: undefined,
+//   broker_id: undefined,
+//   memo: undefined,
+//   create_time: new Date("2025-08-29T17:15:58.975Z"),
+//   update_time: new Date("2025-08-29T17:34:59.365Z"),
+//   expiry_time: new Date("2025-08-30T01:34:59.365Z"),
+// };
+
+// const parser = (obj: object, suffix = "= ?") => {
+//   const fields: string[] = [];
+//   const args: any[] = [];
+//   Object.keys(obj).forEach((obj, id) => {
+//     fields.push(`${obj}${suffix}`);
+//     args.push(Object.values(obj)[id]);
+//   });
+//   return [fields, args];
+// };
+
+// type TKey = {
+//   key: string;
+//   sign: string;
+// };
+
+// const keys: Array<TKey> = [
+//   {
+//     key: `position`,
+//     sign: "=",
+//   },
+// ];
+
+// const parseKeys = <T>(props: Partial<T>, keys?: Array<TKey>) => {
+//   const key: Array<string> = [];
+//   const value: Array<any> = [];
+
+//   Object.keys(props).map((obj, id) => {
+//     if (Object.values(props)[id] !== undefined) {
+//       const { sign } = keys?.find((search) => search.key === obj) || { sign: ` = ?` };
+//       key.push(`${obj}${sign}`);
+//       value.push(Object.values(props)[id]);
+//     }
+//   });
+//   return [key, value];
+// };
+
+//const [p1,p2] = parseCols(submit);
+//console.log(p1,p2)
+//const [fields, args] = parser(submit,"");
+// const [key, value] = parseKeys(submit, [{ key: `position`, sign: ` >= ?` }]);
+// console.log(key, value);
+//console.log(fields, args, key, value);
+
+//const [f2, a2] = parseColumns(submit);
+//console.log(f2, a2);
+
+// const [f3, a3] = parseColumns(submit, "");
+// console.log(f3, a3);
+
+//----------------------------- Activity Import Test ---------------------------------------//
+//import * as Table from "@db/interfaces/instrument_type";
+//Table.Import();
+//Table.Key({}).then ((res) =>{ console.log(res); });
+//Table.Fetch({}).then ((res) =>{ console.log(res); });
+
+//----------------------------- Candle Fetch Test ---------------------------------------//
+// import * as Candle from "@db/interfaces/candle";
+// Candle.Fetch({ symbol: "XRP-USDT", timestamp: 1757649600000, limit: 10 }).then((result) => console.log(result));
+
+//----------------------------- update property filter ---------------------------------------//
+// import { Update } from "db/query.utils";
+
+// export interface IRequest {
+//   request: Uint8Array;
+//   order_id: number;
+//   client_order_id: string | undefined;
+//   account: Uint8Array;
+//   instrument: Uint8Array;
+//   symbol: string;
+//   state: Uint8Array;
+//   status: TRequest;
+//   request_state: Uint8Array;
+//   request_status: TRequest;
+//   margin_mode: "cross" | "isolated";
+//   position: "short" | "long" | "net";
+//   action: "buy" | "sell";
+//   request_type: Uint8Array;
+//   order_type: string;
+//   price: number;
+//   size: number;
+//   leverage: number;
+//   digits: number;
+//   memo: string;
+//   reduce_only: boolean;
+//   broker_id: string;
+//   create_time: Date | number;
+//   expiry_time: Date | number;
+//   update_time: Date | number;
+// }
+
+// const submit = {
+//   request: hexify("00bbb8267a54", 6),
+//   instrument_position: hexify("cb42a5", 3),
+//   action: undefined,
+//   state: hexify("edc267", 3),
+//   price: undefined,
+//   size: undefined,
+//   leverage: undefined,
+//   request_type: undefined,
+//   margin_mode: undefined,
+//   reduce_only: undefined,
+//   broker_id: undefined,
+//   memo: undefined,
+//   create_time: new Date("2025-08-29T17:15:58.975Z"),
+//   update_time: new Date("2025-08-29T17:34:59.365Z"),
+//   expiry_time: new Date("2025-08-30T01:34:59.365Z"),
+// } as Partial<IRequest>;
+
+// //+--------------------------------------------------------------------------------------+
+// //| Returns columns and keys in separate arrays;                                         |
+// //+--------------------------------------------------------------------------------------+
+// const splitKeys = <T>(props: Partial<T>, filter: Array<string>) => {
+//   return Object.keys(props).reduce(
+//     ([included, excluded]: [Record<string, any>, Record<string, any>], key: string): [Record<string, any>, Record<string, any>] => {
+//       if (filter.includes(key)) {
+//         excluded[key] = props[key as keyof typeof props];
+//       } else {
+//         props[key as keyof typeof props] !== undefined && (included[key] = props[key as keyof typeof props]);
+//       }
+//       return [included, excluded];
+//     },
+//     [{} as Record<string, any>, {} as Record<string, any>]
+//   );
+// };
+
+// const [columns, filters] = splitKeys<IRequest>(submit, [ "request" ]);
+// Object.keys(columns) && console.log(columns,filters);
+
+// const upd = Update(submit, { table: `request`, keys: filter }).then((res) => console.log(res));
+// const split = <T>(props: Partial<T>, filter: Array<string>) => {
+//   return Object.keys(props).reduce(
+//     ([included, excluded]: [Record<string, any>, Record<string, any>], key: string): [Record<string, any>, Record<string, any>] => {
+//       if (filter.includes(key)) {
+//         excluded[key] = props[key as keyof typeof props];
+//       } else {
+//         included[key] = props[key as keyof typeof props];
+//       }
+//       return [included, excluded];
+//     },
+//     [{} as Record<string, any>, {} as Record<string, any>]
+//   );
+// };
+// const [props, keys] = split<IRequest>(submit, filter)
+// const [props, keys] = Object.keys(submit).reduce(
+//   ([included, excluded]: [Record<string, any>, Record<string, any>], key: string): [Record<string, any>, Record<string, any>] => {
+//     if (filter.includes(key)) {
+//       excluded[key] = submit[key as keyof typeof submit];
+//     } else {
+//       included[key] = submit[key as keyof typeof submit];
+//     }
+//     return [included, excluded];
+//   },
+//   [{} as Record<string, any>, {} as Record<string, any>] // Initial accumulator: two empty typed objects
+// );
+//console.log(upd);
+
+//import * as Instruments from "api/instruments";
+//Instruments.Import();
+
+//----------------------------- Import / Fetch Tests ---------------------------------------//
+// import * as Table from "@db/interfaces/activity";
+// console.log("// -- activity -- //");
+// Table.Import();
+// Table.Key({}).then((res) => {
+//   console.log(`Empty keyset: ${res}`);
+// });
+// Table.Key({ task: `Accounts` }).then((res) => {
+//   console.log(`Accounts key: ${bufferString(res!)}`);
+// });
+// Table.Fetch({}).then((res) => {
+//   console.log(`Fetch:`, res);
+// });
+// import * as Table from "@db/interfaces/authority";
+// console.log("// -- authority -- //");
+// Table.Import();
+// Table.Key({}).then((res) => {
+//   console.log(`Empty keyset: ${res}`);
+// });
+// Table.Fetch({}).then((res) => {
+//   console.log(`Fetch:`, res);
+// });
+// Table.Key({ priority: 4 }).then((res) => {
+//   console.log(`Priority key: ${bufferString(res!)}`);
+// });
+// import * as Table from "@db/interfaces/broker";
+// console.log("// -- broker -- //");
+// (async () => {
+//   await Table.Import();
+//   setTimeout(async () => {
+//     console.log(`Delay`);
+//     await Table.Key({}).then((res) => {
+//       console.log(`Empty keyset: ${res}`);
+//     });
+//     await Table.Fetch({}).then((res) => {
+//       console.log(`Fetch:`, res);
+//     });
+//     await Table.Key({ name: `Blofin` }).then((res) => {
+//       console.log(`Priority key: ${bufferString(res!)}`);
+//     });
+//     await Table.Fetch({ name: "blohard" }).then((res) => {
+//       console.log(`Fetch not found:`, res);
+//     });
+//   }, 1500);
+// })();
+// import * as Candle from "@db/interfaces/candle";
+// import * as apiInst from "@api/instruments";
+// import * as api from "@api/candles";
+
+// import { clear } from "@lib/app.util";
+
+// console.log("// -- candle -- //");
+
+// (async () => {
+//   const symbol = `PONKE-USDT`;
+//   await apiInst.Import();
+//   await api.Import(clear({ state: `init`, symbol, node: 1 }), { symbol });
+
+//   setTimeout(async () => {
+//     console.log(`Delay`);
+//     await Candle.Fetch({ symbol, limit: 10 }).then((res) => {
+//       console.log(`Fetch:`, res);
+//     });
+//     await Candle.Fetch({ symbol: "obviously-wrong-answer" }).then((res) => {
+//       console.log(`Fetch not found:`, res);
+//     });
+//     process.exit(0);
+//   }, 1500);
+// })();
+
+//----------------------------- Suspended Tests ---------------------------------------//
+// import * as Instrument from "@db/interfaces/instrument";
+// const props = keys.map(item => hexify(item, 3)).filter((item): item is Uint8Array => item !== undefined);
+// Instrument.Audit(props);
+
+//----------------------------- Select distinct Tests ---------------------------------------//
+// import type { IAccess } from "@db/interfaces/state";
+// import * as db from "db/query.utils";
+
+// export interface IRoleAuthority {
+//   role: Uint8Array;
+//   title: string;
+//   subject_area: Uint8Array;
+//   subject_area_title: Uint8Array;
+//   activity: Uint8Array;
+//   task: string;
+//   authority: Uint8Array;
+//   privilege: string;
+//   priority: number;
+//   state: Uint8Array;
+//   status: IAccess;
+// }
+
+// (async () => {
+//   const results = await db.Distinct<IRoleAuthority>({title: `Admin`, subject_area_title: undefined}, {table: `vw_role_authority`, keys: [{key: `title`}]});
+//   console.log(results);
+
+//   setTimeout(async () => {
+//     process.exit(0);
+//   }, 1500);
+// })();
+
+//----------------------------- Format Console Lines Test ---------------------------------------//
+// import type { IUser } from "@db/interfaces/user";
+// import * as User from "@db/interfaces/user";
+
+// const userLen = { username: 4, email: 20, state: 4, image_url: 30, create_time: 4, update_time: 4 };
+
+// const format = async <T>(lengths: Record<string, number>, record: Array<Partial<T>>, padding = "   ") => {
+//   if (record === undefined) return lengths;
+
+//   return record.reduce((maxLengthObj: Record<string, number>, currentObj) => {
+//     Object.keys(currentObj).forEach((key) => {
+//       const currentValue = currentObj[key as keyof T];
+
+//       if (typeof currentValue === 'string') {
+//         const currentLength = currentValue.length;
+//         const existingLength = maxLengthObj[key] || 0;
+
+//         if (currentLength > existingLength) {
+//           maxLengthObj[key] = currentLength;
+//         }
+//       }
+//     });
+//     return maxLengthObj;
+//   }, { ...lengths } as Record<string, number>);
+// };
+
+// (async () => {
+//   const users = await User.Fetch({});
+//   const line = format<IUser>(userLen, users!);
+
+//   console.log(line)
+
+//   setTimeout(async () => {
+//     process.exit(0);
+//   }, 1500);
+// })();
+
+
+//----------------------------- Seed Load Tests ---------------------------------------//
+import * as Seed from "@cli/interfaces/seed"
+
+Seed.Import();
+

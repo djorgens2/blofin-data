@@ -6,7 +6,7 @@
 
 import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { IMessage } from "@lib/app.util";
-import type { TSession } from "@module/session";
+import type { ISession } from "@module/session";
 
 import { openWebSocket } from "@module/session";
 import { fork } from "child_process";
@@ -22,7 +22,7 @@ export class CMain {
   retries: number = 0;
 
   async setService(service: string) {
-    const keys: Array<Partial<TSession>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
+    const keys: Array<Partial<ISession>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
     const props = keys.find(({ alias }) => alias === service);
     const account = await Accounts.Key(props!);
 

@@ -4,218 +4,145 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TAccount } from "db/interfaces/state";
+import type { TAccess, IAccess } from "db/interfaces/state";
 
-import { Modify, Select } from "@db/query.utils";
+import { Select, Insert, Update } from "@db/query.utils";
 import { hashKey, hashPassword } from "@lib/crypto.util";
 
 import * as Roles from "@db/interfaces/role";
 import * as States from "@db/interfaces/state";
+import { isEqual } from "@lib/std.util";
 
 export interface IUser {
   user: Uint8Array;
-  username: string | undefined;
-  email: string | undefined;
-  password: string | Uint8Array | undefined;
+  username: string;
+  email: string;
+  password: string | Uint8Array;
   hash: Uint8Array;
   role: Uint8Array;
   title: string;
   state: Uint8Array;
-  status: TAccount;
+  status: TAccess;
   image_url: string;
-  total_users?: number;
-  create_time?: Date;
-  update_time?: Date;
+  total_users: number;
+  similar_roles: number;
+  create_time: Date;
+  update_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Creates/sets/resets user password;                                                   |
 //+--------------------------------------------------------------------------------------+
-export async function SetPassword(props: Partial<IUser>) {
-  const { user, username, email, password } = props;
-  const key = user ? user : await Key({ username, email });
-  const hash = hashKey(32);
-  const encrypt = hashPassword({ username, email, password, hash });
-
-  if (key === undefined) {
-    return [hash, encrypt];
-  } else {
-    const update = Update({ user: key, password: encrypt, hash });
+export const SetPassword = async (props: Partial<IUser>) => {
+  if (props === undefined) throw new Error(`Unauthorized password change event; no user specified`);
+  else {
+    const { username, email, password } = props;
+    const hash = hashKey(32);
+    const encrypt = hashPassword({ username, email, password, hash });
+    const user: Partial<IUser> = {
+      hash,
+      password: encrypt,
+    };
+    return user;
   }
-  return [];
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Updates changes to User @ the local DB;                                              |
 //+--------------------------------------------------------------------------------------+
-export async function Update(props: Partial<IUser>): Promise<Partial<IUser>> {
-  const { username, email, password, hash, title, status, image_url } = props;
-  const user = props.user ? props.user : await Key({ username, email });
-  const updateable = ["role", "hash", "password", "state", "image_url"];
+export const Modify = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
+  if (props.user === undefined) throw new Error(`Unathorized user publication; user not found`);
+  else {
+    const user = await Fetch({ username: props.username, email: props.email });
 
-  if (user === undefined) {
-    Object.assign(props, { ...props, error: 304, message: `User not found.` });
-    return props;
+    if (user) {
+      const [current] = user;
+      const role = props.role || (await Roles.Key({ title: props.title })) || undefined;
+      const state = props.state || (await States.Key({ status: props.status })) || undefined;
+      const revised: Partial<IUser> = {
+        user: props.user,
+        role: role && isEqual(role, current.role!) ? undefined : role,
+        state: state && isEqual(state, current.state!) ? undefined : state,
+        image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
+      };
+      const result = await Update(revised, { table: `user`, keys: [{ key: `user` }] });
+      return result ? current.user : undefined;
+    }
   }
-
-  const args = [];
-  const fields = [];
-  const role = props.role ? props.role : await Roles.Key({ title });
-  const state = props.state ? props.state : await States.Key({ status });
-
-  Object.assign(props, { ...props, role, state });
-
-  for (const [key, value] of Object.entries(props)) {
-    if (value)
-      if (updateable.includes(key)) {
-        args.push(value);
-        fields.push(`${key} = ?`);
-      }
-  }
-
-  if (args.length > 0) {
-    let sql: string = "UPDATE blofin.user SET ";
-    fields.forEach((field, id) => (sql += field + (id < fields.length - 1 ? `, ` : ``)));
-
-    sql += " WHERE user = ?";
-    args.push(user);
-
-    await Modify(sql, args);
-  }
-  Object.assign(props, { ...props, error: 0, message: `User ['${username}'] updated successfully.` });
-  return props;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new Users to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export async function Add(props: Partial<IUser>): Promise<Partial<IUser>> {
-  const { username, email, password, title, status } = props;
+export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
+  const { username, email } = props;
   const user = await Key({ username, email });
 
   if (user === undefined) {
-    const key = hashKey(6);
-    const [hash, encrypt] = await SetPassword({ username, email, password });
-    const role = props.role ? props.role : title ? await Roles.Key({ title }) : await Roles.Key({ title: "Viewer" });
-    const state = props.state ? props.state : status ? await States.Key({ status }) : await States.Key({ status: "Disabled" });
-    const image_url = props.image_url ? props.image_url : "./images/user/no-image.png";
+    const { hash, password } = await SetPassword({ username, email, password: props.password });
+    const user: Partial<IUser> = {
+      user: hashKey(6),
+      role: props.role || (await Roles.Key({ title: props.title })) || (await Roles.Key({ title: "Viewer" })),
+      username,
+      email,
+      hash,
+      password,
+      state: props.state || (await States.Key({ status: props.status })) || (await States.Key<IAccess>({ status: "Disabled" })),
+      image_url: props.image_url || "./images/user/no-image.png",
+    };
+    const result = await Insert<IUser>(user, { table: `user` });
+    await new Promise((r) => setTimeout(r, 15000));
 
-    if (role && state) {
-      await Modify(
-        `INSERT INTO blofin.user ( user, username, email, role, hash, password, state, image_url) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [key, username, email, role, hash, encrypt, state, image_url]
-      );
-      Object.assign(props, { ...props, error: 0, message: `User ['${username}'] added successfully.` });
-      return props;
-    }
-  }
-  Object.assign(props, { ...props, error: 303, message: `Invalid user credentials.` });
-  return props;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
-export async function Key(props: Partial<IUser>): Promise<IUser["user"] | undefined> {
-  const { user, username, email } = props;
-  const args = [];
-
-  let sql: string = `SELECT user FROM blofin.user WHERE `;
-
-  if (user) {
-    args.push(user);
-    sql += `user = ?`;
-  } else if (username && email) {
-    args.push(username, email);
-    sql += `username = ? AND email = ?`;
+    return result ? result.user : undefined;
   } else return undefined;
-
-  const [key] = await Select<IUser>(sql, args);
-  return key === undefined ? undefined : key.user;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IUser>): Promise<Array<Partial<IUser>>> {
-  const args = [];
-  const { user, username, email } = props;
-  const state = props.state ? props.state! : await States.Key({ status: props.status });
+export const Key = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [key] = await Select<IUser>(props, { table: `vw_users` });
+    return key ? key.user : undefined;
+  } else return undefined;
+};
 
-  let sql: string = `SELECT * FROM blofin.vw_users`;
-
-  if (user) {
-    args.push(user);
-    sql += ` WHERE user = ?`;
-  } else if (username && email) {
-    args.push(username, email);
-    sql += ` WHERE username = ? AND email = ?`;
-  } else if (state) {
-    args.push(state);
-    sql += ` WHERE state = ?`;
-  }
-
-  return Select<IUser>(sql, args);
-}
+//+--------------------------------------------------------------------------------------+
+//| Executes a query in priority sequence based on supplied seek params; returns key;    |
+//+--------------------------------------------------------------------------------------+
+export const Fetch = async (props: Partial<IUser>): Promise<Array<Partial<IUser>> | undefined> => {
+  const result = await Select<IUser>(props, { table: `vw_users` });
+  return result.length ? result : undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns true|false if password hashes match on user supplied the text password;      |
 //+--------------------------------------------------------------------------------------+
-export async function Login(props: Partial<IUser>): Promise<Partial<IUser>> {
-  const { username, email } = props;
-  const [user, packet] = await Fetch({ username, email });
+export const Login = async (props: Partial<IUser>): Promise<Partial<IUser>> => {
+  const user = await Fetch({ username: props.username, email: props.email });
 
   if (user) {
-    const { password, hash } = user;
-
+    const [login] = user;
+    const { password, username, email, hash } = login;
     if (password instanceof Uint8Array) {
       const encrypt = Buffer.from(password);
       const key = hashPassword({ username, email, password: props.password, hash });
       if (encrypt.toString("hex") === key.toString("hex")) {
-        if (user.status === "Enabled") {
-          Object.assign(user, { ...user, error: 0, message: "Connected" });
-          return user;
+        if (login.status === "Enabled") {
+          Object.assign(login, { ...login, error: 0, message: "Connected" });
+          return login;
         }
-        Object.assign(user, { ...user, error: 301, message: `Your account is currently ['${user.status}']. Contact your administrator.` });
-        return user;
+        Object.assign(login, { ...login, error: 301, message: `Your account is currently ['${login.status}']. Contact your administrator.` });
+        return login;
       }
-      Object.assign(user, { ...user, error: 302, message: `Invalid username or password.` });
-      return user;
+      Object.assign(login, { ...login, error: 302, message: `Invalid username or password.` });
+      return login;
     }
-    Object.assign(user, { ...props, error: 311, message: `Internal error. Contact your administrator.` });
-    return user;
+    Object.assign(login, { ...login, error: 311, message: `Internal error. Contact your administrator.` });
+    return login;
   }
 
   const error: Partial<IUser> = {};
-  Object.assign(error, { ...props, ...packet, error: 302, message: `Invalid user credentials.` });
+  Object.assign(error, { ...props, error: 302, message: `Invalid user credentials.` });
   return error;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns #users in local db; used to determine if app requires initialization;        |
-//+--------------------------------------------------------------------------------------+
-export const Count = async (props: IUser) => {
-  const args = [];
-  const filters = [];
-  const role = props?.role ? props.role : await Roles.Key({ title: props?.title });
-  const state = props?.state ? props.state : await States.Key({ status: props?.status });
-  const sql = "SELECT count(*) AS total_users FROM blofin.user";
-
-  if (role) {
-    args.push(role);
-    filters.push(`role = ?`);
-  }
-
-  if (state) {
-    args.push(state);
-    filters.push(`state = ?`);
-  }
-
-  let where: string = "";
-  filters.forEach((filter, id) => (where += (id ? " AND " : " WHERE ") + filter));
-
-  const [count] = await Select<IUser>(sql.concat(where), args);
-
-  return count;
 };

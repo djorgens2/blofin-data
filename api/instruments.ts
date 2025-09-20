@@ -4,13 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { isEqual } from "@lib/std.util";
 import { splitSymbol } from "@lib/app.util";
+import { isEqual } from "@lib/std.util";
 
-import * as Instrument from "@db/interfaces/instrument";
 import * as Currency from "@db/interfaces/currency";
-import * as ContractType from "@db/interfaces/contract_type";
-import * as InstrumentType from "@db/interfaces/instrument_type";
+import * as Instrument from "@db/interfaces/instrument";
 import * as InstrumentDetail from "@db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "@db/interfaces/instrument_period";
 
@@ -41,91 +39,68 @@ export interface IResult {
 //+--------------------------------------------------------------------------------------+
 //| Publish - Creates new instruments; populates periods on new Blofin receipts          |
 //+--------------------------------------------------------------------------------------+
-const publish = async (apiInstrument: Array<IInstrumentAPI>): Promise<Array<IInstrumentAPI>> => {
+const publish = async (api: Array<IInstrumentAPI>) => {
   console.log("-> Instrument:Publish [API]");
 
-  for (const api of apiInstrument) {
-    const symbol: string[] = splitSymbol(api.instId);
-    const base_currency = await Currency.Publish(symbol[0], api.state !== "live");
-    const quote_currency = await Currency.Publish(symbol[1], false);
-    const contract_type = await ContractType.Publish(api.contractType);
-    const instrument_type = await InstrumentType.Publish(api.instType);
-    const instrument = await Instrument.Publish(base_currency!, quote_currency!);
+  const processed: Array<Instrument.IInstrument["instrument"]>= [];
+  const errors = [];
 
-    await InstrumentDetail.Publish(instrument!, instrument_type!, contract_type!, api);
+  for (const props of api) {
+    const [base_symbol, quote_symbol] = splitSymbol(props.instId);
+    const base_currency = await Currency.Publish({ symbol: base_symbol, suspense: props.state !== "live" });
+    const quote_currency = await Currency.Publish({ symbol: quote_symbol, suspense: false });
+    const key = await Instrument.Key({ symbol: props.instId });
+    const instrument = await Instrument.Publish({
+      instrument: key,
+      symbol: props.instId,
+      base_symbol,
+      base_currency,
+      quote_symbol,
+      quote_currency,
+    });
+    const instrument_detail = await InstrumentDetail.Publish({
+      instrument: key || instrument,
+      instrument_type: props.instType,
+      contract_type: props.contractType,
+      contract_value: parseFloat(props.contractValue),
+      max_leverage: parseInt(props.maxLeverage),
+      min_size: parseFloat(props.minSize),
+      lot_size: parseFloat(props.lotSize),
+      tick_size: parseFloat(props.tickSize),
+      max_limit_size: parseFloat(props.maxLimitSize),
+      max_market_size: parseFloat(props.maxMarketSize),
+      list_time: new Date(parseInt(props.listTime)),
+      expiry_time: new Date(parseInt(props.expireTime)),
+    });
+    instrument && isEqual(instrument, instrument_detail!) ? processed.push(instrument) : errors.push(props.instId);
   }
-  return apiInstrument;
+  await Instrument.Audit(processed);
+  await InstrumentPeriod.Import();
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Merge Instruments/details stored locally w/Blofin json; applies diffs                |
-//+--------------------------------------------------------------------------------------+
-const merge = async (apiInstruments: Array<IInstrumentAPI>) =>{
-  console.log("-> Instrument:Merge [API]");
+// suspense.length && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
+// modified.length && console.log("   # Instruments Updated: ", modified.length, { modified });
 
-  const instruments = await Instrument.Fetch({});
-  const modified: Array<IInstrumentAPI> = [];
-  const suspense: Array<Currency.IKeyProps> = [];
-  const db: Array<Partial<Instrument.IInstrument>> = instruments.sort((a, b) => {
-    return a.symbol! < b.symbol! ? -1 : a.symbol! > b.symbol! ? 1 : 0;
-  });
-  const api: Array<IInstrumentAPI> = apiInstruments.sort((a, b) => {
-    return a.instId < b.instId ? -1 : a.instId > b.instId ? 1 : 0;
-  });
-
-  if (db.length >= api.length) {
-    let instrument = 0;
-
-    db.forEach((local) => {
-      if (local.symbol === api[instrument].instId) {
-        let updated: boolean = false;
-
-        !isEqual(local.contract_value!, api[instrument].contractValue) && (updated = true);
-        !isEqual(local.max_leverage!, api[instrument].maxLeverage) && (updated = true);
-        !isEqual(local.min_size!, api[instrument].minSize) && (updated = true);
-        !isEqual(local.lot_size!, api[instrument].lotSize) && (updated = true);
-        !isEqual(local.tick_size!, api[instrument].tickSize) && (updated = true);
-        !isEqual(local.max_limit_size!, api[instrument].maxLimitSize) && (updated = true);
-        !isEqual(local.max_market_size!, api[instrument].maxMarketSize) && (updated = true);
-        !isEqual(local.list_time!.getTime(), api[instrument].listTime) && (updated = true);
-        !isEqual(local.expiry_time!.getTime(), api[instrument].expireTime) && (updated = true);
-
-        local.instrument_type !== api[instrument].instType && (updated = true);
-        local.contract_type !== api[instrument].contractType && (updated = true);
-        local.suspense === !!(api[instrument].state === "live") && (updated = true);
-
-        if (updated) {
-          const update = Object.assign({}, { instrument: local.instrument! }, api[instrument]);
-          modified.push(update);
-        }
-
-        instrument++;
-      } else if (local.symbol! <= api[instrument].instId) {
-        !local.suspense && suspense.push({ currency: local.base_currency!, symbol: local.base_symbol! });
-      }
-    });
-  }
-  suspense.length && console.log("   # Instruments:Suspended: ", suspense.length, {suspense});
-  modified.length && console.log("   # Instruments Updated: ", modified.length, {modified});
-
-  await Currency.Suspend(suspense);
-  await Instrument.Suspend(suspense);
-  await InstrumentDetail.Update(modified);
-
-  InstrumentPeriod.Publish();
-}
+// await Currency.Suspend(suspense);
+// await Instrument.Suspend(suspense);
+// await InstrumentDetail.Update(modified);
 
 //+--------------------------------------------------------------------------------------+
 //| Import - Retrieve api Instrument, pass to publisher                                  |
 //+--------------------------------------------------------------------------------------+
-export function Import() {
+export const Import = async () => {
   console.log("In Instruments.Import [API]:", new Date().toLocaleString());
 
-  fetch(`https://openapi.blofin.com/api/v1/market/instruments`)
-    .then((response) => response.json())
-    .then(async (result: IResult) => await publish(result.data))
-    .then(async (data: Array<IInstrumentAPI>) => await merge(data))
-    .catch((error) => {
-      console.log(`Error fetching instruments;`, error);
-    });
-}
+  try {
+    const response = await fetch(`https://openapi.blofin.com/api/v1/market/instruments`);
+
+    if (response.ok) {
+      const json = await response.json();
+      const result: IResult = json;
+
+      await publish(result.data);
+    }
+  } catch (error) {
+    console.log(`Error fetching instruments;`, error);
+  }
+};
