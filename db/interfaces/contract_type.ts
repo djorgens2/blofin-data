@@ -52,8 +52,8 @@ export const Publish = async (props: Partial<IContractType>) => {
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IContractType>): Promise<IContractType["contract_type"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IContractType>(props, { table: `contract_type` });
-    return key ? key.contract_type : undefined;
+    const [result] = await Select<IContractType>(props, { table: `contract_type` });
+    return result ? result.contract_type : undefined;
   } else return undefined;
 };
 

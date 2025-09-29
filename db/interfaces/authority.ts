@@ -49,8 +49,8 @@ export const Add = async (props: Partial<IAuthority>): Promise<IAuthority["autho
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IAuthority>(props, { table: `authority` });
-    return key ? key.authority : undefined;
+    const [result] = await Select<IAuthority>(props, { table: `authority` });
+    return result ? result.authority : undefined;
   } else return undefined;
 };
 

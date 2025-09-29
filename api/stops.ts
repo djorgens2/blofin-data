@@ -3,7 +3,6 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-"use server";
 
 import type { IStopOrder } from "@db/interfaces/stops";
 
@@ -50,7 +49,7 @@ export async function Publish(active: Array<IStopsAPI>) {
         reduce_only: publish.reduceOnly === "true" ? true : false,
         system_generated: publish.clientOrderId.length ? true : false,
         broker_id: publish.brokerId?.length ? publish.brokerId : undefined,
-        create_time: parseInt(publish.createTime),
+        create_time: new Date(parseInt(publish.createTime)),
       };
 
       if (update.system_generated) {

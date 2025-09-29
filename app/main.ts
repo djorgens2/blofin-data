@@ -4,15 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPeriod } from "@db/interfaces/instrument_period";
 import type { IMessage } from "@lib/app.util";
 import type { ISession } from "@module/session";
 
-import { openWebSocket } from "@module/session";
+import { openWebSocket, Session } from "@module/session";
 import { fork } from "child_process";
 import { clear } from "@lib/app.util";
 
-import * as InstrumentPeriods from "@db/interfaces/instrument_period";
+import * as InstrumentPositions from "@db/interfaces/instrument_position";
 import * as Accounts from "@db/interfaces/account";
 
 //+--------------------------------------------------------------------------------------+
@@ -33,22 +32,24 @@ export class CMain {
   //| Start - Loads order class array, syncs bar history, processes orders               |
   //+------------------------------------------------------------------------------------+
   async Start(service: string) {
-    const instruments: Array<Partial<IInstrumentPeriod>> = await InstrumentPeriods.Fetch({ trade_status: "Halted" });
     let wss = await this.setService(service);
+    
+    const instruments = await InstrumentPositions.Authorized({ account: Session().account, auto_status: "Enabled" });
 
-    instruments.forEach((instrument, id) => {
-      const ipc = clear({ state: "init", symbol: instrument.symbol!, node: id });
-      const app = fork("./app/process.ts", [JSON.stringify(ipc)]);
+    instruments &&
+      instruments.forEach((instrument, id) => {
+        const ipc = clear({ state: "init", symbol: instrument.symbol!, node: id });
+        const app = fork("./app/process.ts", [JSON.stringify(ipc)]);
 
-      app.on("message", (message: IMessage) => {
-        message.state === "init" && app.send({ ...message, state: "api" });
-        message.state === "api" && app.send({ ...message, state: "update" });
-        message.state === "update" && Object.assign(ipc, clear({ ...message, state: "ready" }));
+        app.on("message", (message: IMessage) => {
+          message.state === "init" && app.send({ ...message, state: "api" });
+          message.state === "api" && app.send({ ...message, state: "update" });
+          message.state === "update" && Object.assign(ipc, clear({ ...message, state: "ready" }));
+        });
+        app.on("exit", (code) => {
+          console.log(`[main] Symbol: [${ipc.symbol}] exit; PID: [${process.pid}:${app.pid}] with code ${code}`);
+        });
       });
-      app.on("exit", (code) => {
-        console.log(`[main] Symbol: [${ipc.symbol}] exit; PID: [${process.pid}:${app.pid}] with code ${code}`);
-      });
-    });
 
     setInterval(async () => {
       if (wss) {

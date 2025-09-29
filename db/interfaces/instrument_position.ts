@@ -4,29 +4,34 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TPosition } from "@db/interfaces/state";
+import type { TStatus, TSystem } from "@db/interfaces/state";
 
-import { Select, Modify, parseColumns, DB_SCHEMA } from "@db/query.utils";
+import { Select, Update, Load } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as State from "@db/interfaces/state";
+import { isEqual } from "@lib/std.util";
 
 export interface IInstrumentPosition {
   instrument_position: Uint8Array;
+  account: Uint8Array;
   instrument: Uint8Array;
-  position: string;
+  position: `long` | `net` | `short`;
   symbol: string;
   state: Uint8Array;
-  status: TPosition;
+  status: TStatus;
   auto_state: Uint8Array;
-  auto_status: string;
+  auto_status: TSystem;
+  strict_stops: boolean;
+  strict_targets: boolean;
+  digits: number;
   open_request: number;
   open_take_profit: number;
   open_stop_loss: number;
-  update_time: Date | number;
-  close_time: Date | number;
-  create_time: Date | number;
+  create_time: Date;
+  update_time: Date;
+  close_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -34,60 +39,77 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 export async function Import() {
   const state = await State.Key({ status: "Closed" });
-  const keys = await Select<IInstrumentPosition>(
-    `SELECT i.instrument, p.position, i.state as auto_state FROM ${DB_SCHEMA}.instrument i, ${DB_SCHEMA}.position p`,
-    []
-  );
-  const sql = `INSERT IGNORE INTO ${DB_SCHEMA}.instrument_position (instrument_position, instrument, position, state, auto_state ) VALUES (?, ?, ?, ?, ?)`;
+  const instrument_position = await Select<IInstrumentPosition>({}, { table: `vw_audit_instrument_positions` });
 
-  for (const key of keys) {
-    const instrument_position = hashKey(6);
-    const args = [instrument_position, key.instrument, key.position, state, key.auto_state];
-    try {
-      await Modify(sql, args);
-    } catch (e) {
-      console.log(e, sql, args);
+  if (instrument_position.length) {
+    console.log("In Instrument.Position.Import:", new Date().toLocaleString());
+
+    const imports: Array<Partial<IInstrumentPosition>> = [];
+
+    for (const ipos of instrument_position) {
+      const time = new Date();
+      const key = hashKey(12);
+
+      imports.push({
+        ...ipos,
+        instrument_position: key,
+        state: state,
+        strict_stops: false,
+        strict_targets: false,
+        update_time: time,
+        close_time: time,
+      });
     }
+    await Load<IInstrumentPosition>(imports, { table: `instrument_position` });
+    console.log("   # Instrument Position imports: ", instrument_position.length, "verified");
   }
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
-export const Update = async (updates: Array<Partial<IInstrumentPosition>>) => {
-  if (updates.length) {
-    for (const update of updates) {
-      const { symbol, position, status } = update;
-      const instrument = update.instrument ? update.instrument : symbol ? await Instrument.Key({ symbol }) : undefined;
-      const state = update.state ? update.state : status ? await State.Key({ status }) : undefined;
-      const field = state && status === "Closed" ? "close" : "update";
-      const sql = `UPDATE ${DB_SCHEMA}.instrument_position SET state = ?, ${field}_time = now() where instrument = ? and position = ?`;
-      const args = [state, instrument, position];
+export const Publish = async (props: Partial<IInstrumentPosition>) => {
+  const instrument_position = await Select<IInstrumentPosition>({ instrument_position: props.instrument_position }, { table: `instrument_position` });
 
-      try {
-        await Modify(sql, args);
-      } catch (e) {
-        console.log({ e, sql, args });
-      }
-    }
+  if (instrument_position.length) {
+    const [current] = instrument_position;
+    const revised: Partial<IInstrumentPosition> = {
+      instrument_position: current.instrument_position,
+      state: props.state && isEqual(props.state, current.state!) ? undefined : props.state,
+      auto_state: props.auto_state && isEqual(props.auto_state, current.auto_state!) ? undefined : props.auto_state,
+      strict_stops: props.strict_stops && !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
+      strict_targets: props.strict_targets && !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
+      update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+      close_time: props.close_time && isEqual(props.close_time, current.close_time!) ? undefined : props.close_time,
+    };
+    const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+
+    return result ? [result.instrument_position, updates] : [undefined, undefined]; 
   }
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches instrument postiion data from local db meeting props criteria;               |
+//| Fetches instrument position data from local db meeting props criteria;               |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IInstrumentPosition>) {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-  return Select<IInstrumentPosition>(sql, args);
-}
+export const Fetch = async (props: Partial<IInstrumentPosition>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
+  const result = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
+  return result.length ? result : undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches instrument postiion key from local db meeting props criteria;                |
+//| Fetches authorized (open for trading) instrument configuration data from local db;   |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: Partial<IInstrumentPosition>) {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT instrument_position FROM ${DB_SCHEMA}.vw_instrument_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-  const [key] = await Select<IInstrumentPosition>(sql, args);
-  return key ? key.instrument_position : undefined;
-}
+export const Authorized = async (props: Partial<IInstrumentPosition>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
+  const result = await Select<IInstrumentPosition>(props, { table: `vw_auth_trade_instruments` });
+  return result.length ? result : undefined;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Fetches instrument position key from local db meeting props criteria;                |
+//+--------------------------------------------------------------------------------------+
+export const Key = async (props: Partial<IInstrumentPosition>): Promise<IInstrumentPosition["instrument_position"] | undefined> => {
+  if (Object.keys(props).length) {
+    const [result] = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
+    return result ? result.instrument_position : undefined;
+  } else return undefined;
+};

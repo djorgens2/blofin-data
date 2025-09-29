@@ -6,10 +6,11 @@
 
 import type { IRequest } from "@db/interfaces/request";
 
-import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
+import { Select, Insert, Update } from "@db/query.utils";
+import { Session } from "module/session";
+import { isEqual } from "@lib/std.util";
 
 export interface IOrder extends IRequest {
-  orderId: string;
   base_currency: Uint8Array;
   base_symbol: string;
   quote_currency: Uint8Array;
@@ -17,7 +18,7 @@ export interface IOrder extends IRequest {
   order_state: Uint8Array;
   order_status: string;
   contract_type: string;
-  instrument_type: string;
+  instrument_type: Uint8Array;
   order_category: Uint8Array;
   category: string;
   cancel_source: Uint8Array;
@@ -35,93 +36,65 @@ export interface IOrder extends IRequest {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Update - applies updates to Orders on select columns;                                |
+//| Publish - scrubs blofin api updates, applies keys, and executes merge to local db;   |
 //+--------------------------------------------------------------------------------------+
-const formatOrder = (unformatted: Partial<IOrder>): Partial<IOrder> => {
-  const formatted = {
-    request: unformatted.request,
-    order_id: unformatted.order_id,
-    price: unformatted.price,
-    size: unformatted.size,
-    request_type: unformatted.request_type,
-    position: unformatted.position,
-    action: unformatted.action,
-    margin_mode: unformatted.margin_mode,
-    filled_size: unformatted.filled_size,
-    filled_amount: unformatted.filled_amount,
-    average_price: unformatted.average_price,
-    order_state: unformatted.order_state,
-    leverage: unformatted.leverage,
-    fee: unformatted.fee,
-    pnl: unformatted.pnl,
-    cancel_source: unformatted.cancel_source,
-    order_category: unformatted.order_category,
-    reduce_only: unformatted.reduce_only,
-    broker_id: unformatted.broker_id,
-    create_time: unformatted.create_time && new Date(unformatted.create_time),
-    update_time: unformatted.update_time && new Date(unformatted.update_time),
-  } as Partial<IOrder>;
-  return formatted;
-};
+export const Publish = async (props: Partial<IOrder>) => {
+  if (props) {
+    const order = await Fetch({ request: props.request, order_id: props.order_id, account: Session().account });
+    if (order) {
+      const [current] = order;
+      const revised: Partial<IOrder> = {
+        request: current.request,
+        order_category: props.order_category && isEqual(props.order_category, current.order_category!) ? undefined : props.order_category,
+        order_state: props.order_state && isEqual(props.order_state, current.order_state!) ? undefined : props.order_state,
+        cancel_source: props.cancel_source && isEqual(props.cancel_source, current.cancel_source!) ? undefined : props.cancel_source,
+        filled_size: props.filled_size && isEqual(props.filled_size, current.filled_size!) ? undefined : props.filled_size,
+        filled_amount: props.filled_amount && isEqual(props.filled_amount, current.filled_amount!) ? undefined : props.filled_amount,
+        average_price: props.average_price && isEqual(props.average_price, current.average_price!) ? undefined : props.average_price,
+        fee: props.fee && isEqual(props.fee, current.fee!) ? undefined : props.fee,
+        pnl: props.pnl && isEqual(props.pnl, current.pnl!) ? undefined : props.pnl,
+      };
 
-//+--------------------------------------------------------------------------------------+
-//| Update - applies updates to Orders on select columns;                                |
-//+--------------------------------------------------------------------------------------+
-export const Update = async (order: Partial<IOrder>) => {
-  const { request, ...updates } = formatOrder(order);
-  const [fields, args] = parseColumns(updates);
-  const sql = `UPDATE ${DB_SCHEMA}.orders SET ${fields.join(", ")} WHERE request = ?`;
+      const [result, updates] = await Update(revised, { table: `orders`, keys: [{ key: `request` }] });
+      updates && console.log(">> Order.Publish updates:", updates);
+      return result ? result.request : undefined;
+    } else {
+      const order: Partial<IOrder> = {
+        request: props.request,
+        order_id: props.order_id,
+        order_category: props.order_category,
+        order_state: props.order_state,
+        cancel_source: props.cancel_source,
+        filled_size: props.filled_size,
+        filled_amount: props.filled_amount,
+        average_price: props.average_price,
+        fee: props.fee,
+        pnl: props.pnl,
+      };
 
-  args.push(request);
-
-  return Modify(sql, args);
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Publish - Conducts high level scrub; updates/adds new order to local db;             |
-//+--------------------------------------------------------------------------------------+
-export const Publish = async (order: Partial<IOrder>) => {
-  const request = formatOrder(order);
-  const [fields, args] = parseColumns(request, "");
-  const sql = `INSERT INTO ${DB_SCHEMA}.orders (${fields.join(", ")}) VALUES (${Array(args.length).fill("?").join(", ")})`;
-
-  try {
-    await Modify(sql, args);
-  } catch (e) {
-    console.log({ sql, args, request });
-    console.log(e);
+      const result = await Insert<IOrder>(order, { table: `orders` });
+      result && console.log(">> Order.Publish inserts:", result);
+      return result ? result.request : undefined;
+    }
   }
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches orders from local db that meet props criteria;                               |
+//| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IOrder>): Promise<Array<Partial<IOrder>>> {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
-  return Select<IRequest>(sql, args);
-}
+export const Fetch = async (props: Partial<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
+  Object.assign(props, { account: props.account || Session().account });
+  const result = await Select<IOrder>(props, { table: `vw_orders` });
+  return result.length ? result : undefined;
+};
 
 //+--------------------------------------------------------------------------------------+
-//| Fetches orders from local db that meet props criteria;                               |
+//| Fetches a request key from local db that meet props criteria; notfound returns undef |
 //+--------------------------------------------------------------------------------------+
-export async function Key(props: Partial<IOrder>): Promise<IOrder["request"] | undefined> {
-  const { order_id, client_order_id } = props;
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT request FROM ${DB_SCHEMA}.vw_orders ${fields.length ? "WHERE ".concat(fields.join(" AND ")) : ""}`;
-  const keys = await Select<IOrder>(sql, args);
-
-  if (keys.length === 1) {
-    const key = keys[0];
-    if (order_id)
-      if (order_id === key.order_id) return key.request;
-      else return undefined;
-
-    if (client_order_id)
-      if (client_order_id === key.client_order_id) return key.request;
-      else return undefined;
-
-    return key.request;
-  }
-  return undefined;
-}
+export const Key = async (props: Partial<IOrder>): Promise<IOrder["request"] | undefined> => {
+  if (Object.keys(props).length) {
+    Object.assign(props, { account: props.account || Session().account });
+    const [result] = await Select<IOrder>(props, { table: `vw_orders` });
+    return result ? result.request : undefined;
+  } else return undefined;
+};

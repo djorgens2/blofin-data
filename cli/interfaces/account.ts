@@ -73,21 +73,24 @@ export const setAccount = async (props: any) => {
       ...phrase,
     });
 
-    await Accounts.Add({
-      ...alias,
-      ...owner,
-      ...broker,
-      state: state?.state,
-      status: state?.status as TAccess,
-      ...environ,
-      ...rest_api_url,
-      ...private_wss_url,
-      ...public_wss_url,
-    },{
-      ...api,
-      ...secret,
-      ...phrase,
-    });
+    await Accounts.Add(
+      {
+        ...alias,
+        ...owner,
+        ...broker,
+        state: state?.state,
+        status: state?.status as TAccess,
+        ...environ,
+        ...rest_api_url,
+        ...private_wss_url,
+        ...public_wss_url,
+      },
+      {
+        ...api,
+        ...secret,
+        ...phrase,
+      }
+    );
   }
 };
 
@@ -97,30 +100,30 @@ export const setAccount = async (props: any) => {
 export const menuViewAccount = async () => {
   setHeader("View Accounts");
 
-  const colBuffer = 3;
   const accounts = await Accounts.Fetch({});
   const keylen = await getLengths<IAccount>(
     {
-      alias: 16,
-      owner_name: 20,
-      environ: 16,
-      status: 12,
-      symbol: 8,
-      balance: 12,
-      available: 12,
+      alias: 24,
+      owner_name: 24,
+      environ: 20,
+      status: 16,
+      symbol: 12,
+      balance: 20,
+      available: 20,
+      colBuffer: 5,
     },
     accounts!
   );
 
   console.log(
     `\n✔️ `,
-    `${bold("Account".padEnd(keylen.alias+colBuffer, " "))}`,
-    `${bold("Account Holder".padEnd(keylen.owner_name+colBuffer, " "))}`,
-    `${bold("Environment".padEnd(keylen.environ+colBuffer, " "))}`,
-    `${bold("Status".padEnd(keylen.status+colBuffer, " "))}`,
-    `${bold("Currency".padEnd(keylen.symbol+colBuffer, " "))}`,
-    `${bold("Balance".padStart(keylen.balance+colBuffer, " "))}`,
-    `${bold("Available".padStart(keylen.available+colBuffer, " "))}`
+    `${bold("Account".padEnd(keylen.alias, " "))}`,
+    `${bold("Account Holder".padEnd(keylen.owner_name, " "))}`,
+    `${bold("Environment".padEnd(keylen.environ, " "))}`,
+    `${bold("Status".padEnd(keylen.status, " "))}`,
+    `${bold("Currency".padEnd(keylen.symbol, " "))}`,
+    `${bold("Balance".padStart(keylen.balance, " "))}`,
+    `${bold("Available".padStart(keylen.available, " "))}`
   );
 
   if (accounts)
@@ -128,18 +131,19 @@ export const menuViewAccount = async () => {
       const { alias, owner_name, environ, status, symbol, balance, available } = account;
       console.log(
         `${status! === "Enabled" ? "🔹" : "🔸"} `,
-        `${gray(alias!.padEnd(keylen.alias+colBuffer, " "))}`,
-        `${gray(owner_name!.padEnd(keylen.owner_name+colBuffer, " "))}`,
-        `${gray(environ!.padEnd(keylen.environ+colBuffer, " "))}`,
-        `${status === "Enabled"
-            ? cyan(status!.padEnd(keylen.status+colBuffer, " "))
+        `${gray(alias!.padEnd(keylen.alias, " "))}`,
+        `${gray(owner_name!.padEnd(keylen.owner_name, " "))}`,
+        `${gray(environ!.padEnd(keylen.environ, " "))}`,
+        `${
+          status === "Enabled"
+            ? cyan(status!.padEnd(keylen.status, " "))
             : status === "Disabled"
-            ? red(status!.padEnd(keylen.status+colBuffer, " "))
-            : yellow(status!.padEnd(keylen.status+colBuffer, " "))
+            ? red(status!.padEnd(keylen.status, " "))
+            : yellow(status!.padEnd(keylen.status, " "))
         }`,
-        `${gray((symbol ? symbol : "Pending").padEnd(keylen.symbol+colBuffer, " ") )}`,
-        `${gray(formatterUSD.format(balance || 0).padStart(keylen.balance+colBuffer, " "))}`,
-        `${gray(formatterUSD.format(available || 0).padStart(keylen.available+colBuffer, " "))}`
+        `${gray((symbol ? symbol : "Pending").padEnd(keylen.symbol, " "))}`,
+        `${gray(formatterUSD.format(balance || 0).padStart(keylen.balance, " "))}`,
+        `${gray(formatterUSD.format(available || 0).padStart(keylen.available, " "))}`
       );
     }
   console.log(``);

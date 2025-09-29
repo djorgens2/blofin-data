@@ -4,9 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { TSystem } from "@db/interfaces/state";
+import type { ICurrency } from "@db/interfaces/currency";
+import type { TSymbol } from "@db/interfaces/state";
 
-import { Select, Insert, Update } from "@db/query.utils";
+import { Select, Insert, Update, TOptions } from "@db/query.utils";
 import { splitSymbol } from "@lib/app.util";
 import { hashKey } from "@lib/crypto.util";
 import { isEqual } from "@lib/std.util";
@@ -42,7 +43,7 @@ export interface IInstrument {
   trade_timeframe: string;
   timeframe_units: number;
   state: Uint8Array;
-  status: TSystem;
+  status: TSymbol;
   list_time: Date;
   expiry_time: Date;
 }
@@ -50,7 +51,7 @@ export interface IInstrument {
 //+--------------------------------------------------------------------------------------+
 //| Publishes new instruments to the database; returns Key                               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
+export const Publish = async (props: Partial<IInstrument>) => {
   if (props.instrument === undefined) {
     const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
     const instrument: Partial<IInstrument> = {
@@ -72,21 +73,14 @@ export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument[
     else {
       const [current] = instrument;
       const revised: Partial<IInstrument> = {
-        trade_period: props.trade_period ? (!isEqual(props.trade_period, current.trade_period!) ? props.trade_period : undefined) : undefined,
-        margin_mode: props.margin_mode ? (props.margin_mode !== current.margin_mode ? props.margin_mode : undefined) : undefined,
-        leverage: props.leverage ? (!isEqual(props.leverage, current.leverage!) ? props.leverage : undefined) : undefined,
-        lot_scale_factor: props.lot_scale_factor
-          ? !isEqual(props.lot_scale_factor, current.lot_scale_factor!)
-            ? props.lot_scale_factor
-            : undefined
-          : undefined,
-        martingale_factor: props.martingale_factor
-          ? !isEqual(props.martingale_factor, current.martingale_factor!)
-            ? props.martingale_factor
-            : undefined
-          : undefined,
+        instrument: current.instrument,
+        trade_period: props.trade_period && isEqual(props.trade_period, current.trade_period!) ? undefined : props.trade_period,
+        margin_mode: props.margin_mode && props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
+        leverage: props.leverage && isEqual(props.leverage, current.leverage!) ? undefined : props.leverage,
+        lot_scale_factor: props.lot_scale_factor && isEqual(props.lot_scale_factor, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
+        martingale_factor: props.martingale_factor && isEqual(props.martingale_factor, current.martingale_factor!) ? undefined : props.martingale_factor,
       };
-      const result = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
+      const [result] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
       return result ? result.instrument : undefined;
     }
   }
@@ -97,8 +91,8 @@ export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument[
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IInstrument>(props, { table: `vw_instruments` });
-    return key ? key.instrument : undefined;
+    const [result] = await Select<IInstrument>(props, { table: `vw_instruments` });
+    return result ? result.instrument : undefined;
   } else return undefined;
 };
 
@@ -110,20 +104,26 @@ export const Fetch = async (props: Partial<IInstrument>): Promise<Array<Partial<
   return result.length ? result : undefined;
 };
 
-export const Audit = async (props: Array<IInstrument["instrument"]>) => {
+//+--------------------------------------------------------------------------------------+
+//| Audits instrument records for discrepancies; returns array of corrected instruments; |
+//+--------------------------------------------------------------------------------------+
+export const Suspense = async (props: Array<IInstrument["instrument"]>) => {
   if (props.length) {
-    const local = await Fetch({});
-    const suspense = local && local.filter((db) => !props.some((api) => isEqual(api, db.instrument!)));
+    const local = await Select<IInstrument>({ status: `Suspended` }, { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] });
+    const missing = local && local.filter((db) => !props.some((api) => isEqual(api, db.instrument!)));
 
-    console.log(suspense);
-
-    if (suspense && suspense.length) {
-      Currency.Suspend(
-        suspense.map((instrument) => ({
+    if (missing) {
+      const suspense: Array<Partial<ICurrency>> = missing
+        .filter((instrument) => instrument.status !== `Suspended`)
+        .map((instrument) => ({
           currency: instrument.base_currency!,
           symbol: instrument.base_symbol!,
-        }))
-      );
-    }
-  }
+        }));
+
+      if (suspense && suspense.length) {
+        Currency.Suspend(suspense);
+        return suspense;
+      }
+    } else return undefined;
+  } else return undefined;
 };

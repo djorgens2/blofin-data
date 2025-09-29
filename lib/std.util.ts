@@ -6,9 +6,12 @@
 
 import Prompt from "@cli/modules/Prompts";
 
-export const formatterUSD = Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD'
+//+--------------------------------------------------------------------------------------+
+//| Currency formatter; returns values formatted in USD;                                 |
+//+--------------------------------------------------------------------------------------+
+export const formatterUSD = Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
 });
 
 //+--------------------------------------------------------------------------------------+
@@ -157,22 +160,27 @@ export const format = (value: number | string, digits: number = 14): number => {
 //+--------------------------------------------------------------------------------------+
 export const getLengths = async <T>(keylens: Record<string, number>, record: Array<Partial<T>>) => {
   if (record === undefined) return keylens;
+  const { colBuffer } = keylens;
 
-  return record.reduce((maxLengthObj: Record<string, number>, currentObj) => {
-    Object.keys(currentObj).forEach((key) => {
-      const currentValue = currentObj[key as keyof T];
+  return record.reduce(
+    (maxLengthObj: Record<string, number>, currentObj) => {
+      Object.keys(currentObj).forEach((key) => {
+        const currentValue = currentObj[key as keyof T];
 
-      if (typeof currentValue === 'string') {
-        const currentLength = currentValue.length;
-        const existingLength = maxLengthObj[key] || 0;
+        if (typeof currentValue === "string") {
+          const currentLength = currentValue.length;
+          const existingLength = maxLengthObj[key]  || 0;
 
-        if (currentLength > existingLength) {
-          maxLengthObj[key] = currentLength;
+          if (currentLength > existingLength) {
+            maxLengthObj[key] = currentLength + colBuffer;
+          }
         }
-      }
-    });
-    return maxLengthObj;
-  }, { ...keylens } as Record<string, number>);
+      });
+
+      return maxLengthObj;
+    },
+    { ...keylens } as Record<string, number>
+  );
 };
 
 //+--------------------------------------------------------------------------------------+

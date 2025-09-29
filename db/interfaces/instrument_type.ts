@@ -52,8 +52,8 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IInstrum
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IInstrumentType>(props, { table: `instrument_type` });
-    return key ? key.instrument_type : undefined;
+    const [result] = await Select<IInstrumentType>(props, { table: `instrument_type` });
+    return result ? result.instrument_type : undefined;
   } else return undefined;
 };
 

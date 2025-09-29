@@ -6,8 +6,9 @@ import { hexify } from "@lib/crypto.util";
 import { req_fcrt_1a } from "./request";
 
 import * as Requests from "@db/interfaces/request";
+import * as Orders from "@db/interfaces/order";
 
-setSession({ account: hexify("23334e") });
+setSession({ account: hexify("333634") });
 
 const submit = async (request: Partial<IRequest>) => {
   const submitted = await Requests.Submit({ ...request, memo: "Test 1: request w/o expiry; w/o tpsl" });
@@ -24,7 +25,7 @@ submit(req_fcrt_1a)
       console.error("Exiting process with code 1.");
       process.exit(1);
     }
-    await Requests.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+    await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
       console.log("Test 1: Request submitted, check db for results.", submitted);
       console.log("Fetched order from DB:", order);
     });

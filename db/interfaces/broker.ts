@@ -49,8 +49,8 @@ export const Add = async (props: Partial<IBroker>): Promise<IBroker["broker"] | 
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IBroker>): Promise<IBroker["broker"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IBroker>(props, { table: `broker` });
-    return key ? key.broker : undefined;
+    const [result] = await Select<IBroker>(props, { table: `broker` });
+    return result ? result.broker : undefined;
   } else return undefined;
 };
 

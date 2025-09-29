@@ -16,7 +16,7 @@ import * as ContractTypes from "@db/interfaces/contract_type";
 //+--------------------------------------------------------------------------------------+
 //| Inserts Instrument Details on receipt of a new Instrument from Blofin; returns key;  |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
+export const Publish = async (props: Partial<IInstrument>)=> {
   if (props.instrument === undefined) throw new Error(`Unauthorized instrument publication; missing instrument`);
   else {
     const instrument_detail = await Instruments.Fetch({ instrument: props.instrument });
@@ -48,11 +48,12 @@ export const Publish = async (props: Partial<IInstrument>): Promise<IInstrument[
           list_time: props.list_time && isEqual(props.list_time, current.list_time) ? undefined : props.list_time,
           expiry_time: props.expiry_time && isEqual(props.expiry_time, current.expiry_time!) ? undefined : props.expiry_time,
         };
-        const result = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
-        return result ? current.instrument : undefined;
+        const [result, updates] = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
+        result && console.log(`[Info] Instrument Details updated:`, updates);
+        return result ? result.instrument : undefined;
       } else {
         const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail` });
-        return result ? props.instrument : undefined;
+        return result ? result.instrument : undefined;
       }
     }
   }

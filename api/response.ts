@@ -6,9 +6,10 @@
 
 import type { TRequest, IRequestState } from "@db/interfaces/state";
 
-import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
+//import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
 import { hexify } from "@lib/crypto.util";
 
+import * as Requests from "@db/interfaces/request";
 import * as States from "@db/interfaces/state";
 
 export type TResponse = {
@@ -31,47 +32,36 @@ export interface IResponse {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Sets request states based on changes recieved from WSS/API or POST ops;              |
+//| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
-export const Request = async (props: { results: TResponse[]; success: TRequest; fail: TRequest }) => {
-  const accepted = [];
-  const rejected = [];
-  const errors = [];
-  const { results, success, fail } = props;
+export const Request = async (responses: TResponse[], props: { success: TRequest; fail: TRequest }) => {
+  const success = await States.Key<IRequestState>({ status: props.success });
+  const fail = await States.Key<IRequestState>({ status: props.fail });
+  const results: Array<{ code: number; request: Uint8Array; state: Uint8Array; memo: string }> = [];
 
-  if (Array.isArray(results)) {
-    for (const result of results) {
-      const { code, msg, orderId, clientOrderId } = result;
-      const [{ state, status }] = await States.Fetch<IRequestState>({ status: code ? success : fail });
-      const response: Partial<IResponse> = {
-        code,
-        msg,
-        request: hexify(clientOrderId, 6),
-        order_id: hexify(parseInt(result.orderId), 6),
-        state,
-        status,
-        memo: `[${code}: ${msg}] [${orderId},${clientOrderId}] ${new Date(Date.now()).toISOString()} Order status set to ${status}`,
-        create_time: new Date(Date.now()),
-        update_time: new Date(Date.now()),
-      };
+  if (Array.isArray(responses) && responses.length) {
+    for (const response of responses) {
+      const request = hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6);
 
-      const sql = `UPDATE ${DB_SCHEMA}.request SET state = ?, update_time = now(3) WHERE request = ?`;
-      const args = [response.state, response.request];
-
-      if (response.code === "0") {
-        try {
-          await Modify(sql, args);
-          accepted.push(response);
-        } catch (e) {
-          console.log({ sql, fields: ["state", "request"], args });
-          console.log(e);
-          errors.push(response);
-        }
-      } else rejected.push(response);
+      if (response.code && !!parseInt(response.code)) {
+        // if error
+        console.warn(`-> [Error] Response.Request: Error response received from broker API`, response);
+        const result = await Requests.Submit({ request, state: fail, memo: `[Error] ${response.msg} (code: ${response.code}` });
+        results.push({ code: parseInt(response.code), request: request!, state: fail!, memo: `[Error] ${response.msg} (code: ${response.code}` });
+      } else {
+        const result = await Requests.Submit({ request, state: success, memo: `[Info] Response.Request: Successful response received from broker API` });
+        result
+          ? results.push({
+              code: parseInt(response.code),
+              request: request!,
+              state: success!,
+              memo: `[Info] Response.Request: Successful response received from broker API`,
+            })
+          : results.push({ code: parseInt(response.code), request: request!, state: fail!, memo: `[Error] ${response.msg} (code: ${response.code}` });
+      }
     }
-  }
-
-  return [accepted, rejected, errors];
+  } else console.warn("-> [Error] Response.Request: No response data received from broker API");
+  return results;
 };
 
 //+--------------------------------------------------------------------------------------+

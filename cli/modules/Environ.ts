@@ -2,7 +2,6 @@
 //|                                                                           Environ.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
 import Prompt, { IOption } from "@cli/modules/Prompts";
@@ -16,11 +15,11 @@ import * as Environs from "@db/interfaces/environment";
 export const setEnviron = async <T extends Answers<string>>(props: T) => {
   const count = async () => {
     const environs = await Environs.Fetch({});
-    if (environs.length === 0) {
+    if (environs) {
       await Environs.Import();
       return 1;
     }
-    return environs.length;
+    return undefined
   };
   await count();
 

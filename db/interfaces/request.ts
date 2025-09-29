@@ -4,27 +4,24 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "@api/requests";
-import type { IOrderAPI } from "@api/orders";
-import type { IOrder } from "@db/interfaces/order";
-import type { IRequestState, TRequest } from "@db/interfaces/state";
+import type { IRequestAPI } from "api/requests";
+import type { IOrder } from "db/interfaces/order";
+import type { IRequestState, TRequest } from "db/interfaces/state";
 
-import { DB_SCHEMA, Modify, Select, parseColumns } from "@db/query.utils";
-import { uniqueKey, hexify } from "@lib/crypto.util";
-import { isEqual, setExpiry } from "@lib/std.util";
-import { Session } from "@module/session";
+import { Select, Insert, Update } from "db/query.utils";
+import { Fetch } from "db/interfaces/order";
+import { hashKey } from "lib/crypto.util";
+import { isEqual, setExpiry } from "lib/std.util";
+import { Session } from "module/session";
 
-import * as RequestAPI from "@api/orders";
-import * as Order from "@db/interfaces/order";
-import * as States from "@db/interfaces/state";
-import * as References from "@db/interfaces/reference";
-import * as Instruments from "@db/interfaces/instrument";
-import * as InstrumentPosition from "@db/interfaces/instrument_position";
+import * as States from "db/interfaces/state";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 export interface IRequest {
   request: Uint8Array;
+  instrument_position: Uint8Array;
   order_id: number;
-  client_order_id: string | undefined;
+  client_order_id: string;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
@@ -44,129 +41,78 @@ export interface IRequest {
   memo: string;
   reduce_only: boolean;
   broker_id: string;
-  create_time: Date | number;
-  expiry_time: Date | number;
-  update_time: Date | number;
+  create_time: Date;
+  expiry_time: Date;
+  update_time: Date;
 }
 
 //-- Private functions
 
 //+--------------------------------------------------------------------------------------+
-//| Formats request for publication to local db;                                         |
-//+--------------------------------------------------------------------------------------+
-const formatRequest = async (request: Partial<IRequest>): Promise<Partial<IRequest>> => {
-  const formatted = {
-    request: request.request ? request.request : hexify(uniqueKey(10), 6),
-    account: Session().account,
-    instrument: request.instrument || (await Instruments.Key({ symbol: request.symbol })),
-    position: request.position,
-    action: request.action,
-    state: request.state || (await States.Key({ status: request.status })),
-    price: request.price,
-    size: request.size,
-    leverage: request.leverage,
-    request_type: request.request_type || (await References.Key<Uint8Array>("request_type", { source_ref: request.order_type })),
-    margin_mode: request.margin_mode,
-    reduce_only: request.reduce_only && (!!request.reduce_only || false),
-    broker_id: request.broker_id,
-    memo: request.memo,
-    create_time: request.create_time && new Date(request.create_time),
-    update_time: new Date(Date.now()),
-    expiry_time: request.expiry_time,
-  } as Partial<IRequest>;
-
-  return formatted;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Formats request for publication to local db;                                         |
-//+--------------------------------------------------------------------------------------+
-const compare = async (compare: Partial<IRequest>): Promise<[Partial<IOrderAPI>, Partial<IRequest>]> => {
-  const { request, account } = compare;
-  const [order] = await Order.Fetch({ request, account });
-  const [local] = await Fetch({ request, account });
-  const cancel: Partial<IOrderAPI> = {};
-  const submit: Partial<IRequest> = {};
-
-  compare.position && local.position !== compare.position! && (submit.position = compare.position);
-  compare.action && local.action !== compare.action! && (submit.action = compare.action);
-  compare.margin_mode && local.margin_mode !== compare.margin_mode! && (submit.margin_mode = compare.margin_mode);
-  compare.broker_id && local.broker_id !== compare.broker_id! && (submit.broker_id = compare.broker_id);
-
-  compare.instrument && !isEqual(local.instrument!, compare.instrument) && (submit.instrument = compare.instrument);
-  compare.price && !isEqual(local.price!, compare.price) && (submit.price = compare.price);
-  compare.size && !isEqual(local.size!, compare.size) && (submit.size = compare.size);
-  compare.leverage && !isEqual(local.leverage!, compare.leverage) && (submit.leverage = compare.leverage);
-  compare.request_type && !isEqual(local.request_type!, compare.request_type) && (submit.request_type = compare.request_type);
-
-  compare.reduce_only && !!compare.reduce_only !== !!local.reduce_only! && (submit.reduce_only = compare.reduce_only);
-
-  if (order && Object.keys(submit).length) {
-    console.log(">> [Warning: Request.Compare] Order modified; canceled and resubmitted", { order, local, compare, submit });
-    Object.assign(cancel, { instId: local.symbol, orderId: local.order_id!.toString, memo: `[Compare]: Order modified; canceled and resubmitted` });
-  }
-
-  compare.state && !isEqual(local.state!, compare.state) && (submit.state = compare.state);
-  compare.memo && local.memo! !== compare.memo && (submit.memo = compare.memo);
-  compare.expiry_time && local.expiry_time! !== compare.expiry_time && (submit.expiry_time = compare.expiry_time);
-
-  return [cancel, submit];
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Publishes new requests from all sources; API/WSS/APP/CLI and SQL Clients             |
-//+--------------------------------------------------------------------------------------+
-const publish = async (request: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  const [fields, args] = parseColumns(request, "");
-  const sql = `INSERT INTO ${DB_SCHEMA}.request ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
-
-  try {
-    await Modify(sql, args);
-    return request.request;
-  } catch (e) {
-    console.log({ sql, args, request });
-    console.log(e);
-    return undefined;
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Applies updates to request on select columns;                                        |
 //+--------------------------------------------------------------------------------------+
-const update = async (update: Partial<IRequest>): Promise<Partial<IRequest> | undefined> => {
-  const { request, account, create_time, update_time, ...updates } = await formatRequest(update);
-  const [cancel, submit] = await compare({ ...updates, request, account });
+const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+  if (Object.keys(current).length) {
+    if (Object.keys(props).length) {
+      // Compare current and props to find differences
+      const request: Partial<IRequest> = {
+        request: current.request,
+        action: props.action && props.action === current.action ? undefined : props.action,
+        state: props.state && isEqual(props.state, current.state!) ? undefined : props.state,
+        price: props.price && isEqual(props.price, current.price!) ? undefined : props.price,
+        size: props.size && isEqual(props.size, current.size!) ? undefined : props.size,
+        leverage: props.leverage && isEqual(props.leverage, current.leverage!) ? undefined : props.leverage,
+        margin_mode: props.margin_mode && isEqual(props.margin_mode, current.margin_mode!) ? undefined : props.margin_mode,
+        reduce_only: props.reduce_only && !!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
+        broker_id: props.broker_id && props.broker_id === current.broker_id ? undefined : props.broker_id,
+        expiry_time: props.expiry_time && isEqual(props.expiry_time, current.expiry_time!) ? undefined : props.expiry_time,
+        update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+      };
 
-  if (Object.keys(submit).length) {
-    if (Object.keys(cancel).length) {
-      const [accepted] = await RequestAPI.Cancel([cancel]);
+      const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
 
-      if (accepted.length) {
-        console.log(">> [Info: Request.Update] Order modified; request canceled and resubmitted", { cancel, submit });
-        const request = await Submit({ ...updates, account, memo: `[Update]: Order modified; request canceled and resubmitted` });
-        return { request, account, ...updates, memo: `[Update]: Order modified; request canceled and resubmitted` };
-      } else {
-        updates.state = await States.Key({ status: "Rejected" });
-        updates.memo = `[Update]: Unable to cancel modified order; request rejected`;
-        console.log(">> [Error: Request.Update] Unable to cancel modified order; request rejected", update);
-      }
-    }
+      if (result && updates) {
+        const [result, updates] = await Update(
+          {
+            request: props.request,
+            memo: props.memo || undefined,
+          },
+          { table: `request`, keys: [{ key: `request` }] }
+        );
 
-    const [fields, args] = parseColumns(submit);
-    const sql = `UPDATE ${DB_SCHEMA}.request SET ${fields.join(", ")}, update_time = now(3) WHERE request = ? AND account = ?`;
-    args.push(request, account);
+        updates && console.log(">> Request.Publish:", updates);
 
-    try {
-      await Modify(sql, args);
-      return { request, account, ...updates, memo: `[Update]: Request updated successfully` };
-    } catch (e) {
-      console.log({ sql, args, update });
-      console.log(e);
-      return { request, account, ...updates, memo: `[Update]: Error updating request` };
+        return result ? result.request : undefined;
+      } else return undefined;
+    } else {
+      console.log(">> [Error] Request.Publish: No properties to update");
+      return undefined;
     }
   } else {
-    console.log(">> [Warning: Request.Update] No updates to apply", update);
-    return { request, account, ...updates, create_time, update_time, memo: `[Update]: No updates to apply` };
+    const process_time = new Date();
+    const result = await Insert<IRequest>(
+      {
+        request: hashKey(12),
+        instrument_position: props.instrument_position!,
+        action: props.action!,
+        state: props.state!,
+        price: props.price!,
+        size: props.size!,
+        leverage: props.leverage!,
+        request_type: props.request_type!,
+        margin_mode: props.margin_mode!,
+        reduce_only: props.reduce_only || false,
+        broker_id: props.broker_id || undefined,
+        memo: props.memo || undefined,
+        create_time: props.create_time || process_time,
+        expiry_time: props.expiry_time || setExpiry("8h"),
+        update_time: process_time,
+      },
+      { table: `request` }
+    );
+
+    result && console.log(">> Request.Publish:", result);
+    return result ? result.request : undefined;
   }
 };
 
@@ -176,12 +122,16 @@ const update = async (update: Partial<IRequest>): Promise<Partial<IRequest> | un
 //| Reconciles changes triggered via diffs between local db and broker;                  |
 //+--------------------------------------------------------------------------------------+
 export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
-  const audit = await Select<IOrder>(`SELECT * FROM ${DB_SCHEMA}.vw_orders WHERE account = ? AND state != request_state`, [Session().account]);
+  const audit = await Select<IOrder>({ account: Session().account }, { table: `vw_orders`, suffix: `AND status != request_status` });
 
   if (audit.length) {
     console.log(`In Request.Audit [${audit.length}]`);
-    for (const item of audit)
-      await Submit({ ...item, request_state: item.request_state, memo: `[Audit]: Request State updated from ${item.status} to ${item.request_status}` });
+    for (const request of audit)
+      await publish(request, {
+        ...request,
+        state: request.request_state,
+        memo: `[Audit]: Request State updated from ${request.status} to ${request.request_status}`,
+      });
   }
   return audit;
 };
@@ -189,135 +139,157 @@ export const Audit = async (): Promise<Array<Partial<IOrder>>> => {
 //+--------------------------------------------------------------------------------------+
 //| Returns filtered requests from the db for processing/synchronization with broker;    |
 //+--------------------------------------------------------------------------------------+
-export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<IRequestAPI>>> => {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_api_requests ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-
-  return Select<IRequestAPI>(sql, args);
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Fetches requests from local db that meet props criteria;                             |
-//+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IRequest>): Promise<Array<Partial<IRequest>>> => {
+export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<IRequestAPI>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-
-  return Select<IRequest>(sql, args);
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Fetches a request key from local db that meet props criteria; notfound returns undef |
-//+--------------------------------------------------------------------------------------+
-export const Key = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  Object.assign(props, { account: props.account || Session().account });
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT request FROM ${DB_SCHEMA}.vw_orders ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-
-  try {
-    const key = await Select<IRequest>(sql, args);
-    return key.length === 1 ? key[0].request : undefined;
-  } catch (e) {
-    console.log({ sql, args, props });
-    console.log(e);
-    return undefined;
-  }
+  const result = await Select<IRequestAPI>(props, { table: `vw_api_requests` });
+  return result.length ? result : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
-export const Cancel = async (cancel: Partial<IRequest>): Promise<Array<Partial<IRequest>>> => {
-  const { request, account, memo } = cancel;
-  const cancels: Array<Partial<IRequest>> = [];
+export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["request"]>> => {
+  const cancels: Array<IRequest["request"]> = [];
+  const canceled = await States.Key<IRequestState>({ status: "Canceled" });
 
-  if (request && account)
-    if (isEqual(account, Session().account!)) {
-      const canceled = await update({ request, status: "Canceled", memo: memo || `[Cancel]: Request canceled by user/system` });
-      return canceled ? [canceled] : [];
+  if (props.request && props.account)
+    if (isEqual(props.account, Session().account!)) {
+      const result = await publish(props, { ...props, state: canceled, memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system` });
+      return result ? [result] : [];
     } else {
-      console.log(">> [Error: Request.Cancel] Unauthorized cancel attempt; account mismatch", { cancel, session: Session() });
+      console.log(">> [Error] Request.Cancel: Unauthorized cancel attempt; account mismatch");
       return [];
     }
 
-  const requests = await Fetch({ request, account });
-  for (const cancel of requests) {
-    const canceled = await update({ request: cancel.request, status: "Canceled", memo: memo || `[Cancel]: Request canceled by user/system` });
-    canceled && cancels.push(canceled);
-  }
+  const results = await Fetch(props);
+  results &&
+    results.forEach(async ({ request }) => {
+      const result = await publish(props, { ...props, state: canceled, memo: props.memo || `[Cancel]: Request ${request} canceled by user/system` });
+      result && cancels.push(result);
+    });
 
   return cancels;
 };
 
 //+--------------------------------------------------------------------------------------+
+//| Closes requests in local db meeting criteria;                                        |
+//+--------------------------------------------------------------------------------------+
+export const Close = async (props: Partial<IOrder>): Promise<Array<IRequest["request"]>> => {
+  const closes: Array<IRequest["request"]> = [];
+  const closed = await States.Key<IRequestState>({ status: "Closed" });
+
+  if (props.request && props.account)
+    if (isEqual(props.account, Session().account!)) {
+      const result = await publish(props, { ...props, state: closed, memo: props.memo || `[Close]: Request ${props.request} closed by user/system` });
+      return result ? [result] : [];
+    } else {
+      console.log(">> [Error] Request.Close: Unauthorized close attempt; account mismatch");
+      return [];
+    }
+
+  const results = await Fetch(props);
+  results &&
+    results.forEach(async ({ request }) => {
+      const result = await publish(props, { ...props, state: closed, memo: props.memo || `[Close]: Request ${request} closed by user/system` });
+      result && closes.push(result);
+    });
+
+  return closes;
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Verify/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (submission: Partial<IOrder>): Promise<IRequest["request"] | undefined> => {
-  if (submission.account && !isEqual(submission.account!, Session().account!)) {
-    console.log(">> [Error: Request.Submit] Request.Submit] Unauthorized submit attempt; account mismatch", {
-      submission,
-      session: Session().account,
-      alias: Session().alias,
-    });
+export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
+  if (props && props.instrument_position) {
+    //-- handle updates to existing request
+    if (props.request) {
+      const request = await Fetch({ request: props.request });
+
+      if (request) {
+        const [current] = request;
+
+        if (current.status === "Canceled" || current.status === "Closed") {
+          // console.log(">> [Warning: Request.Submit] Request exists; was canceled and not resubmitted:", { exists, submit });
+          return current.request;
+        }
+
+        if (current.status === "Rejected") {
+          const queued = await States.Key<IRequestState>({ status: "Queued" });
+          const result = await publish(current, {
+            ...props,
+            state: queued,
+            memo: `[Warning] Request.Submit: Request exists; was previously rejected; resubmitted`,
+          });
+          return result ? result : undefined;
+        }
+
+        if (current.status === "Queued") {
+          const result = await publish(current, {
+            ...props,
+            memo: props.status === "Queued" ? props.memo || `[Info] Request.Submit: Request exists; was unprocessed; updated and resubmitted` : props.memo,
+          });
+          return result ? result : undefined;
+        }
+
+        if (current.status === "Fulfilled") {
+          const fulfilled = await States.Key<IRequestState>({ status: "Fulfilled" });
+          const result = await publish(current, {
+            ...props,
+            state: fulfilled,
+            memo: props.status === "Fulfilled" ? props.memo || `[Info] Request.Submit: Request exists; was fulfilled; updated and settled` : props.memo,
+          });
+          return result ? result : undefined;
+        }
+
+        //-- pending requests can be updated but not resubmitted; WIP: resubmission logic possibly 'hold' state?
+        if (current.status === "Pending") {
+          if (props.update_time! > current.update_time!) {
+            await publish(current, { ...props });
+            return current.request;
+          } else if (props.update_time! < current.update_time!) {
+            const hold = await States.Key<IRequestState>({ status: "Hold" });
+            const result = await publish(current, {
+              ...props,
+              state: hold,
+              memo: props.status === "Hold" ? props.memo || `[Info] Request.Submit: Request exists; was put on hold; pending cancel and resubmit` : props.memo,
+            });
+            return result ? result : undefined;
+          } else return undefined;
+        }
+
+        console.log(">> [Error] Request.Submit: Request exists; unauthorized resubmission; request rejected");
+        return undefined;
+      }
+    }
+
+    // Handle new request submission
+    const current: Partial<IRequest> = {};
+    const result = await InstrumentPosition.Fetch({ instrument_position: props.instrument_position });
+
+    if (result) {
+      const [position] = result;
+
+      position.auto_status === "Enabled" &&
+        (async () => {
+          const pending = await Fetch({ instrument_position: props.instrument_position, status: "Pending" });
+          pending &&
+            pending.forEach(({ request }) => {
+              Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
+            });
+
+          const queued = await Fetch({ instrument_position: props.instrument_position, status: "Queued" });
+          queued &&
+            queued.forEach(({ request }) => {
+              Close({ request, memo: `[Auto-Close]: New request for instrument/position auto-closes existing queued request` });
+            });
+        })();
+    }
+
+    const request = await publish(current, props);
+    return request;
+  } else {
+    console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
     return undefined;
   }
-
-  const queued = await States.Key<IRequestState>({ status: "Queued" });
-  const state = await States.Key<IRequestState>({ status: submission.request_status });
-  const submit = await formatRequest({ ...submission, state: state || queued, expiry_time: submission.expiry_time || setExpiry("8h") });
-
-  if (submission.request) {
-    const [exists] = await Fetch({ request: submit.request });
-    if (exists) {
-      const { request, status, create_time, expiry_time } = exists;
-      if (status === "Canceled") {
-        //        console.log(">> [Warning: Request.Submit] Request exists; was canceled and not resubmitted:", { exists, submit });
-        return undefined;
-      }
-      if (status === "Rejected") {
-        console.log(">> [Warning: Request.Submit] Request exists; previously rejected and resubmitted:");
-        await update({ request, ...submit, state: queued, memo: `[SUB] Previously rejected request resubmitted` });
-        return request;
-      }
-      if (status === "Queued") {
-        console.log(">> [Info: Request.Submit] Request exists; was unprocessed; updated and resubmitted:", { exists });
-        await update({
-          request,
-          ...submit,
-          create_time,
-          expiry_time,
-          memo: submit.memo || `[SUB] Request replaced; unprocessed request updated and resubmitted`,
-        });
-        return request;
-      }
-      if (status === "Pending") {
-        console.log(">> [Error: Request.Submit] Request exists; is pending and not resubmitted:", { exists, submit });
-        await update({
-          request,
-          ...submit,
-          create_time,
-          expiry_time,
-          memo: submit.memo || `[SUB] Request replaced; unprocessed request updated and resubmitted`,
-        });
-        return undefined;
-      }
-
-      console.log(">> [Error: Request.Submit] Request exists; unauthorized resubmission", { exists, submit });
-      return undefined;
-    }
-  }
-
-  const [auto] = await InstrumentPosition.Fetch({ symbol: submit.symbol, position: submit.position, status: "Open", auto_status: "Enabled" });
-
-  if (auto)
-    if (auto.open_request && submit.create_time! > auto.create_time!) {
-      const pending = await Fetch({ instrument: submit.instrument, position: submit.position, status: "Pending", account: Session().account });
-      if (pending.length)
-        for (const { request } of pending)
-          await Cancel({ request: request!, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
-    }
-
-  const request = await publish(submit);
-  return request;
 };

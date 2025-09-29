@@ -66,15 +66,15 @@ const submit = async (requests: Array<Partial<IRequestAPI>>) => {
 
       if (response.ok) {
         const json = await response.json();
-        const [accepted, rejected, errors] = await Response.Request({ results: json.data, success: "Pending", fail: "Rejected" });
-        console.log(">> [Info: Orders.Submit] Requests submitted:", { results: json.data, accepted, rejected, errors });
-        return [accepted, rejected, errors];
-      }
+        const result = await Response.Request( json.data, {success: "Pending", fail: "Rejected" });
+
+        return result ? result : undefined;
+      } else throw new Error(`Order.Submit: Response not ok: ${response.status} ${response.statusText}`);
     } catch (error) {
-      console.log(error, method, headers, body);
+      console.log(">> [Error] Order.Submit:", error, method, headers, body);
     }
   }
-  return [[], [], []];
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -107,19 +107,15 @@ const setLeverage = async (props: Partial<IRequestAPI>) => {
       const json = await response.json();
       console.log(">> [Info: Orders.Leverage] Leverage set:", json);
       await Response.Leverage({ results: json.data });
-    }
+    } else throw new Error(`Order.Leverage: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.log(error, method, headers, body);
+    console.log(">> [Error] Order.Leverage:", error, method, headers, body);
   }
 };
 
 export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
-  const accepted: Array<Partial<IRequestAPI>> = [];
-  const rejected: Array<Partial<IRequestAPI>> = [];
-  const errors: Array<Partial<IRequestAPI>> = [];
 
   requests.map(async (req) => {
-    const instrument = await 
     await setLeverage({ instId: req.instId, leverage: req.leverage, marginMode: req.marginMode, positionSide: req.positionSide });
   });
 

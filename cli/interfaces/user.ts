@@ -6,16 +6,17 @@
 "use strict";
 
 import Prompt, { IOption } from "@cli/modules/Prompts";
-import type { IUser}  from "@db/interfaces/user";
+import type { IUser } from "@db/interfaces/user";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 import { Answers } from "prompts";
 
-import { setState} from "@cli/modules/State";
+import { setState } from "@cli/modules/State";
 import { setHeader } from "@cli/modules/Header";
 
 import * as Users from "@db/interfaces/user";
 import * as Roles from "@db/interfaces/role";
+import { getLengths } from "@lib/std.util";
 
 interface IUserToken {
   username: string;
@@ -128,8 +129,9 @@ export const setCredentials = async (newUser: boolean = false, props?: Partial<I
 
       if (newUser && verified) {
         Object.assign(credentials, { ...credentials, ...fields });
-        const result = await Users.Add({ ...credentials, password });
-        setUserToken(result);
+        const user = await Users.Add({ ...credentials, password });
+        const result = await Users.Fetch({ user });
+        result ? setUserToken({ ...result, error: 0, message: "Operation successful." }) : setUserToken({ error: 401, message: "Operation failed." });
       }
 
       return verified;
@@ -168,31 +170,55 @@ export const setPassword = async <T extends Answers<string>>(props: T) => {
 //+--------------------------------------------------------------------------------------+
 export const menuViewUser = async () => {
   setHeader("View Users");
+  
+  const users = await Users.Fetch({});
+  const keylen = await getLengths<IUser>(
+    {
+      username: 16,
+      email: 24,
+      title: 10,
+      status: 12,
+      image_url: 24,
+      create_time: 12,
+      update_time: 12,
+      colBuffer: 5,
+    },
+    users!
+  );
+
   console.log(
     `\n✔️ `,
-    `${bold("User Name".padEnd(16, " "))}`,
-    `${bold("E-Mail Address".padEnd(24, " "))}`,
-    `${bold("Title".padEnd(10, " "))}`,
-    `${bold("Status".padEnd(12, " "))}`,
-    `${bold("Image Location".padEnd(36, " "))}`,
-    `${bold("Created".padEnd(12, " "))}`,
-    `${bold("Updated".padEnd(12, " "))}`
+    `${bold("User Name".padEnd(keylen.username, " "))}`,
+    `${bold("E-Mail Address".padEnd(keylen.email, " "))}`,
+    `${bold("Title".padEnd(keylen.title, " "))}`,
+    `${bold("Status".padEnd(keylen.status, " "))}`,
+    `${bold("Image Location".padEnd(keylen.image_url, " "))}`,
+    `${bold("Created".padEnd(keylen.create_time, " "))}`,
+    `${bold("Updated".padEnd(keylen.update_time, " "))}`
   );
-  (await Users.Fetch({})).forEach((user) => {
-    const { username, email, title, status, image_url, create_time, update_time } = user;
-    console.log(
-      `${status! === "Enabled" ? "🔹" : "🔸"}`,
-      `${username!.padEnd(16, " ")}`,
-      `${email!.padEnd(24, " ")}`,
-      `${title!.padEnd(10, " ")}`,
-      `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
-      `${image_url!.padEnd(36, " ")}`,
-      `${create_time!.toLocaleDateString().padEnd(12, " ")}`,
-      `${update_time!.toLocaleDateString().padEnd(12, " ")}`
-    );
-  });
+
+  if (users)
+    for (const user of users) {
+      const { username, email, title, status, image_url, create_time, update_time } = user;
+      console.log(
+        `${status! === "Enabled" ? "🔹" : "🔸"} `,
+        `${username!.padEnd(keylen.username, " ")}`,
+        `${email!.padEnd(keylen.email, " ")}`,
+        `${title!.padEnd(keylen.title, " ")}`,
+        `${
+          status === "Enabled"
+            ? cyan(status!.padEnd(keylen.status, " "))
+            : status === "Disabled"
+            ? red(status!.padEnd(keylen.status, " "))
+            : yellow(status!.padEnd(keylen.status, " "))
+        }`,
+        `${image_url!.padEnd(keylen.image_url, " ")}`,
+        `${create_time!.toLocaleDateString().padEnd(keylen.create_time, " ")}`,
+        `${update_time!.toLocaleDateString().padEnd(keylen.update_time, " ")}`
+      );
+    }
   console.log(``);
-  const { choice } = await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
+  const { choice } = await Prompt(["choice"], { message: "  ", active: "Refresh", inactive: "Finished", initial: false });
 };
 
 //+--------------------------------------------------------------------------------------+

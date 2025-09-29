@@ -4,15 +4,18 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestState, TRequest, TPosition } from "@db/interfaces/state";
+import type { IRequestState, TRequest, TStatus } from "@db/interfaces/state";
 
-import { DB_SCHEMA, Modify, Select, parseColumns } from "@db/query.utils";
+import { Select, Insert, Update } from "@db/query.utils";
+
 import { hexify, uniqueKey } from "@lib/crypto.util";
 
 import * as Instrument from "@db/interfaces/instrument";
 import * as InstrumentPosition from "@db/interfaces/instrument_position";
 import * as References from "@db/interfaces/reference";
 import * as States from "@db/interfaces/state";
+
+const [tp, sl] = [hexify(`e4`), hexify(`df`)];
 
 export interface IStopRequest {
   instrument_position: Uint8Array;
@@ -29,13 +32,14 @@ export interface IStopRequest {
   order_price: number;
   reduce_only: boolean;
   memo: string;
-  create_time: Date | number;
+  create_time: Date;
+  update_time: Date;
 }
 
 export interface IStopOrder extends IStopRequest {
   tpsl_id: number;
   position_state: Uint8Array;
-  position_status: TPosition;
+  position_status: TStatus;
   request_state: Uint8Array;
   request_status: TRequest;
   order_state: Uint8Array;
@@ -50,71 +54,111 @@ export type TAppResponse = Array<{ instId: string | undefined; tpsl_id: number |
 //+--------------------------------------------------------------------------------------+
 //| Submits application (auto) stop requests locally on Open positions;                  |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (request: Partial<IStopRequest>): Promise<IStopRequest | undefined> => {
-  const [positionInfo] = request.instrument_position
-    ? await InstrumentPosition.Fetch({ instrument_position: request.instrument_position })
-    : await InstrumentPosition.Fetch({ symbol: request.symbol, position: request.position });
-  const openRequests = request.stop_type === "tp" ? positionInfo.open_take_profit : positionInfo.open_stop_loss;
-
-  //--- Format and locate the stop request for submission
-  const verify = async (): Promise<[IStopRequest, boolean]> => {
-    const { stop_type, action, size, trigger_price, order_price, reduce_only, memo } = request;
-    const submit = {
-      stop_type,
-      action,
-      size,
-      trigger_price,
-      order_price,
-      reduce_only,
-      memo,
-      instrument_position: positionInfo.instrument_position,
-      instrument: request.instrument || (await Instrument.Key({ symbol: request.symbol })),
-      stop_request: request.stop_request || hexify(uniqueKey(8), 4),
-      state: request.state || (await States.Key({ status: "Queued" })),
-      create_time: request.create_time || Date.now(),
-    } as IStopRequest;
-
-    const key = await Key({ stop_request: submit.stop_request, stop_type });
-    return [submit, key ? true : false];
-  };
-
-  //--- If the position is valid, proceed with the stop request submission
-  if (positionInfo) {
-    if (positionInfo.auto_status === "Enabled") {
-      if (positionInfo.status === "Open") {
-        if (openRequests === 0) {
-          console.log("Stop request is valid for submission:", request);
-        } else {
-          console.error("Position already has an open stop order:", request);
-          return undefined;
-        }
+const publish = async (props: Partial<IStopRequest>): Promise<IStopRequest["stop_request"] | undefined> => {
+  if (props) {
+    if (props.stop_request) {
+      const request = await Fetch({ stop_request: props.stop_request, stop_type: props.stop_type });
+      if (request && request.length) {
+        // Implementation for publishing the stop request
+          const request = {
+            size: ,
+            trigger_price,
+            order_price,
+            reduce_only,
+            memo,
+            instrument_position: positionInfo.instrument_position,
+            instrument: request.instrument || (await Instrument.Key({ symbol: request.symbol })),
+            stop_request: request.stop_request || hexify(uniqueKey(8), 4),
+            state: request.state || (await States.Key({ status: "Queued" })),
+            create_time: request.create_time || Date.now(),
+          } as IStopRequest;
+        console.log(">> [Info] Stop.Publish: Stop request already exists; no action taken", props.stop_request);
+        return request[0].stop_request;
       } else {
-        console.error("Position is not open for this stop request:", request);
+        const action = props.action ? props.action : props.position === "long" ? "sell" : "buy",
+
+        console.log(">> [Info] Stop.Publish: Stop request does not exist; proceeding with submission", props.stop_request);
+        return await Submit(props).then((result) => (result ? result.stop_request : undefined));
+      }
+
+    }
+  }
+};
+//+--------------------------------------------------------------------------------------+
+//| Submits application (auto) stop requests locally on Open positions;                  |
+//+--------------------------------------------------------------------------------------+
+export const Submit = async (props: Partial<IStopRequest>): Promise<IStopRequest["stop_request"] | undefined> => {
+  if (props && props.instrument_position) {
+    if (props.stop_request) {
+      const request = await Fetch({ stop_request: props.stop_request, stop_type: props.stop_type });
+      if (request && request.length) {
+        const [current] = request;
+
+        if (props.update_time! > current.update_time!) {
+
+        console.error(">> [Error] Stop.Submit: Stop request already exists; submission rejected", props.stop_request);
         return undefined;
       }
+
+    } else
+    {}
+
+    if (current.status === "Open") {
+      //--- Format and locate the stop request for submission
+      const verify = async (): Promise<[IStopRequest, boolean]> => {
+        const { stop_type, action, size, trigger_price, order_price, reduce_only, memo } = request;
+
+        const key = await Key({ stop_request: submit.stop_request, stop_type });
+        return [submit, key ? true : false];
+      };
+
+      //--- If the position is valid, proceed with the stop request submission
+      if (positionInfo) {
+        if (positionInfo.auto_status === "Enabled") {
+          if (positionInfo.status === "Open") {
+            if (openRequests === 0) {
+              console.log("Stop request is valid for submission:", request);
+            } else {
+              console.error("Position already has an open stop order:", request);
+              return undefined;
+            }
+          } else {
+            console.error("Position is not open for this stop request:", request);
+            return undefined;
+          }
+        }
+      } else {
+        console.error("Invalid instrument position for this stop request:", request);
+        return undefined;
+      }
+
+      //--- If the stop request does not exist, insert it into the database
+      const [submit, exists] = await verify();
+      if (exists) {
+        console.log("Stop request already exists:", submit.stop_request);
+        return submit;
+      }
+
+      console.log("Inserting new stop request:", submit.stop_request);
+      const { symbol, instrument, position, create_time, ...props } = submit;
+      const [fields, args] = parseColumns({ ...props }, "");
+      const sql = `INSERT INTO ${DB_SCHEMA}.stop_request (${fields.join(", ")}, create_time) VALUES (${Array(args.length)
+        .fill("?")
+        .join(", ")}, FROM_UNIXTIME(?/1000))`;
+
+      try {
+        await Modify(sql, [...args, create_time]);
+        return submit;
+      } catch (e) {
+        console.error("Error submitting stop request:", e);
+        return undefined;
+      }
+    } else {
+      console.error(`>> [Error] Stop.Submit: Instrument Position is closed; stop request rejected`, props);
+      return undefined;
     }
   } else {
-    console.error("Invalid instrument position for this stop request:", request);
-    return undefined;
-  }
-
-  //--- If the stop request does not exist, insert it into the database
-  const [submit, exists] = await verify();
-  if (exists) {
-    console.log("Stop request already exists:", submit.stop_request);
-    return submit;
-  }
-
-  console.log("Inserting new stop request:", submit.stop_request);
-  const { symbol, instrument, position, create_time, ...props } = submit;
-  const [fields, args] = parseColumns({ ...props }, "");
-  const sql = `INSERT INTO ${DB_SCHEMA}.stop_request (${fields.join(", ")}, create_time) VALUES (${Array(args.length).fill("?").join(", ")}, FROM_UNIXTIME(?/1000))`;
-
-  try {
-    await Modify(sql, [...args, create_time]);
-    return submit;
-  } catch (e) {
-    console.error("Error submitting stop request:", e);
+    console.error(`>> [Error] Stop.Submit: No instrument position found; stop request rejected`, props);
     return undefined;
   }
 };
@@ -163,7 +207,7 @@ export async function Publish(orders: Array<Partial<IStopOrder>>) {
     for (const order of orders) {
       if (order.tpsl_id) {
         const request = await verify(order);
-        
+
         // Verify the stop order
         if (request) {
           const [submit] = await Fetch({

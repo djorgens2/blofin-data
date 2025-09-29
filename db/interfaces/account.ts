@@ -150,13 +150,10 @@ export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAc
 //| Updates the account (master) from the API (select fields) or the UI;                 |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IAccount>): Promise<IAccount["account"] | undefined> => {
-  if (isEqual(Session().account!, props.account!)) {
+  if (props.account && isEqual(Session().account!, props.account)) {
     const account = await Fetch({ account: props.account });
 
-    if (account === undefined) {
-      setUserToken({ error: 315, message: `Invalid session credentials.` });
-      throw new Error(`Unauthorized account publication; invalid session account`);
-    } else {
+    if (account) {
       const [current] = account;
       const revised: Partial<IAccount> = {
         account: current.account,
@@ -164,10 +161,16 @@ export const Publish = async (props: Partial<IAccount>): Promise<IAccount["accou
         isolated_equity: props?.isolated_equity && isEqual(props.isolated_equity, current.isolated_equity!) ? undefined : props.isolated_equity,
         update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
       };
-      const result = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
-      return result ? current.account : undefined;
+      const [result] = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
+      return result ? result.account : undefined;
+    } else {
+      setUserToken({ error: 315, message: `Invalid session credentials.` });
+      throw new Error(`Unauthorized account publication; invalid session account`);
     }
-  } else return undefined;
+  } else {
+    setUserToken({ error: 315, message: `Invalid session credentials.` });
+    throw new Error(`Unauthorized account publication; invalid session account`);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -203,13 +206,13 @@ export const PublishDetail = async (props: Partial<IAccount>) => {
         liability: props.liability && isEqual(props.liability, current.liability!) ? undefined : props.liability,
         update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
       };
-      const result = await Update(revised, { table: `account`, keys: [{ key: `account` }, { key: `currency` }] });
+      const [result] = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
       result && setUserToken({ error: 0, message: `Account update detail applied.` });
-      return result ? ({ account: revised.account, currency: revised.currency } as Partial<IAccount>) : undefined;
+      return result ? ({ account: result.account, currency: result.currency } as Partial<IAccount>) : undefined;
     } else {
       const result = await Insert<IAccount>(props, { table: `account_detail` });
       result && setUserToken({ error: 0, message: `New Account Currency details imported.` });
-      return result ? ({ account: props.account, currency: props.currency } as Partial<IAccount>) : undefined;
+      return result ? ({ account: result.account, currency: result.currency } as Partial<IAccount>) : undefined;
     }
   } else {
     setUserToken({ error: 315, message: `Invalid session credentials.` });

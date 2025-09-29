@@ -47,8 +47,8 @@ export const Add = async (props: Partial<IEnvironment>): Promise<IEnvironment["e
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IEnvironment>(props, { table: `environment` });
-    return key ? key.environment : undefined;
+    const [result] = await Select<IEnvironment>(props, { table: `environment` });
+    return result ? result.environment : undefined;
   } else return undefined;
 };
 

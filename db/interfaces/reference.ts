@@ -8,13 +8,18 @@ import { Select, Insert, TOptions } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 import { TRequest } from "@db/interfaces/state";
 
+export type TRefKey = Uint8Array;
+export type TRefText = string;
+
 export interface IReference {
   table: string;
+  state: Uint8Array;
   order_state: Uint8Array;
   request_type: Uint8Array;
   cancel_source: Uint8Array;
   order_category: Uint8Array;
   source_ref: string;
+  status: string;
   map_ref: TRequest;
   [key: string]: unknown;
 }
@@ -37,13 +42,13 @@ export const Import = async () => {
   };
 
   [
-    { order_state: 0, source_ref: "live", map_ref: "Pending", status: "Live" },
-    { order_state: 0, source_ref: "effective", map_ref: "Pending", status: "Effective" },
-    { order_state: 0, source_ref: "canceled", map_ref: "Closed", status: "Canceled" },
-    { order_state: 0, source_ref: "order_failed", map_ref: "Rejected", status: "Order Failed" },
-    { order_state: 0, source_ref: "filled", map_ref: "Fulfilled", status: "Filled" },
-    { order_state: 0, source_ref: "partially_canceled", map_ref: "Closed", status: "Partially Canceled" },
-    { order_state: 0, source_ref: "partially_filled", map_ref: "Pending", status: "Partially Filled" },
+    { order_state: 0, source_ref: "live", status: "Pending", description: "Live" },
+    { order_state: 0, source_ref: "effective", status: "Pending", description: "Effective" },
+    { order_state: 0, source_ref: "canceled", status: "Closed", description: "Canceled" },
+    { order_state: 0, source_ref: "order_failed", status: "Rejected", description: "Order Failed" },
+    { order_state: 0, source_ref: "filled", status: "Fulfilled", description: "Filled" },
+    { order_state: 0, source_ref: "partially_canceled", status: "Closed", description: "Partially Canceled" },
+    { order_state: 0, source_ref: "partially_filled", status: "Pending", description: "Partially Filled" },
   ].forEach((state) => {
     Add("order_state", state), counts.orderState++;
   });
@@ -122,9 +127,9 @@ export const Fetch = async (props: Partial<IReference>, options: TOptions): Prom
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export const Key = async (props: Partial<IReference>, options: TOptions) => {
+export const Key = async <T>(props: Partial<IReference>, options: TOptions): Promise<T | undefined> => {
   if (Object.keys(props).length) {
     const [key] = await Select<IReference>(props, options);
-    return key ? Object.values(key)[0] : undefined;
+    return key ? (Object.values(key)[0] as T) : undefined;
   } else return undefined;
 };

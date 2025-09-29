@@ -3,42 +3,44 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-"use server";
 
-import type { IRequestAPI } from "@api/requests";
-import type { IRequest } from "@db/interfaces/request";
+import type { IRequestState } from "db/interfaces/state";
+import type { IRequestAPI } from "api/requests";
+import type { IRequest } from "db/interfaces/request";
 
-import { hexify } from "@lib/crypto.util";
-import { setExpiry } from "@lib/std.util";
-import { Session } from "@module/session";
+import { hexify } from "lib/crypto.util";
+import { setExpiry } from "lib/std.util";
+import { Session } from "module/session";
 
-import * as PositionsAPI from "@api/positions";
-import * as RequestAPI from "@api/requests";
-import * as OrderAPI from "@api/orders";
-import * as StopsAPI from "@api/stops";
+import * as PositionsAPI from "api/positions";
+import * as RequestAPI from "api/requests";
+import * as OrderAPI from "api/orders";
+import * as StopsAPI from "api/stops";
 
-import * as Instrument from "@db/interfaces/instrument";
-import * as Request from "@db/interfaces/request";
-import * as Order from "@db/interfaces/order";
+import * as Instrument from "db/interfaces/instrument";
+import * as Request from "db/interfaces/request";
+import * as Order from "db/interfaces/order";
+import * as States from "db/interfaces/state";
 
 //+--------------------------------------------------------------------------------------+
 //| Audits Request Queue; reconciles request state on change using broker order history; |
 //+--------------------------------------------------------------------------------------+
 const processAudit = async () => {
   const audit = await Request.Audit();
-  audit.length && console.log(">> [Info: Trades.Audit] Total items audited:", audit.length);
+  audit.length && console.log(">> [Info] Trades.Audit: Total items audited:", audit.length);
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Resubmits rejected requests to broker for execution; closes rejects beyond expiry;   |
 //+--------------------------------------------------------------------------------------+
 const processRejected = async () => {
-  const rejects = await Request.Fetch({ status: "Rejected", account: Session().account });
-  const expiry = setExpiry("0s");
   const requeued: Array<Partial<IRequest>> = [];
   const expired: Array<Partial<IRequest>> = [];
 
-  if (rejects.length)
+  const rejects = await Order.Fetch({ status: "Rejected", account: Session().account });
+  const expiry = setExpiry("0s");
+
+  if (rejects)
     for (const reject of rejects)
       expiry < reject.expiry_time!
         ? requeued.push({ ...reject, memo: `[Retry]: Rejected request state changed to Queued and resubmitted` })
@@ -47,20 +49,21 @@ const processRejected = async () => {
   if (requeued.length) for (const request of requeued) await Request.Submit(request);
   if (expired.length) for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
 
-  requeued.length && console.log(">> [Info: Trades.Rejected] Request retries:", requeued.length, "resubmitted");
-  expired.length && console.log(">> [Warning: Trades.Rejected] Requests expired:", expired.length, "canceled");
+  requeued.length && console.log(">> [Info] Trades.Rejected: Request retries:", requeued.length, "resubmitted");
+  expired.length && console.log(">> [Warning] Trades.Rejected: Requests expired:", expired.length, "canceled");
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Closes pending orders beyond expiry;                                                 |
 //+--------------------------------------------------------------------------------------+
 const processPending = async () => {
-  const requests = await Request.Fetch({ status: "Pending", account: Session().account });
-  const expiry = setExpiry("0s");
   const pending: Array<Partial<IRequest>> = [];
   const expired: Array<Partial<IRequest>> = [];
 
-  if (requests.length)
+  const requests = await Order.Fetch({ status: "Pending", account: Session().account });
+  const expiry = setExpiry("0s");
+
+  if (requests)
     for (const request of requests)
       expiry < request.expiry_time!
         ? pending.push({ status: "Pending" })
@@ -69,8 +72,8 @@ const processPending = async () => {
   if (expired.length) {
     for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
 
-    pending.length && console.log(">> [Info: Trades.Pending] Requests pending:", pending.length);
-    expired.length && console.log(">> [Warning: Trades.Pending] Requests canceled:", expired.length, expired);
+    pending.length && console.log(">> [Info] Trades.Pending: Requests pending:", pending.length);
+    expired.length && console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length, expired);
   }
 };
 
@@ -78,46 +81,66 @@ const processPending = async () => {
 //| Submit local requests to the API;                                                    |
 //+--------------------------------------------------------------------------------------+
 const processQueued = async () => {
-  const queue = await Request.Queue({ status: "Queued", account: Session().account });
-  const expiry = setExpiry("0s");
   const requests: Array<Partial<IRequestAPI>> = [];
   const expired: Array<Partial<IRequest>> = [];
 
-  if (queue.length) {
+  const queue = await Request.Queue({ status: "Queued", account: Session().account });
+  const expiry = setExpiry("0s");
+
+  if (queue) {
     for (const request of queue) {
       const { status, account, expiry_time, ...api } = request;
-      
+
       if (expiry < expiry_time!) {
-        const [instrument] = await Instrument.Fetch({ symbol: api.instId! });
         requests.push(api);
       } else expired.push({ request: hexify(api.clientOrderId!, 6), account, memo: `[Expired]: Queued request state changed to Canceled` });
     }
 
-    if (expired.length) for (const request of expired) await Request.Cancel(request);
-
-    const [accepted, rejected, errors] = await RequestAPI.Submit(requests);
-
-    accepted.length && console.log(">> [Info: Trades.Queued] Orders recieved:", accepted.length, "accepted");
-    rejected.length && console.log(">> [Error: Trades.Queued] Requests rejected:", rejected.length, "rejected");
-    expired.length && console.log(">> [Warning: Trades.Queued] Requests expired:", expired.length, "expired");
-    errors.length && console.log(">> [Error: Trades.Queued] Cancellation errors:", errors.length, "errors");
+    expired.length && expired.forEach(async (request) => await Request.Cancel(request));
+    await RequestAPI.Submit(requests);
   }
+
+  queue && console.log(">> [Info] Trades.Queued: Requests submitted:", queue.length);
+  expired.length && console.log(">> [Warning] Trades.Queued: Requests expired:", expired.length, "expired");
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Ssumit Cancel requests to the API for orders in canceled state;                      |
+//| Submit Cancel requests to the API for orders in canceled state;                      |
 //+--------------------------------------------------------------------------------------+
 const processCanceled = async () => {
   const orders = await Order.Fetch({ status: "Canceled", account: Session().account });
   const cancels = [];
 
-  if (orders.length) for (const order of orders) order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+  if (orders) for (const order of orders) order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
 
-  const [accepted, rejected, errors] = await OrderAPI.Cancel(cancels);
+  const result = await OrderAPI.Cancel(cancels);
+  result && console.log(">> [Info] Trades.Canceled: Cancel requests submitted:", cancels.length);
+};
 
-  accepted.length && console.log(">> [Info:  Trades.Canceled] Cancels closed:", accepted.length, "accepted");
-  rejected.length && console.log(">> [Warning: Trades.Canceled] Cancels rejected:", rejected.length, "rejected");
-  errors.length && console.log(">> [Error: Trades.Canceled] Cancellation errors:", errors.length, "errors");
+//+--------------------------------------------------------------------------------------+
+//| Resubmit requests canceled by modification to the API for orders in hold state;      |
+//+--------------------------------------------------------------------------------------+
+const processHold = async () => {
+  const orders = await Order.Fetch({ status: "Hold", account: Session().account });
+  const cancels = [];
+
+  if (orders) {
+    const success = await States.Key<IRequestState>({ status: "Queued" });
+    const fail = await States.Key<IRequestState>({ status: "Rejected" });
+
+    for (const order of orders) order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+
+    const result = await OrderAPI.Cancel(cancels);
+
+    if (result) {
+      console.log(">> [Info] Trades.Hold: Cancel requests submitted:", cancels.length);
+
+      for (const order of result) {
+        const result = await Request.Submit({ request: order.request!, state: order.state!, memo: order.memo! });
+        result && console.log(">> [Info] Trades.Hold: Requests resubmitted:", result.length);
+      }
+    }
+  }
 };
 
 // Public functions
@@ -130,11 +153,12 @@ export const Trades = async () => {
 
   await PositionsAPI.Import();
   await OrderAPI.Import();
-  await StopsAPI.Import();
+  // await StopsAPI.Import();
 
   await processAudit();
   await processRejected();
   await processPending();
   await processCanceled();
+  await processHold();
   await processQueued();
 };

@@ -72,7 +72,7 @@ const parseKeys = (props: object, keys?: Array<TKey>) => {
 //+--------------------------------------------------------------------------------------+
 //| Returns columns and keys in separate arrays;                                         |
 //+--------------------------------------------------------------------------------------+
-const splitKeys = <T>(props: Partial<T>, filter: Array<string>) => {
+export const splitKeys = <T>(props: Partial<T>, filter: Array<string>) => {
   return Object.keys(props).reduce(
     ([included, excluded]: [Record<string, any>, Record<string, any>], key: string): [Record<string, any>, Record<string, any>] => {
       if (filter.includes(key)) {
@@ -134,13 +134,13 @@ export const Update = async <T>(props: Partial<T>, options: TOptions) => {
 
     try {
       const result = await modify(sql, [...values, ...args]);
-      return result ? filters : undefined;
+      return result ? [filters as Partial<T>, columns as Partial<T>] : [undefined, undefined];
     } catch (e) {
       console.log({ sql, args, props });
       console.log(e);
-      return undefined;
+      return [undefined, undefined];
     }
-  }
+  } else return [undefined, undefined];
 };
 
 //+--------------------------------------------------------------------------------------+

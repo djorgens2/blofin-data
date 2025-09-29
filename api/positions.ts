@@ -3,14 +3,13 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-"use server";
 
 import type { IPositions } from "@db/interfaces/positions";
 import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
 
 import { Session, signRequest } from "@module/session";
 import { hexify } from "@lib/crypto.util";
-import { format } from "@lib/std.util";
+import { format, isEqual } from "@lib/std.util";
 import { DB_SCHEMA, Select } from "@db/query.utils";
 
 import * as Instrument from "@db/interfaces/instrument";
@@ -41,18 +40,18 @@ export interface IPositionsAPI {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieve blofin rest api candle data, format, then pass to publisher;                |
+//| Format and publish position updates;                                                 |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partial<IInstrumentPosition>>> => {
-  const updates: Array<Partial<IInstrumentPosition>> = [];
+export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partial<IPositions>>> => {
+  const updates: Array<Partial<IPositions>> = [];
   if (props && props.length)
     for (const position of props) {
       const positions = hexify(parseInt(position.positionId), 6);
       const instrument = await Instrument.Key({ symbol: position.instId });
+      const instrument_position = await InstrumentPositions.Key({ account: Session().account, instrument: instrument!, position: position.positionSide });
       const update: Partial<IPositions> = {
         positions,
-        instrument,
-        position: position.positionSide,
+        instrument_position,
         size: parseFloat(position.positions),
         size_available: parseFloat(position.availablePositions),
         leverage: parseInt(position.leverage!),
@@ -71,7 +70,7 @@ export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partia
         update_time: position.updateTime ? new Date(parseInt(position.updateTime)) : new Date(Date.now()),
       };
       await Positions.Publish(update);
-      updates.push({ instrument, position: update.position, status: "Open" });
+      updates.push({ instrument_position, status: "Open" });
     }
   return updates.length ? updates : [];
 };
@@ -101,9 +100,9 @@ export const Active = async () => {
     if (response.ok) {
       const json = await response.json();
       return json.data;
-    }
+    } else throw new Error(`Position.Active: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.log(error);
+    console.log(">> [Error]: Position.Active:", error, method, path, headers);
     return [];
   }
 };
@@ -112,15 +111,19 @@ export const Active = async () => {
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const history = await Select<IInstrumentPosition>(`SELECT * FROM ${DB_SCHEMA}.vw_instrument_positions where status = "Open"`, []);
   const active: Array<IPositionsAPI> = await Active();
   const updates = await Publish(active);
+  const history = await Select<IInstrumentPosition>({ status: `Open` }, { table: `vw_instrument_positions` });
 
   if (history.length)
     for (const local of history) {
-      const { instrument, symbol, position } = local;
-      const found = active.find(({ instId, positionSide }) => instId === symbol && positionSide === position);
-      !found && updates.push({ instrument, position, status: "Closed" });
+      const { instrument_position } = local;
+      const found = updates.find(({ instrument_position }) => isEqual);
+      !found && updates.push({ instrument_position, status: "Closed" });
     }
-  updates && (await InstrumentPositions.Update(updates));
+  
+  if (updates.length) for (const update of updates) { 
+    const instrument_position = await InstrumentPositions.Publish(update);
+    console.log(`[Info] Position update processed:`, { instrument_position, status: update.status });
+  }
 };

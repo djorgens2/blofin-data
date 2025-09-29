@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Load, Update } from "@db/query.utils";
+import { Select, Load } from "@db/query.utils";
 
 export interface IInstrumentPeriod {
   instrument: Uint8Array;
@@ -27,10 +27,10 @@ export interface IInstrumentPeriod {
 //| Adds new/missing instrument periods;                                                 |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const data = await Select<IInstrumentPeriod>({}, {table: `vw_audit_instrument_periods`})
-  const result = await Load(data, {table: `instrument_period`});
+  const data = await Select<IInstrumentPeriod>({}, { table: `vw_audit_instrument_periods` });
+  const result = await Load(data, { table: `instrument_period` });
   return result;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns instrument positions meeting supplied criteria; returns all on empty set {}; |

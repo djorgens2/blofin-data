@@ -30,7 +30,6 @@ export const Logon = async () => {
     const { choice } = await Prompt(["choice"], { message: "Administrator account not found. Create one now?", active: "Yes", inactive: "No", initial: true });
 
     if (choice) {
-//      await Initial.Import();
       if (await setCredentials(true, { title: "Admin", status: "Enabled" })) {
         setUserToken({ error: 101, message: "User added. Application restart required." });
       } else setUserToken({ error: 401, message: "Operation canceled." });

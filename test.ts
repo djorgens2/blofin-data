@@ -1577,9 +1577,81 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //   }, 1500);
 // })();
 
-
 //----------------------------- Seed Load Tests ---------------------------------------//
-import * as Seed from "@cli/interfaces/seed"
+// import * as Seed from "@cli/interfaces/seed"
 
-Seed.Import();
+// Seed.Import();
 
+//----------------------------- Reference Tests ---------------------------------------//
+// type TRefKey = Uint8Array;
+// type TRefText = string;
+// import * as Refs from "db/interfaces/reference"
+
+// ( async () => {
+
+//     interface obj {
+//       tcancel: Uint8Array;
+//     }
+//     const var1: Partial<obj> = {};
+//     const cancel_source = await Refs.Key<TRefKey>({source_ref: `not_canceled`},{table: `cancel_source`});
+//     console.log(cancel_source);
+
+//     var1.tcancel = cancel_source;
+//     console.log(var1)
+//     })    ();
+
+//----------------------------- Instrument Position Load Test ---------------------------------------//
+// import * as Seed from "db/interfaces/instrument_position";
+
+// Seed.Import();
+
+//----------------------------- Split Keys Effect on processed set ----------------------------------//
+// import type { IRequest } from "@db/interfaces/request";
+// import { splitKeys } from "db/query.utils";
+// const submit = {
+//   request: hexify("00bbb8267a54", 6),
+//   instrument_position: hexify("cb42a5", 3),
+//   action: undefined,
+//   state: hexify("edc267", 3),
+//   price: undefined,
+//   size: undefined,
+//   leverage: undefined,
+//   request_type: undefined,
+//   margin_mode: undefined,
+//   reduce_only: undefined,
+//   broker_id: undefined,
+//   memo: undefined,
+//   create_time: new Date("2025-08-29T17:15:58.975Z"),
+//   update_time: new Date("2025-08-29T17:34:59.365Z"),
+//   expiry_time: new Date("2025-08-30T01:34:59.365Z"),
+// } as Partial<IRequest>;
+// console.log(splitKeys<IRequest>(submit, [`request`]));
+
+
+//----------------------------- Split Keys Effect on processed set ----------------------------------//
+// const local = [{id: hexify('ababab',3)}, {id: hexify('bcbcbc',3)}, {id: hexify('cdcdcd',3)}, {id: hexify('dedede',3)}, {id: hexify('efefef',3)}, {id: hexify('fafafa',3)}];
+// const props = [hexify('ababab',3), hexify('cdcdcd',3), hexify('efefef',3)];
+// const suspense = local && local.filter(db=> !props.some(api => isEqual(api!, db.id!)));
+// console.log(suspense);
+
+//----------------------------- Order Audit Test ----------------------------------//
+import { setSession } from "@module/session";
+import { Audit } from "@db/interfaces/request";
+
+setSession({ account: hexify("364e69")! });
+Audit();
+
+//-- test 1; request w/ no tpsl; 100%
+// const request1: Partial<Requests.IRequest> = {
+//   instrument: hexify("4e3e8a")!,
+//   margin_mode: "cross",
+//   position: "short",
+//   action: "sell",
+//   request_type: hexify("6eb6c5"),
+//   price: 109000,
+//   size: 300,
+//   leverage: 10,
+//   expiry_time: setExpiry("30m"),
+// };
+
+// setSession({ account: hexify("145a6a")})

@@ -38,7 +38,7 @@ export const Publish = async (props: Partial<ICandle>) => {
 
   if (candles) {
     const [candle] = candles;
-    Update<ICandle>(
+    await Update<ICandle>(
       {
         instrument,
         period,
@@ -54,12 +54,12 @@ export const Publish = async (props: Partial<ICandle>) => {
             ? undefined
             : props.vol_currency_quote
           : undefined,
-        completed: props.completed ? (!!props.completed !== !!candle.completed! ? undefined : props.completed) : undefined,
+        completed: props.completed ? (!!props.completed === !!candle.completed! ? undefined : props.completed) : undefined,
       },
       { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `bar_time` }] }
     );
   } else {
-    Insert<ICandle>(
+    await Insert<ICandle>(
       {
         instrument,
         period,
@@ -91,6 +91,6 @@ export const Fetch = async (props: Partial<ICandle>): Promise<Array<Partial<ICan
     Object.assign(columns, { bar_time: new Date(timestamp) });
   }
 
-  const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix, log: `OnError` });
+  const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
   return result.length ? result : undefined;
 };

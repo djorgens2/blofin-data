@@ -4,15 +4,14 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TPosition } from "@db/interfaces/state";
+import type { TStatus } from "db/interfaces/state";
 
-import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
-import { hexify } from "@lib/crypto.util";
-
-import * as States from "@db/interfaces/state";
-import { isEqual } from "@lib/std.util";
+import { Select, Insert, Update } from "db/query.utils";
+import { isEqual } from "lib/std.util";
 
 export interface IPositions {
+  account: Uint8Array;
+  instrument_position: Uint8Array;
   positions: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
@@ -36,61 +35,52 @@ export interface IPositions {
   unrealized_pnl_ratio: number;
   adl: number;
   state: Uint8Array;
-  status: TPosition;
+  status: TStatus;
   create_time: Date;
   update_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Set-up/Configure order requests locally prior to posting request to broker;          |
+//| Inserts or updates positions; returns positions key;                                 |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IPositions>): Promise<IPositions["positions"] | undefined> {
-  const { positions, ...publish } = props;
-  const [fields, args] = parseColumns({ ...publish }, "");
-  const key = hexify(positions!, 8);
-  const sql =
-    `INSERT INTO ${DB_SCHEMA}.positions (${fields.join(", ")}, positions) VALUES (${Array(args.length).fill("?").join(", ")}, ?) ` +
-    `ON DUPLICATE KEY UPDATE ${fields.join(" = ?, ")}= ?`;
-
-  try {
-    await Modify(sql, [...args, key, ...args]);
-    return positions;
-  } catch (e) {
-    console.log({ sql, fields, args, props, publish: { ...args, key } });
-    console.log(e);
-  }
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Sets the state of the position; closes all inactive (closed, missing) positions;     |
-//+--------------------------------------------------------------------------------------+
-export async function Update(props: Array<Partial<IPositions>>) {
-  const fulfilled = await Select<IPositions>({status: "Fulfilled"}, {table: `vw_positions`});
-  const closed = await States.Key({ status: "Closed" });
-
-  for (const update of fulfilled) {
-    const active = props.find(({ positions }) => isEqual(positions!, update.positions!));
-
-    try {
-      if (!active) {
-        await Modify(`UPDATE ${DB_SCHEMA}.positions set state = ? WHERE positions = ?`, [closed, update.positions]);
-      }
-    } catch (e) {
-      console.log({
-        sql: `UPDATE ${DB_SCHEMA}.positions set state = ? WHERE positions = ?`,
-        fields: ["state", "positions"],
-        args: [closed, update.positions],
-      });
-      console.log(e);
+export async function Publish(props: Partial<IPositions>): Promise<[IPositions["positions"] | undefined, Partial<IPositions> | undefined]> {
+  if (props) {
+    const positions = await Fetch({ positions: props.positions });
+    if (positions) {
+      const [current] = positions;
+      const revised: Partial<IPositions> = {
+        positions: current.positions,
+        size: props.size && isEqual(props.size, current.size!) ? undefined : props.size,
+        size_available: props.size_available && isEqual(props.size_available, current.size_available!) ? undefined : props.size_available,
+        leverage: props.leverage && isEqual(props.leverage, current.leverage!) ? undefined : props.leverage,
+        margin_mode: props.margin_mode && isEqual(props.margin_mode, current.margin_mode!) ? undefined : props.margin_mode,
+        margin_used: props.margin_used && isEqual(props.margin_used, current.margin_used!) ? undefined : props.margin_used,
+        margin_ratio: props.margin_ratio && isEqual(props.margin_ratio, current.margin_ratio!) ? undefined : props.margin_ratio,
+        margin_initial: props.margin_initial && isEqual(props.margin_initial, current.margin_initial!) ? undefined : props.margin_initial,
+        margin_maint: props.margin_maint && isEqual(props.margin_maint, current.margin_maint!) ? undefined : props.margin_maint,
+        average_price: props.average_price && isEqual(props.average_price, current.average_price!) ? undefined : props.average_price,
+        mark_price: props.mark_price && isEqual(props.mark_price, current.mark_price!) ? undefined : props.mark_price,
+        liquidation_price: props.liquidation_price && isEqual(props.liquidation_price, current.liquidation_price!) ? undefined : props.liquidation_price,
+        unrealized_pnl: props.unrealized_pnl && isEqual(props.unrealized_pnl, current.unrealized_pnl!) ? undefined : props.unrealized_pnl,
+        unrealized_pnl_ratio:
+          props.unrealized_pnl_ratio && isEqual(props.unrealized_pnl_ratio, current.unrealized_pnl_ratio!) ? undefined : props.unrealized_pnl_ratio,
+        adl: props.adl && isEqual(props.adl, current.adl!) ? undefined : props.adl,
+        create_time: props.create_time && isEqual(props.create_time, current.create_time!) ? undefined : props.create_time,
+        update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+      };
+      const [result, updates] = await Update(revised, { table: `positions`, keys: [{ key: `positions` }] });
+      return result ? [result.positions, updates] : [undefined, undefined];
+    } else {
+      const result = await Insert<IPositions>(props, { table: `positions` });
+      return result ? [result.positions, props] : [undefined, undefined];
     }
-  }
+  } else return [undefined, undefined];
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IPositions>): Promise<Array<Partial<IPositions>>> {
-  const [fields, args] = parseColumns(props);
-  const sql = `SELECT * FROM ${DB_SCHEMA}.vw_positions ${fields.length ? " WHERE ".concat(fields.join(" AND ")) : ""}`;
-  return Select<IPositions>(sql, args);
+export async function Fetch(props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> {
+  const result = await Select<IPositions>(props, { table: `vw_positions` });
+  return result.length ? result : undefined;
 }

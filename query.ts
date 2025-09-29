@@ -198,7 +198,7 @@ async function show(subject: string, args: string): Promise<string> {
         instrument: props?.instrument ? hexify(props.instrument) : undefined,
         state: props?.state ? hexify(props.state) : undefined,
       });
-      const key = await Request.Fetch(props!);
+      const key = await Order.Fetch(props!);
       console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }

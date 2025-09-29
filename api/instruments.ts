@@ -42,8 +42,8 @@ export interface IResult {
 const publish = async (api: Array<IInstrumentAPI>) => {
   console.log("-> Instrument:Publish [API]");
 
-  const processed: Array<Instrument.IInstrument["instrument"]>= [];
-  const errors = [];
+  const published: Array<Instrument.IInstrument["instrument"]> = [];
+  const modified: Array<Instrument.IInstrument["instrument"]> = [];
 
   for (const props of api) {
     const [base_symbol, quote_symbol] = splitSymbol(props.instId);
@@ -72,18 +72,16 @@ const publish = async (api: Array<IInstrumentAPI>) => {
       list_time: new Date(parseInt(props.listTime)),
       expiry_time: new Date(parseInt(props.expireTime)),
     });
-    instrument && isEqual(instrument, instrument_detail!) ? processed.push(instrument) : errors.push(props.instId);
+
+    key && published.push(key);
+    instrument && isEqual(instrument, instrument_detail!) && modified.push(instrument);
   }
-  await Instrument.Audit(processed);
+  const suspense = await Instrument.Suspense(published);
   await InstrumentPeriod.Import();
+
+  suspense && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
+  modified.length && console.log("   # Instruments Updated: ", modified.length, "modified");
 };
-
-// suspense.length && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
-// modified.length && console.log("   # Instruments Updated: ", modified.length, { modified });
-
-// await Currency.Suspend(suspense);
-// await Instrument.Suspend(suspense);
-// await InstrumentDetail.Update(modified);
 
 //+--------------------------------------------------------------------------------------+
 //| Import - Retrieve api Instrument, pass to publisher                                  |
@@ -99,7 +97,7 @@ export const Import = async () => {
       const result: IResult = json;
 
       await publish(result.data);
-    }
+    } else throw new Error(`Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(`Error fetching instruments;`, error);
   }

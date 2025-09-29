@@ -41,17 +41,16 @@ export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["cur
     return result ? result.currency : undefined;
   }
 
-  const [revised] = currency;
-  const result = await Update<ICurrency>(
+  const [current] = currency;
+  const [result] = await Update<ICurrency>(
     {
-      currency: revised.currency,
-      symbol: revised.symbol,
-      state: isEqual(state!, revised.state!) ? undefined : props.suspense ? state : await States.Key({ status: "Disabled" }),
-      image_url: props.image_url ? (props.image_url === revised.image_url ? undefined : props.image_url) : undefined,
+      currency: current.currency,
+      state: isEqual(state!, current.state!) ? undefined : props.suspense ? state : await States.Key({ status: "Disabled" }),
+      image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
     },
     { table: `currency`, keys: [{ key: `currency` }] }
   );
-  return result ? revised.currency : undefined;
+  return result ? result.currency : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -59,8 +58,8 @@ export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["cur
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<ICurrency>(props, { table: `vw_currency` });
-    return key ? key.currency : undefined;
+    const [result] = await Select<ICurrency>(props, { table: `vw_currency` });
+    return result ? result.currency : undefined;
   } else return undefined;
 };
 
@@ -77,7 +76,7 @@ export const Fetch = async (props: Partial<ICurrency>): Promise<Array<Partial<IC
 //+--------------------------------------------------------------------------------------+
 export const Suspend = async (props: Array<Partial<ICurrency>>) => {
   if (props.length) {
-    console.log("-> Currency:Suspend");
+    console.log(`-> Currency:Suspend: ${props.length} currencies to suspend`);
 
     const state = await States.Key<ISymbol>({ status: "Suspended" });
     const counts = {
@@ -96,8 +95,8 @@ export const Suspend = async (props: Array<Partial<ICurrency>>) => {
 
       currency && keys.push({ key: `currency` });
       symbol && keys.push({ key: `symbol` });
-      
-      const result = await Update(columns, { table: `currency`, keys });
+
+      const [result] = await Update(columns, { table: `currency`, keys });
       result ? counts.success++ : counts.errors++;
     }
 

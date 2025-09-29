@@ -149,8 +149,11 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     period: instrument.trade_period!,
     timeframe: instrument.trade_timeframe!,
   };
-  const candles: Array<Partial<ICandle>> = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
-  const start: Partial<ICandle> = structuredClone(candles[candles.length - 1]);
+  const candles = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
+  console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0});
+  const start: Partial<ICandle> = { ...candles![candles!.length - 1] || 0 }; // -- oldest candle
+
+  if (!start.timestamp) throw new Error("CFractal: Unable to initialize; no candle data");
 
   //-- Work variables -------------------------------------------------------//
   const bar = { min: start.low!, max: start.high!, retrace: start.close! > start.open! ? start.high! : start.low! };
@@ -524,28 +527,31 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
   //| Main Update loop; processes bar, sma, fractal, events                                |
   //+--------------------------------------------------------------------------------------+
   const Update = async (message: IMessage) => {
-    const candles: Array<Partial<ICandle>> = await Candle.Fetch({ ...props, timestamp: lastProcessed() });
+    const candles = await Candle.Fetch({ ...props, timestamp: lastProcessed() });
 
-    async function updating(candle: Partial<ICandle>) {
+    const updating = async (candle: Partial<ICandle>) => {
       const bar = await UpdateBar(candle);
       const sma = await UpdateSMA();
       const fractal = await UpdateFractal();
       const fibonacci = await UpdateFibonacci();
       Object.assign(message, { ...message });
-    }
+    };
 
-    async function processing() {
-      for (let candle = candles.length - 1; candle >= 0; candle--) {
-        await updating(candles[candle]);
-        candles[candle].completed && UpdateReport();
+    const processing = async () => {
+      if (candles) {
+        for (let candle = candles.length - 1; candle >= 0; candle--) {
+          await updating(candles[candle]);
+          candles[candle].completed && UpdateReport();
+        }
       }
-    }
+    };
 
-    async function start() {
+    const start = async () => {
       await processing();
       event.isActive(Event.NewBar) && PublishReport("./log/" + props.symbol + ".process.log");
       process.send && process.send({ ...message, events: { fractal: event.count(), sma: 0 } });
-    }
+    };
+
     start();
   };
 

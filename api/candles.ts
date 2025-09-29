@@ -36,7 +36,7 @@ export interface IResult {
 //| Applies inserts/updates from rest api data to local db;                              |
 //+--------------------------------------------------------------------------------------+
 const publish = async (message: IMessage, props: Partial<ICandle>, api: Array<ICandleAPI>) => {
-  console.log(`-> Candle:Publish [API]: ${props.symbol} / ${api.length}`);
+  (api.length > 5) && (console.log(`-> Candle:Publish [API]: ${props.symbol} / ${api.length}`));
 
   const modified = [];
   const missing = [];
@@ -101,7 +101,7 @@ export const Import = async (message: IMessage, props: Partial<ICandle>) => {
           }));
 
           await publish(message, { instrument, period, symbol }, api);
-        }
+        } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
       }
     }
   } catch (error) {
@@ -154,7 +154,7 @@ export const Loader = async (props: { symbol: string; timeframe: string; start_t
           console.log(`Loader end for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
           return `Process finished, last timestamp: ${props.start_time}`;
         }
-      }
+      } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
     } catch (error) {
       console.log(`Loader error for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
       return (error as Error).message;

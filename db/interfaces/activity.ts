@@ -66,8 +66,8 @@ export const Add = async (props: Partial<IActivity>): Promise<IActivity["activit
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
   if (Object.keys(props).length) {
-    const [key] = await Select<IActivity>(props, { table: `activity` });
-    return key ? key.activity : undefined;
+    const [result] = await Select<IActivity>(props, { table: `activity` });
+    return result ? result.activity : undefined;
   } else return undefined;
 };
 

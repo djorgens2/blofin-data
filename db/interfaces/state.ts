@@ -8,15 +8,15 @@ import { Select, Insert } from "@db/query.utils";
 import { hashKey } from "@lib/crypto.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
-export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Closed";
-export type TPosition = "Open" | "Closed";
+export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
+export type TStatus = "Open" | "Closed";
 export type TAccess = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 export type TSymbol = "Enabled" | "Disabled" | "Suspended"
-export type TState = TRequest | TSystem | TAccess | TPosition | TSymbol;
+export type TStates = TRequest | TSystem | TAccess | TStatus | TSymbol;
 
 export type IState = {
   state: Uint8Array;
-  status: TState;
+  status: TStates;
   description: string;
 };
 
@@ -54,6 +54,7 @@ export const Import = async () => {
     { status: "Fulfilled", description: "Fulfilled; order fullfilled; check orders for completion" },
     { status: "Rejected", description: "Rejected; request denied; check error log" },
     { status: "Canceled", description: "Canceled; request canceled;" },
+    { status: "Hold", description: "Hold; request on hold pending cancel;" },
     { status: "Closed", description: "Closed; request is closed;" },
     { status: "Open", description: "Open; order/position is open;" },
   ];

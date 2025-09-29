@@ -62,7 +62,7 @@ export const Key = async (props: Partial<IRole>): Promise<IRole["role"] | undefi
 //+--------------------------------------------------------------------------------------+
 //| Fetches roles by matching supplied props; returns all if no props supplied;          |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: IRole): Promise<Array<Partial<IRole>> | undefined> => {
+export const Fetch = async (props: Partial<IRole>): Promise<Array<Partial<IRole>> | undefined> => {
   const result = await Select<IRole>(props, { table: `role` });
   return result.length ? result : undefined;
 };
