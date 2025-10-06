@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt from "@cli/modules/Prompts";
+import Prompt from "cli/modules/Prompts";
 
 //+--------------------------------------------------------------------------------------+
 //| Currency formatter; returns values formatted in USD;                                 |
@@ -114,6 +114,7 @@ export const isEqual = (source: number | string | Uint8Array | Date, benchmark: 
       : typeof source === "number"
       ? source.toFixed(digits)
       : ``;
+
   const arg2: string =
     typeof benchmark === "string"
       ? parseFloat(benchmark).toFixed(digits)
@@ -169,7 +170,7 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
 
         if (typeof currentValue === "string") {
           const currentLength = currentValue.length;
-          const existingLength = maxLengthObj[key]  || 0;
+          const existingLength = maxLengthObj[key] || 0;
 
           if (currentLength > existingLength) {
             maxLengthObj[key] = currentLength + colBuffer;

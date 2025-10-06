@@ -4,10 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { IOption } from "@cli/modules/Prompts";
+import Prompt, { IOption } from "cli/modules/Prompts";
 import { Answers } from "prompts";
 
-import * as Environs from "@db/interfaces/environment";
+import * as Environs from "db/interfaces/environment";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves environment assignments in prompt format;                                  |

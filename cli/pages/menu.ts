@@ -5,14 +5,14 @@
 "use server";
 "use strict";
 
-import Prompt, { IOption } from "@cli/modules/Prompts";
+import Prompt, { IOption } from "cli/modules/Prompts";
 
-import { setHeader } from "@cli/modules/Header";
-import { setMenu } from "@cli/modules/Menu";
+import { setHeader } from "cli/modules/Header";
+import { setMenu } from "cli/modules/Menu";
 
-import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "@cli/interfaces/user";
-import { menuCreateAccount, menuEditAccount, menuViewAccount, menuDropAccount } from "@cli/interfaces/account";
-import { isEqual } from "@lib/std.util";
+import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "cli/interfaces/user";
+import { menuCreateAccount, menuEditAccount, menuViewAccount, menuDropAccount } from "cli/interfaces/account";
+import { isEqual } from "lib/std.util";
 
 //+--------------------------------------------------------------------------------------+
 //| View menu; displays the rows for the supplied subject area;                          |

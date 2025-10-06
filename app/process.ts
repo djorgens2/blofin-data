@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict"
 
-import type { IInstrument } from "@db/interfaces/instrument";
-import type { IMessage } from "@lib/app.util";
+import type { IInstrument } from "db/interfaces/instrument";
+import type { IMessage } from "lib/app.util";
 
-import { CFractal } from "@module/fractal";
-import { parseJSON } from "@lib/std.util";
+import { CFractal } from "module/fractal";
+import { parseJSON } from "lib/std.util";
 
-import * as Candles from "@api/candles";
-import * as Candle from "@db/interfaces/candle";
-import * as Instrument from "@db/interfaces/instrument";
+import * as Candles from "api/candles";
+import * as Candle from "db/interfaces/candle";
+import * as Instrument from "db/interfaces/instrument";
 
 //+--------------------------------------------------------------------------------------+
 //| CProcess - Master Processing Instantiator/Monitor Class for Enabled Instruments;     |

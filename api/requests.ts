@@ -4,11 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRequest } from "@db/interfaces/state";
+import type { TRequest } from "db/interfaces/state";
 
-import { Session, signRequest } from "@module/session";
+import { Session, signRequest } from "module/session";
 
-import * as Response from "@api/response";
+import * as Response from "api/response";
 
 export interface IRequestAPI {
   account: Uint8Array;

@@ -6,7 +6,7 @@
 "use strict";
 
 import { color, log, red, green, cyan, yellow, bold, dim } from "console-log-colors";
-import UserToken from "@cli/interfaces/user";
+import UserToken from "cli/interfaces/user";
 
 //+--------------------------------------------------------------------------------------+
 //| Displays beautiful header   ;-)                                                      |

@@ -4,19 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRefKey } from "@db/interfaces/reference";
-import type { IOrder } from "@db/interfaces/order";
-import type { IRequestAPI } from "@api/requests";
+import type { TRefKey } from "db/interfaces/reference";
+import type { IOrder } from "db/interfaces/order";
+import type { IRequestAPI } from "api/requests";
 
-import { Session, signRequest } from "@module/session";
-import { hexify } from "@lib/crypto.util";
-import { Select } from "@db/query.utils";
+import { Session, setSession, signRequest } from "module/session";
+import { hexify } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
 
-import * as Response from "@api/response";
-import * as Requests from "@db/interfaces/request";
-import * as Orders from "@db/interfaces/order";
-import * as Reference from "@db/interfaces/reference";
-import * as InstrumentPositions from "@db/interfaces/instrument_position";
+import * as Response from "api/response";
+import * as Requests from "db/interfaces/request";
+import * as Orders from "db/interfaces/order";
+import * as Reference from "db/interfaces/reference";
+import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IOrderAPI extends IRequestAPI {
   instType: string;
@@ -38,82 +38,83 @@ export interface IOrderAPI extends IRequestAPI {
 //| Format order object for database insertion;                                          |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) => {
-  console.log(`-> ${source}.Publish [API]`);
-
+  const processed: Array<IOrder["request"]> = []; //-- handles batched orders; permits only first entry (newest) for insert/update
+  const published: Array<IOrder["request"]> = [];
   const rejected: Array<Partial<IOrder>> = [];
-  const processed: Array<IOrder["request"]> = [];
-
+  
   if (props)
+    console.log(`-> ${source}.Publish [API]`);
+  
     for (const order of props) {
       const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
+      const key = hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6);
+      const exists = processed.find((request) => isEqual(request, key!));
 
-      if (instrument_position === undefined)
-        rejected.push({
-          request: hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6),
-          symbol: order.instId,
-          position: order.positionSide,
-          memo: `>> [Error] Orders.Publish: Invalid instrument position; order rejected`,
-        });
-      else {
-        const request_type = await Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` });
-        const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
+      if (exists) {
+        continue;
+      } else {
+        processed.push(key!);
 
-        const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
-
-        const request = await Requests.Submit({
-          request: hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6),
-          instrument_position,
-          action: order.side,
-          state,
-          price: parseFloat(order.price!),
-          size: parseFloat(order.size!),
-          leverage: parseInt(order.leverage!),
-          request_type: request_type ? request_type : undefined,
-          margin_mode: order.marginMode,
-          reduce_only: order.reduceOnly === "true",
-          broker_id: order.brokerId ? order.brokerId : undefined,
-          create_time: new Date(parseInt(order.createTime!)),
-          update_time: new Date(parseInt(order.updateTime!)),
-        });
-
-        if (request === undefined)
+        if (instrument_position === undefined)
           rejected.push({
-            request: hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6),
+            request: key,
             symbol: order.instId,
             position: order.positionSide,
-            memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
+            memo: `>> [Error] Orders.Publish: Invalid instrument position; order rejected`,
           });
         else {
-          const cancel_default = await Reference.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` });
-          const cancel_source = await Reference.Key<TRefKey>({ source_ref: order.cancelSource }, { table: `cancel_source` });
-          const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory }, { table: `order_category` });
-
-          const result = await Orders.Publish({
-            request,
-            order_id: parseInt(order.orderId!),
-            order_state,
-            order_category: order_category!,
-            cancel_source: cancel_source ? cancel_source : cancel_default,
-            filled_size: parseFloat(order.filledSize!),
-            filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
-            average_price: parseFloat(order.averagePrice!),
-            fee: parseFloat(order.fee!),
-            pnl: parseFloat(order.pnl!),
+          const request_type = await Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` });
+          const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
+          const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
+          const request = await Requests.Submit({
+            request: key,
+            instrument_position,
+            action: order.side,
+            state,
+            price: parseFloat(order.price!),
+            size: parseFloat(order.size!),
+            leverage: parseInt(order.leverage!),
+            request_type: request_type ? request_type : undefined,
+            margin_mode: order.marginMode,
+            reduce_only: order.reduceOnly === "true",
+            broker_id: order.brokerId ? order.brokerId : undefined,
             create_time: new Date(parseInt(order.createTime!)),
             update_time: new Date(parseInt(order.updateTime!)),
           });
 
-          result
-            ? processed.push(result)
-            : rejected.push({
-                request: hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6),
-                symbol: order.instId,
-                position: order.positionSide,
-                memo: `>> [Error: Orders.Publish] Order publication failed; order rejected`,
-              });
+          if (request === undefined)
+            rejected.push({
+              request: key,
+              symbol: order.instId,
+              position: order.positionSide,
+              memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
+            });
+          else {
+            const cancel_default = await Reference.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` });
+            const cancel_source = await Reference.Key<TRefKey>({ source_ref: order.cancelSource }, { table: `cancel_source` });
+            const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory }, { table: `order_category` });
+
+            const result = await Orders.Publish({
+              request,
+              order_id: parseInt(order.orderId!),
+              order_state,
+              order_category: order_category!,
+              cancel_source: cancel_source ? cancel_source : cancel_default,
+              filled_size: parseFloat(order.filledSize!),
+              filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
+              average_price: parseFloat(order.averagePrice!),
+              fee: parseFloat(order.fee!),
+              pnl: parseFloat(order.pnl!),
+              create_time: new Date(parseInt(order.createTime!)),
+              update_time: new Date(parseInt(order.updateTime!)),
+            });
+
+            result && published.push(result);
+          }
         }
       }
     }
+  return [published, rejected];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -187,14 +188,11 @@ export const Cancel = async (cancels: Array<Partial<IOrderAPI>>) => {
 //+--------------------------------------------------------------------------------------+
 //| History - retrieves orders no longer active;                                         |
 //+--------------------------------------------------------------------------------------+
-const History = async (props: { limit?: number; before?: number; after?: number }): Promise<Array<Partial<IOrderAPI>> | undefined> => {
+const History = async (): Promise<Array<Partial<IOrderAPI>> | undefined> => {
   console.log(`-> Fetch:History [API]`);
 
-  const limit = props.limit ? `?limit=`.concat(props.limit.toString()) : ``;
-  const before = props.before ? `?before=`.concat(props.before.toString()) : ``;
-  const after = props.after ? `?after=`.concat(props.after.toString()) : ``;
   const method = "GET";
-  const path = `/api/v1/trade/orders-history${limit}${before}${after}`;
+  const path = `/api/v1/trade/orders-history?before=${Session().audit_order}`;
 
   console.error(path);
 
@@ -230,14 +228,21 @@ const History = async (props: { limit?: number; before?: number; after?: number 
 export const Import = async () => {
   console.log("In Orders.Import [API]");
 
-  const result = await Select<IOrder>({ account: Session().account }, { table: `vw_account_orders` });
+  const history = await History();
+  const pending = await Pending();
 
-  if (result) {
-    const [start] = result;
-    const history = await History({ after: start.order_id });
-    const pending = await Pending();
+  if (history && history.length) {
+    const [published, rejected] = await Publish("History", history);
 
-    history && history.length && (await Publish("History", history));
-    pending && pending.length && (await Publish("Pending", pending));
+    setSession({ audit_order: history[0].orderId! });
+
+    published && published.length && console.log(`   # History Orders Processed [${history.length}]:  ${published.length} published`);
+    rejected && rejected.length && console.log(`   # History Orders Rejected: `, rejected.length);
+  }
+
+  if (pending && pending.length) {
+    const [published, rejected] = await Publish("Pending", pending);
+    published && published.length && console.log(`   # Pending Orders Processed [${pending.length}]:  ${published.length} published`);
+    rejected && rejected.length && console.log("   # Pending Orders Rejected: ", rejected.length);
   }
 };

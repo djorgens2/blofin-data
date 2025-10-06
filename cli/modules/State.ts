@@ -4,11 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TStates, IState } from "@db/interfaces/state";
-import Prompt, { IOption } from "@cli/modules/Prompts";
-import { isEqual } from "@lib/std.util";
+import type { TStates, IState } from "db/interfaces/state";
+import Prompt, { IOption } from "cli/modules/Prompts";
+import { isEqual } from "lib/std.util";
 
-import * as States from "@db/interfaces/state";
+import * as States from "db/interfaces/state";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves state values (filtered) in prompt format;                                  |

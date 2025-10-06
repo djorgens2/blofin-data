@@ -4,34 +4,34 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "@api/requests";
+import type { IRequestAPI } from "api/requests";
 
-import * as Candle from "@db/interfaces/candle";
-import * as Instrument from "@db/interfaces/instrument";
-import * as Broker from "@db/interfaces/broker";
-import * as Role from "@db/interfaces/role";
-import * as Contract from "@db/interfaces/contract_type";
-import * as Currency from "@db/interfaces/currency";
-import * as Type from "@db/interfaces/instrument_type";
-import * as Period from "@db/interfaces/period";
-import * as State from "@db/interfaces/state";
-import * as User from "@db/interfaces/user";
-import * as Area from "@db/interfaces/subject_area";
-import * as Environ from "@db/interfaces/environment";
-import * as Account from "@db/interfaces/account";
-import * as Request from "@db/interfaces/request";
-import * as Order from "@db/interfaces/order";
-import * as Reference from "@db/interfaces/reference";
-import * as Activity from "@db/interfaces/activity";
-import * as Authority from "@db/interfaces/authority";
-import * as Positions from "@db/interfaces/positions";
-import * as InstrumentPeriods from "@db/interfaces/instrument_period";
-import * as InstrumentPosition from "@db/interfaces/instrument_position";
-import * as Stops from "@db/interfaces/stops";
+import * as Candle from "db/interfaces/candle";
+import * as Instrument from "db/interfaces/instrument";
+import * as Broker from "db/interfaces/broker";
+import * as Role from "db/interfaces/role";
+import * as Contract from "db/interfaces/contract_type";
+import * as Currency from "db/interfaces/currency";
+import * as Type from "db/interfaces/instrument_type";
+import * as Period from "db/interfaces/period";
+import * as State from "db/interfaces/state";
+import * as User from "db/interfaces/user";
+import * as Area from "db/interfaces/subject_area";
+import * as Environ from "db/interfaces/environment";
+import * as Account from "db/interfaces/account";
+import * as Request from "db/interfaces/request";
+import * as Order from "db/interfaces/order";
+import * as Reference from "db/interfaces/reference";
+import * as Activity from "db/interfaces/activity";
+import * as Authority from "db/interfaces/authority";
+import * as Positions from "db/interfaces/positions";
+import * as InstrumentPeriods from "db/interfaces/instrument_period";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
+import * as Stops from "db/interfaces/stops";
 
-import { parseJSON } from "@lib/std.util";
-import { hexify } from "./lib/crypto.util";
-import { IAuthority } from "@db/interfaces/authority";
+import { parseJSON } from "lib/std.util";
+import { hexify } from "lib/crypto.util";
+import { IAuthority } from "db/interfaces/authority";
 
 enum Subject {
   Account = "-a",
@@ -190,7 +190,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.Request: {
-      const props = parseJSON<Request.IRequest>(args);
+      const props = parseJSON<Order.IOrder>(args);
       Object.assign(props!, {
         ...props,
         account: props?.account ? hexify(props.account) : undefined,
@@ -264,7 +264,7 @@ async function show(subject: string, args: string): Promise<string> {
       return "ok";
     }
     case Subject.Stops: {
-      const props = parseJSON<Stops.IStopOrder>(args);
+      const props = parseJSON<Stops.IStops>(args);
       Object.assign(props!, {
         ...props,
         instrument_position: props?.instrument_position ? hexify(props.instrument_position) : undefined,

@@ -1,11 +1,12 @@
 //----------------------------- order test  -------------------------------------------------------//
-import type { IRequest } from "@db/interfaces/request";
+import type { IRequest } from "db/interfaces/request";
 
-import { setSession } from "@module/session";
-import { hexify } from "@lib/crypto.util";
+import { setSession } from "module/session";
+import { hexify } from "lib/crypto.util";
 import { req_fcrt_1a } from "./request";
 
-import * as Requests from "@db/interfaces/request";
+import * as Requests from "db/interfaces/request";
+import * as Orders from "db/interfaces/order";
 
 setSession({ account: hexify("23334e") });
 
@@ -25,7 +26,7 @@ submit({ ...req_fcrt_1a, memo: `Test ${cli_test}: request w/ expiry; w/o tpsl` }
       console.error("Exiting process with code 1.");
       process.exit(1);
     }
-    Requests.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+    Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
       console.log(`Test ${cli_test}: Request submitted, check db for results.`, submitted);
       console.log("Fetched order from DB:", order);
     });

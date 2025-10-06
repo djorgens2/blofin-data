@@ -9,11 +9,11 @@ import type { IOrder } from "db/interfaces/order";
 import type { IRequestState, TRequest } from "db/interfaces/state";
 
 import { Select, Insert, Update } from "db/query.utils";
-import { Fetch } from "db/interfaces/order";
 import { hashKey } from "lib/crypto.util";
 import { isEqual, setExpiry } from "lib/std.util";
 import { Session } from "module/session";
 
+import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
@@ -57,16 +57,16 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
       // Compare current and props to find differences
       const request: Partial<IRequest> = {
         request: current.request,
-        action: props.action && props.action === current.action ? undefined : props.action,
-        state: props.state && isEqual(props.state, current.state!) ? undefined : props.state,
-        price: props.price && isEqual(props.price, current.price!) ? undefined : props.price,
-        size: props.size && isEqual(props.size, current.size!) ? undefined : props.size,
-        leverage: props.leverage && isEqual(props.leverage, current.leverage!) ? undefined : props.leverage,
-        margin_mode: props.margin_mode && isEqual(props.margin_mode, current.margin_mode!) ? undefined : props.margin_mode,
-        reduce_only: props.reduce_only && !!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
-        broker_id: props.broker_id && props.broker_id === current.broker_id ? undefined : props.broker_id,
-        expiry_time: props.expiry_time && isEqual(props.expiry_time, current.expiry_time!) ? undefined : props.expiry_time,
-        update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+        action:props.action === current.action ? undefined : props.action,
+        state:isEqual(props.state!, current.state!) ? undefined : props.state,
+        price:isEqual(props.price!, current.price!) ? undefined : props.price,
+        size:isEqual(props.size!, current.size!) ? undefined : props.size,
+        leverage:isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
+        margin_mode:isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
+        reduce_only:!!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
+        broker_id:props.broker_id === current.broker_id ? undefined : props.broker_id,
+        expiry_time:isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
+        update_time:isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
 
       const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
@@ -92,7 +92,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
     const process_time = new Date();
     const result = await Insert<IRequest>(
       {
-        request: hashKey(12),
+        request: props.request || hashKey(12),
         instrument_position: props.instrument_position!,
         action: props.action!,
         state: props.state!,
@@ -161,7 +161,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
       return [];
     }
 
-  const results = await Fetch(props);
+  const results = await Orders.Fetch(props);
   results &&
     results.forEach(async ({ request }) => {
       const result = await publish(props, { ...props, state: canceled, memo: props.memo || `[Cancel]: Request ${request} canceled by user/system` });
@@ -187,7 +187,7 @@ export const Close = async (props: Partial<IOrder>): Promise<Array<IRequest["req
       return [];
     }
 
-  const results = await Fetch(props);
+  const results = await Orders.Fetch(props);
   results &&
     results.forEach(async ({ request }) => {
       const result = await publish(props, { ...props, state: closed, memo: props.memo || `[Close]: Request ${request} closed by user/system` });
@@ -204,7 +204,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
   if (props && props.instrument_position) {
     //-- handle updates to existing request
     if (props.request) {
-      const request = await Fetch({ request: props.request });
+      const request = await Orders.Fetch({ request: props.request });
 
       if (request) {
         const [current] = request;
@@ -260,8 +260,14 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
 
         console.log(">> [Error] Request.Submit: Request exists; unauthorized resubmission; request rejected");
         return undefined;
+      } else {
+          const result = await publish({}, {
+            ...props,
+            memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
+          });
+          return result ? result : undefined;
       }
-    }
+    } 
 
     // Handle new request submission
     const current: Partial<IRequest> = {};
@@ -272,13 +278,13 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
 
       position.auto_status === "Enabled" &&
         (async () => {
-          const pending = await Fetch({ instrument_position: props.instrument_position, status: "Pending" });
+          const pending = await Orders.Fetch({ instrument_position: props.instrument_position, status: "Pending" });
           pending &&
             pending.forEach(({ request }) => {
               Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
             });
 
-          const queued = await Fetch({ instrument_position: props.instrument_position, status: "Queued" });
+          const queued = await Orders.Fetch({ instrument_position: props.instrument_position, status: "Queued" });
           queued &&
             queued.forEach(({ request }) => {
               Close({ request, memo: `[Auto-Close]: New request for instrument/position auto-closes existing queued request` });

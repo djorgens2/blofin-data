@@ -4,14 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TStatus, TSystem } from "@db/interfaces/state";
+import type { TStatus, TSystem } from "db/interfaces/state";
 
-import { Select, Update, Load } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import { Select, Update, Load } from "db/query.utils";
+import { hashKey } from "lib/crypto.util";
 
-import * as Instrument from "@db/interfaces/instrument";
-import * as State from "@db/interfaces/state";
-import { isEqual } from "@lib/std.util";
+import * as Instrument from "db/interfaces/instrument";
+import * as State from "db/interfaces/state";
+import { isEqual } from "lib/std.util";
 
 export interface IInstrumentPosition {
   instrument_position: Uint8Array;
@@ -75,12 +75,12 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
     const [current] = instrument_position;
     const revised: Partial<IInstrumentPosition> = {
       instrument_position: current.instrument_position,
-      state: props.state && isEqual(props.state, current.state!) ? undefined : props.state,
-      auto_state: props.auto_state && isEqual(props.auto_state, current.auto_state!) ? undefined : props.auto_state,
-      strict_stops: props.strict_stops && !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
-      strict_targets: props.strict_targets && !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
-      update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
-      close_time: props.close_time && isEqual(props.close_time, current.close_time!) ? undefined : props.close_time,
+      state: isEqual(props.state!, current.state!) ? undefined : props.state,
+      auto_state: isEqual(props.auto_state!, current.auto_state!) ? undefined : props.auto_state,
+      strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
+      strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
+      update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
+      close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
     };
     const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
 

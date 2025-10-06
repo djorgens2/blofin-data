@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { fileWrite } from "@lib/std.util";
-import type { IPrice, IPoint, IFractalEvent } from "@module/fractal";
+import { fileWrite } from "lib/std.util";
+import type { IPrice, IPoint, IFractalEvent } from "module/fractal";
 
 //+---------------------------- Interfaces ----------------------------------------------------------+
 

@@ -7,7 +7,7 @@
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
 import * as Broker from "db/interfaces/broker";
-import * as ContractType from "@db/interfaces/contract_type";
+import * as ContractType from "db/interfaces/contract_type";
 import * as Environment from "db/interfaces/environment";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Period from "db/interfaces/period";
@@ -16,11 +16,11 @@ import * as References from "db/interfaces/reference";
 import * as State from "db/interfaces/state";
 import * as Roles from "db/interfaces/role";
 import * as RoleAuthority from "db/interfaces/role_authority";
-import * as Candle from "@db/interfaces/candle";
-import * as apiInst from "@api/instruments";
-import * as api from "@api/candles";
+import * as Candle from "db/interfaces/candle";
+import * as apiInst from "api/instruments";
+import * as api from "api/candles";
 
-import { clear } from "@lib/app.util";
+import { clear } from "lib/app.util";
 
 //+--------------------------------------------------------------------------------------+
 //| Installs seed data during initialization of a new database;                          |

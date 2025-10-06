@@ -4,10 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Session } from "@module/session";
+import { Session } from "module/session";
 
-import * as Accounts from "@db/interfaces/account";
-import * as Currency from "@db/interfaces/currency";
+import * as Accounts from "db/interfaces/account";
+import * as Currency from "db/interfaces/currency";
 
 export interface IAccountAPI {
   ts: string;

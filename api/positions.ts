@@ -4,17 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPositions } from "@db/interfaces/positions";
-import type { IInstrumentPosition } from "@db/interfaces/instrument_position";
+import type { IPositions } from "db/interfaces/positions";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
-import { Session, signRequest } from "@module/session";
-import { hexify } from "@lib/crypto.util";
-import { format, isEqual } from "@lib/std.util";
-import { DB_SCHEMA, Select } from "@db/query.utils";
+import { Session, signRequest } from "module/session";
+import { hexify } from "lib/crypto.util";
+import { format, isEqual } from "lib/std.util";
+import { DB_SCHEMA, Select } from "db/query.utils";
 
-import * as Instrument from "@db/interfaces/instrument";
-import * as Positions from "@db/interfaces/positions";
-import * as InstrumentPositions from "@db/interfaces/instrument_position";
+import * as Instrument from "db/interfaces/instrument";
+import * as Positions from "db/interfaces/positions";
+import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IPositionsAPI {
   positionId: string;

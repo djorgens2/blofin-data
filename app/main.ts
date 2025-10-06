@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IMessage } from "@lib/app.util";
-import type { ISession } from "@module/session";
+import type { IMessage } from "lib/app.util";
+import type { ISession } from "module/session";
 
-import { openWebSocket, Session } from "@module/session";
+import { openWebSocket, Session } from "module/session";
 import { fork } from "child_process";
-import { clear } from "@lib/app.util";
+import { clear } from "lib/app.util";
 
-import * as InstrumentPositions from "@db/interfaces/instrument_position";
-import * as Accounts from "@db/interfaces/account";
+import * as InstrumentPositions from "db/interfaces/instrument_position";
+import * as Accounts from "db/interfaces/account";
 
 //+--------------------------------------------------------------------------------------+
 //| CMain - Master Processing Instantiator/Monitor Class for Enabled Instruments;        |

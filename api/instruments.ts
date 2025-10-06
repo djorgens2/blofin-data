@@ -4,13 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { splitSymbol } from "@lib/app.util";
-import { isEqual } from "@lib/std.util";
+import { splitSymbol } from "lib/app.util";
+import { isEqual } from "lib/std.util";
 
-import * as Currency from "@db/interfaces/currency";
-import * as Instrument from "@db/interfaces/instrument";
-import * as InstrumentDetail from "@db/interfaces/instrument_detail";
-import * as InstrumentPeriod from "@db/interfaces/instrument_period";
+import * as Currency from "db/interfaces/currency";
+import * as Instrument from "db/interfaces/instrument";
+import * as InstrumentDetail from "db/interfaces/instrument_detail";
+import * as InstrumentPeriod from "db/interfaces/instrument_period";
 
 export interface IInstrumentAPI {
   instId: string;

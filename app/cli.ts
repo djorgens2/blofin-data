@@ -5,11 +5,11 @@
 "use server";
 "use strict";
 
-import UserToken from "@cli/interfaces/user";
+import UserToken from "cli/interfaces/user";
 
-import { setHeader } from "@cli/modules/Header";
-import { Menu } from "@cli/pages/menu";
-import { Logon } from "@cli/pages/logon";
+import { setHeader } from "cli/modules/Header";
+import { Menu } from "cli/pages/menu";
+import { Logon } from "cli/pages/logon";
 
 import * as dotenv from "dotenv";
 import * as path from "path";

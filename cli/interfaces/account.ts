@@ -4,22 +4,22 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "@module/session";
-import type { IAccount } from "@db/interfaces/account";
-import type { TAccess } from "@db/interfaces/state";
+import type { ISession } from "module/session";
+import type { IAccount } from "db/interfaces/account";
+import type { TAccess } from "db/interfaces/state";
 
 import { green, red, yellow, cyan, gray, bold, dim } from "console-log-colors";
-import { formatterUSD, getLengths, Pause } from "@lib/std.util";
+import { formatterUSD, getLengths, Pause } from "lib/std.util";
 
-import { setHeader } from "@cli/modules/Header";
-import { setState } from "@cli/modules/State";
-import { setBroker } from "@cli/interfaces/broker";
-import { setUser } from "@cli/interfaces/user";
-import { setEnviron } from "@cli/modules/Environ";
+import { setHeader } from "cli/modules/Header";
+import { setState } from "cli/modules/State";
+import { setBroker } from "cli/interfaces/broker";
+import { setUser } from "cli/interfaces/user";
+import { setEnviron } from "cli/modules/Environ";
 
-import * as Accounts from "@db/interfaces/account";
+import * as Accounts from "db/interfaces/account";
 
-import Prompt from "@cli/modules/Prompts";
+import Prompt from "cli/modules/Prompts";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves accounts from local server; if new, prompts to create;                     |

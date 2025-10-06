@@ -6,7 +6,7 @@
 
 import { ResultSetHeader } from "mysql2";
 
-import pool from "@db/db.config";
+import pool from "db/db.config";
 
 export type TKey = { key: string; sign?: string };
 export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; };

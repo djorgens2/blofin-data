@@ -4,9 +4,9 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert, TOptions } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
-import { TRequest } from "@db/interfaces/state";
+import { Select, Insert, TOptions } from "db/query.utils";
+import { hashKey } from "lib/crypto.util";
+import { TRequest } from "db/interfaces/state";
 
 export type TRefKey = Uint8Array;
 export type TRefText = string;

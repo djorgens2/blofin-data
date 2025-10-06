@@ -4,19 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "@module/session";
-import type { IAccess, TAccess } from "@db/interfaces/state";
+import type { ISession } from "module/session";
+import type { IAccess, TAccess } from "db/interfaces/state";
 
-import { Select, Insert, Update } from "@db/query.utils";
-import { hashHmac } from "@lib/crypto.util";
-import { isEqual } from "@lib/std.util";
-import { Session } from "@module/session";
-import { setUserToken } from "@cli/interfaces/user";
+import { Select, Insert, Update } from "db/query.utils";
+import { hashHmac } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
+import { Session } from "module/session";
+import { setUserToken } from "cli/interfaces/user";
 
-import * as States from "@db/interfaces/state";
-import * as Users from "@db/interfaces/user";
-import * as Brokers from "@db/interfaces/broker";
-import * as Environments from "@db/interfaces/environment";
+import * as States from "db/interfaces/state";
+import * as Users from "db/interfaces/user";
+import * as Brokers from "db/interfaces/broker";
+import * as Environments from "db/interfaces/environment";
 
 export interface IAccount {
   account: Uint8Array;
@@ -150,16 +150,16 @@ export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAc
 //| Updates the account (master) from the API (select fields) or the UI;                 |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IAccount>): Promise<IAccount["account"] | undefined> => {
-  if (props.account && isEqual(Session().account!, props.account)) {
+  if (isEqual(Session().account!, props.account!)) {
     const account = await Fetch({ account: props.account });
 
     if (account) {
       const [current] = account;
       const revised: Partial<IAccount> = {
         account: current.account,
-        total_equity: props.total_equity && isEqual(props.total_equity, current.total_equity!) ? undefined : props.total_equity,
-        isolated_equity: props?.isolated_equity && isEqual(props.isolated_equity, current.isolated_equity!) ? undefined : props.isolated_equity,
-        update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+        total_equity: isEqual(props.total_equity!, current.total_equity!) ? undefined : props.total_equity,
+        isolated_equity: isEqual(props.isolated_equity!, current.isolated_equity!) ? undefined : props.isolated_equity,
+        update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
       const [result] = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
       return result ? result.account : undefined;
@@ -185,26 +185,22 @@ export const PublishDetail = async (props: Partial<IAccount>) => {
       const revised: Partial<IAccount> = {
         account: current.account,
         currency: current.currency,
-        balance: props.balance && isEqual(props.balance, current.balance!) ? undefined : props.balance,
-        currency_equity: props.currency_equity && isEqual(props.currency_equity, current.currency_equity!) ? undefined : props.currency_equity,
-        currency_isolated_equity:
-          props.currency_isolated_equity && isEqual(props.currency_isolated_equity, current.currency_isolated_equity!)
-            ? undefined
-            : props.currency_isolated_equity,
-        available: props.available && isEqual(props.available, current.available!) ? undefined : props.available,
-        available_equity: props.available_equity && isEqual(props.available_equity, current.available_equity!) ? undefined : props.available_equity,
-        equity_usd: props.equity_usd && isEqual(props.equity_usd, current.equity_usd!) ? undefined : props.equity_usd,
-        frozen: props.frozen && isEqual(props.frozen, current.frozen!) ? undefined : props.frozen,
-        order_frozen: props.order_frozen && isEqual(props.order_frozen, current.order_frozen!) ? undefined : props.order_frozen,
-        borrow_frozen: props.borrow_frozen && isEqual(props.borrow_frozen, current.borrow_frozen!) ? undefined : props.borrow_frozen,
-        unrealized_pnl: props.unrealized_pnl && isEqual(props.unrealized_pnl, current.unrealized_pnl!) ? undefined : props.unrealized_pnl,
-        isolated_unrealized_pnl:
-          props.isolated_unrealized_pnl && isEqual(props.isolated_unrealized_pnl, current.isolated_unrealized_pnl!) ? undefined : props.isolated_unrealized_pnl,
-        coin_usd_price: props.coin_usd_price && isEqual(props.coin_usd_price, current.coin_usd_price!) ? undefined : props.coin_usd_price,
-        margin_ratio: props.margin_ratio && isEqual(props.margin_ratio, current.margin_ratio!) ? undefined : props.margin_ratio,
-        spot_available: props.spot_available && isEqual(props.spot_available, current.spot_available!) ? undefined : props.spot_available,
-        liability: props.liability && isEqual(props.liability, current.liability!) ? undefined : props.liability,
-        update_time: props.update_time && isEqual(props.update_time, current.update_time!) ? undefined : props.update_time,
+        balance: isEqual(props.balance!, current.balance!) ? undefined : props.balance,
+        currency_equity: isEqual(props.currency_equity!, current.currency_equity!) ? undefined : props.currency_equity,
+        currency_isolated_equity: isEqual(props.currency_isolated_equity!, current.currency_isolated_equity!) ? undefined : props.currency_isolated_equity,
+        available: isEqual(props.available!, current.available!) ? undefined : props.available,
+        available_equity: isEqual(props.available_equity!, current.available_equity!) ? undefined : props.available_equity,
+        equity_usd: isEqual(props.equity_usd!, current.equity_usd!) ? undefined : props.equity_usd,
+        frozen: isEqual(props.frozen!, current.frozen!) ? undefined : props.frozen,
+        order_frozen: isEqual(props.order_frozen!, current.order_frozen!) ? undefined : props.order_frozen,
+        borrow_frozen: isEqual(props.borrow_frozen!, current.borrow_frozen!) ? undefined : props.borrow_frozen,
+        unrealized_pnl: isEqual(props.unrealized_pnl!, current.unrealized_pnl!) ? undefined : props.unrealized_pnl,
+        isolated_unrealized_pnl: isEqual(props.isolated_unrealized_pnl!, current.isolated_unrealized_pnl!) ? undefined : props.isolated_unrealized_pnl,
+        coin_usd_price: isEqual(props.coin_usd_price!, current.coin_usd_price!) ? undefined : props.coin_usd_price,
+        margin_ratio: isEqual(props.margin_ratio!, current.margin_ratio!) ? undefined : props.margin_ratio,
+        spot_available: isEqual(props.spot_available!, current.spot_available!) ? undefined : props.spot_available,
+        liability: isEqual(props.liability!, current.liability!) ? undefined : props.liability,
+        update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
       const [result] = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
       result && setUserToken({ error: 0, message: `Account update detail applied.` });

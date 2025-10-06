@@ -6,12 +6,12 @@
 
 import type { TAccess, IAccess } from "db/interfaces/state";
 
-import { Select, Insert, Update } from "@db/query.utils";
-import { hashKey, hashPassword } from "@lib/crypto.util";
-import { isEqual } from "@lib/std.util";
+import { Select, Insert, Update } from "db/query.utils";
+import { hashKey, hashPassword } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
 
-import * as Roles from "@db/interfaces/role";
-import * as States from "@db/interfaces/state";
+import * as Roles from "db/interfaces/role";
+import * as States from "db/interfaces/state";
 
 export interface IUser {
   user: Uint8Array;

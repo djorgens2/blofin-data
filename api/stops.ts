@@ -4,12 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopOrder } from "@db/interfaces/stops";
+import type { IStops, IStopOrder } from "db/interfaces/stops";
 
-import { Session, signRequest } from "@module/session";
-import { hexify } from "@lib/crypto.util";
+import { Session, setSession, signRequest } from "module/session";
+import { hexify } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
+import { Select, Insert, Update } from "db/query.utils";
 
-import * as Stops from "@db/interfaces/stops";
+import * as Stops from "db/interfaces/stops";
+import * as States from "db/interfaces/state";
+import * as Reference from "db/interfaces/reference";
+import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IStopsAPI {
   tpslId: string;
@@ -31,74 +36,137 @@ export interface IStopsAPI {
   brokerId: string;
 }
 
+const [tp, sl] = [`e4`, `df`];
+
 //+--------------------------------------------------------------------------------------+
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(active: Array<IStopsAPI>) {
-  const stops = [];
-  if (active.length) {
-    for (const publish of active) {
-      const update: Partial<IStopOrder> = {
-        symbol: publish.instId,
-        position: publish.positionSide,
-        tpsl_id: parseInt(publish.tpslId),
-        order_status: publish.state,
-        action: publish.side,
-        size: Number.isNaN(parseFloat(publish.size)) ? -1 : parseFloat(publish.size),
-        actual_size: Number.isNaN(parseFloat(publish.actualSize)) ? -1 : parseFloat(publish.actualSize),
-        reduce_only: publish.reduceOnly === "true" ? true : false,
-        system_generated: publish.clientOrderId.length ? true : false,
-        broker_id: publish.brokerId?.length ? publish.brokerId : undefined,
-        create_time: new Date(parseInt(publish.createTime)),
-      };
+const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
+  const processed: Array<IStopOrder["stop_request"]> = []; //-- handles batched orders; permits only first entry (newest) for insert/update
+  const published: Array<IStopOrder["stop_request"]> = [];
+  const rejected: Array<Partial<IStops>> = [];
 
-      if (update.system_generated) {
-        const order: Partial<IStopOrder> = {};
-        const [client_order_id, stop_type] = publish.clientOrderId.split("-");
-        Object.assign(order, { ...update, stop_request: hexify(client_order_id, 4), stop_type: stop_type as "tp" | "sl" });
-        stops.push(order);
-      } else {
-        const stop_request = hexify(parseInt(publish.tpslId).toString(16), 4);
-        const tp_trigger_price = parseFloat(publish.tpTriggerPrice);
-        const tp_order_price = parseFloat(publish.tpOrderPrice);
-        const sl_trigger_price = parseFloat(publish.slTriggerPrice);
-        const sl_order_price = parseFloat(publish.slOrderPrice);
+  if (props) {
+    console.log(`-> ${source}.Publish.Stops [API]`);
 
-        if (!(Number.isNaN(tp_trigger_price) || Number.isNaN(tp_order_price))) {
-          const tp: Partial<IStopOrder> = {
-            ...update,
-            stop_request,
-            stop_type: "tp",
-            trigger_price: tp_trigger_price ? tp_trigger_price : undefined,
-            order_price: tp_order_price ? tp_order_price : -1,
-          };
-          stops.push(tp);
+    for (const order of props) {
+      const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
+
+      if (instrument_position === undefined)
+        rejected.push({
+          tpsl_id: parseInt(order.tpslId!),
+          symbol: order.instId,
+          position: order.positionSide,
+          memo: `>> [Error] Stop.Orders.Publish: Invalid instrument position; stop order rejected`,
+        });
+      else {
+        const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
+        const expired = await States.Key({ status: "Expired" });
+        const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
+
+        const common: Partial<IStopOrder> = {
+          instrument_position,
+          tpsl_id: parseInt(order.tpslId!),
+          state: source === "History" && (order.state === "effective" || order.state === "live") ? expired : state,
+          order_state,
+          action: order.side,
+          size: order.size == null ? undefined : parseFloat(order.size),
+          actual_size: order.actualSize! == null ? undefined : parseFloat(order.actualSize),
+          reduce_only: order.reduceOnly === "true",
+          broker_id: order.brokerId === "" ? undefined : order.brokerId,
+          create_time: new Date(parseInt(order.createTime!)),
+        };
+
+        if (order.tpTriggerPrice == null && order.tpOrderPrice == null) continue;
+        else {
+          const key = hexify(order.clientOrderId!, 4) || hexify(parseInt(order.tpslId!), 4, tp);
+          const exists = processed.find((stop_request) => isEqual(stop_request, key!));
+          if (exists) continue;
+          else {
+            const request = await Stops.Submit({
+              ...common,
+              stop_request: key,
+              stop_type: "tp",
+              trigger_price: order.tpTriggerPrice == null ? undefined : parseFloat(order.tpTriggerPrice),
+              order_price: order.tpOrderPrice == null ? -1 : parseFloat(order.tpOrderPrice),
+            });
+
+            const result = await Stops.Publish({ stop_request: request, ...common });
+            result
+              ? published.push(result)
+              : rejected.push({
+                  ...common,
+                  stop_request: request,
+                  memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+                });
+          }
         }
 
-        if (!(Number.isNaN(sl_trigger_price) || Number.isNaN(sl_order_price))) {
-          const sl: Partial<IStopOrder> = {
-            ...update,
-            stop_request,
-            stop_type: "sl",
-            trigger_price: sl_trigger_price ? sl_trigger_price : undefined,
-            order_price: sl_order_price ? sl_order_price : -1,
-          };
-          stops.push(sl);
+        if (order.slTriggerPrice == null && order.slOrderPrice == null) continue;
+        else {
+          const key = hexify(order.clientOrderId!, 4) || hexify(parseInt(order.tpslId!), 4, sl);
+          const exists = processed.find((stop_request) => isEqual(stop_request, key!));
+          if (exists) continue;
+          else {
+            const request = await Stops.Submit({
+              ...common,
+              stop_request: key,
+              stop_type: "sl",
+              trigger_price: order.slTriggerPrice == null ? undefined : parseFloat(order.slTriggerPrice),
+              order_price: order.slOrderPrice == null ? -1 : parseFloat(order.slOrderPrice),
+            });
+            const result = await Stops.Publish({ stop_request: request, ...common });
+            result
+              ? published.push(result)
+              : rejected.push({
+                  ...common,
+                  stop_request: request,
+                  memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+                });
+          }
         }
       }
     }
+  }
+  return [published, rejected];
+};
 
-    const [missing, errors] = await Stops.Publish(stops);
+//+--------------------------------------------------------------------------------------+
+//| History - retrieves active stops from history; reconciles/merges with local db;      |
+//+--------------------------------------------------------------------------------------+
+export async function History() {
+  const method = "GET";
+  const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}`;
+  const { api, phrase, rest_api_url } = Session();
+  const { sign, timestamp, nonce } = await signRequest(method, path);
+  const headers = {
+    "ACCESS-KEY": api!,
+    "ACCESS-SIGN": sign!,
+    "ACCESS-TIMESTAMP": timestamp!,
+    "ACCESS-NONCE": nonce!,
+    "ACCESS-PASSPHRASE": phrase!,
+    "Content-Type": "application/json",
+  };
 
-    missing.length && console.log("Orders Published:", missing.length, missing);
-    errors.length && console.log("Orders Errors:", errors.length, errors);
+  try {
+    const response = await fetch(rest_api_url!.concat(path), {
+      method,
+      headers,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      return json.data;
+    }
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Active - retrieves active stops; reconciles with local db;                           |
 //+--------------------------------------------------------------------------------------+
-export async function Active() {
+export async function Pending() {
   const method = "GET";
   const path = "/api/v1/trade/orders-tpsl-pending";
   const { api, phrase, rest_api_url } = Session();
@@ -199,38 +267,22 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const history = await Stops.Fetch({ order_status: "Pending" });
-  const active: Array<IStopsAPI> = await Active();
-  const closed: Array<Partial<IStopOrder>> = [];
-  const pending: Array<Partial<IStopOrder>> = [];
+  const history = await History();
+  const pending = await Pending();
 
-  if (history.length)
-    for (const local of history) {
-      const { stop_request, stop_type, symbol, position } = local;
+  if (history && history.length) {
+    const [published, rejected] = await publish("History", history);
 
-      let found = false;
+    setSession({ audit_stops: history[0].tpslId! });
 
-      for (const activeStop of active) {
-        const { instId, positionSide, side, tpTriggerPrice, tpOrderPrice, slTriggerPrice, slOrderPrice } = activeStop;
-        const stopType =
-          stop_type === "tp"
-            ? !(Number.isNaN(tpTriggerPrice) || Number.isNaN(tpOrderPrice))
-              ? "tp"
-              : !(Number.isNaN(slTriggerPrice) || Number.isNaN(slOrderPrice))
-            : "sl";
+    published && published.length && console.log(`   # History Stop Orders Processed [${history.length * 2}]:  ${published.length} published`);
+    rejected && rejected.length && console.log(`   # History Stop Orders Rejected: `, rejected.length);
+  }
 
-        if (instId === symbol && positionSide === position && stopType === stop_type) {
-          found = true;
-          break;
-        }
-      }
+  if (pending && pending.length) {
+    const [published, rejected] = await publish("Pending", pending);
 
-      found ? pending.push({ status: "Pending" }) : closed.push({ stop_request, stop_type, status: "Closed", memo: "Closed: Stop order no longer active" });
-    }
-
-  await Publish(active);
-  await Stops.Update(closed);
-
-  pending.length && console.log(`# Pending Stops: [${history.length}, ${pending.length}]`);
-  closed.length && console.log(`# Stops Closed: [${closed.length}]`, closed);
+    published && published.length && console.log(`   # Pending Stop Orders Processed [${pending.length}]:  ${published.length} published`);
+    rejected && rejected.length && console.log("   # Pending Stop Orders Rejected: ", rejected.length);
+  }
 };

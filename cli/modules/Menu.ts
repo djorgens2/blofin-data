@@ -4,11 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IOption } from "@cli/modules/Prompts";
+import type { IOption } from "cli/modules/Prompts";
 
-import UserToken from "@cli/interfaces/user";
+import UserToken from "cli/interfaces/user";
 
-import * as RoleAuths from "@db/interfaces/role_authority";
+import * as RoleAuths from "db/interfaces/role_authority";
 
 //+--------------------------------------------------------------------------------------+
 //| Creates the authorized menus based on the connected user role;                       |

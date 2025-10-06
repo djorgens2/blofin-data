@@ -4,16 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICurrency } from "@db/interfaces/currency";
-import type { TSymbol } from "@db/interfaces/state";
+import type { ICurrency } from "db/interfaces/currency";
+import type { TSymbol } from "db/interfaces/state";
 
-import { Select, Insert, Update, TOptions } from "@db/query.utils";
-import { splitSymbol } from "@lib/app.util";
-import { hashKey } from "@lib/crypto.util";
-import { isEqual } from "@lib/std.util";
+import { Select, Insert, Update, TOptions } from "db/query.utils";
+import { splitSymbol } from "lib/app.util";
+import { hashKey } from "lib/crypto.util";
+import { isEqual } from "lib/std.util";
 
-import * as Currency from "@db/interfaces/currency";
-import * as Periods from "@db/interfaces/period";
+import * as Currency from "db/interfaces/currency";
+import * as Periods from "db/interfaces/period";
 
 export interface IInstrument {
   instrument: Uint8Array;
@@ -74,11 +74,11 @@ export const Publish = async (props: Partial<IInstrument>) => {
       const [current] = instrument;
       const revised: Partial<IInstrument> = {
         instrument: current.instrument,
-        trade_period: props.trade_period && isEqual(props.trade_period, current.trade_period!) ? undefined : props.trade_period,
-        margin_mode: props.margin_mode && props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
-        leverage: props.leverage && isEqual(props.leverage, current.leverage!) ? undefined : props.leverage,
-        lot_scale_factor: props.lot_scale_factor && isEqual(props.lot_scale_factor, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
-        martingale_factor: props.martingale_factor && isEqual(props.martingale_factor, current.martingale_factor!) ? undefined : props.martingale_factor,
+        trade_period: isEqual(props.trade_period!, current.trade_period!) ? undefined : props.trade_period,
+        margin_mode: props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
+        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
+        lot_scale_factor: isEqual(props.lot_scale_factor!, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
+        martingale_factor: isEqual(props.martingale_factor!, current.martingale_factor!) ? undefined : props.martingale_factor,
       };
       const [result] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
       return result ? result.instrument : undefined;

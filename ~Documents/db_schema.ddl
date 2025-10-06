@@ -175,7 +175,7 @@ CREATE  TABLE devel.account (
 	rest_api_url         VARCHAR(100)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	private_wss_url      VARCHAR(100)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	public_wss_url       VARCHAR(100)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
-	create_time          DATETIME(3)  DEFAULT (now())  NOT NULL   ,
+	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	CONSTRAINT ak_alias UNIQUE ( alias ) ,
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES devel.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -375,7 +375,7 @@ CREATE INDEX fk_ra_state ON devel.role_authority ( state );
 CREATE INDEX fk_ra_activity ON devel.role_authority ( activity );
 
 CREATE  TABLE devel.stop_request ( 
-	stop_request         BINARY(4)    NOT NULL   ,
+	stop_request         BINARY(5)    NOT NULL   ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	stop_type            CHAR(2)    NOT NULL   ,
@@ -384,6 +384,7 @@ CREATE  TABLE devel.stop_request (
 	trigger_price        DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
 	order_price          DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	broker_id            VARCHAR(16)       ,
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now())  NOT NULL   ,
@@ -520,49 +521,15 @@ CREATE INDEX fk_o_order_category ON devel.orders ( order_category );
 CREATE INDEX fk_o_cancel_source ON devel.orders ( cancel_source );
 
 CREATE  TABLE devel.stop_order ( 
-	stop_request         BINARY(4)    NOT NULL   PRIMARY KEY,
+	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BIGINT    NOT NULL   ,
 	order_state          BINARY(3)    NOT NULL   ,
-	actual_size          DOUBLE    NOT NULL   ,
-	broker_id            VARCHAR(16)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
-	CONSTRAINT ak_stop_order UNIQUE ( tpsl_id ) ,
+	actual_size          DOUBLE       ,
 	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_so_stop_request FOREIGN KEY ( stop_request ) REFERENCES devel.stop_request( stop_request ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
-
-CREATE VIEW devel.vw_account_orders AS
-select
-	ord.account AS account,
-	ifnull(min(ord.order_id), 0) AS order_id
-from
-	(
-	select
-		ipos.account AS account,
-		min(o.order_id) AS order_id
-	from
-		((devel.instrument_position ipos
-	left join devel.request r on
-		((r.instrument_position = ipos.instrument_position)))
-	left join devel.orders o on
-		(((r.request = o.request) and (r.create_time = r.update_time))))
-	group by
-		ipos.account
-union
-	select
-		uip.account AS account,
-		max(uo.order_id) AS order_id
-	from
-		((devel.instrument_position uip
-	left join devel.request ur on
-		((uip.instrument_position = ur.instrument_position)))
-	left join devel.orders uo on
-		((uo.request = ur.request)))
-	group by
-		uip.account) ord
-group by
-	ord.account;
 
 CREATE VIEW devel.vw_accounts AS
 select
@@ -1181,20 +1148,21 @@ left join (
 
 CREATE VIEW devel.vw_stop_orders AS
 select
+	devel.vip.account AS account,
 	sr.stop_request AS stop_request,
 	sr.stop_type AS stop_type,
 	so.tpsl_id AS tpsl_id,
-	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS client_order_id,
+	lower(cast(hex(sr.stop_request) as char charset utf8mb4)) AS client_order_id,
 	devel.vip.instrument_position AS instrument_position,
 	devel.vip.instrument AS instrument,
 	devel.vip.symbol AS symbol,
 	devel.vip.position AS position,
 	devel.vip.state AS position_state,
 	devel.vip.status AS position_status,
-	rs.state AS state,
-	rs.status AS status,
-	ifnull(rs.state, s.state) AS request_state,
-	ifnull(os.status, s.status) AS request_status,
+	s.state AS state,
+	s.status AS status,
+	coalesce(if((s.status = 'Expired'), s.state, NULL), rs.state, s.state) AS request_state,
+	coalesce(if((s.status = 'Expired'), s.status, NULL), rs.status, s.status) AS request_status,
 	os.order_state AS order_state,
 	os.source_ref AS order_status,
 	sr.action AS action,
@@ -1204,7 +1172,7 @@ select
 	sr.order_price AS order_price,
 	sr.reduce_only AS reduce_only,
 	sr.memo AS memo,
-	so.broker_id AS broker_id,
+	sr.broker_id AS broker_id,
 	sr.create_time AS create_time,
 	sr.update_time AS update_time
 from
@@ -1212,13 +1180,13 @@ from
 left join devel.stop_order so on
 	((so.stop_request = sr.stop_request)))
 left join devel.order_state os on
-	((so.order_state = os.order_state)))
-left join devel.state s on
-	((s.status = os.status)))
+	((os.order_state = so.order_state)))
+left join devel.state rs on
+	((rs.status = os.status)))
 join devel.vw_instrument_positions vip on
 	((sr.instrument_position = devel.vip.instrument_position)))
-join devel.state rs on
-	((sr.state = rs.state)));
+join devel.state s on
+	((s.state = sr.state)));
 
 CREATE VIEW devel.vw_api_stop_requests AS
 select

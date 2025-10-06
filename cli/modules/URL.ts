@@ -5,7 +5,7 @@
 "use server";
 "use strict";
 
-import Prompt, { IOption } from "@cli/modules/Prompts";
+import Prompt, { IOption } from "cli/modules/Prompts";
 import { Answers } from "prompts";
 
 //+--------------------------------------------------------------------------------------+

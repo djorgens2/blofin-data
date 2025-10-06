@@ -4,11 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequest } from "@db/interfaces/request";
+import type { IRequest } from "db/interfaces/request";
 
-import { Select, Insert, Update } from "@db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { Session } from "module/session";
-import { isEqual } from "@lib/std.util";
+import { isEqual } from "lib/std.util";
 
 export interface IOrder extends IRequest {
   base_currency: Uint8Array;
@@ -40,23 +40,22 @@ export interface IOrder extends IRequest {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IOrder>) => {
   if (props) {
-    const order = await Fetch({ request: props.request, order_id: props.order_id, account: Session().account });
+    const order = await Fetch({ request: props.request, order_id: props.order_id });
     if (order) {
       const [current] = order;
       const revised: Partial<IOrder> = {
         request: current.request,
-        order_category: props.order_category && isEqual(props.order_category, current.order_category!) ? undefined : props.order_category,
-        order_state: props.order_state && isEqual(props.order_state, current.order_state!) ? undefined : props.order_state,
-        cancel_source: props.cancel_source && isEqual(props.cancel_source, current.cancel_source!) ? undefined : props.cancel_source,
-        filled_size: props.filled_size && isEqual(props.filled_size, current.filled_size!) ? undefined : props.filled_size,
-        filled_amount: props.filled_amount && isEqual(props.filled_amount, current.filled_amount!) ? undefined : props.filled_amount,
-        average_price: props.average_price && isEqual(props.average_price, current.average_price!) ? undefined : props.average_price,
-        fee: props.fee && isEqual(props.fee, current.fee!) ? undefined : props.fee,
-        pnl: props.pnl && isEqual(props.pnl, current.pnl!) ? undefined : props.pnl,
+        order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
+        order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
+        cancel_source: isEqual(props.cancel_source!, current.cancel_source!) ? undefined : props.cancel_source,
+        filled_size: isEqual(props.filled_size!, current.filled_size!) ? undefined : props.filled_size,
+        filled_amount: isEqual(props.filled_amount!, current.filled_amount!) ? undefined : props.filled_amount,
+        average_price: isEqual(props.average_price!, current.average_price!) ? undefined : props.average_price,
+        fee: isEqual(props.fee!, current.fee!) ? undefined : props.fee,
+        pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
       };
 
       const [result, updates] = await Update(revised, { table: `orders`, keys: [{ key: `request` }] });
-      updates && console.log(">> Order.Publish updates:", updates);
       return result ? result.request : undefined;
     } else {
       const order: Partial<IOrder> = {
@@ -73,7 +72,6 @@ export const Publish = async (props: Partial<IOrder>) => {
       };
 
       const result = await Insert<IOrder>(order, { table: `orders` });
-      result && console.log(">> Order.Publish inserts:", result);
       return result ? result.request : undefined;
     }
   }

@@ -1,9 +1,9 @@
 //----------------------------------- KeySet tests ------------------------------------------//
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
-//import { parseColumns, parseKeys } from "@db/query.utils";
-import { hexify } from "@lib/crypto.util";
-import { bufferString, isEqual, setExpiry } from "@lib/std.util";
+//import { parseColumns, parseKeys } from "db/query.utils";
+import { hexify } from "lib/crypto.util";
+import { bufferString, isEqual, setExpiry } from "lib/std.util";
 import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
@@ -100,7 +100,7 @@ import { parse } from "path";
 // Import();
 
 // //----------------------------- Account Import ---------------------------------------//
-// import { Import } from "@db/interfaces/account";
+// import { Import } from "db/interfaces/account";
 // const imports = async() => {
 //   const new_accts = await Import();
 //   console.log(new_accts)
@@ -108,21 +108,21 @@ import { parse } from "path";
 // imports();
 
 //----------------------------- Role/Privs Import ---------------------------------------//
-//import * as Authority from "@db/interfaces/authority";
-//import * as Subject from "@db/interfaces/subject_area";
-//import * as Activity from "@db/interfaces/activity";
+//import * as Authority from "db/interfaces/authority";
+//import * as Subject from "db/interfaces/subject_area";
+//import * as Activity from "db/interfaces/activity";
 
 // Authority.Import();
 // Subject.Import();
 //Activity.Import();
 
 //-------------------------------- candles Import ---------------------------------------//
-// import type { IMessage } from "@lib/std.util";
-// import { clear } from "@lib/std.util";
+// import type { IMessage } from "lib/std.util";
+// import { clear } from "lib/std.util";
 // import { Import } from "./api/candles";
 // import { State } from "./db/interfaces/trade_state";
-// import * as Candles from "@db/interfaces/candle";
-// import * as Periods from "@db/interfaces/instrument_period";
+// import * as Candles from "db/interfaces/candle";
+// import * as Periods from "db/interfaces/instrument_period";
 
 // async function importCandles() {
 //   const instruments = await Periods.Fetch({ active_collection: true });
@@ -174,7 +174,7 @@ import { parse } from "path";
 // get();
 
 //----------------------------- Event Triggers ------------------------------------------//
-// import { CEvent, Event, Alert } from "@module/event";
+// import { CEvent, Event, Alert } from "module/event";
 // const event = CEvent();
 
 // event.setEvent(Event.NewHour, Alert.Major);
@@ -366,15 +366,15 @@ import { parse } from "path";
 // Main process
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-//import * as Environs from "@db/interfaces/environment"
-//import * as State from "@db/interfaces/state"
-// import * as Role from "@db/interfaces/role"
+//import * as Environs from "db/interfaces/environment"
+//import * as State from "db/interfaces/state"
+// import * as Role from "db/interfaces/role"
 
 //Environs.Import();
 // Role.Import();
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-// import * as SubjectRoleAuthority from "@db/interfaces/subject_role_authority";
+// import * as SubjectRoleAuthority from "db/interfaces/subject_role_authority";
 
 // const imported = async () => {
 //   const inserts = await SubjectRoleAuthority.Import({ enabled: false });
@@ -439,12 +439,12 @@ import { parse } from "path";
 // console.log(newHashKey(16))
 
 //----------------------------- user password new/verify ------------------------------------------//
-// import type { Role } from "@db/interfaces/role";
+// import type { Role } from "db/interfaces/role";
 
-// import * as Users from "@db/interfaces/user";
+// import * as Users from "db/interfaces/user";
 
 // const username = "djorgens2";
-// const email = "whoaman@gmail.com";
+// const email = "whoamangmail.com";
 // const password = "John 1:1";
 // const title: Role = "Admin";
 // const image_url: string = "";
@@ -476,7 +476,7 @@ import { parse } from "path";
 // console.log(result);
 
 //----------------------------- test type v enum conversion (Role) ------------------------------------------//
-// import * as authority from "@db/interfaces/role_authority";
+// import * as authority from "db/interfaces/role_authority";
 
 // function measureTime(func: Function) {
 //   const startTime = performance.now();
@@ -542,14 +542,14 @@ import { parse } from "path";
 //   console.log(newObject); // Output: { a: 1, c: true }
 
 //----------------------------- user update test ------------------------------------------//
-// import * as Users from "@db/interfaces/user";
+// import * as Users from "db/interfaces/user";
 
 // const update = async () => {
-//  const user = await Users.Add({username: 'xforce', email: 'xforce@x.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
-//   const user = await Users.Add({username: 'x', email: 'x@x.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
-//   const update = await Users.Update({ username: "x", email: "x@x.com", image_url: "./images/users/thexman", status: 'Enabled' });
-//   const setpass = await Users.SetPassword({ username: "x", email: "x@x.com", password: "yyy" });
-//   const login = await Users.Login({ username: "x", email: "x@x.com", password: "yyy" });
+//  const user = await Users.Add({username: 'xforce', email: 'xforcex.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
+//   const user = await Users.Add({username: 'x', email: 'xx.com', password: 'xxx', title: 'Admin', status: 'Disabled'});
+//   const update = await Users.Update({ username: "x", email: "xx.com", image_url: "./images/users/thexman", status: 'Enabled' });
+//   const setpass = await Users.SetPassword({ username: "x", email: "xx.com", password: "yyy" });
+//   const login = await Users.Login({ username: "x", email: "xx.com", password: "yyy" });
 //  console.log([user, update, setpass, login]);
 //   console.log([login]);
 // };
@@ -605,8 +605,8 @@ import { parse } from "path";
 //checkURL('https://invalid-url');
 
 //----------------------------- Prompts testing -------------------------------------------------------//
-// import Prompts from "@cli/modules/Prompts";
-// import * as Accounts from "@db/interfaces/account";
+// import Prompts from "cli/modules/Prompts";
+// import * as Accounts from "db/interfaces/account";
 // const imports = [
 //   {
 //     name: "Blofin",
@@ -640,8 +640,8 @@ import { parse } from "path";
 // get();
 
 // //----------------------------- Key/Value element Extraction -------------------------------------------------------//
-// import * as Accounts from "@db/interfaces/account";
-// import { hexify } from "@lib/crypto.util";
+// import * as Accounts from "db/interfaces/account";
+// import { hexify } from "lib/crypto.util";
 
 // const account = hexify("0x044e54");
 // const currency = hexify("0x044e54");
@@ -705,7 +705,7 @@ export function copyDefined<T extends object>( source: T, target: Partial<T>) {
 const sourceObject = { a: 1, b: undefined, c: 3 };
 const targetObject: Partial<{ a: number; b: number; c: number }> = {};
 
-// @ts-ignore
+// ts-ignore
 copyDefined(sourceObject, targetObject);
 
 console.log(targetObject); // Output: { a: 1, c: 3 }
@@ -718,14 +718,14 @@ function copyDefinedElements<T extends object>(source: T, target: Partial<T>): v
   }
 }
 
-// @ts-ignore
+// ts-ignore
 copyDefinedElements(sourceObject, targetObject);
 
 console.log(targetObject); // Output: { a: 1, c: 3 }
 */
 
 //----------------------------- load refs generic -------------------------------------------------------//
-// import { Import } from "@db/interfaces/reference";
+// import { Import } from "db/interfaces/reference";
 
 // const load = async () => {
 //   Import();
@@ -793,7 +793,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(`From Generic Fetch returned in ${et - st}ms`);
 
 //----------------------------- generic refs test  -------------------------------------------------------//
-// import * as Reference from "@db/interfaces/reference";
+// import * as Reference from "db/interfaces/reference";
 // const checkRef = async () => {
 //   const cancel_dflt = await Reference.Fetch<Reference.IKeyProps>("cancel", { source_ref: "not_canceled" });
 //   console.log(cancel_dflt);
@@ -801,15 +801,15 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // checkRef();
 
 //----------------------------- expiry calc test  -------------------------------------------------------//
-// import { setExpiry } from "@lib/std.util";
+// import { setExpiry } from "lib/std.util";
 
 // console.log(setExpiry(`30s`))
 
 //----------------------------- order test  -------------------------------------------------------//
-// import { hexify } from "@lib/crypto.util";
-// import * as Orders from "@db/interfaces/order";
-// import * as Requests from "@db/interfaces/request";
-// import * as OrderAPI from "@api/orders";
+// import { hexify } from "lib/crypto.util";
+// import * as Orders from "db/interfaces/order";
+// import * as Requests from "db/interfaces/request";
+// import * as OrderAPI from "api/orders";
 
 // const order_request = {
 //   instId: "BTC-USDT",
@@ -874,7 +874,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 
 // const req = Requests.Submit(request);
 // const exec = Order.Execute();
-// import * as Orders from "@db/interfaces/order";
+// import * as Orders from "db/interfaces/order";
 // import * as OrderAPI from "api/orders";
 // const api: Array<Partial<OrderAPI.IOrderAPI>> =
 // [
@@ -917,12 +917,12 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // order();
 
 //----------------------------- expiry calc test  -------------------------------------------------------//
-// import { setExpiry } from "@lib/std.util";
+// import { setExpiry } from "lib/std.util";
 
 // console.log(setExpiry(`30s`));
 
 //----------------------------- number test -------------------------------------------------------//
-// import { format } from "@lib/std.util";
+// import { format } from "lib/std.util";
 
 // console.log(format(''));
 // console.log(format('abc'));
@@ -930,7 +930,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(format('xxx123.567'));
 // console.log(format('123.567aaabc'));
 // console.log(format(null));
-// import { hexify } from "@lib/crypto.util";
+// import { hexify } from "lib/crypto.util";
 
 // const test = "171717";
 // const hex1 = parseInt(test);
@@ -940,7 +940,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(hex1, hex2, buf, buf2, hexify(parseInt(test),4));
 
 //----------------------------- useful code! -----------------------------//
-// import { IOrderAPI } from "@api/orders";
+// import { IOrderAPI } from "api/orders";
 // //const body = `[${JSON.stringify((({ instId, orderId, clientOrderId }) => ({ instId, orderId, clientOrderId }))(cancel))}]`;
 // const cancel: Array<Partial<IOrderAPI>> = [
 //   { instId: "BTC-USDT" },
@@ -951,7 +951,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // const body = console.log(JSON.stringify(cancel.map(({ instId, orderId, clientOrderId }) => ({ instId, orderId, clientOrderId }))));
 
 //----------------------------------------- State generic fetch test ----------------------------------//
-// import * as Reference from "@db/interfaces/reference"
+// import * as Reference from "db/interfaces/reference"
 
 // const getKey = async (table: string, key: string)  => {
 //   console.log(await Reference.Key(table, {source_ref: key}));
@@ -981,10 +981,10 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(value); // Output: 30
 
 //----------------------------- order test  -------------------------------------------------------//
-// import { hexify } from "@lib/crypto.util";
-// import { setExpiry } from "@lib/std.util";
-// import { setSession } from "@module/session";
-// import * as Requests from "@db/interfaces/request";
+// import { hexify } from "lib/crypto.util";
+// import { setExpiry } from "lib/std.util";
+// import { setSession } from "module/session";
+// import * as Requests from "db/interfaces/request";
 
 // //-- test 1; request w/ no tpsl; 100%
 // const request1: Partial<Requests.IRequest> = {
@@ -1020,7 +1020,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // };
 
 //----------------------------- expiry calc test  -------------------------------------------------------//
-// import { setExpiry } from "@lib/std.util";
+// import { setExpiry } from "lib/std.util";
 // import { Process } from "api/requests"
 
 // const open = setExpiry('45s');
@@ -1039,7 +1039,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // go();
 
 //----------------------------- order fetch key test  -------------------------------------------------------//
-// import { hexify } from "@lib/crypto.util";
+// import { hexify } from "lib/crypto.util";
 // import { Key } from "db/interfaces/order";
 
 // const go = async () => {
@@ -1054,7 +1054,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // go();
 
 //----------------------------- order fetch key test  -------------------------------------------------------//
-// import { hashKey, hexify, uniqueKey } from "@lib/crypto.util";
+// import { hashKey, hexify, uniqueKey } from "lib/crypto.util";
 // import { Key } from "db/interfaces/order";
 
 // const go = async () => {
@@ -1068,7 +1068,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(hexify(uniqueKey(10),6));
 
 //----------------------------- fetch order state test  -------------------------------------------------------//
-// import * as Orders from "@db/interfaces/order";
+// import * as Orders from "db/interfaces/order";
 
 // const go = async () => {
 //   const state = await Orders.State({order_status: 'live'});
@@ -1078,20 +1078,20 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // go();
 
 //----------------------------------- Instrument Position ------------------------------------------//
-// import { Publish } from "@db/interfaces/instrument_position";
+// import { Publish } from "db/interfaces/instrument_position";
 
 // (async () => await Publish())();
 
 //----------------------------------- Import State ------------------------------------------//
-// import { Import } from "@db/interfaces/state";
+// import { Import } from "db/interfaces/state";
 
 // (async () => await Import())();
 
 //----------------------------- tp/sl test  -------------------------------------------------------//
-// import { hexify } from "@lib/crypto.util";
-// import { setSession } from "@module/session";
-// import * as Stops from "@api/stops";
-// import { IStopsAPI } from "@api/stops";
+// import { hexify } from "lib/crypto.util";
+// import { setSession } from "module/session";
+// import * as Stops from "api/stops";
+// import { IStopsAPI } from "api/stops";
 
 // //-- test 1; request w/ no tpsl; 100%
 // const subtp1: Partial<IStopsAPI> = {
@@ -1110,9 +1110,9 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // const tp1 = Stops.Submit(subtp1);
 
 //----------------------------- runtime type test  -------------------------------------------------------//
-// import { IStopOrder, Submit } from "@db/interfaces/stops";
-// import * as Instruments from "@db/interfaces/instrument";
-// import { hexify } from "@lib/crypto.util";
+// import { IStopOrder, Submit } from "db/interfaces/stops";
+// import * as Instruments from "db/interfaces/instrument";
+// import { hexify } from "lib/crypto.util";
 // const subtp1: Partial<IStopOrder> = {
 //   //stop_request: hexify("00abcdef",4),
 //   //order_state: 'live',
@@ -1151,12 +1151,12 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // parse(subtp1);
 
 //----------------------------- order test  -------------------------------------------------------//
-// import { setExpiry } from "@lib/std.util";
-// import { setSession } from "@module/session";
-// import { IStopOrder, Submit } from "@db/interfaces/stops";
-// import { hexify } from "@lib/crypto.util";
-// import * as Requests from "@db/interfaces/request";
-// import * as Instruments from "@db/interfaces/instrument";
+// import { setExpiry } from "lib/std.util";
+// import { setSession } from "module/session";
+// import { IStopOrder, Submit } from "db/interfaces/stops";
+// import { hexify } from "lib/crypto.util";
+// import * as Requests from "db/interfaces/request";
+// import * as Instruments from "db/interfaces/instrument";
 
 // //-- test 1; request w/ no tpsl; 100%
 // const request: Partial<Requests.IRequest> = {
@@ -1193,7 +1193,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(isEqual(inUint!,outUint!));
 
 //----------------------------- datetime conversion test ----------------------------------------------//
-// import { Modify, Select } from "@db/query.utils";
+// import { Modify, Select } from "db/query.utils";
 
 // const put = async (ts1: number, ts2?: number) => {
 //   const dt1 = new Date(ts1);
@@ -1244,7 +1244,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // finder({ symbol: "XRP-USDT", timeframe: "15m", start_timestamp: 1673741700000 }).then((res) => console.log(res));
 
 //----------------------------- Candle Loader Test ---------------------------------------//
-// import * as Candles from "@api/candles";
+// import * as Candles from "api/candles";
 
 // //Candles.Loader({ symbol: "BTC-USDT", timeframe: "15m", start_time: 1673604000000 }).then((res) => {
 // const symbol = process.argv[2] || "BTC-USDT";
@@ -1329,13 +1329,13 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(f3, a3);
 
 //----------------------------- Activity Import Test ---------------------------------------//
-//import * as Table from "@db/interfaces/instrument_type";
+//import * as Table from "db/interfaces/instrument_type";
 //Table.Import();
 //Table.Key({}).then ((res) =>{ console.log(res); });
 //Table.Fetch({}).then ((res) =>{ console.log(res); });
 
 //----------------------------- Candle Fetch Test ---------------------------------------//
-// import * as Candle from "@db/interfaces/candle";
+// import * as Candle from "db/interfaces/candle";
 // Candle.Fetch({ symbol: "XRP-USDT", timestamp: 1757649600000, limit: 10 }).then((result) => console.log(result));
 
 //----------------------------- update property filter ---------------------------------------//
@@ -1439,7 +1439,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //Instruments.Import();
 
 //----------------------------- Import / Fetch Tests ---------------------------------------//
-// import * as Table from "@db/interfaces/activity";
+// import * as Table from "db/interfaces/activity";
 // console.log("// -- activity -- //");
 // Table.Import();
 // Table.Key({}).then((res) => {
@@ -1451,7 +1451,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // Table.Fetch({}).then((res) => {
 //   console.log(`Fetch:`, res);
 // });
-// import * as Table from "@db/interfaces/authority";
+// import * as Table from "db/interfaces/authority";
 // console.log("// -- authority -- //");
 // Table.Import();
 // Table.Key({}).then((res) => {
@@ -1463,7 +1463,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // Table.Key({ priority: 4 }).then((res) => {
 //   console.log(`Priority key: ${bufferString(res!)}`);
 // });
-// import * as Table from "@db/interfaces/broker";
+// import * as Table from "db/interfaces/broker";
 // console.log("// -- broker -- //");
 // (async () => {
 //   await Table.Import();
@@ -1483,11 +1483,11 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //     });
 //   }, 1500);
 // })();
-// import * as Candle from "@db/interfaces/candle";
-// import * as apiInst from "@api/instruments";
-// import * as api from "@api/candles";
+// import * as Candle from "db/interfaces/candle";
+// import * as apiInst from "api/instruments";
+// import * as api from "api/candles";
 
-// import { clear } from "@lib/app.util";
+// import { clear } from "lib/app.util";
 
 // console.log("// -- candle -- //");
 
@@ -1509,12 +1509,12 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // })();
 
 //----------------------------- Suspended Tests ---------------------------------------//
-// import * as Instrument from "@db/interfaces/instrument";
+// import * as Instrument from "db/interfaces/instrument";
 // const props = keys.map(item => hexify(item, 3)).filter((item): item is Uint8Array => item !== undefined);
 // Instrument.Audit(props);
 
 //----------------------------- Select distinct Tests ---------------------------------------//
-// import type { IAccess } from "@db/interfaces/state";
+// import type { IAccess } from "db/interfaces/state";
 // import * as db from "db/query.utils";
 
 // export interface IRoleAuthority {
@@ -1541,8 +1541,8 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // })();
 
 //----------------------------- Format Console Lines Test ---------------------------------------//
-// import type { IUser } from "@db/interfaces/user";
-// import * as User from "@db/interfaces/user";
+// import type { IUser } from "db/interfaces/user";
+// import * as User from "db/interfaces/user";
 
 // const userLen = { username: 4, email: 20, state: 4, image_url: 30, create_time: 4, update_time: 4 };
 
@@ -1578,7 +1578,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // })();
 
 //----------------------------- Seed Load Tests ---------------------------------------//
-// import * as Seed from "@cli/interfaces/seed"
+// import * as Seed from "cli/interfaces/seed"
 
 // Seed.Import();
 
@@ -1606,7 +1606,7 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // Seed.Import();
 
 //----------------------------- Split Keys Effect on processed set ----------------------------------//
-// import type { IRequest } from "@db/interfaces/request";
+// import type { IRequest } from "db/interfaces/request";
 // import { splitKeys } from "db/query.utils";
 // const submit = {
 //   request: hexify("00bbb8267a54", 6),
@@ -1627,31 +1627,45 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // } as Partial<IRequest>;
 // console.log(splitKeys<IRequest>(submit, [`request`]));
 
-
 //----------------------------- Split Keys Effect on processed set ----------------------------------//
 // const local = [{id: hexify('ababab',3)}, {id: hexify('bcbcbc',3)}, {id: hexify('cdcdcd',3)}, {id: hexify('dedede',3)}, {id: hexify('efefef',3)}, {id: hexify('fafafa',3)}];
 // const props = [hexify('ababab',3), hexify('cdcdcd',3), hexify('efefef',3)];
 // const suspense = local && local.filter(db=> !props.some(api => isEqual(api!, db.id!)));
 // console.log(suspense);
 
-//----------------------------- Order Audit Test ----------------------------------//
-import { setSession } from "@module/session";
-import { Audit } from "@db/interfaces/request";
+type ptype = {
+  filled_size: number,
+  filled_amount: number,
+  average_price: number,
+  fee: number,
+  pnl: number,
+}
+const revised: Partial<ptype> = {
+  filled_size: 0,
+  filled_amount: undefined,
+  average_price: 0,
+  fee: undefined,
+  pnl: 0,
+};
+const props: Partial<ptype> = {
+  filled_size: 0,
+  filled_amount: undefined,
+  average_price: 0,
+  fee: 0,
+  pnl: 0,
+};
 
-setSession({ account: hexify("364e69")! });
-Audit();
+const filled_size = isEqual(props.filled_size!, revised.filled_size!) ? undefined : props.filled_size;
+const filled_amount = isEqual(props.filled_amount!, revised.filled_amount!) ? undefined : props.filled_amount;
+const average_price = isEqual(props.average_price!, revised.average_price!) ? undefined : props.average_price;
+const fee = isEqual(props.fee!, revised.fee!) ? undefined : props.fee;
+const pnl = isEqual(props.pnl!, revised.pnl!) ? undefined : props.pnl;
+const check = {
+  filled_size,
+  filled_amount,
+  average_price,
+  fee,
+  pnl,
+};
 
-//-- test 1; request w/ no tpsl; 100%
-// const request1: Partial<Requests.IRequest> = {
-//   instrument: hexify("4e3e8a")!,
-//   margin_mode: "cross",
-//   position: "short",
-//   action: "sell",
-//   request_type: hexify("6eb6c5"),
-//   price: 109000,
-//   size: 300,
-//   leverage: 10,
-//   expiry_time: setExpiry("30m"),
-// };
-
-// setSession({ account: hexify("145a6a")})
+console.log(check);

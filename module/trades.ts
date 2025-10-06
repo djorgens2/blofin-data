@@ -17,10 +17,11 @@ import * as RequestAPI from "api/requests";
 import * as OrderAPI from "api/orders";
 import * as StopsAPI from "api/stops";
 
-import * as Instrument from "db/interfaces/instrument";
 import * as Request from "db/interfaces/request";
 import * as Order from "db/interfaces/order";
+import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
+import { Console } from "console";
 
 //+--------------------------------------------------------------------------------------+
 //| Audits Request Queue; reconciles request state on change using broker order history; |
@@ -109,12 +110,17 @@ const processQueued = async () => {
 //+--------------------------------------------------------------------------------------+
 const processCanceled = async () => {
   const orders = await Order.Fetch({ status: "Canceled", account: Session().account });
-  const cancels = [];
 
-  if (orders) for (const order of orders) order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+  if (orders) {
+    const cancels = [];
 
-  const result = await OrderAPI.Cancel(cancels);
-  result && console.log(">> [Info] Trades.Canceled: Cancel requests submitted:", cancels.length);
+    for (const order of orders) {
+      order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+    }
+
+    const result = await OrderAPI.Cancel(cancels);
+    result && console.log(">> [Info] Trades.Canceled: Cancel requests submitted:", cancels.length);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -143,6 +149,38 @@ const processHold = async () => {
   }
 };
 
+//+--------------------------------------------------------------------------------------+
+//| Handle stop order submits, rejects, and updates (from hold status);                  |
+//+--------------------------------------------------------------------------------------+
+const processStops = async () => {
+  const requests = await Stops.Fetch({ status: "Queued", account: Session().account });
+  const cancels = await Stops.Fetch({ status: "Canceled", account: Session().account });
+  const rejects = await Stops.Fetch({ status: "Rejected", account: Session().account });
+  const holds = await Stops.Fetch({ status: "Hold", account: Session().account });
+
+  requests && console.log(`   [Info] Process.Stops:  ${requests.length} stop requests`);
+  cancels && console.log(`   [Info] Process.Stops:  ${cancels.length} stop cancels`);
+  rejects && console.log(`   [Info] Process.Stops:  ${rejects.length} stop rejetcs`);
+  holds && console.log(`   [Info] Process.Stops:  ${holds.length} stop holds`);
+  // if (orders) {
+  //   const success = await States.Key<IRequestState>({ status: "Queued" });
+  //   const fail = await States.Key<IRequestState>({ status: "Rejected" });
+
+  //   for (const order of orders) order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+
+  //   const result = await OrderAPI.Cancel(cancels);
+
+  //   if (result) {
+  //     console.log(">> [Info] Trades.Hold: Cancel requests submitted:", cancels.length);
+
+  //     for (const order of result) {
+  //       const result = await Request.Submit({ request: order.request!, state: order.state!, memo: order.memo! });
+  //       result && console.log(">> [Info] Trades.Hold: Requests resubmitted:", result.length);
+  //     }
+  //   }
+  // }
+};
+
 // Public functions
 
 //+--------------------------------------------------------------------------------------+
@@ -153,7 +191,7 @@ export const Trades = async () => {
 
   await PositionsAPI.Import();
   await OrderAPI.Import();
-  // await StopsAPI.Import();
+  await StopsAPI.Import();
 
   await processAudit();
   await processRejected();
@@ -161,4 +199,5 @@ export const Trades = async () => {
   await processCanceled();
   await processHold();
   await processQueued();
+  await processStops();
 };

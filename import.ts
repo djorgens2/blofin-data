@@ -4,13 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICandle } from "@db/interfaces/candle";
+import type { ICandle } from "db/interfaces/candle";
 
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
 import * as Broker from "db/interfaces/broker";
-import * as Candle from "@db/interfaces/candle";
-import * as ContractType from "@db/interfaces/contract_type";
+import * as ContractType from "db/interfaces/contract_type";
 import * as Environment from "db/interfaces/environment";
 import * as InstrumentPeriod from "db/interfaces/instrument_period";
 import * as InstrumentType from "db/interfaces/instrument_type";
@@ -21,10 +20,10 @@ import * as State from "db/interfaces/state";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Roles from "db/interfaces/role";
 
-import * as Candles from "@api/candles";
-import * as Instruments from "@api/instruments";
+import * as Candles from "api/candles";
+import * as Instruments from "api/instruments";
 
-import { clear } from "@lib/app.util";
+import { clear } from "lib/app.util";
 
 //+--------------------------------------------------------------------------------------+
 //| Installs seed data during initialization of a new database;                          |

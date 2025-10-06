@@ -1,4 +1,4 @@
 //----------------------------- Seed Load Tests ---------------------------------------//
-import * as Seed from "@cli/interfaces/seed"
+import * as Seed from "cli/interfaces/seed"
 
 Seed.Import();

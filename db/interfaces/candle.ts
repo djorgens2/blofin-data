@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert, Update } from "@db/query.utils";
-import { isEqual } from "@lib/std.util";
+import { Select, Insert, Update } from "db/query.utils";
+import { isEqual } from "lib/std.util";
 
 export interface ICandle {
   instrument: Uint8Array;

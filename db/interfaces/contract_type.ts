@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import { Select, Insert } from "db/query.utils";
+import { hashKey } from "lib/crypto.util";
 
 export interface IContractType {
   contract_type: Uint8Array;

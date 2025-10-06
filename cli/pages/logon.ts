@@ -4,14 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt from "@cli/modules/Prompts";
-import UserToken from "@cli/interfaces/user";
+import Prompt from "cli/modules/Prompts";
+import UserToken from "cli/interfaces/user";
 
-import { setHeader } from "@cli/modules/Header";
-import { setUserToken, setCredentials } from "@cli/interfaces/user";
+import { setHeader } from "cli/modules/Header";
+import { setUserToken, setCredentials } from "cli/interfaces/user";
 
-import * as Initial from "@cli/interfaces/seed";
-import * as Users from "@db/interfaces/user";
+import * as Initial from "cli/interfaces/seed";
+import * as Users from "db/interfaces/user";
 
 //+--------------------------------------------------------------------------------------+
 //| Login validator and configuration script;                                            |

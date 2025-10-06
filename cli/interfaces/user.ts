@@ -5,18 +5,18 @@
 "use server";
 "use strict";
 
-import Prompt, { IOption } from "@cli/modules/Prompts";
-import type { IUser } from "@db/interfaces/user";
+import Prompt, { IOption } from "cli/modules/Prompts";
+import type { IUser } from "db/interfaces/user";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 import { Answers } from "prompts";
 
-import { setState } from "@cli/modules/State";
-import { setHeader } from "@cli/modules/Header";
+import { setState } from "cli/modules/State";
+import { setHeader } from "cli/modules/Header";
 
-import * as Users from "@db/interfaces/user";
-import * as Roles from "@db/interfaces/role";
-import { getLengths } from "@lib/std.util";
+import * as Users from "db/interfaces/user";
+import * as Roles from "db/interfaces/role";
+import { getLengths } from "lib/std.util";
 
 interface IUserToken {
   username: string;

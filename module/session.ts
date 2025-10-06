@@ -5,14 +5,14 @@
 "use strict";
 
 import { parseJSON } from "lib/std.util";
-import { uniqueKey } from "@lib/crypto.util";
+import { uniqueKey } from "lib/crypto.util";
 import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 
-import * as PositionsAPI from "@api/positions";
-import * as AccountAPI from "@api/accounts";
-import * as OrderAPI from "@api/orders";
-import * as Execute from "@module/trades";
+import * as PositionsAPI from "api/positions";
+import * as AccountAPI from "api/accounts";
+import * as OrderAPI from "api/orders";
+import * as Execute from "module/trades";
 
 export type IResponseProps = {
   event: string;
@@ -30,6 +30,8 @@ export interface ISession {
   account: Uint8Array;
   alias: string;
   state: "disconnected" | "connected" | "connecting" | "error" | "closed";
+  audit_order: string;
+  audit_stops: string;
   api: string;
   secret: string;
   phrase: string;
@@ -85,7 +87,7 @@ export function openWebSocket(props: Partial<ISession>) {
   const { account, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
   const ws = new WebSocket(private_wss_url!);
 
-  setSession({ account, state: "connecting", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
+  setSession({ account, state: "connecting", audit_order: "0", audit_stops: "0", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
 
   ws.onopen = () => {
     const login = async () => {

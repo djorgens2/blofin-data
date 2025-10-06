@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICandle } from "@db/interfaces/candle";
-import type { IMessage } from "@lib/app.util";
+import type { ICandle } from "db/interfaces/candle";
+import type { IMessage } from "lib/app.util";
 
-import { isEqual } from "@lib/std.util";
-import { clear } from "@lib/app.util";
+import { isEqual } from "lib/std.util";
+import { clear } from "lib/app.util";
 
-import * as Candle from "@db/interfaces/candle";
-import * as Period from "@db/interfaces/period";
-import * as Instrument from "@db/interfaces/instrument";
+import * as Candle from "db/interfaces/candle";
+import * as Period from "db/interfaces/period";
+import * as Instrument from "db/interfaces/instrument";
 
 export interface ICandleAPI {
   ts: string;

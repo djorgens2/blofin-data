@@ -4,12 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISubjectArea } from "@db/interfaces/subject_area";
+import type { ISubjectArea } from "db/interfaces/subject_area";
 
-import { Select, Insert } from "@db/query.utils";
-import { hashKey } from "@lib/crypto.util";
+import { Select, Insert } from "db/query.utils";
+import { hashKey } from "lib/crypto.util";
 
-import * as SubjectArea from "@db/interfaces/subject_area";
+import * as SubjectArea from "db/interfaces/subject_area";
 
 export interface IActivity extends ISubjectArea {
   activity: Uint8Array;

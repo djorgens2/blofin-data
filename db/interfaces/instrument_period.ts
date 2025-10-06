@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Load } from "@db/query.utils";
+import { Select, Load } from "db/query.utils";
 
 export interface IInstrumentPeriod {
   instrument: Uint8Array;

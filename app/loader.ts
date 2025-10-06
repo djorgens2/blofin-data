@@ -8,7 +8,7 @@
 //+---------------------------------------------------------------------------------------------+
 "use strict";
 
-import * as Candles from "@api/candles";
+import * as Candles from "api/candles";
 
 //+---------------------------------------------------------------------------------------------+
 //| Loads candle data locally for supplied symbol/timeframe from start_time and earlier;        |

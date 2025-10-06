@@ -1,12 +1,12 @@
 //----------------------------- order test  -------------------------------------------------------//
-import type { IRequest } from "@db/interfaces/request";
+import type { IRequest } from "db/interfaces/request";
 
-import { setSession } from "@module/session";
-import { hexify } from "@lib/crypto.util";
+import { setSession } from "module/session";
+import { hexify } from "lib/crypto.util";
 import { req_fcrt_1a } from "./request";
 
-import * as Requests from "@db/interfaces/request";
-import * as Orders from "@db/interfaces/order";
+import * as Requests from "db/interfaces/request";
+import * as Orders from "db/interfaces/order";
 
 setSession({ account: hexify("333634") });
 

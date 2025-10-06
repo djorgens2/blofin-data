@@ -4,13 +4,13 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRequest, IRequestState } from "@db/interfaces/state";
+import type { TRequest, IRequestState } from "db/interfaces/state";
 
-//import { DB_SCHEMA, Modify, parseColumns, Select } from "@db/query.utils";
-import { hexify } from "@lib/crypto.util";
+//import { DB_SCHEMA, Modify, parseColumns, Select } from "db/query.utils";
+import { hexify } from "lib/crypto.util";
 
-import * as Requests from "@db/interfaces/request";
-import * as States from "@db/interfaces/state";
+import * as Requests from "db/interfaces/request";
+import * as States from "db/interfaces/state";
 
 export type TResponse = {
   orderId: string;

@@ -4,7 +4,7 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "@module/session";
+import type { ISession } from "module/session";
 
 import { createHmac, createHash } from "node:crypto";
 import { customAlphabet } from "nanoid";
@@ -12,7 +12,7 @@ import { TextEncoder } from "node:util";
 
 import * as dotenv from "dotenv";
 import * as path from "path";
-import * as User from "@db/interfaces/user";
+import * as User from "db/interfaces/user";
 
 dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
@@ -46,7 +46,7 @@ export const uniqueKey = (length: number): string => {
 //+--------------------------------------------------------------------------------------+
 //| Returns a UIntArray on a valid hex value passed as a string|number; validates binary |
 //+--------------------------------------------------------------------------------------+
-export const hexify = (key: string | Uint8Array | number | object, size?: number): Uint8Array | undefined => {
+export const hexify = (key: string | Uint8Array | number | object, size?: number, prefix = ""): Uint8Array | undefined => {
   if (key) {
     if (key instanceof Uint8Array)
       if (key.length > 0) return Buffer.from(key);
@@ -67,7 +67,7 @@ export const hexify = (key: string | Uint8Array | number | object, size?: number
     const bytes = new Uint8Array(key.length / 2);
 
     if (regex.test(key)) {
-      size && (key = key.padStart(size * 2, "0"));
+      size && (key = prefix.concat(key.padStart(size * 2, "0")));
       return Buffer.from(key, "hex");
     }
   }
