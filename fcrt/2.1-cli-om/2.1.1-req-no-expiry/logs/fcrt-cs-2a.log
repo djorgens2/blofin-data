@@ -1,0 +1,7 @@
+Test 2: Request canceled, check db for results.
+{
+  account: <Buffer 24 59 7a>,
+  request: <Buffer d6 9b b9 c2 9d 13>,
+  symbol: 'XRP-USDT',
+  status: 'Canceled'
+}

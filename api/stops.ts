@@ -79,7 +79,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
 
         if (order.tpTriggerPrice == null && order.tpOrderPrice == null) continue;
         else {
-          const key = hexify(order.clientOrderId!, 4) || hexify(parseInt(order.tpslId!), 4, tp);
+          const key = hexify(order.clientOrderId!, 5) || hexify(parseInt(order.tpslId!), 4, tp);
           const exists = processed.find((stop_request) => isEqual(stop_request, key!));
           if (exists) continue;
           else {
@@ -91,12 +91,12 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
               order_price: order.tpOrderPrice == null ? -1 : parseFloat(order.tpOrderPrice),
             });
 
-            const result = await Stops.Publish({ stop_request: request, ...common });
+            const result = await Stops.Publish({ stop_request: key, ...common });
             result
               ? published.push(result)
               : rejected.push({
                   ...common,
-                  stop_request: request,
+                  stop_request: key,
                   memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
                 });
           }
@@ -104,7 +104,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
 
         if (order.slTriggerPrice == null && order.slOrderPrice == null) continue;
         else {
-          const key = hexify(order.clientOrderId!, 4) || hexify(parseInt(order.tpslId!), 4, sl);
+          const key = hexify(order.clientOrderId!, 5) || hexify(parseInt(order.tpslId!), 4, sl);
           const exists = processed.find((stop_request) => isEqual(stop_request, key!));
           if (exists) continue;
           else {
@@ -115,12 +115,12 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
               trigger_price: order.slTriggerPrice == null ? undefined : parseFloat(order.slTriggerPrice),
               order_price: order.slOrderPrice == null ? -1 : parseFloat(order.slOrderPrice),
             });
-            const result = await Stops.Publish({ stop_request: request, ...common });
+            const result = await Stops.Publish({ stop_request: key, ...common });
             result
               ? published.push(result)
               : rejected.push({
                   ...common,
-                  stop_request: request,
+                  stop_request: key,
                   memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
                 });
           }

@@ -237,7 +237,7 @@ export const Import = async () => {
     setSession({ audit_order: history[0].orderId! });
 
     published && published.length && console.log(`   # History Orders Processed [${history.length}]:  ${published.length} published`);
-    rejected && rejected.length && console.log(`   # History Orders Rejected: `, rejected.length);
+    rejected && rejected.length && console.log(`   # History Orders Rejected: `, rejected.length, rejected);
   }
 
   if (pending && pending.length) {

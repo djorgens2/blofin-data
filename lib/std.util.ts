@@ -68,21 +68,13 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
+//| Returns date modified by timeframe from supplied date;                               |
 //+--------------------------------------------------------------------------------------+
-export const setExpiry = (period: string) => {
-  // @ts-ignore
-  Date.prototype.add = function (increment: number) {
-    this.setTime(this.getTime() + increment);
-    return this;
-  };
-
-  const increment = parseInt(period);
-  const timeframe =
-    period.slice(-1) === "s" ? 1000 : period.slice(-1) === "m" ? 60000 : period.slice(-1) === "h" ? 3600000 : period.slice(-1) === "d" ? 86400000 : undefined;
-  // @ts-ignore
-  const expiry = timeframe ? new Date().add(increment * timeframe) : undefined;
-  return expiry;
+export const setExpiry = (period: string, from?: Date) => {
+  const expiry = from || new Date();
+  const timeframe = period.slice(-1);
+  const units = parseInt(period) * (timeframe === "s" ? 1000 : timeframe === "m" ? 60000 : timeframe === "h" ? 3600000 : timeframe === "d" ? 86400000 : 0);
+  return new Date((expiry.getTime() + units));
 };
 
 //+--------------------------------------------------------------------------------------+

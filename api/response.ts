@@ -20,7 +20,7 @@ export type TResponse = {
 };
 
 export interface IResponse {
-  code: string;
+  code: number;
   msg: string;
   request: Uint8Array;
   order_id: Uint8Array;
@@ -37,31 +37,41 @@ export interface IResponse {
 export const Request = async (responses: TResponse[], props: { success: TRequest; fail: TRequest }) => {
   const success = await States.Key<IRequestState>({ status: props.success });
   const fail = await States.Key<IRequestState>({ status: props.fail });
-  const results: Array<{ code: number; request: Uint8Array; state: Uint8Array; memo: string }> = [];
+  const accept: Array<Partial<IResponse>> = [];
+  const reject: Array<Partial<IResponse>> = [];
 
   if (Array.isArray(responses) && responses.length) {
     for (const response of responses) {
       const request = hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6);
+      const memo =
+        response.code === "0"
+          ? `[Info] Response.Request: Successful response received from broker API`
+          : `[Warn] Response.Request: Update failed with code [${response.code}]: ${response.msg}`;
+      const result = await Requests.Submit({
+        request,
+        state: success,
+        memo,
+      });
 
-      if (response.code && !!parseInt(response.code)) {
-        // if error
-        console.warn(`-> [Error] Response.Request: Error response received from broker API`, response);
-        const result = await Requests.Submit({ request, state: fail, memo: `[Error] ${response.msg} (code: ${response.code}` });
-        results.push({ code: parseInt(response.code), request: request!, state: fail!, memo: `[Error] ${response.msg} (code: ${response.code}` });
-      } else {
-        const result = await Requests.Submit({ request, state: success, memo: `[Info] Response.Request: Successful response received from broker API` });
-        result
-          ? results.push({
+      if (result && response.code === "0") {
+        request
+          ? accept.push({
               code: parseInt(response.code),
-              request: request!,
-              state: success!,
-              memo: `[Info] Response.Request: Successful response received from broker API`,
+              request,
+              state: success,
+              memo,
             })
-          : results.push({ code: parseInt(response.code), request: request!, state: fail!, memo: `[Error] ${response.msg} (code: ${response.code}` });
+          : reject.push({ code: parseInt(response.code), request, state: fail, memo });
+      } else {
+        console.warn(`-> [Error] Response.Request: Error response received from broker API`, response);
+        reject.push({ code: parseInt(response.code), request: request!, state: fail!, memo });
       }
     }
-  } else console.warn("-> [Error] Response.Request: No response data received from broker API");
-  return results;
+    return [accept, reject];
+  } else {
+    console.warn("-> [Error] Response.Request: No response data received from broker API");
+    return [accept, reject];
+  }
 };
 
 //+--------------------------------------------------------------------------------------+

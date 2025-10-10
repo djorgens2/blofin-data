@@ -524,12 +524,20 @@ CREATE  TABLE devel.stop_order (
 	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BIGINT    NOT NULL   ,
 	order_state          BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)       ,
+	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	actual_size          DOUBLE       ,
 	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_stop_request FOREIGN KEY ( stop_request ) REFERENCES devel.stop_request( stop_request ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_so_stop_request FOREIGN KEY ( stop_request ) REFERENCES devel.stop_request( stop_request ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
+
+CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
+
+CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
 
 CREATE VIEW devel.vw_accounts AS
 select

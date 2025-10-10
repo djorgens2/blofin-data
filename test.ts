@@ -1633,39 +1633,54 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // const suspense = local && local.filter(db=> !props.some(api => isEqual(api!, db.id!)));
 // console.log(suspense);
 
-type ptype = {
-  filled_size: number,
-  filled_amount: number,
-  average_price: number,
-  fee: number,
-  pnl: number,
-}
-const revised: Partial<ptype> = {
-  filled_size: 0,
-  filled_amount: undefined,
-  average_price: 0,
-  fee: undefined,
-  pnl: 0,
-};
-const props: Partial<ptype> = {
-  filled_size: 0,
-  filled_amount: undefined,
-  average_price: 0,
-  fee: 0,
-  pnl: 0,
-};
+//----------------------------- test delta logic ----------------------------------//
+// type ptype = {
+//   filled_size: number,
+//   filled_amount: number,
+//   average_price: number,
+//   fee: number,
+//   pnl: number,
+// }
+// const revised: Partial<ptype> = {
+//   filled_size: 0,
+//   filled_amount: undefined,
+//   average_price: 0,
+//   fee: undefined,
+//   pnl: 0,
+// };
+// const props: Partial<ptype> = {
+//   filled_size: 0,
+//   filled_amount: undefined,
+//   average_price: 0,
+//   fee: 0,
+//   pnl: 0,
+// };
 
-const filled_size = isEqual(props.filled_size!, revised.filled_size!) ? undefined : props.filled_size;
-const filled_amount = isEqual(props.filled_amount!, revised.filled_amount!) ? undefined : props.filled_amount;
-const average_price = isEqual(props.average_price!, revised.average_price!) ? undefined : props.average_price;
-const fee = isEqual(props.fee!, revised.fee!) ? undefined : props.fee;
-const pnl = isEqual(props.pnl!, revised.pnl!) ? undefined : props.pnl;
-const check = {
-  filled_size,
-  filled_amount,
-  average_price,
-  fee,
-  pnl,
-};
+// const filled_size = isEqual(props.filled_size!, revised.filled_size!) ? undefined : props.filled_size;
+// const filled_amount = isEqual(props.filled_amount!, revised.filled_amount!) ? undefined : props.filled_amount;
+// const average_price = isEqual(props.average_price!, revised.average_price!) ? undefined : props.average_price;
+// const fee = isEqual(props.fee!, revised.fee!) ? undefined : props.fee;
+// const pnl = isEqual(props.pnl!, revised.pnl!) ? undefined : props.pnl;
+// const check = {
+//   filled_size,
+//   filled_amount,
+//   average_price,
+//   fee,
+//   pnl,
+// };
 
-console.log(check);
+// console.log(check);
+
+//----------------------------- cli logs test ----------------------------------//
+// const args = process.argv.slice(2); // Remove 'node' executable path and script path
+// console.log(`Received arguments: ${args.join(', ')}`);
+
+// const params = `{${args.join(', ')}}`;
+// console.log(params);
+// if (args.length > 0) {
+//   console.log(`The first custom argument is: ${args[0]}`);
+// } else {
+//   console.log('No custom arguments provided.');
+// }
+
+console.log(new Date("2025-10-08T02:00:00.000Z"), setExpiry("8h", new Date("2025-10-08T02:00:00.000Z")));

@@ -134,7 +134,8 @@ export const Publish = async (props: Partial<IStopOrder>) => {
 
   if (order && order.length) {
     const [current] = order;
-    if (props.tpsl_id === current.tpsl_id) {
+
+    if (isEqual(props.tpsl_id!, current.tpsl_id!)) {
       const [result] = await Update(
         {
           stop_request: props.stop_request,
