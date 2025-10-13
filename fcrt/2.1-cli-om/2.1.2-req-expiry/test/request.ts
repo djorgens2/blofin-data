@@ -8,8 +8,8 @@ export const req_fcrt_1a: Partial<IRequest> = {
   position: "short",
   action: "sell",
   order_type: "limit",
-  price: 3.5,
+  price: 2.85,
   size: 100,
   leverage: 50,
-  expiry_time: setExpiry("5m"),
+  expiry_time: setExpiry("8m"),
 };

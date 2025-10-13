@@ -50,6 +50,7 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
       const result = await Requests.Submit({
         request,
         state: success,
+        update_time: new Date(),
         memo,
       });
 

@@ -6,6 +6,7 @@
 
 import type { IRequestAPI } from "api/requests";
 import type { IOrder } from "db/interfaces/order";
+import type { TRefKey } from "db/interfaces/reference";
 import type { IRequestState, TRequest } from "db/interfaces/state";
 
 import { Select, Insert, Update } from "db/query.utils";
@@ -15,6 +16,7 @@ import { Session } from "module/session";
 
 import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
+import * as References from "db/interfaces/reference";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 export interface IRequest {
@@ -68,7 +70,8 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
         update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
 
-      const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
+      const state = props.state ? props.state : await States.Key<IRequestState>({ status: props.status });
+      const [result, updates] = await Update({ ...request, state }, { table: `request`, keys: [{ key: `request` }] });
 
       if (result && updates) {
         const [result] = await Update(
@@ -88,6 +91,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
   } else {
     const process_time = new Date();
     const queued = await States.Key<IRequestState>({ status: "Queued" });
+    const request_type = await References.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
     const result = await Insert<IRequest>(
       {
         request: props.request || hashKey(12),
@@ -97,7 +101,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
         price: props.price,
         size: props.size,
         leverage: props.leverage,
-        request_type: props.request_type,
+        request_type,
         margin_mode: props.margin_mode,
         reduce_only: props.reduce_only || false,
         broker_id: props.broker_id || undefined,

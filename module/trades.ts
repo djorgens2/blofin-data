@@ -21,8 +21,26 @@ import * as Order from "db/interfaces/order";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 
-
 //------------------ Private functions ---------------------//
+
+//+--------------------------------------------------------------------------------------+
+//| Expires requests beyond expiry;                                                      |
+//+--------------------------------------------------------------------------------------+
+const processExpired = async (expired: Array<Partial<IRequest>>) => {
+  if (expired.length) {
+    const accepted = [];
+    const rejected = [];
+
+    for (const request of expired) {
+      const result = await Request.Submit({ ...request, status: "Expired", update_time: new Date(), memo: request.memo });
+      result ? accepted.push(result) : rejected.push(result);
+    }
+
+    console.log("-> Pending expired requests:", expired.length);
+    accepted.length && console.log("   # [Info] Expired requests accepted:", accepted.length);
+    rejected.length && console.log("   # [Error] Expired requests rejected:", rejected.length);
+  }
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Resubmits rejected requests to broker for execution; closes rejects beyond expiry;   |
@@ -38,13 +56,21 @@ const processRejected = async () => {
     for (const reject of rejects)
       expiry < reject.expiry_time!
         ? requeued.push({ ...reject, memo: `[Retry]: Rejected request state changed to Queued and resubmitted` })
-        : expired.push({ request: reject.request, memo: `[Expired]: Queued request state changed to Canceled` });
+        : expired.push({ request: reject.request, memo: `[Expired]: Queued and Rejected request changed to Expired` });
 
-  if (requeued.length) for (const request of requeued) await Request.Submit(request);
-  if (expired.length) for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
+  if (requeued.length) {
+    const accepted = [];
+    const rejected = [];
+    for (const request of requeued) {
+      const result = await Request.Submit(request);
+      result ? accepted.push(request) : rejected.push(request);
+    }
+    console.log(">> [Info] Trades.Rejected: Request retries:", requeued.length, "resubmitted");
+    accepted.length && console.log("   # [Info] Resubmitted requests accepted:", accepted.length);
+    rejected.length && console.log("   # [Error] Resubmitted requests rejected:", rejected.length);
+  }
 
-  requeued.length && console.log(">> [Info] Trades.Rejected: Request retries:", requeued.length, "resubmitted");
-  expired.length && console.log(">> [Warning] Trades.Rejected: Requests expired:", expired.length, "canceled");
+  expired.length && processExpired(expired);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -87,7 +113,7 @@ const processQueued = async () => {
 
       if (expiry < expiry_time!) {
         queued.push(api);
-      } else expired.push({ request: hexify(api.clientOrderId!, 6), account, memo: `[Expired]: Queued request state changed to Canceled` });
+      } else expired.push({ request: hexify(request.clientOrderId!, 6), memo: `[Expired]: Queued request changed to Expired` });
     }
 
     console.log(">> Trades.Queued: Requests processed:", requests.length);
@@ -99,18 +125,7 @@ const processQueued = async () => {
       rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
     }
 
-    if (expired.length) {
-      const accepted = [];
-      const rejected = [];
-
-      for (const request of expired) {
-        const result = await Request.Cancel(request);
-        result ? accepted.push(result) : rejected.push(result);
-      }
-      requests.length && console.log("-> Expired requests submitted:", expired.length);
-      accepted.length && console.log("   # [Info] Expired requests accepted:", accepted.length);
-      rejected.length && console.log("   # [Error] Expired requests rejected:", rejected.length);
-    }
+    expired.length && processExpired(expired);
   }
 };
 
@@ -122,16 +137,20 @@ const processCanceled = async () => {
 
   if (orders) {
     const cancels = [];
+    const closed = [];
 
     for (const order of orders) {
-      order.order_id && cancels.push({ instId: order.symbol, orderId: order.order_id.toString() });
+      order.order_id && order.request_status === "Pending" ? cancels.push({ instId: order.symbol, orderId: order.order_id.toString() }) : closed.push(order);
     }
 
     const [accepted, rejected] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
 
-    cancels.length && console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
-    accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
-    rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
+    if (cancels.length) {
+      console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
+      accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
+      rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
+      closed.length &&  console.log("   # [Warning] Canceled requests previously closed (???):", closed.length);
+    }
   }
 };
 

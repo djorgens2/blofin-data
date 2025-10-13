@@ -1,0 +1,59 @@
+>> [info] Application.Initialization start: 10/13/2025, 12:22:09 PM
+In Subject.Area.Import: 10/13/2025, 12:22:09 PM
+   # Subject Area imports:  5 verified
+In Activity.Import: 10/13/2025, 12:22:09 PM
+   # Activity imports:  8 verified
+In Authority.Import: 10/13/2025, 12:22:09 PM
+   # Authority imports:  6 verified
+In Broker.Import: 10/13/2025, 12:22:10 PM
+   # Broker imports:  1 verified
+In Contract.Type.Import: 10/13/2025, 12:22:10 PM
+   # Contract Type imports:  2 verified
+In Environment.Import: 10/13/2025, 12:22:10 PM
+   # Environment imports:  4 verified
+In Instrument.Type.Import: 10/13/2025, 12:22:10 PM
+   # Instrument Type imports:  1 verified
+In Period.Import: 10/13/2025, 12:22:10 PM
+   # Period imports:  15 verified
+In Reference.Import: 10/13/2025, 12:22:10 PM
+   # Order State imports:  7 verified
+   # Request Type imports:  6 verified
+   # Cancel Source imports:  3 verified
+   # Price Type imports:  3 verified
+   # Margin Mode imports:  2 verified
+   # Stop Type imports:  2 verified
+   # Position imports:  3 verified
+   # Order Category imports:  6 verified
+In Role.Import: 10/13/2025, 12:22:10 PM
+   # Role imports:  4 verified
+In State.Import: 10/13/2025, 12:22:11 PM
+   # State imports:  15 verified
+In Instruments.Import [API]: 10/13/2025, 12:22:11 PM
+-> Instrument:Publish [API]
+-> Currency:Suspend: 1 currencies to suspend
+   # Suspensions processed [1]:  1 ok
+   # Instruments:Suspended:  1 { suspense: [ { currency: <Buffer 69 ae ae>, symbol: 'EUL' } ] }
+   # Instruments Updated:  1 modified
+-> [info] Application.Initialization finished: 10/13/2025, 12:22:16 PM
+Connected to websocket: [1641013:wss://demo-trading-openapi.blofin.com/ws/private]
+Subscriptions: { channel: 'account' }
+Subscriptions: { channel: 'positions' }
+Subscriptions: { channel: 'orders' }
+-> WSS.Publish [API]
+-> WSS.Publish [API]
+In Execute.Trades: 10/13/2025, 12:22:45 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Rejected:  34
+-> Pending expired requests: 1
+   # [Info] Expired requests accepted: 1
+In Execute.Trades: 10/13/2025, 12:23:14 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Rejected:  24

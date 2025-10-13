@@ -1,5 +1,5 @@
 {
-  submitted: <Buffer f8 60 d3 11 86 1c>,
+  submitted: <Buffer 32 a4 2b 79 ac 32>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -9,7 +9,7 @@
     price: 2.85,
     size: 100,
     leverage: 50,
-    expiry_time: 2025-10-13T12:42:54.262Z,
-    memo: 'Test 1a: request w/ expiry; w/o tpsl'
+    expiry_time: 2025-10-13T19:41:46.266Z,
+    memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
