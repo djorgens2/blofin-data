@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IContractType {
   contract_type: Uint8Array;
@@ -51,7 +52,7 @@ export const Publish = async (props: Partial<IContractType>) => {
 //| Returns a contract type key using supplied params;                                   |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IContractType>): Promise<IContractType["contract_type"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IContractType>>(props)) {
     const [result] = await Select<IContractType>(props, { table: `contract_type` });
     return result ? result.contract_type : undefined;
   } else return undefined;

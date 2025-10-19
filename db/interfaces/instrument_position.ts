@@ -7,11 +7,10 @@
 import type { TStatus, TSystem } from "db/interfaces/state";
 
 import { Select, Update, Load } from "db/query.utils";
+import { hasValues, isEqual } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 
-import * as Instrument from "db/interfaces/instrument";
 import * as State from "db/interfaces/state";
-import { isEqual } from "lib/std.util";
 
 export interface IInstrumentPosition {
   instrument_position: Uint8Array;
@@ -108,7 +107,7 @@ export const Authorized = async (props: Partial<IInstrumentPosition>): Promise<A
 //| Fetches instrument position key from local db meeting props criteria;                |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrumentPosition>): Promise<IInstrumentPosition["instrument_position"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IInstrumentPosition>>(props)) {
     const [result] = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
     return result ? result.instrument_position : undefined;
   } else return undefined;

@@ -1683,4 +1683,58 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 //   console.log('No custom arguments provided.');
 // }
 
-console.log(new Date("2025-10-08T02:00:00.000Z"), setExpiry("8h", new Date("2025-10-08T02:00:00.000Z")));
+// console.log(new Date("2025-10-08T02:00:00.000Z"), setExpiry("8h", new Date("2025-10-08T02:00:00.000Z")));
+
+//---------------------------------- key check test ----------------------------------------//
+// import { hasValues } from 'lib/std.util'
+// import { IState } from "db/interfaces/state";
+// import * as States from "db/interfaces/state";
+
+// const state = hasValues<Partial<IState>>({status: 'Expired'}) ? 'Yes We Do' : 'No We Do Not';
+// console.log(state)
+
+//---------------------------------- transaction test ----------------------------------------//
+import * as db from "db/db.config";
+import { Insert } from "db/query.utils";
+
+interface itest {
+  value: number | null;
+  dt: Date;
+}
+
+const run = async () => {
+  const connection = await db.Begin();
+
+  // Define an array of tasks (promises) to be executed
+  const insertPromises = [
+    Insert<itest>({ value: 1, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 2, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 3, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 4, dt: new Date() }, { table: 'itest', connection }),
+//    Insert<itest>({ value: null, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
+    Insert<itest>({ value: 5, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
+    Insert<itest>({ value: 6, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 7, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 8, dt: new Date() }, { table: 'itest', connection }),
+    Insert<itest>({ value: 9, dt: new Date() }, { table: 'itest', connection }),
+  ];
+
+  try {
+    // Wait for all insert promises to resolve concurrently
+    const results = await Promise.all(insertPromises);
+
+        // After all promises resolve, check for the specific failure condition
+    if (results.some(result => Object.keys(result).length === 0)) {
+      throw new Error("One or more inserts failed to return data.");
+    }
+    // If all inserts succeed, commit the transaction
+    await db.Commit(connection);
+    console.log("[Info]", `Transaction successful`);
+  } catch (e) {
+    // If any promise rejects, the catch block is executed immediately
+    await db.Rollback(connection);
+    console.log("[Error]", `Transaction failed due to: ${e}`);
+  }
+};
+
+run();

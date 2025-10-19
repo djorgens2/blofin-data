@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IRole {
   role: Uint8Array;
@@ -53,7 +54,7 @@ export const Add = async (props: Partial<IRole>) => {
 //| Returns roles key based on supplied seek params;                                     |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IRole>): Promise<IRole["role"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IRole>>(props)) {
     const [key] = await Select<IRole>(props, { table: `role` });
     return key ? key.role : undefined;
   } else return undefined;

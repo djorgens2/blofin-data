@@ -8,7 +8,7 @@ import type { ISymbol } from "db/interfaces/state";
 
 import { Select, Insert, Update } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
-import { isEqual } from "lib/std.util";
+import { hasValues, isEqual } from "lib/std.util";
 
 import * as States from "db/interfaces/state";
 
@@ -57,7 +57,7 @@ export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["cur
 //| Examines currency search methods in props; executes first in priority sequence;      |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<ICurrency>>(props)) {
     const [result] = await Select<ICurrency>(props, { table: `vw_currency` });
     return result ? result.currency : undefined;
   } else return undefined;

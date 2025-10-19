@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IAuthority {
   authority: Uint8Array;
@@ -48,7 +49,7 @@ export const Add = async (props: Partial<IAuthority>): Promise<IAuthority["autho
 //| Returns an authority key using supplied params;                                      |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IAuthority>>(props)) {
     const [result] = await Select<IAuthority>(props, { table: `authority` });
     return result ? result.authority : undefined;
   } else return undefined;

@@ -8,6 +8,7 @@ import type { ISubjectArea } from "db/interfaces/subject_area";
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 import * as SubjectArea from "db/interfaces/subject_area";
 
@@ -65,7 +66,7 @@ export const Add = async (props: Partial<IActivity>): Promise<IActivity["activit
 //| Returns an activity key using supplied params;                                       |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IActivity>>(props)) {
     const [result] = await Select<IActivity>(props, { table: `activity` });
     return result ? result.activity : undefined;
   } else return undefined;

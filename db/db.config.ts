@@ -26,4 +26,20 @@ const pool = mysql.createPool({
 // connectionLimit: process.env.DB_POOLLIMIT,
 // queueLimit: process.env.DB_QUEUELIMIT,
 
+export const Begin = async() => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  return connection;
+}
+
+export const Commit = async (connection: mysql.PoolConnection) => {
+  await connection.commit();
+  connection.release();
+}
+
+export const Rollback = async (connection: mysql.PoolConnection) => {
+  await connection.rollback();
+  connection.release();
+}
+
 export default pool;

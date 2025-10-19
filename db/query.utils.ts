@@ -4,12 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { ResultSetHeader } from "mysql2";
+import { ResultSetHeader, PoolConnection } from "mysql2/promise";
 
 import pool from "db/db.config";
 
 export type TKey = { key: string; sign?: string };
-export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; };
+export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection};
 
 export const DB_SCHEMA = process.env.DB_SCHEMA || process.env.DB_DATABASE;
 
@@ -30,10 +30,18 @@ const modify = async (sql: string, args: Array<any>): Promise<ResultSetHeader> =
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Executes prepared DML statements on the database;                                    |
+//| Executes bulk inserts on the database;                                               |
 //+--------------------------------------------------------------------------------------+
 const insert = async (sql: string, args: Array<any>): Promise<ResultSetHeader> => {
   const [results] = await pool.query(sql, args);
+  return results as ResultSetHeader;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Executes transactional inserts/updates on the database;                              |
+//+--------------------------------------------------------------------------------------+
+const transact = async (sql: string, args: Array<any>, connection: PoolConnection): Promise<ResultSetHeader> => {
+  const [results] = await connection.execute(sql, args);
   return results as ResultSetHeader;
 };
 
@@ -95,7 +103,7 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions) => {
   const sql = `INSERT${ignore ? " IGNORE " : " "}INTO ${DB_SCHEMA}.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
 
   try {
-    await modify(sql, args);
+    options.connection ? await transact(sql, args, options.connection) : await modify(sql, args);
     return props;
   } catch (e) {
     console.log({ sql, args, props });

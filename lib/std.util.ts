@@ -74,7 +74,7 @@ export const setExpiry = (period: string, from?: Date) => {
   const expiry = from || new Date();
   const timeframe = period.slice(-1);
   const units = parseInt(period) * (timeframe === "s" ? 1000 : timeframe === "m" ? 60000 : timeframe === "h" ? 3600000 : timeframe === "d" ? 86400000 : 0);
-  return new Date((expiry.getTime() + units));
+  return new Date(expiry.getTime() + units);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -175,6 +175,11 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
     { ...keylens } as Record<string, number>
   );
 };
+
+//+--------------------------------------------------------------------------------------+
+//| True if supplied object has at minimum one key containing a value not undefined;     |
+//+--------------------------------------------------------------------------------------+
+export const hasValues = <T extends object>(props: T) => Object.keys(props).length && !Object.values(props).every((value) => value === undefined);
 
 //+--------------------------------------------------------------------------------------+
 //| Writes arrays of any type to the supplied file                                       |

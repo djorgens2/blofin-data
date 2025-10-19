@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface ISubjectArea {
   subject_area: Uint8Array;
@@ -29,11 +30,11 @@ export const Import = async () => {
     { title: "Accounts", description: "Account administration including keys, brokers, and operational availability;" },
     { title: "Jobs", description: "Operational management of Jobs including starts, stoppages, and monitoring;" },
   ];
-  
+
   for (const area of areas) {
     const result = await Add(area);
-    result ? success.push({subject_area: result}) : errors.push({title: area.title});
-  };
+    result ? success.push({ subject_area: result }) : errors.push({ title: area.title });
+  }
 
   success.length && console.log("   # Subject Area imports: ", success.length, "verified");
   errors.length && console.log("   # Subject Area rejects: ", errors.length, { errors });
@@ -42,24 +43,22 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Adds subject areas to local database;                                                |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<ISubjectArea> ) => {
+export const Add = async (props: Partial<ISubjectArea>) => {
   if (props.subject_area === undefined) {
     Object.assign(props, { subject_area: hashKey(6) });
     const result = await Insert<ISubjectArea>(props, { table: `subject_area`, ignore: true });
     return result ? result.subject_area : undefined;
   } else return props.subject_area;
-
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Returns subject area key based on supplied seek params;                              |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<ISubjectArea>): Promise<ISubjectArea["subject_area"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<ISubjectArea>>(props)) {
     const [key] = await Select<ISubjectArea>(props, { table: `subject_area` });
     return key ? key.subject_area : undefined;
   } else return undefined;
-
 };
 
 //+--------------------------------------------------------------------------------------+

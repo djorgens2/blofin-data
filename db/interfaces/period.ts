@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IPeriod {
   period: Uint8Array;
@@ -64,7 +65,7 @@ export const Add = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | 
 //| Returns period/timeframe key from local db                                           |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IPeriod>>(props)) {
     const [key] = await Select<IPeriod>(props, { table: `period` });
     return key ? key.period : undefined;
   } else return undefined;

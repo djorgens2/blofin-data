@@ -10,7 +10,7 @@ import type { TRefKey } from "db/interfaces/reference";
 import type { IRequestState, TRequest } from "db/interfaces/state";
 
 import { Select, Insert, Update } from "db/query.utils";
-import { isEqual, setExpiry } from "lib/std.util";
+import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
 
@@ -54,12 +54,13 @@ export interface IRequest {
 //| Applies updates to request on select columns;                                        |
 //+--------------------------------------------------------------------------------------+
 const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  if (Object.keys(current).length) {
-    if (Object.keys(props).length) {
+  if (hasValues<Partial<IRequest>>(current)) {
+    if (hasValues<Partial<IRequest>>(props)) {
+      const state = props.state || (await States.Key<IRequestState>({ status: props.status }));
       const request: Partial<IRequest> = {
         request: current.request,
         action: props.action === current.action ? undefined : props.action,
-        state: isEqual(props.state!, current.state!) ? undefined : props.state,
+        state: isEqual(state!, current.state!) ? undefined : state,
         price: isEqual(props.price!, current.price!) ? undefined : props.price,
         size: isEqual(props.size!, current.size!) ? undefined : props.size,
         leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
@@ -70,8 +71,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
         update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
 
-      const state = props.state ? props.state : await States.Key<IRequestState>({ status: props.status });
-      const [result, updates] = await Update({ ...request, state }, { table: `request`, keys: [{ key: `request` }] });
+      const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
 
       if (result && updates) {
         const [result] = await Update(
@@ -166,12 +166,12 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
         const [current] = request;
 
         if (props.update_time! > current.update_time!) {
-          if (current.status === "Pending") {
+          if (current.order_id && current.status === "Pending" && isEqual(current.state!, props.state!)) {
             const hold = await States.Key<IRequestState>({ status: "Hold" });
             const result = await publish(current, {
               ...props,
               state: hold,
-              memo: props.memo || `[Info] Request.Submit: Request exists; was put on hold; awaiting cancel for resubmit`,
+              memo: `[Info] Request.Submit: Request exists; was put on hold; awaiting cancel for resubmit`,
             });
             return result ? result : undefined;
           } else {

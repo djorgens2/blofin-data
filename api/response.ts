@@ -42,35 +42,28 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
 
   if (Array.isArray(responses) && responses.length) {
     for (const response of responses) {
-      const request = hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6);
-      const memo =
-        response.code === "0"
-          ? `[Info] Response.Request: Successful response received from broker API`
-          : `[Warn] Response.Request: Update failed with code [${response.code}]: ${response.msg}`;
-      const result = await Requests.Submit({
-        request,
-        state: success,
+      const request = {
+        request: hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6),
+        state: response.code === "0" ? success : fail,
+        memo:
+          response.code === "0"
+            ? `[Info] Response.Request: Successful response received from broker API`
+            : `[Warn] Response.Request: Update failed with code [${response.code}]: ${response.msg}`,
         update_time: new Date(),
-        memo,
-      });
+      };
 
-      if (result && response.code === "0") {
-        request
-          ? accept.push({
-              code: parseInt(response.code),
-              request,
-              state: success,
-              memo,
-            })
-          : reject.push({ code: parseInt(response.code), request, state: fail, memo });
-      } else {
-        console.warn(`-> [Error] Response.Request: Error response received from broker API`, response);
-        reject.push({ code: parseInt(response.code), request: request!, state: fail!, memo });
+      const result = await Requests.Submit(request);
+
+      if (response.code === "0") 
+        result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
+      else {
+        console.log(`-> [Error] Response.Request: Error response received from broker API`, response);
+        reject.push({ ...request, code: parseInt(response.code) });
       }
     }
     return [accept, reject];
   } else {
-    console.warn("-> [Error] Response.Request: No response data received from broker API");
+    console.log("-> [Error] Response.Request: No response data received from broker API");
     return [accept, reject];
   }
 };

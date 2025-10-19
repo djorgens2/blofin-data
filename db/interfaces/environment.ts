@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IEnvironment {
   environment: Uint8Array;
@@ -46,7 +47,7 @@ export const Add = async (props: Partial<IEnvironment>): Promise<IEnvironment["e
 //| Returns an environment key using supplied params;                                    |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IEnvironment>>(props)) {
     const [result] = await Select<IEnvironment>(props, { table: `environment` });
     return result ? result.environment : undefined;
   } else return undefined;

@@ -10,7 +10,7 @@ import type { TSymbol } from "db/interfaces/state";
 import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { splitSymbol } from "lib/app.util";
 import { hashKey } from "lib/crypto.util";
-import { isEqual } from "lib/std.util";
+import { hasValues, isEqual } from "lib/std.util";
 
 import * as Currency from "db/interfaces/currency";
 import * as Periods from "db/interfaces/period";
@@ -90,7 +90,7 @@ export const Publish = async (props: Partial<IInstrument>) => {
 //| Returns an instrument key using supplied params;                                     |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues <Partial<IInstrument>>(props)) {
     const [result] = await Select<IInstrument>(props, { table: `vw_instruments` });
     return result ? result.instrument : undefined;
   } else return undefined;

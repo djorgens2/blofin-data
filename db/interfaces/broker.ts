@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IBroker {
   broker: Uint8Array;
@@ -48,7 +49,7 @@ export const Add = async (props: Partial<IBroker>): Promise<IBroker["broker"] | 
 //| Returns a broker key using supplied params;                                          |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IBroker>): Promise<IBroker["broker"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IBroker>>(props)) {
     const [result] = await Select<IBroker>(props, { table: `broker` });
     return result ? result.broker : undefined;
   } else return undefined;

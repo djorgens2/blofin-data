@@ -4,9 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert, TOptions } from "db/query.utils";
+import type { TRequest } from "db/interfaces/state";
+import type { TOptions } from "db/query.utils";
+
+import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
-import { TRequest } from "db/interfaces/state";
+import { hasValues } from "lib/std.util";
 
 export type TRefKey = Uint8Array;
 export type TRefText = string;
@@ -128,7 +131,7 @@ export const Fetch = async (props: Partial<IReference>, options: TOptions): Prom
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
 export const Key = async <T>(props: Partial<IReference>, options: TOptions): Promise<T | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IReference>>(props)) {
     const [key] = await Select<IReference>(props, options);
     return key ? (Object.values(key)[0] as T) : undefined;
   } else return undefined;

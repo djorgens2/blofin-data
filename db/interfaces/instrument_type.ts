@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export interface IInstrumentType {
   instrument_type: Uint8Array;
@@ -51,7 +52,7 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IInstrum
 //| Returns an instrument type key using supplied params;                                      |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IInstrumentType>>(props)) {
     const [result] = await Select<IInstrumentType>(props, { table: `instrument_type` });
     return result ? result.instrument_type : undefined;
   } else return undefined;

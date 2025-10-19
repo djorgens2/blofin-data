@@ -46,31 +46,35 @@ const processExpired = async (expired: Array<Partial<IRequest>>) => {
 //| Resubmits rejected requests to broker for execution; closes rejects beyond expiry;   |
 //+--------------------------------------------------------------------------------------+
 const processRejected = async () => {
-  const requeued: Array<Partial<IRequest>> = [];
-  const expired: Array<Partial<IRequest>> = [];
-
   const rejects = await Order.Fetch({ status: "Rejected", account: Session().account });
-  const expiry = new Date();
 
-  if (rejects)
+  if (rejects) {
+    const requeued: Array<Partial<IRequest>> = [];
+    const expired: Array<Partial<IRequest>> = [];
+    const expiry_time = new Date();
+
     for (const reject of rejects)
-      expiry < reject.expiry_time!
+      expiry_time < reject.expiry_time!
         ? requeued.push({ ...reject, memo: `[Retry]: Rejected request state changed to Queued and resubmitted` })
         : expired.push({ request: reject.request, memo: `[Expired]: Queued and Rejected request changed to Expired` });
 
-  if (requeued.length) {
-    const accepted = [];
-    const rejected = [];
-    for (const request of requeued) {
-      const result = await Request.Submit(request);
-      result ? accepted.push(request) : rejected.push(request);
-    }
-    console.log(">> [Info] Trades.Rejected: Request retries:", requeued.length, "resubmitted");
-    accepted.length && console.log("   # [Info] Resubmitted requests accepted:", accepted.length);
-    rejected.length && console.log("   # [Error] Resubmitted requests rejected:", rejected.length);
-  }
+    if (requeued.length) {
+      const queued = await States.Key<IRequestState>({ status: "Queued" });
+      const accepted = [];
+      const rejected = [];
 
-  expired.length && processExpired(expired);
+      for (const request of requeued) {
+        const result = await Request.Submit({ ...request, state: queued, update_time: expiry_time });
+        result ? accepted.push(request) : rejected.push(request);
+      }
+
+      console.log(">> [Info] Trades.Rejected: Request retries:", requeued.length);
+      accepted.length && console.log("   # [Info] Rejected requests requeued:", accepted.length);
+      rejected.length && console.log("   # [Error] Resubmitted requests rejected:", rejected.length);
+    }
+
+    expired.length && processExpired(expired);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -120,6 +124,7 @@ const processQueued = async () => {
 
     if (queued.length) {
       const [accepted, rejected] = (await RequestAPI.Submit(queued)) ?? [[], []];
+
       requests.length && console.log("-> Queued requests submitted:", queued.length);
       accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
       rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
@@ -149,7 +154,7 @@ const processCanceled = async () => {
       console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
       accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
       rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
-      closed.length &&  console.log("   # [Warning] Canceled requests previously closed (???):", closed.length);
+      closed.length && console.log("   # [Warning] Canceled requests previously closed (???):", closed.length);
     }
   }
 };
@@ -164,18 +169,25 @@ const processHold = async () => {
 
   if (orders) {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
-    const [processed, errors] = (await OrderAPI.Cancel(orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: order_id!.toString() })))) ?? [[], []];
-
+    const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: (order_id ?? ``).toString() }));
+    const [processed, errors] = (await OrderAPI.Cancel(cancels) ?? [[],[]]);
+    
+    console.log('Hold cancels', cancels)
     for (const hold of processed) {
-      const result = await Request.Submit({ request: hold.request!, state: queued, memo: `[Info] Trades.Hold: Hold request successfully resubmitted` });
+      const result = await Request.Submit({
+        request: hold.request!,
+        state: queued,
+        memo: `[Info] Trades.Hold: Hold request successfully resubmitted`,
+        update_time: new Date(),
+      });
       result ? accepted.push(result) : rejected.push(result);
     }
 
     console.log(">> Trades.Hold: Hold orders processed:", orders.length);
-    processed && console.log("-> Hold orders submitted:", processed.length);
-    accepted && console.log("   # [Info]: Hold orders accepted:", accepted.length);
-    errors && console.log("-> Hold order errors:", errors.length);
-    rejected && console.log("   # [Error] Hold orders rejected:", rejected.length);
+    processed.length && console.log("-> Hold orders submitted:", processed.length);
+    accepted.length && console.log("   # [Info]: Hold orders accepted:", accepted.length);
+    errors.length && console.log("-> Hold order errors:", errors.length);
+    rejected.length && console.log("   # [Error] Hold orders rejected:", rejected.length);
   }
 };
 
@@ -221,7 +233,7 @@ export const Trades = async () => {
 
   await PositionsAPI.Import();
   await OrderAPI.Import();
-  await StopsAPI.Import();
+  //await StopsAPI.Import();
 
   await processRejected();
   await processPending();

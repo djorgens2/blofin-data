@@ -63,6 +63,24 @@ CREATE  TABLE devel.fractal_state (
 	fractal_state        CHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.full_audit_request ( 
+	request              BINARY(6)    NOT NULL   ,
+	instrument_position  BINARY(6)    NOT NULL   ,
+	action               CHAR(4)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	price                DOUBLE  DEFAULT (0)  NOT NULL   ,
+	size                 DOUBLE    NOT NULL   ,
+	leverage             INT    NOT NULL   ,
+	request_type         BINARY(3)    NOT NULL   ,
+	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	memo                 VARCHAR(200)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	broker_id            VARCHAR(16)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
 CREATE  TABLE devel.instrument_type ( 
 	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -612,7 +630,7 @@ join devel.activity a on
 CREATE VIEW devel.vw_api_requests AS
 select
 	ipos.account AS account,
-	ifnull(os.status, rs.status) AS status,
+	if((rs.status = 'Queued'), 'Queued', ifnull(os.status, rs.status)) AS status,
 	concat(b.symbol, '-', q.symbol) AS instId,
 	r.margin_mode AS marginMode,
 	ipos.position AS positionSide,
@@ -664,6 +682,46 @@ left join devel.instrument_period ip on
 where
 	(ip.period is null);
 
+CREATE VIEW devel.vw_audit_requests AS
+select
+	ipos.account AS account,
+	ipos.instrument_position AS instrument_position,
+	ipos.instrument AS instrument,
+	ipos.position AS position,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	summary.state AS state,
+	summary.status AS status,
+	summary.occurs AS occurs
+from
+	((((devel.instrument_position ipos
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
+join (
+	select
+		ipos.instrument_position AS instrument_position,
+		r.state AS state,
+		rs.status AS status,
+		count(r.state) AS occurs
+	from
+		((devel.instrument_position ipos
+	join devel.request r on
+		((r.instrument_position = ipos.instrument_position)))
+	join devel.state rs on
+		((rs.state = r.state)))
+	group by
+		ipos.instrument_position,
+		r.state,
+		rs.status) summary on
+	((summary.instrument_position = ipos.instrument_position)));
+
 CREATE VIEW devel.vw_audit_role_authority AS
 select
 	r.role AS role,
@@ -683,6 +741,40 @@ where
 		devel.role_authority.activity
 	from
 		devel.role_authority) is false;
+
+CREATE VIEW devel.vw_audit_states AS
+select
+	ipos.account AS account,
+	r.request AS request,
+	ipos.instrument_position AS instrument_position,
+	ipos.instrument AS instrument,
+	ipos.position AS position,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	os.state AS old_state,
+	os.status AS status,
+	ns.state AS new_state,
+	ns.status AS new_status,
+	ar.update_time AS update_time
+from
+	(((((((devel.audit_request ar
+join devel.request r on
+	((r.request = ar.request)))
+join devel.instrument_position ipos on
+	((ipos.instrument_position = r.instrument_position)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
+join devel.state os on
+	((os.state = ar.old_state)))
+join devel.state ns on
+	((ns.state = ar.new_state)));
 
 CREATE VIEW devel.vw_auth_trade_instruments AS
 select
@@ -1260,6 +1352,53 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
+
+CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
+	if (old.state != new.state) then
+    INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
+end if;
+  END;
+
+CREATE TRIGGER devel.trig_insert_audit_request AFTER INSERT ON request FOR EACH ROW BEGIN
+	INSERT INTO	devel.full_audit_request
+      VALUES (NEW.request,
+              NEW.instrument_position,
+              NEW.action,
+              NEW.state,
+              NEW.price,
+              NEW.size,
+              NEW.leverage,
+              NEW.request_type,
+              NEW.margin_mode,
+              NEW.reduce_only,
+              NEW.memo,
+              NEW.broker_id,
+              NEW.create_time,
+              NEW.expiry_time,
+              NEW.update_time
+             );
+END;
+
+CREATE TRIGGER devel.trig_update_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
+	INSERT INTO	devel.full_audit_request
+      VALUES (NEW.request,
+              NEW.instrument_position,
+              NEW.action,
+              NEW.state,
+              NEW.price,
+              NEW.size,
+              NEW.leverage,
+              NEW.request_type,
+              NEW.margin_mode,
+              NEW.reduce_only,
+              NEW.memo,
+              NEW.broker_id,
+              NEW.create_time,
+              NEW.expiry_time,
+              NEW.update_time
+             );
+END;
+
 ALTER TABLE devel.cancel_source COMMENT 'not_canceled
 user_canceled
 system_canceled';

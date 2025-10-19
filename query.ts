@@ -139,6 +139,7 @@ async function show(subject: string, args: string): Promise<string> {
     case Subject.State: {
       const props = parseJSON<State.IState>(args);
       props!.state && Object.assign(props!, { ...props, state: hexify(props!.state) });
+//      props!.status && Object.assign(props!, {status: undefined})
       const key = await State.Key(props!);
       const rows = await State.Fetch(props!);
       console.log("Fetch state:", props, { key }, rows);

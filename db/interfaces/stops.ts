@@ -9,7 +9,7 @@ import type { IRequestState, TRequest, TStatus } from "db/interfaces/state";
 import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { hexify, uniqueKey } from "lib/crypto.util";
 import { Session } from "module/session";
-import { isEqual } from "lib/std.util";
+import { hasValues, isEqual } from "lib/std.util";
 
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
@@ -119,7 +119,7 @@ export const Fetch = async (props: Partial<IStops>, options: TOptions = { table:
 //| Fetches a request key from local db that meet props criteria; notfound returns undef |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IStops>, options: TOptions = { table: `vw_stop_orders` }): Promise<IStopOrder["stop_request"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IStops>>(props)) {
     Object.assign(props, { account: props.account || Session().account });
     const [result] = await Select<IStopOrder>(props, options);
     return result ? result.stop_request : undefined;

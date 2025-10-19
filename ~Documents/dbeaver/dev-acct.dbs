@@ -1162,7 +1162,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_api_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,ifnull(`os`.`status`,`rs`.`status`) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`ipos`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,cast(`r`.`leverage` as char charset utf8mb4) AS `leverage`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `brokerId`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from (((((((((`devel`.`request` `r` left join `devel`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `devel`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `r`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) join `devel`.`currency` `b` on((`i`.`base_currency` = `b`.`currency`))) join `devel`.`currency` `q` on((`i`.`quote_currency` = `q`.`currency`))) join `devel`.`request_type` `rt` on((`r`.`request_type` = `rt`.`request_type`))) join `devel`.`state` `rs` on((`r`.`state` = `rs`.`state`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,if((`rs`.`status` = 'Queued'),'Queued',ifnull(`os`.`status`,`rs`.`status`)) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`ipos`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `price`,replace(format(`r`.`size`,(length(substring_index(cast(`id`.`tick_size` as char charset utf8mb4),'.',-(1))) + 1)),',','') AS `size`,cast(`r`.`leverage` as char charset utf8mb4) AS `leverage`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `brokerId`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from (((((((((`devel`.`request` `r` left join `devel`.`orders` `o` on((`r`.`request` = `o`.`request`))) left join `devel`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `r`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) join `devel`.`currency` `b` on((`i`.`base_currency` = `b`.`currency`))) join `devel`.`currency` `q` on((`i`.`quote_currency` = `q`.`currency`))) join `devel`.`request_type` `rt` on((`r`.`request_type` = `rt`.`request_type`))) join `devel`.`state` `rs` on((`r`.`state` = `rs`.`state`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
@@ -1218,12 +1218,47 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="position" type="CHAR" />
 			<column name="auto_state" type="VARBINARY" />
 		</view>
+		<view name="vw_audit_requests" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,`ipos`.`position` AS `position`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`summary`.`state` AS `state`,`summary`.`status` AS `status`,`summary`.`occurs` AS `occurs` from ((((`devel`.`instrument_position` `ipos` join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join (select `ipos`.`instrument_position` AS `instrument_position`,`r`.`state` AS `state`,`rs`.`status` AS `status`,count(`r`.`state`) AS `occurs` from ((`devel`.`instrument_position` `ipos` join `devel`.`request` `r` on((`r`.`instrument_position` = `ipos`.`instrument_position`))) join `devel`.`state` `rs` on((`rs`.`state` = `r`.`state`))) group by `ipos`.`instrument_position`,`r`.`state`,`rs`.`status`) `summary` on((`summary`.`instrument_position` = `ipos`.`instrument_position`)))]]></view_script>
+			<column name="account" type="BINARY" />
+			<column name="instrument_position" type="BINARY" />
+			<column name="instrument" type="BINARY" />
+			<column name="position" type="CHAR" />
+			<column name="symbol" type="VARCHAR" />
+			<column name="base_currency" type="BINARY" />
+			<column name="base_symbol" type="VARCHAR" />
+			<column name="quote_currency" type="BINARY" />
+			<column name="quote_symbol" type="VARCHAR" />
+			<column name="state" type="BINARY" />
+			<column name="status" type="VARCHAR" />
+			<column name="occurs" type="BIGINT" />
+		</view>
 		<view name="vw_audit_role_authority" >
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `r`.`role` AS `role`,`auth`.`authority` AS `authority`,`a`.`activity` AS `activity` from ((`devel`.`activity` `a` join `devel`.`role` `r`) join `devel`.`authority` `auth`) where (`r`.`role`,`auth`.`authority`,`a`.`activity`) in (select `devel`.`role_authority`.`role`,`devel`.`role_authority`.`authority`,`devel`.`role_authority`.`activity` from `devel`.`role_authority`) is false]]></view_script>
 			<column name="role" type="BINARY" />
 			<column name="authority" type="BINARY" />
 			<column name="activity" type="BINARY" />
+		</view>
+		<view name="vw_audit_states" >
+			<comment><![CDATA[VIEW]]></comment>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,`r`.`request` AS `request`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,`ipos`.`position` AS `position`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`os`.`state` AS `old_state`,`os`.`status` AS `status`,`ns`.`state` AS `new_state`,`ns`.`status` AS `new_status`,`ar`.`update_time` AS `update_time` from (((((((`devel`.`audit_request` `ar` join `devel`.`request` `r` on((`r`.`request` = `ar`.`request`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `r`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join `devel`.`state` `os` on((`os`.`state` = `ar`.`old_state`))) join `devel`.`state` `ns` on((`ns`.`state` = `ar`.`new_state`)))]]></view_script>
+			<column name="account" type="BINARY" />
+			<column name="request" type="BINARY" />
+			<column name="instrument_position" type="BINARY" />
+			<column name="instrument" type="BINARY" />
+			<column name="position" type="CHAR" />
+			<column name="symbol" type="VARCHAR" />
+			<column name="base_currency" type="BINARY" />
+			<column name="base_symbol" type="VARCHAR" />
+			<column name="quote_currency" type="BINARY" />
+			<column name="quote_symbol" type="VARCHAR" />
+			<column name="old_state" type="BINARY" />
+			<column name="status" type="VARCHAR" />
+			<column name="new_state" type="BINARY" />
+			<column name="new_status" type="VARCHAR" />
+			<column name="update_time" type="DATETIME" />
 		</view>
 		<view name="vw_auth_trade_instruments" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1518,6 +1553,13 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="create_time" type="DATETIME" />
 			<column name="update_time" type="DATETIME" />
 		</view>
+		<trigger name="trig_audit_request" table="request" id="0de80e54-cbdb-476d-87e2-d3193ceffec7" isSystem="false" >
+			<string><![CDATA[CREATE TRIGGER ${nameWithSchemaName} AFTER UPDATE ON request FOR EACH ROW BEGIN
+	if (old.state != new.state) then
+    INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
+end if;
+  END]]></string>
+		</trigger>
 	</schema>
 	<layout name="Main Diagram" id="8ebd5325-da29-41a9-b71d-52356bcda289" show_relation="fk_name" >
 		<entity schema="devel" name="vw_instruments" color="ECF0F7" x="2755" y="95" />
@@ -1532,24 +1574,15 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="devel" name="vw_orders" color="ECF0F7" x="3192" y="95" />
 		<entity schema="devel" name="vw_audit_candles" color="ECF0F7" x="2755" y="741" />
 		<entity schema="devel" name="role" color="C7F4BE" x="1463" y="418" />
-		<entity schema="devel" name="vw_users" color="ECF0F7" x="2527" y="912" />
 		<entity schema="devel" name="user_account" color="F4DDBE" x="2318" y="380" />
-		<entity schema="devel" name="vw_api_stop_requests" color="ECF0F7" x="2527" y="1254" />
 		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1691" y="988" />
 		<entity schema="devel" name="vw_instrument_periods" color="ECF0F7" x="3401" y="513" />
 		<entity schema="devel" name="vw_instrument_positions" color="ECF0F7" x="3401" y="95" />
-		<entity schema="devel" name="vw_activity" color="ECF0F7" x="2926" y="1083" />
-		<entity schema="devel" name="vw_audit_instrument_periods" color="ECF0F7" x="3401" y="874" />
-		<entity schema="devel" name="vw_currency" color="ECF0F7" x="3078" y="1083" />
-		<entity schema="devel" name="vw_audit_role_authority" color="ECF0F7" x="3420" y="988" />
-		<entity schema="devel" name="vw_order_states" color="ECF0F7" x="3230" y="1083" />
 		<entity schema="devel" name="vw_audit_instrument_positions" color="ECF0F7" x="2698" y="931" />
 		<entity schema="devel" name="vw_accounts" color="ECF0F7" x="2527" y="95" />
-		<entity schema="devel" name="vw_role_subject_areas" color="ECF0F7" x="3420" y="1121" />
 		<entity schema="devel" name="account_detail" color="F4DDBE" x="1938" y="817" />
 		<entity schema="devel" name="account" color="F4DDBE" x="2299" y="608" />
 		<entity schema="devel" name="environment" color="F4DDBE" x="2185" y="1045" />
-		<entity schema="devel" name="vw_positions" color="ECF0F7" x="2717" y="1083" />
 		<entity schema="devel" name="vw_stop_orders" color="ECF0F7" x="2983" y="513" />
 		<entity schema="devel" name="positions" color="FFFF00" x="817" y="817" />
 		<entity schema="devel" name="margin_mode" color="FFFF00" x="513" y="1159" />
@@ -1557,7 +1590,6 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="devel" name="role_authority" color="C7F4BE" x="1368" y="95" />
 		<entity schema="devel" name="authority" color="C7F4BE" x="1672" y="95" />
 		<entity schema="devel" name="api_error" color="00FFFF" x="1938" y="95" />
-		<entity schema="devel" name="vw_api_requests" color="ECF0F7" x="2926" y="1254" />
 		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="114" />
 		<entity schema="devel" name="stop_request" color="FFFF00" x="817" y="285" />
 		<entity schema="devel" name="subject_area" color="C7F4BE" x="1045" y="380" />
@@ -1565,8 +1597,6 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="devel" name="orders" color="FFFF00" x="76" y="551" />
 		<entity schema="devel" name="order_category" color="FFFF00" x="171" y="266" />
 		<entity schema="devel" name="stop_type" color="FFFF00" x="855" y="95" />
-		<entity schema="devel" name="vw_role_authority" color="ECF0F7" x="3420" y="1292" />
-		<entity schema="devel" name="vw_auth_trade_instruments" color="ECF0F7" x="3116" y="1254" />
 		<entity schema="devel" name="cancel_source" color="FFFF00" x="76" y="988" />
 		<entity schema="devel" name="stop_order" color="FFFF00" x="513" y="152" />
 		<entity schema="devel" name="price_type" color="FFFF00" x="532" y="456" />
@@ -1577,28 +1607,43 @@ ioc: Immediate-or-cancel order]]></comment>
 		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1197" y="760" />
 		<entity schema="devel" name="position" color="F0ECF7" x="1159" y="1140" />
 		<entity schema="devel" name="request_type" color="FFFF00" x="266" y="836" />
+		<entity schema="devel" name="vw_role_subject_areas" color="ECF0F7" x="2527" y="1254" />
+		<entity schema="devel" name="vw_audit_role_authority" color="ECF0F7" x="3401" y="874" />
+		<entity schema="devel" name="vw_auth_trade_instruments" color="ECF0F7" x="3401" y="1007" />
+		<entity schema="devel" name="vw_order_states" color="ECF0F7" x="3249" y="1083" />
+		<entity schema="devel" name="vw_currency" color="ECF0F7" x="3097" y="1102" />
+		<entity schema="devel" name="vw_role_authority" color="ECF0F7" x="3439" y="1387" />
+		<entity schema="devel" name="vw_activity" color="ECF0F7" x="2945" y="1102" />
+		<entity schema="devel" name="vw_positions" color="ECF0F7" x="2736" y="1083" />
+		<entity schema="devel" name="vw_audit_requests" color="ECF0F7" x="2527" y="1425" />
+		<entity schema="devel" name="vw_users" color="ECF0F7" x="2546" y="912" />
+		<entity schema="devel" name="vw_api_stop_requests" color="ECF0F7" x="3116" y="1387" />
+		<entity schema="devel" name="vw_api_requests" color="ECF0F7" x="2945" y="1273" />
+		<entity schema="devel" name="vw_audit_instrument_periods" color="ECF0F7" x="3116" y="1273" />
+		<entity schema="devel" name="vw_audit_states" color="3986C1" x="817" y="1368" />
 		<group name="views" color="ECF0F7" >
 			<entity schema="devel" name="vw_instruments" />
 			<entity schema="devel" name="vw_candles" />
 			<entity schema="devel" name="vw_orders" />
 			<entity schema="devel" name="vw_audit_candles" />
-			<entity schema="devel" name="vw_users" />
-			<entity schema="devel" name="vw_api_stop_requests" />
 			<entity schema="devel" name="vw_instrument_periods" />
 			<entity schema="devel" name="vw_instrument_positions" />
-			<entity schema="devel" name="vw_activity" />
-			<entity schema="devel" name="vw_audit_instrument_periods" />
-			<entity schema="devel" name="vw_currency" />
-			<entity schema="devel" name="vw_audit_role_authority" />
 			<entity schema="devel" name="vw_audit_instrument_positions" />
-			<entity schema="devel" name="vw_order_states" />
 			<entity schema="devel" name="vw_accounts" />
-			<entity schema="devel" name="vw_role_subject_areas" />
-			<entity schema="devel" name="vw_positions" />
 			<entity schema="devel" name="vw_stop_orders" />
-			<entity schema="devel" name="vw_api_requests" />
-			<entity schema="devel" name="vw_role_authority" />
+			<entity schema="devel" name="vw_role_subject_areas" />
+			<entity schema="devel" name="vw_audit_role_authority" />
 			<entity schema="devel" name="vw_auth_trade_instruments" />
+			<entity schema="devel" name="vw_order_states" />
+			<entity schema="devel" name="vw_currency" />
+			<entity schema="devel" name="vw_role_authority" />
+			<entity schema="devel" name="vw_activity" />
+			<entity schema="devel" name="vw_positions" />
+			<entity schema="devel" name="vw_audit_requests" />
+			<entity schema="devel" name="vw_users" />
+			<entity schema="devel" name="vw_api_stop_requests" />
+			<entity schema="devel" name="vw_api_requests" />
+			<entity schema="devel" name="vw_audit_instrument_periods" />
 		</group>
 		<group name="broker" color="F7F2EC" >
 			<entity schema="devel" name="broker" />

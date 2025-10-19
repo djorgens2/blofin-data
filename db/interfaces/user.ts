@@ -8,7 +8,7 @@ import type { TAccess, IAccess } from "db/interfaces/state";
 
 import { Select, Insert, Update } from "db/query.utils";
 import { hashKey, hashPassword } from "lib/crypto.util";
-import { isEqual } from "lib/std.util";
+import { hasValues, isEqual } from "lib/std.util";
 
 import * as Roles from "db/interfaces/role";
 import * as States from "db/interfaces/state";
@@ -101,7 +101,7 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<IUser>>(props)) {
     const [key] = await Select<IUser>(props, { table: `vw_users` });
     return key ? key.user : undefined;
   } else return undefined;

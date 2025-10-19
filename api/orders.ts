@@ -48,9 +48,9 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
     for (const order of props) {
       const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
       const key = hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6);
-      const exists = processed.find((request) => isEqual(request, key!));
+      const duplicate = processed.find((request) => isEqual(request, key!));
 
-      if (exists) {
+      if (duplicate) {
         continue;
       } else {
         processed.push(key!);

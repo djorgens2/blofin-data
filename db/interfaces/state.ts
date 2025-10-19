@@ -6,6 +6,7 @@
 
 import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
+import { hasValues } from "lib/std.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
@@ -83,7 +84,7 @@ export const Add = async (props: Partial<IState>): Promise<IState["state"] | und
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
 export const Key = async <T extends IState>(props: Partial<T>): Promise<T["state"] | undefined> => {
-  if (Object.keys(props).length) {
+  if (hasValues<Partial<T>>(props)) {
     const [key] = await Select<IState>(props, { table: `state` });
     return key ? key.state : undefined;
   } else return undefined;
