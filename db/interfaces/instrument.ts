@@ -80,8 +80,8 @@ export const Publish = async (props: Partial<IInstrument>) => {
         lot_scale_factor: isEqual(props.lot_scale_factor!, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
         martingale_factor: isEqual(props.martingale_factor!, current.martingale_factor!) ? undefined : props.martingale_factor,
       };
-      const [result] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
-      return result ? result.instrument : undefined;
+      const [result, updates] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
+      return updates ? result!.instrument : undefined;
     }
   }
 };

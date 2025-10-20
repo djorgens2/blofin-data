@@ -7,8 +7,8 @@
 import type { IRequest } from "db/interfaces/request";
 
 import { Select, Insert, Update } from "db/query.utils";
+import { hasValues, hexString, isEqual } from "lib/std.util";
 import { Session } from "module/session";
-import { hasValues, isEqual } from "lib/std.util";
 
 export interface IOrder extends IRequest {
   base_currency: Uint8Array;
@@ -40,30 +40,13 @@ export interface IOrder extends IRequest {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IOrder>) => {
   if (props) {
-    const request = await Fetch({ request: props.request });
-    if (request) {
-      const [current] = request;
-      if (current.order_id == null) {
-        console.log(current)
-        const order: Partial<IOrder> = {
-          request: props.request,
-          order_id: props.order_id,
-          order_category: props.order_category,
-          order_state: props.order_state,
-          cancel_source: props.cancel_source,
-          filled_size: props.filled_size,
-          filled_amount: props.filled_amount,
-          average_price: props.average_price,
-          fee: props.fee,
-          pnl: props.pnl,
-        };
-
-        const result = await Insert<IOrder>(order, { table: `orders` });
-        return result ? result.request : undefined;
-      } else if (props.order_id && props.order_id >= current.order_id) {
+    const order = await Fetch({ order_id: props.order_id });
+    if (order) {
+      const [current] = order;
+      const order_id = current.order_id;
+      if (order_id && isEqual(order_id, props.order_id!)) {
         const revised: Partial<IOrder> = {
-          request: current.request,
-          order_id: isEqual(props.order_id, current.order_id) ? undefined : props.order_id,
+          order_id,
           order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
           order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
           cancel_source: isEqual(props.cancel_source!, current.cancel_source!) ? undefined : props.cancel_source,
@@ -74,10 +57,26 @@ export const Publish = async (props: Partial<IOrder>) => {
           pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
         };
 
-        const [result, updates] = await Update(revised, { table: `orders`, keys: [{ key: `request` }] });
-        return result ? result.request : undefined;
+        const [result, updates] = await Update(revised, { table: `orders`, keys: [{ key: `order_id` }] });
+        return updates ? result!.order_id : undefined;
       }
-    } console.log('[Error] Order.Publish: Missing request',{props} )
+    } else {
+      const order: Partial<IOrder> = {
+        order_id: props.order_id,
+        order_category: props.order_category,
+        order_state: props.order_state,
+        cancel_source: props.cancel_source,
+        filled_size: props.filled_size,
+        filled_amount: props.filled_amount,
+        average_price: props.average_price,
+        fee: props.fee,
+        pnl: props.pnl,
+      };
+
+      const result = await Insert<IOrder>(order, { table: `orders` });
+      return result ? result.order_id : undefined;
+    }
+    console.log("[Error] Order.Publish: Missing request", { props });
   }
 };
 

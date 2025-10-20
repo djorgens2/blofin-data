@@ -17,7 +17,7 @@ import * as OrderAPI from "api/orders";
 import * as StopsAPI from "api/stops";
 
 import * as Request from "db/interfaces/request";
-import * as Order from "db/interfaces/order";
+import * as Orders from "db/interfaces/order";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 
@@ -46,7 +46,7 @@ const processExpired = async (expired: Array<Partial<IRequest>>) => {
 //| Resubmits rejected requests to broker for execution; closes rejects beyond expiry;   |
 //+--------------------------------------------------------------------------------------+
 const processRejected = async () => {
-  const rejects = await Order.Fetch({ status: "Rejected", account: Session().account });
+  const rejects = await Orders.Fetch({ status: "Rejected", account: Session().account });
 
   if (rejects) {
     const requeued: Array<Partial<IRequest>> = [];
@@ -84,7 +84,7 @@ const processPending = async () => {
   const pending: Array<Partial<IRequest>> = [];
   const expired: Array<Partial<IRequest>> = [];
 
-  const requests = await Order.Fetch({ status: "Pending", account: Session().account });
+  const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
   const expiry = new Date();
 
   if (requests)
@@ -138,7 +138,7 @@ const processQueued = async () => {
 //| Submit Cancel requests to the API for orders in canceled state;                      |
 //+--------------------------------------------------------------------------------------+
 const processCanceled = async () => {
-  const orders = await Order.Fetch({ status: "Canceled", account: Session().account });
+  const orders = await Orders.Fetch({ status: "Canceled", account: Session().account });
 
   if (orders) {
     const cancels = [];
@@ -163,16 +163,16 @@ const processCanceled = async () => {
 //| Resubmit requests canceled by modification to the API for orders in hold state;      |
 //+--------------------------------------------------------------------------------------+
 const processHold = async () => {
-  const orders = await Order.Fetch({ status: "Hold", account: Session().account });
+  const orders = await Orders.Fetch({ status: "Hold", account: Session().account });
   const accepted = [];
   const rejected = [];
 
   if (orders) {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: (order_id ?? ``).toString() }));
-    const [processed, errors] = (await OrderAPI.Cancel(cancels) ?? [[],[]]);
-    
-    console.log('Hold cancels', cancels)
+    const [processed, errors] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
+
+    console.log("Hold cancels", cancels);
     for (const hold of processed) {
       const result = await Request.Submit({
         request: hold.request!,

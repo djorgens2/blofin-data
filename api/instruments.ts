@@ -49,32 +49,37 @@ const publish = async (api: Array<IInstrumentAPI>) => {
     const [base_symbol, quote_symbol] = splitSymbol(props.instId);
     const base_currency = await Currency.Publish({ symbol: base_symbol, suspense: props.state !== "live" });
     const quote_currency = await Currency.Publish({ symbol: quote_symbol, suspense: false });
-    const key = await Instrument.Key({ symbol: props.instId });
-    const instrument = await Instrument.Publish({
-      instrument: key,
+    const instrument = await Instrument.Key({ symbol: props.instId });
+    const result = await Instrument.Publish({
+      instrument,
       symbol: props.instId,
       base_symbol,
       base_currency,
       quote_symbol,
       quote_currency,
     });
-    const instrument_detail = await InstrumentDetail.Publish({
-      instrument: key || instrument,
-      instrument_type: props.instType,
-      contract_type: props.contractType,
-      contract_value: parseFloat(props.contractValue),
-      max_leverage: parseInt(props.maxLeverage),
-      min_size: parseFloat(props.minSize),
-      lot_size: parseFloat(props.lotSize),
-      tick_size: parseFloat(props.tickSize),
-      max_limit_size: parseFloat(props.maxLimitSize),
-      max_market_size: parseFloat(props.maxMarketSize),
-      list_time: new Date(parseInt(props.listTime)),
-      expiry_time: new Date(parseInt(props.expireTime)),
-    });
 
-    key && published.push(key);
-    instrument && isEqual(instrument, instrument_detail!) && modified.push(instrument);
+    if (result) {
+      const instrument_detail = await InstrumentDetail.Publish({
+        instrument,
+        instrument_type: props.instType,
+        contract_type: props.contractType,
+        contract_value: parseFloat(props.contractValue),
+        max_leverage: parseInt(props.maxLeverage),
+        min_size: parseFloat(props.minSize),
+        lot_size: parseFloat(props.lotSize),
+        tick_size: parseFloat(props.tickSize),
+        max_limit_size: parseFloat(props.maxLimitSize),
+        max_market_size: parseFloat(props.maxMarketSize),
+        list_time: new Date(parseInt(props.listTime)),
+        expiry_time: new Date(parseInt(props.expireTime)),
+      });
+
+      if (instrument) {
+        published.push(instrument);
+        isEqual(instrument, instrument_detail!) && modified.push(instrument);
+      }
+    }
   }
   const suspense = await Instrument.Suspense(published);
   await InstrumentPeriod.Import();
@@ -97,8 +102,8 @@ export const Import = async () => {
       const result: IResult = json;
 
       await publish(result.data);
-    } else throw new Error(`Bad response from instrument fetch: ${response.status} ${response.statusText}`);
+    } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.log(`Error fetching instruments;`, error);
+    console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);
   }
 };

@@ -9,7 +9,7 @@ import { ResultSetHeader, PoolConnection } from "mysql2/promise";
 import pool from "db/db.config";
 
 export type TKey = { key: string; sign?: string };
-export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection};
+export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection };
 
 export const DB_SCHEMA = process.env.DB_SCHEMA || process.env.DB_DATABASE;
 
@@ -142,13 +142,14 @@ export const Update = async <T>(props: Partial<T>, options: TOptions) => {
 
     try {
       const result = await modify(sql, [...values, ...args]);
-      return result ? [filters as Partial<T>, columns as Partial<T>] : [undefined, undefined];
+      result ? console.log("WTF changed?", { table, filters, columns }) : console.log({ table, filters });
+      return [filters as Partial<T>, columns as Partial<T>];
     } catch (e) {
       console.log({ sql, args, props });
       console.log(e);
-      return [undefined, undefined];
+      return [filters as Partial<T>, undefined];;
     }
-  } else return [undefined, undefined];
+  } else return [filters as Partial<T>, undefined];;
 };
 
 //+--------------------------------------------------------------------------------------+

@@ -49,8 +49,8 @@ export const Publish = async (props: Partial<IInstrument>)=> {
           expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
         };
         const [result, updates] = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
-        result && console.log(`[Info] Instrument Details updated:`, { symbol: current.symbol, updates });
-        return result ? result.instrument : undefined;
+        updates && console.log(`[Info] Instrument Details updated:`, { symbol: current.symbol, updates });
+        return updates ? result!.instrument : undefined;
       } else {
         const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail` });
         return result ? result.instrument : undefined;

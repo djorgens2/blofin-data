@@ -43,7 +43,7 @@ export interface IPositions {
 //+--------------------------------------------------------------------------------------+
 //| Inserts or updates positions; returns positions key;                                 |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: Partial<IPositions>): Promise<[IPositions["positions"] | undefined, Partial<IPositions> | undefined]> {
+export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["positions"] | undefined, Partial<IPositions> | undefined]> => {
   if (props) {
     const positions = await Fetch({ positions: props.positions });
     if (positions) {

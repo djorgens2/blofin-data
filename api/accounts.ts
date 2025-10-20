@@ -5,6 +5,7 @@
 "use strict";
 
 import { Session } from "module/session";
+import { format } from "lib/std.util";
 
 import * as Accounts from "db/interfaces/account";
 import * as Currency from "db/interfaces/currency";
@@ -45,8 +46,8 @@ export async function Publish(props: IAccountAPI) {
   if (account) {
     Accounts.Publish({
       account: Session().account,
-      total_equity: parseFloat(parseFloat(props!.totalEquity).toFixed(3)),
-      isolated_equity: parseFloat(parseFloat(props!.isolatedEquity).toFixed(3)),
+      total_equity: format(props!.totalEquity, 3),
+      isolated_equity: format(props!.isolatedEquity, 3),
       update_time: new Date(parseInt(props!.ts)),
     });
 
@@ -57,21 +58,21 @@ export async function Publish(props: IAccountAPI) {
         Accounts.PublishDetail({
           account: Session().account,
           currency,
-          balance: parseFloat(detail.balance!),
-          available: parseFloat(detail.available!),
-          currency_equity: parseFloat(detail.equity!),
-          currency_isolated_equity: parseFloat(detail.isolatedEquity!),
-          available_equity: parseFloat(detail.availableEquity!),
-          equity_usd: parseFloat(detail.equityUsd!),
-          frozen: parseFloat(detail.frozen!),
-          order_frozen: parseFloat(detail.orderFrozen!),
-          borrow_frozen: parseFloat(detail.borrowFrozen!),
-          unrealized_pnl: parseFloat(detail.unrealizedPnl!),
-          isolated_unrealized_pnl: parseFloat(detail.isolatedUnrealizedPnl!),
-          coin_usd_price: parseFloat(detail.coinUsdPrice!),
-          margin_ratio: parseFloat(detail.marginRatio!),
-          spot_available: parseFloat(detail.spotAvailable!),
-          liability: parseFloat(detail.liability!),
+          balance: format(detail.balance!, 3),
+          available: format(detail.available!, 3),
+          currency_equity: format(detail.equity!, 3),
+          currency_isolated_equity: format(detail.isolatedEquity!, 3),
+          available_equity: format(detail.availableEquity!, 3),
+          equity_usd: format(detail.equityUsd!, 3),
+          frozen: format(detail.frozen!, 3),
+          order_frozen: format(detail.orderFrozen!, 3),
+          borrow_frozen: format(detail.borrowFrozen!, 3),
+          unrealized_pnl: format(detail.unrealizedPnl!, 3),
+          isolated_unrealized_pnl: format(detail.isolatedUnrealizedPnl!, 3),
+          coin_usd_price: format(detail.coinUsdPrice!, 6),
+          margin_ratio: format(detail.marginRatio!, 3),
+          spot_available: format(detail.spotAvailable!, 3),
+          liability: format(detail.liability!, 3),
           update_time: new Date(parseInt(detail.ts!)),
         });
     }

@@ -26,10 +26,13 @@ export async function Pause(message: string) {
 //| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+
 export function hexString(uint8Array: Uint8Array, length: number): string {
+  if (uint8Array instanceof Uint8Array) {
   const hex = Array.from(uint8Array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
   return "0x" + hex.padStart(length, "0");
+  }
+  return `0x`;
 }
 
 //+--------------------------------------------------------------------------------------+

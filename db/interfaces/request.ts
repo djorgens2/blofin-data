@@ -22,7 +22,7 @@ import * as InstrumentPosition from "db/interfaces/instrument_position";
 export interface IRequest {
   request: Uint8Array;
   instrument_position: Uint8Array;
-  order_id: number;
+  order_id: Uint8Array;
   client_order_id: string;
   account: Uint8Array;
   instrument: Uint8Array;
@@ -74,15 +74,16 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
       const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
 
       if (result && updates) {
-        const [result] = await Update(
+        const [result, updates] = await Update(
           {
             request: props.request,
-            memo: props.memo || undefined,
+            memo: props.memo,
+            update_time: new Date(),
           },
           { table: `request`, keys: [{ key: `request` }] }
         );
 
-        return result ? result.request : undefined;
+        return updates ? result!.request : undefined;
       } else return undefined;
     } else {
       console.log(">> [Error] Request.Publish: No properties to update");
@@ -95,6 +96,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
     const result = await Insert<IRequest>(
       {
         request: props.request || hashKey(12),
+        order_id: props.order_id,
         instrument_position: props.instrument_position,
         action: props.action,
         state: props.request ? props.state || queued : queued,

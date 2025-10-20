@@ -9,7 +9,7 @@ import type { TRequest, IRequestState } from "db/interfaces/state";
 //import { DB_SCHEMA, Modify, parseColumns, Select } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 
-import * as Requests from "db/interfaces/request";
+import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
 
 export type TResponse = {
@@ -44,19 +44,19 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
     for (const response of responses) {
       const request = {
         request: hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6),
+        order_id: hexify(parseInt(response.orderId), 6),
         state: response.code === "0" ? success : fail,
         memo:
           response.code === "0"
-            ? `[Info] Response.Request: Successful response received from broker API`
-            : `[Warn] Response.Request: Update failed with code [${response.code}]: ${response.msg}`,
+            ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
+            : `[Warn] Response.Request: ${props.success === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
         update_time: new Date(),
       };
 
-      const result = await Requests.Submit(request);
-
-      if (response.code === "0") 
+      if (response.code === "0") {
+        const result = await Orders.Publish(request);
         result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
-      else {
+      } else {
         console.log(`-> [Error] Response.Request: Error response received from broker API`, response);
         reject.push({ ...request, code: parseInt(response.code) });
       }

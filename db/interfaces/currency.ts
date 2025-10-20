@@ -26,9 +26,9 @@ export interface ICurrency {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
   const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
-  const state = await States.Key(props.suspense ? { status: `Suspended` } : { status: "Enabled" });
 
   if (currency === undefined) {
+    const state = await States.Key(props.suspense ? { status: `Suspended` } : { status: "Enabled" });
     const result = await Insert<ICurrency>(
       {
         currency: hashKey(6),
@@ -42,15 +42,16 @@ export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["cur
   }
 
   const [current] = currency;
-  const [result] = await Update<ICurrency>(
+  const state = props.suspense ? await States.Key({ status: `Suspended` }) : props.state;
+  const [result, updates] = await Update<ICurrency>(
     {
       currency: current.currency,
-      state: isEqual(state!, current.state!) ? undefined : props.suspense ? state : await States.Key({ status: "Disabled" }),
+      state: isEqual(state!, current.state!) ? undefined : state,
       image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
     },
     { table: `currency`, keys: [{ key: `currency` }] }
   );
-  return result ? result.currency : undefined;
+  return updates ? result!.currency : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -96,8 +97,8 @@ export const Suspend = async (props: Array<Partial<ICurrency>>) => {
       currency && keys.push({ key: `currency` });
       symbol && keys.push({ key: `symbol` });
 
-      const [result] = await Update(columns, { table: `currency`, keys });
-      result ? counts.success++ : counts.errors++;
+      const [result, updates] = await Update(columns, { table: `currency`, keys });
+      updates ? counts.success++ : counts.errors++;
     }
 
     console.log(`   # Suspensions processed [${props.length}]:  ${counts.success} ok${counts.errors ? `; errors: ${counts.errors}` : ``}`);

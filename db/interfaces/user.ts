@@ -65,8 +65,8 @@ export const Modify = async (props: Partial<IUser>): Promise<IUser["user"] | und
         state: state && isEqual(state, current.state!) ? undefined : state,
         image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
       };
-      const [result] = await Update(revised, { table: `user`, keys: [{ key: `user` }] });
-      return result ? result.user : undefined;
+      const [result, updates] = await Update(revised, { table: `user`, keys: [{ key: `user` }] });
+      return updates ? result!.user : undefined;
     }
   }
 };

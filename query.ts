@@ -219,6 +219,7 @@ async function show(subject: string, args: string): Promise<string> {
         ...props,
         account: props?.account ? hexify(props.account) : undefined,
         request: props?.request ? hexify(props.request) : undefined,
+        order_id: props?.order_id ? hexify(props.order_id) : undefined,
         instrument: props?.instrument ? hexify(props.instrument) : undefined,
         request_type: props?.request_type ? hexify(props.request_type) : undefined,
         order_state: props?.order_state ? hexify(props.order_state) : undefined,

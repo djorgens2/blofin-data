@@ -108,6 +108,27 @@ CREATE  TABLE devel.order_state (
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.orders ( 
+	order_id             BINARY(6)    NOT NULL   PRIMARY KEY,
+	order_category       BINARY(3)    NOT NULL   ,
+	order_state          BINARY(3)    NOT NULL   ,
+	cancel_source        BINARY(3)    NOT NULL   ,
+	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
+	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
+	average_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
+	fee                  DOUBLE  DEFAULT (0)  NOT NULL   ,
+	pnl                  DOUBLE  DEFAULT (0)  NOT NULL   ,
+	CONSTRAINT fk_o_cancel_source FOREIGN KEY ( cancel_source ) REFERENCES devel.cancel_source( cancel_source ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_o_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_o_order_state ON devel.orders ( order_state );
+
+CREATE INDEX fk_o_order_category ON devel.orders ( order_category );
+
+CREATE INDEX fk_o_cancel_source ON devel.orders ( cancel_source );
+
 CREATE  TABLE devel.period ( 
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
 	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -342,6 +363,7 @@ CREATE INDEX fk_p_instrument_position ON devel.positions ( instrument_position )
 
 CREATE  TABLE devel.request ( 
 	request              BINARY(6)    NOT NULL   PRIMARY KEY,
+	order_id             BINARY(6)       ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
@@ -359,7 +381,8 @@ CREATE  TABLE devel.request (
 	CONSTRAINT fk_r_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_request_type FOREIGN KEY ( request_type ) REFERENCES devel.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_r_orders FOREIGN KEY ( order_id ) REFERENCES devel.orders( order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE devel.request ADD CONSTRAINT ck_r_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
@@ -371,6 +394,8 @@ CREATE INDEX fk_r_request_type ON devel.request ( request_type );
 CREATE INDEX fk_r_margin_mode ON devel.request ( margin_mode );
 
 CREATE INDEX fk_r_state ON devel.request ( state );
+
+CREATE INDEX fk_r_orders ON devel.request ( order_id );
 
 CREATE  TABLE devel.role_authority ( 
 	role                 BINARY(3)    NOT NULL   ,
@@ -514,30 +539,6 @@ CREATE  TABLE devel.fractal_point (
 
 CREATE INDEX fk_fp_point_type ON devel.fractal_point ( point_type );
 
-CREATE  TABLE devel.orders ( 
-	request              BINARY(6)    NOT NULL   PRIMARY KEY,
-	order_id             BIGINT    NOT NULL   ,
-	order_category       BINARY(3)    NOT NULL   ,
-	order_state          BINARY(3)    NOT NULL   ,
-	cancel_source        BINARY(3)    NOT NULL   ,
-	filled_size          DOUBLE  DEFAULT (0)  NOT NULL   ,
-	filled_amount        DOUBLE  DEFAULT (0)  NOT NULL   ,
-	average_price        DOUBLE  DEFAULT (0)  NOT NULL   ,
-	fee                  DOUBLE  DEFAULT (0)  NOT NULL   ,
-	pnl                  DOUBLE  DEFAULT (0)  NOT NULL   ,
-	CONSTRAINT ak_orders UNIQUE ( order_id ) ,
-	CONSTRAINT fk_o_cancel_source FOREIGN KEY ( cancel_source ) REFERENCES devel.cancel_source( cancel_source ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_o_request FOREIGN KEY ( request ) REFERENCES devel.request( request ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_o_order_state ON devel.orders ( order_state );
-
-CREATE INDEX fk_o_order_category ON devel.orders ( order_category );
-
-CREATE INDEX fk_o_cancel_source ON devel.orders ( cancel_source );
-
 CREATE  TABLE devel.stop_order ( 
 	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BIGINT    NOT NULL   ,
@@ -647,7 +648,7 @@ select
 from
 	(((((((((devel.request r
 left join devel.orders o on
-	((r.request = o.request)))
+	((r.order_id = o.order_id)))
 left join devel.order_state os on
 	((o.order_state = os.order_state)))
 join devel.instrument_position ipos on
@@ -922,7 +923,7 @@ CREATE VIEW devel.vw_orders AS
 select
 	ipos.account AS account,
 	r.request AS request,
-	o.order_id AS order_id,
+	r.order_id AS order_id,
 	cast(hex(r.request) as char charset utf8mb4) AS client_order_id,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
@@ -979,7 +980,7 @@ join devel.state s on
 join devel.request_type rt on
 	((r.request_type = rt.request_type)))
 left join devel.orders o on
-	((r.request = o.request)))
+	((o.order_id = r.order_id)))
 left join devel.order_state os on
 	((o.order_state = os.order_state)))
 left join devel.state rs on
@@ -1354,10 +1355,10 @@ order by
 	audit.hour desc;
 
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
-	if (old.state != new.state) then
-    INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
-end if;
-  END;
+	IF (OLD.state != NEW.state) THEN
+       INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
+    END IF;
+END;
 
 CREATE TRIGGER devel.trig_insert_audit_request AFTER INSERT ON request FOR EACH ROW BEGIN
 	INSERT INTO	devel.full_audit_request

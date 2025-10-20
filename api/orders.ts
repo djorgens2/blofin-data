@@ -10,7 +10,7 @@ import type { IRequestAPI } from "api/requests";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { isEqual } from "lib/std.util";
+import { hexString, isEqual } from "lib/std.util";
 
 import * as Response from "api/response";
 import * as Requests from "db/interfaces/request";
@@ -38,36 +38,50 @@ export interface IOrderAPI extends IRequestAPI {
 //| Format order object for database insertion;                                          |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) => {
-  const processed: Array<IOrder["request"]> = []; //-- handles batched orders; permits only first entry (newest) for insert/update
-  const published: Array<IOrder["request"]> = [];
+  const accepted: Array<IOrder["order_id"]> = [];
   const rejected: Array<Partial<IOrder>> = [];
-  
-  if (props)
-    console.log(`-> ${source}.Publish [API]`);
-  
-    for (const order of props) {
+
+  props && console.log(`-> ${source}.Publish [API]`);
+
+  for (const order of props) {
+    const order_id = hexify(parseInt(order.orderId!).toString(16), 6);
+
+    if (order_id) {
       const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
-      const key = hexify(order.clientOrderId || parseInt(order.orderId!).toString(16), 6);
-      const duplicate = processed.find((request) => isEqual(request, key!));
 
-      if (duplicate) {
-        continue;
-      } else {
-        processed.push(key!);
+      if (instrument_position === undefined)
+        rejected.push({
+          order_id,
+          symbol: order.instId,
+          position: order.positionSide,
+          memo: `>> [Error] Orders.Publish: Invalid instrument position; order rejected`,
+        });
+      else {
+        const cancel_source = await Reference.Key<TRefKey>({ source_ref: order.cancelSource || "not_canceled" }, { table: `cancel_source` });
+        const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` });
+        const order_states = await Reference.Fetch({ source_ref: order.state || "accepted" }, { table: `vw_order_states` });
+        const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
 
-        if (instrument_position === undefined)
-          rejected.push({
-            request: key,
-            symbol: order.instId,
-            position: order.positionSide,
-            memo: `>> [Error] Orders.Publish: Invalid instrument position; order rejected`,
-          });
-        else {
+        const result = await Orders.Publish({
+          order_id,
+          order_state,
+          order_category,
+          cancel_source,
+          filled_size: parseFloat(order.filledSize!),
+          filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
+          average_price: parseFloat(order.averagePrice!),
+          fee: parseFloat(order.fee!),
+          pnl: parseFloat(order.pnl!),
+          create_time: new Date(parseInt(order.createTime!)),
+          update_time: new Date(parseInt(order.updateTime!)),
+        });
+
+        if (result && isEqual(result, order_id)) {
+          const request = hexify(order.clientOrderId || order_id, 6);
           const request_type = await Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` });
-          const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
-          const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
-          const request = await Requests.Submit({
-            request: key,
+          const result = await Requests.Submit({
+            request,
+            order_id,
             instrument_position,
             action: order.side,
             state,
@@ -81,40 +95,28 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             create_time: new Date(parseInt(order.createTime!)),
             update_time: new Date(parseInt(order.updateTime!)),
           });
-
-          if (request === undefined)
-            rejected.push({
-              request: key,
-              symbol: order.instId,
-              position: order.positionSide,
-              memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
-            });
-          else {
-            const cancel_default = await Reference.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` });
-            const cancel_source = await Reference.Key<TRefKey>({ source_ref: order.cancelSource }, { table: `cancel_source` });
-            const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory }, { table: `order_category` });
-
-            const result = await Orders.Publish({
-              request,
-              order_id: parseInt(order.orderId!),
-              order_state,
-              order_category: order_category!,
-              cancel_source: cancel_source ? cancel_source : cancel_default,
-              filled_size: parseFloat(order.filledSize!),
-              filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
-              average_price: parseFloat(order.averagePrice!),
-              fee: parseFloat(order.fee!),
-              pnl: parseFloat(order.pnl!),
-              create_time: new Date(parseInt(order.createTime!)),
-              update_time: new Date(parseInt(order.updateTime!)),
-            });
-
-            result && published.push(result);
-          }
+          result
+            ? accepted.push(order_id)
+            : rejected.push({
+                order_id,
+                symbol: order.instId,
+                position: order.positionSide,
+                memo: `>> [Error] Orders.Publish: Request publication failed; request rejected`,
+              });
+        } else {
+          rejected.push({
+            order_id,
+            symbol: order.instId,
+            position: order.positionSide,
+            memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
+          });
+          console.log(`>> [Error] Orders.Publish: ${hexString(result!,6)}<>${hexString(order_id,6)}`)
         }
       }
     }
-  return [published, rejected];
+  }
+
+  return [accepted, rejected];
 };
 
 //+--------------------------------------------------------------------------------------+
