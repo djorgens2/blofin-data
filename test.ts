@@ -3,7 +3,7 @@
 
 //import { parseColumns, parseKeys } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
-import { bufferString, isEqual, setExpiry } from "lib/std.util";
+import { bufferString, hexString, isEqual, setExpiry } from "lib/std.util";
 import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
@@ -1694,47 +1694,74 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // console.log(state)
 
 //---------------------------------- transaction test ----------------------------------------//
-import * as db from "db/db.config";
-import { Insert } from "db/query.utils";
+// import * as db from "db/db.config";
+// import { Insert } from "db/query.utils";
 
-interface itest {
-  value: number | null;
-  dt: Date;
-}
+// interface itest {
+//   value: number | null;
+//   dt: Date;
+// }
 
-const run = async () => {
-  const connection = await db.Begin();
+// const run = async () => {
+//   const connection = await db.Begin();
 
-  // Define an array of tasks (promises) to be executed
-  const insertPromises = [
-    Insert<itest>({ value: 1, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 2, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 3, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 4, dt: new Date() }, { table: 'itest', connection }),
-//    Insert<itest>({ value: null, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
-    Insert<itest>({ value: 5, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
-    Insert<itest>({ value: 6, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 7, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 8, dt: new Date() }, { table: 'itest', connection }),
-    Insert<itest>({ value: 9, dt: new Date() }, { table: 'itest', connection }),
-  ];
+//   // Define an array of tasks (promises) to be executed
+//   const insertPromises = [
+//     Insert<itest>({ value: 1, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 2, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 3, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 4, dt: new Date() }, { table: 'itest', connection }),
+// //    Insert<itest>({ value: null, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
+//     Insert<itest>({ value: 5, dt: new Date() }, { table: 'itest', connection }),  // error; returns []
+//     Insert<itest>({ value: 6, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 7, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 8, dt: new Date() }, { table: 'itest', connection }),
+//     Insert<itest>({ value: 9, dt: new Date() }, { table: 'itest', connection }),
+//   ];
 
-  try {
-    // Wait for all insert promises to resolve concurrently
-    const results = await Promise.all(insertPromises);
+//   try {
+//     // Wait for all insert promises to resolve concurrently
+//     const results = await Promise.all(insertPromises);
 
-        // After all promises resolve, check for the specific failure condition
-    if (results.some(result => Object.keys(result).length === 0)) {
-      throw new Error("One or more inserts failed to return data.");
-    }
-    // If all inserts succeed, commit the transaction
-    await db.Commit(connection);
-    console.log("[Info]", `Transaction successful`);
-  } catch (e) {
-    // If any promise rejects, the catch block is executed immediately
-    await db.Rollback(connection);
-    console.log("[Error]", `Transaction failed due to: ${e}`);
-  }
+//         // After all promises resolve, check for the specific failure condition
+//     if (results.some(result => Object.keys(result).length === 0)) {
+//       throw new Error("One or more inserts failed to return data.");
+//     }
+//     // If all inserts succeed, commit the transaction
+//     await db.Commit(connection);
+//     console.log("[Info]", `Transaction successful`);
+//   } catch (e) {
+//     // If any promise rejects, the catch block is executed immediately
+//     await db.Rollback(connection);
+//     console.log("[Error]", `Transaction failed due to: ${e}`);
+//   }
+// };
+
+// run();
+
+// //---------------------------------- hex conversion->string test ----------------------------------------//
+// import { Select } from "db/query.utils";
+// import { IOrder } from "db/interfaces/order";
+
+// const run = async () => {
+//   const [order] = await Select<IOrder>({order_id: hexify('c0ffee',6)}, { table: `orders` });
+//   console.log(order);
+  
+// };
+
+// run();
+
+//---------------------------------- currency/instrument suspension test ----------------------------------------//
+import { Select } from "db/query.utils";
+import { IInstrument } from "db/interfaces/instrument";
+
+const run = async (props: Partial<IInstrument>) => {
+  // const local = await Select<IInstrument>({ status: `Suspended` }, { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] });
+  // console.log(local);
+  //const instrument = await Select<IInstrument>({instrument: props.instrument} || { base_currency: props.base_currency, quote_currency: props.quote_currency }, { table: `instrument` });
+    const get = props.instrument ? { instrument: props.instrument } : props.symbol ? { symbol: props.symbol } : { base_currency: props.base_currency, quote_currency: props.quote_currency };
+  const instrument = await Select<IInstrument>(get, { table: `instrument` });
+  console.log(instrument);
 };
 
-run();
+run({symbol: 'BTC-USDT'});

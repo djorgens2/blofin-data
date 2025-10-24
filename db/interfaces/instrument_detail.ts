@@ -16,9 +16,11 @@ import * as ContractTypes from "db/interfaces/contract_type";
 //+--------------------------------------------------------------------------------------+
 //| Inserts Instrument Details on receipt of a new Instrument from Blofin; returns key;  |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrument>)=> {
-  if (props.instrument === undefined) throw new Error(`Unauthorized instrument publication; missing instrument`);
-  else {
+export const Publish = async (props: Partial<IInstrument>) => {
+  if (props.instrument === undefined) {
+    console.log(props);
+    throw new Error(`Unauthorized instrument publication; missing instrument`);
+  } else {
     const instrument = await Instruments.Fetch({ instrument: props.instrument });
 
     if (instrument === undefined) throw new Error(`Unathorized instrument publication; instrument not found`);

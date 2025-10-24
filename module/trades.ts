@@ -8,6 +8,7 @@ import type { IRequestState } from "db/interfaces/state";
 import type { IRequestAPI } from "api/requests";
 import type { IRequest } from "db/interfaces/request";
 
+import { hexString } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { Session } from "module/session";
 
@@ -120,7 +121,7 @@ const processQueued = async () => {
       } else expired.push({ request: hexify(request.clientOrderId!, 6), memo: `[Expired]: Queued request changed to Expired` });
     }
 
-    console.log(">> Trades.Queued: Requests processed:", requests.length);
+    console.log(">> Trades.Queued: Requests in queue:", requests.length);
 
     if (queued.length) {
       const [accepted, rejected] = (await RequestAPI.Submit(queued)) ?? [[], []];
@@ -145,7 +146,8 @@ const processCanceled = async () => {
     const closed = [];
 
     for (const order of orders) {
-      order.order_id && order.request_status === "Pending" ? cancels.push({ instId: order.symbol, orderId: order.order_id.toString() }) : closed.push(order);
+      const orderId = BigInt(hexString(order.order_id!,10)).toString();
+      order.order_id && order.request_status === "Pending" ? cancels.push({ instId: order.symbol, orderId  }) : closed.push(order);
     }
 
     const [accepted, rejected] = (await OrderAPI.Cancel(cancels)) ?? [[], []];

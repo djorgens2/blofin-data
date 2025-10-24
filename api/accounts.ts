@@ -40,11 +40,11 @@ export interface IAccountAPI {
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin account data and details; apply updates to local db;                 |
 //+--------------------------------------------------------------------------------------+
-export async function Publish(props: IAccountAPI) {
+export const Publish = async(props: IAccountAPI) => {
   const account = await Accounts.Fetch({ account: Session().account });
 
   if (account) {
-    Accounts.Publish({
+    await Accounts.Publish({
       account: Session().account,
       total_equity: format(props!.totalEquity, 3),
       isolated_equity: format(props!.isolatedEquity, 3),

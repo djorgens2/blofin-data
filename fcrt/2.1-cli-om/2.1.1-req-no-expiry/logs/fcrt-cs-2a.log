@@ -1,7 +1,100 @@
-Test 2: Request canceled, check db for results.
-{
-  account: <Buffer 24 59 7a>,
-  request: <Buffer d6 9b b9 c2 9d 13>,
-  symbol: 'XRP-USDT',
-  status: 'Canceled'
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer fd 46 98 0a 6f d1>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer 62 57 cb>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    'Test 1: request w/o expiry; w/o tpsl',
+    2025-10-23T23:43:52.691Z,
+    2025-10-24T07:43:52.692Z,
+    2025-10-23T23:43:52.691Z
+  ]
 }
+{
+  submitted: <Buffer fd 46 98 0a 6f d1>,
+  request: {
+    symbol: 'XRP-USDT',
+    margin_mode: 'cross',
+    position: 'short',
+    action: 'sell',
+    order_type: 'limit',
+    price: 2.95,
+    leverage: 50,
+    size: 100
+  }
+}
+Test 1: Request submitted, check db for results. <Buffer fd 46 98 0a 6f d1>
+Fetched order from DB: [
+  {
+    account: <Buffer 24 59 7a>,
+    request: <Buffer fd 46 98 0a 6f d1>,
+    order_id: null,
+    client_order_id: 'FD46980A6FD1',
+    instrument_position: <Buffer 62 45 1c 33 17 21>,
+    instrument: <Buffer 54 e7 5e>,
+    symbol: 'XRP-USDT',
+    base_currency: <Buffer c2 35 f3>,
+    base_symbol: 'XRP',
+    quote_currency: <Buffer cb 69 43>,
+    quote_symbol: 'USDT',
+    state: <Buffer 62 57 cb>,
+    status: 'Queued',
+    request_state: <Buffer 62 57 cb>,
+    request_status: 'Queued',
+    order_state: null,
+    order_status: null,
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer b8 32 96>,
+    order_type: 'limit',
+    margin_mode: 'cross',
+    price: 2.95,
+    size: 100,
+    leverage: 50,
+    filled_size: null,
+    filled_amount: null,
+    average_price: null,
+    fee: null,
+    pnl: null,
+    digits: 5,
+    order_category: null,
+    category: null,
+    cancel_source: null,
+    canceled_by: null,
+    contract_type: 'linear',
+    instrument_type: 'SWAP',
+    reduce_only: 0,
+    broker_id: null,
+    trade_period: <Buffer 03 e8 0e>,
+    trade_timeframe: '15m',
+    timeframe_units: 15,
+    trade_state: <Buffer 5b 34 d5>,
+    trade_status: 'Enabled',
+    memo: 'Test 1: request w/o expiry; w/o tpsl',
+    create_time: 2025-10-23T23:43:52.691Z,
+    expiry_time: 2025-10-24T07:43:52.692Z,
+    update_time: 2025-10-23T23:43:52.691Z
+  }
+]

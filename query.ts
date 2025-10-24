@@ -194,10 +194,10 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<Order.IOrder>(args);
       Object.assign(props!, {
         ...props,
-        account: props?.account ? hexify(props.account) : undefined,
-        request: props?.request ? hexify(props.request) : undefined,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        state: props?.state ? hexify(props.state) : undefined,
+        account: hexify(props?.account!),
+        request: hexify(props?.request!),
+        instrument: hexify(props?.instrument!),
+        state: hexify(props?.state!),
       });
       const key = await Order.Fetch(props!);
       console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
@@ -207,7 +207,7 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<IRequestAPI>(args);
       Object.assign(props!, {
         ...props,
-        account: props?.account ? hexify(props.account) : undefined,
+        account: hexify(props?.account!),
       });
       const key = await Request.Queue(props!);
       console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
@@ -217,14 +217,14 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<Order.IOrder>(args);
       Object.assign(props!, {
         ...props,
-        account: props?.account ? hexify(props.account) : undefined,
-        request: props?.request ? hexify(props.request) : undefined,
-        order_id: props?.order_id ? hexify(props.order_id) : undefined,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        request_type: props?.request_type ? hexify(props.request_type) : undefined,
-        order_state: props?.order_state ? hexify(props.order_state) : undefined,
-        order_category: props?.order_category ? hexify(props.order_category) : undefined,
-        cancel_source: props?.cancel_source ? hexify(props.cancel_source) : undefined,
+        account: hexify(props?.account!),
+        request: hexify(props?.request!),
+        order_id: hexify(props?.order_id!),
+        instrument: hexify(props?.instrument!),
+        request_type: hexify(props?.request_type!),
+        order_state: hexify(props?.order_state!),
+        order_category: hexify(props?.order_category!),
+        cancel_source: hexify(props?.cancel_source!),
       });
       const key = await Order.Fetch(props!);
       console.log(`Fetch Orders [ ${Object.keys(props!).length} ]:`, props, key);
@@ -237,6 +237,12 @@ async function show(subject: string, args: string): Promise<string> {
         return "error";
       }
       const { table, ...props } = json;
+      Object.assign(props!, {...props,
+        order_state: hexify(props.order_state!),
+        order_category: hexify(props.order_category!),
+        cancel_source: hexify(props.cancel_source!),
+        request_type: hexify(props.request_type!),
+      });
       const rows = await Reference.Fetch(props!, { table });
       console.log("Fetch reference:", props, rows);
       return "ok";
@@ -245,8 +251,8 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<InstrumentPeriods.IInstrumentPeriod>(args);
       Object.assign(props!, {
         ...props,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        period: props?.period ? hexify(props.period) : undefined,
+        instrument: hexify(props?.instrument!),
+        period: hexify(props?.period!),
       });
       const key = await InstrumentPeriods.Fetch(props!);
       console.log(`Fetch Instrument Periods [ ${Object.keys(props!).length} ]:`, props, key);
@@ -254,12 +260,14 @@ async function show(subject: string, args: string): Promise<string> {
     }
     case Subject.InstrumentPosition: {
       const props = parseJSON<InstrumentPosition.IInstrumentPosition>(args);
+      props && 
       Object.assign(props!, {
         ...props,
-        instrument_position: props?.instrument_position ? hexify(props.instrument_position) : undefined,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        state: props?.state ? hexify(props.state) : undefined,
-        auto_state: props?.auto_state ? hexify(props.auto_state) : undefined,
+        account: hexify(props.account!),
+        instrument_position: hexify(props.instrument_position!),
+        instrument: hexify(props.instrument),
+        state: hexify(props.state),
+        auto_state: hexify(props.auto_state),
       });
       const key = await InstrumentPosition.Fetch(props!);
       console.log(`Fetch Instrument Positions [ ${Object.keys(props!).length} ]:`, props, key);
@@ -269,12 +277,12 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<Stops.IStops>(args);
       Object.assign(props!, {
         ...props,
-        instrument_position: props?.instrument_position ? hexify(props.instrument_position) : undefined,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        position_state: props?.state ? hexify(props.state) : undefined,
-        request_state: props?.state ? hexify(props.state) : undefined,
-        order_state: props?.state ? hexify(props.state) : undefined,
-        stop_request: props?.stop_request ? hexify(props.stop_request) : undefined,
+        instrument_position: hexify(props?.instrument_position!),
+        instrument: hexify(props?.instrument!),
+        position_state: hexify(props?.state!),
+        request_state: hexify(props?.state!),
+        order_state: hexify(props?.state!),
+        stop_request: hexify(props?.stop_request!),
       });
       const key = await Stops.Fetch(props!);
       console.log(`Fetch Stop Orders [ ${Object.keys(props!).length} ]:`, props, key);
@@ -284,8 +292,8 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<Positions.IPositions>(args);
       Object.assign(props!, {
         ...props,
-        instrument: props?.instrument ? hexify(props.instrument) : undefined,
-        state: props?.state ? hexify(props.state) : undefined,
+        instrument: hexify(props?.instrument!),
+        state: hexify(props?.state!),
       });
       const key = await Positions.Fetch(props!);
       console.log(`Fetch Positions [ ${Object.keys(props!).length} ]:`, props, key);

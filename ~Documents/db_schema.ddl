@@ -104,12 +104,13 @@ CREATE  TABLE devel.order_state (
 	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	status             VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	status               VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE devel.orders ( 
 	order_id             BINARY(6)    NOT NULL   PRIMARY KEY,
+	client_order_id      BINARY(6)       ,
 	order_category       BINARY(3)    NOT NULL   ,
 	order_state          BINARY(3)    NOT NULL   ,
 	cancel_source        BINARY(3)    NOT NULL   ,
@@ -166,7 +167,7 @@ CREATE  TABLE devel.role (
 
 CREATE  TABLE devel.state ( 
 	state                BINARY(3)    NOT NULL   PRIMARY KEY,
-	status             VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	status               VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
@@ -378,11 +379,11 @@ CREATE  TABLE devel.request (
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	CONSTRAINT uk_r_orders UNIQUE ( order_id ) ,
 	CONSTRAINT fk_r_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_request_type FOREIGN KEY ( request_type ) REFERENCES devel.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_r_orders FOREIGN KEY ( order_id ) REFERENCES devel.orders( order_id ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_r_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ALTER TABLE devel.request ADD CONSTRAINT ck_r_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
@@ -394,8 +395,6 @@ CREATE INDEX fk_r_request_type ON devel.request ( request_type );
 CREATE INDEX fk_r_margin_mode ON devel.request ( margin_mode );
 
 CREATE INDEX fk_r_state ON devel.request ( state );
-
-CREATE INDEX fk_r_orders ON devel.request ( order_id );
 
 CREATE  TABLE devel.role_authority ( 
 	role                 BINARY(3)    NOT NULL   ,
@@ -436,6 +435,8 @@ CREATE  TABLE devel.stop_request (
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ALTER TABLE devel.stop_request ADD CONSTRAINT ck_sr_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
 
 CREATE INDEX fk_sr_stop_type ON devel.stop_request ( stop_type );
 

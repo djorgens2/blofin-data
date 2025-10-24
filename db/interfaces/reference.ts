@@ -45,7 +45,7 @@ export const Import = async () => {
   };
 
   [
-    { order_state: 0, source_ref: "accepted", status: "Queued", description: "Accepted" },
+    { order_state: 0, source_ref: "accepted", status: "Pending", description: "Accepted" },
     { order_state: 0, source_ref: "live", status: "Pending", description: "Live" },
     { order_state: 0, source_ref: "effective", status: "Pending", description: "Effective" },
     { order_state: 0, source_ref: "canceled", status: "Closed", description: "Canceled" },

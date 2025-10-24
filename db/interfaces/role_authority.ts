@@ -54,7 +54,7 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuth
       state: await State.Key<IAccess>({ status: "Disabled" }),
     };
     const [result, updates] = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-    return updates ? result!.state : undefined;
+    return result ? result.state : undefined;
   } else return undefined;
 };
 
@@ -71,7 +71,7 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<IRoleAutho
       activity,
       state: await State.Key<IAccess>({ status: "Enabled" }),
     };
-    const [result] = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
+    const [result, updates] = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
     return result ? result.state : undefined;
   } else return undefined;
 };

@@ -6,11 +6,11 @@
 
 import type { TRequest, IRequestState } from "db/interfaces/state";
 
-//import { DB_SCHEMA, Modify, parseColumns, Select } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 
 import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
+import { Update } from "db/query.utils";
 
 export type TResponse = {
   orderId: string;
@@ -41,6 +41,7 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
   const reject: Array<Partial<IResponse>> = [];
 
   if (Array.isArray(responses) && responses.length) {
+    console.log(`-> [Info] Response.Request: Received responses:`, responses.length, responses);
     for (const response of responses) {
       const request = {
         request: hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6),
@@ -49,12 +50,11 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
         memo:
           response.code === "0"
             ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Warn] Response.Request: ${props.success === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
+            : `[Error] Response.Request: ${props.success === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
         update_time: new Date(),
       };
-
       if (response.code === "0") {
-        const result = await Orders.Publish(request);
+        const [result, updates] = await Update<Orders.IOrder>(request, { table: `request`, keys: [{ key: `request` }] });
         result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
       } else {
         console.log(`-> [Error] Response.Request: Error response received from broker API`, response);

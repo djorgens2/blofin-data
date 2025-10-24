@@ -30,8 +30,8 @@ export const hashHmac = async (props: Partial<ISession>) => {
     const hmac = createHmac("sha256", secret).update(encoded).digest("hex");
     const hex = Buffer.from(hmac).toString("hex");
     return hex ? Buffer.from(hex, "hex").toString("base64") : undefined;
-  };
-  
+  }
+
   return undefined;
 };
 
@@ -55,20 +55,20 @@ export const hexify = (key: string | Uint8Array | number | object, size?: number
     if (typeof key === "object" && "type" in key && key.type === "Buffer")
       if ("data" in key && Array.isArray(key.data)) return Buffer.from(key.data);
       else return undefined;
-  }
 
-  if (typeof key === "number") key = key.toString(16);
+    if (typeof key === "number") key = key.toString(16);
 
-  if (typeof key === "string") {
-    key.slice(0, 2) === "0x" && (key = key.slice(2));
-    key.slice(0, 7) === "<Buffer" && (key = key.slice(8, 15).split(" ").join(""));
+    if (typeof key === "string") {
+      key.slice(0, 2) === "0x" && (key = key.slice(2));
+      key.slice(0, 7) === "<Buffer" && (key = key.slice(8, 15).split(" ").join(""));
 
-    const regex = /^[0-9A-Fa-f]+$/;
-    const bytes = new Uint8Array(key.length / 2);
+      const regex = /^[0-9A-Fa-f]+$/;
+      const bytes = new Uint8Array(key.length / 2);
 
-    if (regex.test(key)) {
-      size && (key = prefix.concat(key.padStart(size * 2, "0")));
-      return Buffer.from(key, "hex");
+      if (regex.test(key)) {
+        size && (key = prefix.concat(key.padStart(size * 2, "0")));
+        return Buffer.from(key, "hex");
+      }
     }
   }
 

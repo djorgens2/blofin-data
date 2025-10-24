@@ -674,6 +674,7 @@ sl]]></comment>
 		</table>
 		<table name="orders" row_count="0" spec="" >
 			<column name="order_id" type="BINARY" length="6" mandatory="y" />
+			<column name="client_order_id" type="BINARY" length="6" />
 			<column name="order_category" type="BINARY" length="3" mandatory="y" />
 			<column name="order_state" type="BINARY" length="3" mandatory="y" />
 			<column name="cancel_source" type="BINARY" length="3" mandatory="y" />
@@ -869,7 +870,7 @@ mark: mark price]]></comment>
 			<index name="fk_r_state" unique="NORMAL" >
 				<column name="state" />
 			</index>
-			<index name="fk_r_orders" unique="NORMAL" >
+			<index name="uk_r_orders" unique="UNIQUE_KEY" >
 				<column name="order_id" />
 			</index>
 			<constraint name="ck_r_action" type="CHECK" options="" >
@@ -886,9 +887,6 @@ mark: mark price]]></comment>
 			</fk>
 			<fk name="fk_r_state" to_schema="devel" to_table="state" options="" >
 				<fk_column name="state" pk="state" />
-			</fk>
-			<fk name="fk_r_orders" to_schema="devel" to_table="orders" >
-				<fk_column name="order_id" pk="order_id" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -1051,6 +1049,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			<index name="fk_sr_state" unique="NORMAL" >
 				<column name="state" />
 			</index>
+			<constraint name="ck_sr_action" >
+				<string><![CDATA[`action` in (_utf8mb4'buy',_utf8mb4'sell')]]></string>
+			</constraint>
 			<fk name="fk_sr_instrument_position" to_schema="devel" to_table="instrument_position" options="" >
 				<fk_column name="instrument_position" pk="instrument_position" />
 			</fk>
@@ -1661,7 +1662,6 @@ END]]></string>
 		<entity schema="devel" name="role_authority" color="C7F4BE" x="1330" y="95" />
 		<entity schema="devel" name="authority" color="C7F4BE" x="1634" y="95" />
 		<entity schema="devel" name="api_error" color="00FFFF" x="1900" y="1425" />
-		<entity schema="devel" name="stop_request" color="FFFF00" x="779" y="285" />
 		<entity schema="devel" name="subject_area" color="C7F4BE" x="1007" y="380" />
 		<entity schema="devel" name="stop_type" color="FFFF00" x="817" y="95" />
 		<entity schema="devel" name="stop_order" color="FFFF00" x="475" y="152" />
@@ -1691,15 +1691,16 @@ END]]></string>
 		<entity schema="devel" name="full_audit_request" color="00FFFF" x="2299" y="1368" />
 		<entity schema="devel" name="broker" color="F4DDBE" x="2185" y="1007" />
 		<entity schema="devel" name="environment" color="F4DDBE" x="2337" y="1178" />
-		<entity schema="devel" name="request" color="FFFF00" x="532" y="608" />
 		<entity schema="devel" name="role" color="C7F4BE" x="1425" y="380" />
 		<entity schema="devel" name="account" color="F4DDBE" x="2261" y="570" />
-		<entity schema="devel" name="orders" color="FFFF00" x="76" y="551" />
 		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="114" />
-		<entity schema="devel" name="request_type" color="FFFF00" x="228" y="817" />
-		<entity schema="devel" name="cancel_source" color="FFFF00" x="76" y="969" />
 		<entity schema="devel" name="order_category" color="FFFF00" x="190" y="266" />
 		<entity schema="devel" name="account_detail" color="F4DDBE" x="1900" y="817" />
+		<entity schema="devel" name="orders" color="FFFF00" x="76" y="551" />
+		<entity schema="devel" name="cancel_source" color="FFFF00" x="76" y="1007" />
+		<entity schema="devel" name="request_type" color="FFFF00" x="209" y="855" />
+		<entity schema="devel" name="request" color="FFFF00" x="494" y="608" />
+		<entity schema="devel" name="stop_request" color="FFFF00" x="779" y="285" />
 		<group name="views" color="ECF0F7" >
 			<entity schema="devel" name="vw_instruments" />
 			<entity schema="devel" name="vw_candles" />
@@ -1754,16 +1755,16 @@ END]]></string>
 		<group name="orders" color="FFFF00" >
 			<entity schema="devel" name="positions" />
 			<entity schema="devel" name="margin_mode" />
-			<entity schema="devel" name="stop_request" />
 			<entity schema="devel" name="stop_type" />
 			<entity schema="devel" name="stop_order" />
 			<entity schema="devel" name="price_type" />
-			<entity schema="devel" name="request" />
-			<entity schema="devel" name="orders" />
 			<entity schema="devel" name="order_state" />
-			<entity schema="devel" name="request_type" />
-			<entity schema="devel" name="cancel_source" />
 			<entity schema="devel" name="order_category" />
+			<entity schema="devel" name="orders" />
+			<entity schema="devel" name="cancel_source" />
+			<entity schema="devel" name="request_type" />
+			<entity schema="devel" name="request" />
+			<entity schema="devel" name="stop_request" />
 		</group>
 		<group name="auxiliary" color="00FFFF" >
 			<entity schema="devel" name="api_error" />

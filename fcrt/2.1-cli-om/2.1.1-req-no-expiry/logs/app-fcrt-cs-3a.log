@@ -1,0 +1,99 @@
+>> [info] Application.Initialization start: 10/23/2025, 5:38:03 PM
+In Subject.Area.Import: 10/23/2025, 5:38:03 PM
+   # Subject Area imports:  5 verified
+In Activity.Import: 10/23/2025, 5:38:03 PM
+   # Activity imports:  8 verified
+In Authority.Import: 10/23/2025, 5:38:04 PM
+   # Authority imports:  6 verified
+In Broker.Import: 10/23/2025, 5:38:04 PM
+   # Broker imports:  1 verified
+In Contract.Type.Import: 10/23/2025, 5:38:04 PM
+   # Contract Type imports:  2 verified
+In Environment.Import: 10/23/2025, 5:38:04 PM
+   # Environment imports:  4 verified
+In Instrument.Type.Import: 10/23/2025, 5:38:04 PM
+   # Instrument Type imports:  1 verified
+In Period.Import: 10/23/2025, 5:38:04 PM
+   # Period imports:  15 verified
+In Reference.Import: 10/23/2025, 5:38:05 PM
+   # Order State imports:  8 verified
+   # Request Type imports:  6 verified
+   # Cancel Source imports:  3 verified
+   # Price Type imports:  3 verified
+   # Margin Mode imports:  2 verified
+   # Stop Type imports:  2 verified
+   # Position imports:  3 verified
+   # Order Category imports:  6 verified
+In Role.Import: 10/23/2025, 5:38:05 PM
+   # Role imports:  4 verified
+In State.Import: 10/23/2025, 5:38:05 PM
+   # State imports:  15 verified
+In Instruments.Import [API]: 10/23/2025, 5:38:05 PM
+-> Instrument:Publish [API]
+-> [info] Application.Initialization finished: 10/23/2025, 5:38:09 PM
+Connected to websocket: [146546:wss://demo-trading-openapi.blofin.com/ws/private]
+Subscriptions: { channel: 'account' }
+Subscriptions: { channel: 'positions' }
+Subscriptions: { channel: 'orders' }
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 52451.898, update_time: 2025-10-24T00:38:09.749Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52451.898, coin_usd_price: 1.000205 }
+}
+In Execute.Trades: 10/23/2025, 5:38:38 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> Cancel [API]
+-> [Info] Response.Request: Received responses: 1 [
+  {
+    orderId: '1000114494876',
+    clientOrderId: 'FD46980A6FD1',
+    msg: 'Order canceled',
+    code: '0'
+  }
+]
+-> WSS.Publish [API]
+-> [Info] request updated {
+  filters: { request: <Buffer fd 46 98 0a 6f d1> },
+  columns: {
+    order_id: <Buffer 00 e8 db 78 1d 9c>,
+    state: <Buffer e8 fc f7>,
+    memo: '[Info] Response.Request: Order canceled successfully',
+    update_time: 2025-10-24T00:38:39.390Z
+  }
+}
+>> Trades.Canceled: Cancel requests submitted: 1
+   # [Info] Canceled requests accepted: 1
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db 78 1d 9c> },
+  columns: { order_state: <Buffer 97 e7 4e> }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T00:38:39.351Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: {
+    available: 52441.147,
+    available_equity: 52441.147,
+    frozen: 0,
+    order_frozen: 0,
+    update_time: 2025-10-24T00:38:39.344Z
+  }
+}
+In Execute.Trades: 10/23/2025, 5:39:07 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published

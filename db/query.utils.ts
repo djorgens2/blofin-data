@@ -103,7 +103,8 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions) => {
   const sql = `INSERT${ignore ? " IGNORE " : " "}INTO ${DB_SCHEMA}.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
 
   try {
-    options.connection ? await transact(sql, args, options.connection) : await modify(sql, args);
+    const result = options.connection ? await transact(sql, args, options.connection) : await modify(sql, args);
+    result.affectedRows && console.log(`-> [Info] ${table} inserted`, { fields, args });
     return props;
   } catch (e) {
     console.log({ sql, args, props });
@@ -142,14 +143,14 @@ export const Update = async <T>(props: Partial<T>, options: TOptions) => {
 
     try {
       const result = await modify(sql, [...values, ...args]);
-      result ? console.log("WTF changed?", { table, filters, columns }) : console.log({ table, filters });
+      result.affectedRows && console.log(`-> [Info] ${table} updated`, { filters, columns });
       return [filters as Partial<T>, columns as Partial<T>];
     } catch (e) {
       console.log({ sql, args, props });
       console.log(e);
-      return [filters as Partial<T>, undefined];;
+      return [undefined, undefined];
     }
-  } else return [filters as Partial<T>, undefined];;
+  } else return [filters as Partial<T>, undefined];
 };
 
 //+--------------------------------------------------------------------------------------+

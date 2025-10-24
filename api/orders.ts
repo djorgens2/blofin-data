@@ -10,7 +10,7 @@ import type { IRequestAPI } from "api/requests";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { hexString, isEqual } from "lib/std.util";
+import { format, hexString } from "lib/std.util";
 
 import * as Response from "api/response";
 import * as Requests from "db/interfaces/request";
@@ -64,19 +64,20 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
 
         const result = await Orders.Publish({
           order_id,
+          client_order_id: hexify(order.clientOrderId!, 6),
           order_state,
           order_category,
           cancel_source,
-          filled_size: parseFloat(order.filledSize!),
-          filled_amount: order.filledAmount ? parseFloat(order.filledAmount) : order.filled_amount ? parseFloat(order.filled_amount) : undefined,
-          average_price: parseFloat(order.averagePrice!),
-          fee: parseFloat(order.fee!),
-          pnl: parseFloat(order.pnl!),
+          filled_size: format(order.filledSize!),
+          filled_amount: order.filledAmount ? format(order.filledAmount) : format(order.filled_amount!) ? format(order.filled_amount!) : undefined,
+          average_price: format(order.averagePrice!),
+          fee: format(order.fee!),
+          pnl: format(order.pnl!),
           create_time: new Date(parseInt(order.createTime!)),
           update_time: new Date(parseInt(order.updateTime!)),
         });
 
-        if (result && isEqual(result, order_id)) {
+        if (result) {
           const request = hexify(order.clientOrderId || order_id, 6);
           const request_type = await Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` });
           const result = await Requests.Submit({
@@ -95,6 +96,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             create_time: new Date(parseInt(order.createTime!)),
             update_time: new Date(parseInt(order.updateTime!)),
           });
+
           result
             ? accepted.push(order_id)
             : rejected.push({
@@ -110,7 +112,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             position: order.positionSide,
             memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
           });
-          console.log(`>> [Error] Orders.Publish: ${hexString(result!,6)}<>${hexString(order_id,6)}`)
+          console.log(`>> [Error] Orders.Publish: ${hexString(result!,6)}<>${hexString(order_id,6)}`);
         }
       }
     }

@@ -51,7 +51,7 @@ export const Publish = async (props: Partial<ICurrency>): Promise<ICurrency["cur
     },
     { table: `currency`, keys: [{ key: `currency` }] }
   );
-  return updates ? result!.currency : undefined;
+  return result ? result.currency : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -98,7 +98,7 @@ export const Suspend = async (props: Array<Partial<ICurrency>>) => {
       symbol && keys.push({ key: `symbol` });
 
       const [result, updates] = await Update(columns, { table: `currency`, keys });
-      updates ? counts.success++ : counts.errors++;
+      result ? counts.success++ : counts.errors++;
     }
 
     console.log(`   # Suspensions processed [${props.length}]:  ${counts.success} ok${counts.errors ? `; errors: ${counts.errors}` : ``}`);

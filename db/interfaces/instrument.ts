@@ -52,7 +52,26 @@ export interface IInstrument {
 //| Publishes new instruments to the database; returns Key                               |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrument>) => {
-  if (props.instrument === undefined) {
+  const instrument = await Key(props);
+
+  if (instrument) {
+    const results = await Fetch({ instrument });
+
+    if (results === undefined) throw new Error(`Unathorized instrument publication; instrument not found`);
+    else {
+      const [current] = results;
+      const revised: Partial<IInstrument> = {
+        instrument: current.instrument,
+        trade_period: isEqual(props.trade_period!, current.trade_period!) ? undefined : props.trade_period,
+        margin_mode: props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
+        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
+        lot_scale_factor: isEqual(props.lot_scale_factor!, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
+        martingale_factor: isEqual(props.martingale_factor!, current.martingale_factor!) ? undefined : props.martingale_factor,
+      };
+      const [result, updates] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
+      return result ? result.instrument : undefined;
+    }
+  } else {
     const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
     const instrument: Partial<IInstrument> = {
       instrument: hashKey(6),
@@ -66,23 +85,6 @@ export const Publish = async (props: Partial<IInstrument>) => {
     };
     const result = await Insert<IInstrument>(instrument, { table: `instrument` });
     return result ? result.instrument : undefined;
-  } else {
-    const instrument = await Fetch({ instrument: props.instrument });
-
-    if (instrument === undefined) throw new Error(`Unathorized instrument publication; instrument not found`);
-    else {
-      const [current] = instrument;
-      const revised: Partial<IInstrument> = {
-        instrument: current.instrument,
-        trade_period: isEqual(props.trade_period!, current.trade_period!) ? undefined : props.trade_period,
-        margin_mode: props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
-        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-        lot_scale_factor: isEqual(props.lot_scale_factor!, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
-        martingale_factor: isEqual(props.martingale_factor!, current.martingale_factor!) ? undefined : props.martingale_factor,
-      };
-      const [result, updates] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
-      return updates ? result!.instrument : undefined;
-    }
   }
 };
 
@@ -90,7 +92,7 @@ export const Publish = async (props: Partial<IInstrument>) => {
 //| Returns an instrument key using supplied params;                                     |
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
-  if (hasValues <Partial<IInstrument>>(props)) {
+  if (hasValues<Partial<IInstrument>>(props)) {
     const [result] = await Select<IInstrument>(props, { table: `vw_instruments` });
     return result ? result.instrument : undefined;
   } else return undefined;
@@ -121,7 +123,7 @@ export const Suspense = async (props: Array<IInstrument["instrument"]>) => {
         }));
 
       if (suspense && suspense.length) {
-        Currency.Suspend(suspense);
+        await Currency.Suspend(suspense);
         return suspense;
       }
     } else return undefined;

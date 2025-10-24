@@ -23,7 +23,6 @@ export interface IRequest {
   request: Uint8Array;
   instrument_position: Uint8Array;
   order_id: Uint8Array;
-  client_order_id: string;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
@@ -59,6 +58,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
       const state = props.state || (await States.Key<IRequestState>({ status: props.status }));
       const request: Partial<IRequest> = {
         request: current.request,
+        order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
         action: props.action === current.action ? undefined : props.action,
         state: isEqual(state!, current.state!) ? undefined : state,
         price: isEqual(props.price!, current.price!) ? undefined : props.price,
@@ -83,7 +83,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           { table: `request`, keys: [{ key: `request` }] }
         );
 
-        return updates ? result!.request : undefined;
+        return result ? result.request : undefined;
       } else return undefined;
     } else {
       console.log(">> [Error] Request.Publish: No properties to update");

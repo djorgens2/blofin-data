@@ -1,52 +1,48 @@
 //----------------------------- order test  -------------------------------------------------------//
+import type { TRefKey } from "db/interfaces/reference";
+import type { IRequest } from "db/interfaces/request";
+
 import { setSession, Session } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { req_fcrt_1a } from "fcrt/2.1-cli-om/2.1.1-req-no-expiry/test/request";
+import { req_fcrt_1a } from "./request";
 
-import * as Requests from "db/interfaces/request";
+import * as IPos from "db/interfaces/instrument_position";
 import * as Orders from "db/interfaces/order";
+import * as Requests from "db/interfaces/request";
+import * as References from "db/interfaces/reference";
 
-setSession({ account: hexify("24597a") });
+const args = process.argv.slice(2); // get account id
 
-const cancel = async () => {
-  const cancels = await Orders.Fetch({ account: Session().account, symbol: req_fcrt_1a.symbol, status: "Pending" });
+if (args.length) {
+  setSession({ account: hexify(args[0]) });
 
-  if (cancels) {
-    if (cancels.length > 1) {
-      console.log(`Test 2: Too many cancels, expected one but got .`, cancels.length);
-      process.exit(1);
-    }
-
-    const [cancel] = cancels!;
-    const canceled = await Requests.Cancel({ request: cancel.request, account: cancel.account, memo: "Test 2: Success! Canceled pending request locally." });
-    return canceled;
-  } else {
-    console.error("Something broke; check your logs", cancels)
-    return [];
-  }
-};
-
-cancel()
-  .then((canceled) => {
-    if (canceled.length) {
-      console.log("Test 2: Request canceled, check db for results.");
-      for (const cancel of canceled)
-        console.log({
-          account: Session().account,
-          request: cancel,
-          symbol: req_fcrt_1a.symbol,
-          status: "Canceled",
-        });
+  const submit = async (request: Partial<IRequest>) => {
+    const instrument_position = await IPos.Key({account: Session().account, symbol: req_fcrt_1a.symbol, position: req_fcrt_1a.position});
+    const request_type = await References.Key<TRefKey>({ source_ref: req_fcrt_1a.order_type }, { table: `request_type` });
+    const submitted = await Requests.Submit({ ...request, instrument_position, request_type, memo: "Test 2: request w/o expiry; w/o tpsl" });
+    console.log({ submitted, request });
+    return [submitted, request];
+  };
+  
+  submit(req_fcrt_1a)
+  .then(async ([submitted, request]) => {
+    if (submitted === undefined) {
+        console.error(Session());
+        console.error("Test 2: Request submission failed.");
+        console.error("Check if the request was already submitted or if there was an error in the submission process.");
+        console.error("Request details:", request);
+        console.error("Exiting process with code 1.");
+        process.exit(1);
+      }
+      await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+        console.log("Test 2: Request submitted, check db for results.", submitted);
+        console.log("Fetched order from DB:", order);
+      });
       process.exit(0);
-    }
-    console.log("Test 2: Request cancellation failed.");
-    console.log("Check if the cancellation was already processed or if there was an error in the submission process.");
-    console.log("Request details:", req_fcrt_1a, canceled);
-    console.log("Exiting process with code 1.");
-    process.exit(1);
-  })
-  .catch((error) => {
-    console.log("Test 2: Error during request cancellation:", error);
-    process.exit(1);
-  });
+    })
+    .catch((error) => {
+      console.error("Test 2: Error during request submission:", error);
+      process.exit(1);
+    });
+} else console.error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

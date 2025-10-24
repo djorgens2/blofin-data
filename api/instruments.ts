@@ -39,48 +39,36 @@ export interface IResult {
 //+--------------------------------------------------------------------------------------+
 //| Publish - Creates new instruments; populates periods on new Blofin receipts          |
 //+--------------------------------------------------------------------------------------+
-const publish = async (api: Array<IInstrumentAPI>) => {
+const publish = async (props: Array<IInstrumentAPI>) => {
   console.log("-> Instrument:Publish [API]");
 
   const published: Array<Instrument.IInstrument["instrument"]> = [];
   const modified: Array<Instrument.IInstrument["instrument"]> = [];
 
-  for (const props of api) {
-    const [base_symbol, quote_symbol] = splitSymbol(props.instId);
-    const base_currency = await Currency.Publish({ symbol: base_symbol, suspense: props.state !== "live" });
-    const quote_currency = await Currency.Publish({ symbol: quote_symbol, suspense: false });
-    const instrument = await Instrument.Key({ symbol: props.instId });
-    const result = await Instrument.Publish({
-      instrument,
-      symbol: props.instId,
-      base_symbol,
-      base_currency,
-      quote_symbol,
-      quote_currency,
-    });
+  for (const api of props) {
+    const instrument = await Instrument.Publish({ symbol: api.instId });
 
-    if (result) {
+    if (instrument) {
       const instrument_detail = await InstrumentDetail.Publish({
         instrument,
-        instrument_type: props.instType,
-        contract_type: props.contractType,
-        contract_value: parseFloat(props.contractValue),
-        max_leverage: parseInt(props.maxLeverage),
-        min_size: parseFloat(props.minSize),
-        lot_size: parseFloat(props.lotSize),
-        tick_size: parseFloat(props.tickSize),
-        max_limit_size: parseFloat(props.maxLimitSize),
-        max_market_size: parseFloat(props.maxMarketSize),
-        list_time: new Date(parseInt(props.listTime)),
-        expiry_time: new Date(parseInt(props.expireTime)),
+        instrument_type: api.instType,
+        contract_type: api.contractType,
+        contract_value: parseFloat(api.contractValue),
+        max_leverage: parseInt(api.maxLeverage),
+        min_size: parseFloat(api.minSize),
+        lot_size: parseFloat(api.lotSize),
+        tick_size: parseFloat(api.tickSize),
+        max_limit_size: parseFloat(api.maxLimitSize),
+        max_market_size: parseFloat(api.maxMarketSize),
+        list_time: new Date(parseInt(api.listTime)),
+        expiry_time: new Date(parseInt(api.expireTime)),
       });
 
-      if (instrument) {
-        published.push(instrument);
-        isEqual(instrument, instrument_detail!) && modified.push(instrument);
-      }
+      published.push(instrument);
+      instrument_detail && modified.push(instrument);
     }
   }
+
   const suspense = await Instrument.Suspense(published);
   await InstrumentPeriod.Import();
 
