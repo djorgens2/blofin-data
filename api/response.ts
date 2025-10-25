@@ -50,16 +50,11 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
         memo:
           response.code === "0"
             ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Error] Response.Request: ${props.success === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
+            : `[Error] Response.Request: ${props.fail === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
         update_time: new Date(),
       };
-      if (response.code === "0") {
-        const [result, updates] = await Update<Orders.IOrder>(request, { table: `request`, keys: [{ key: `request` }] });
-        result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
-      } else {
-        console.log(`-> [Error] Response.Request: Error response received from broker API`, response);
-        reject.push({ ...request, code: parseInt(response.code) });
-      }
+      const [result, updates] = await Update<Orders.IOrder>(request, { table: `request`, keys: [{ key: `request` }] });
+      result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
     }
     return [accept, reject];
   } else {

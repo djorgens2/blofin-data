@@ -17,38 +17,38 @@ export const formatterUSD = Intl.NumberFormat("en-US", {
 //+--------------------------------------------------------------------------------------+
 //| Pauses console app execution;                                                        |
 //+--------------------------------------------------------------------------------------+
-export async function Pause(message: string) {
+export const Pause = async (message: string) => {
   const { choice } = await Prompt(["choice"], { message, active: "continue", inactive: "exit", initial: true });
   if (!choice) process.exit(0);
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
 //+--------------------------------------------------------------------------------------+
-export function hexString(uint8Array: Uint8Array, length: number): string {
+export const hexString = (uint8Array: Uint8Array, length: number): string => {
   if (uint8Array instanceof Uint8Array) {
-  const hex = Array.from(uint8Array)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-  return  `0x` + hex.padStart(length, "0");
+    const hex = Array.from(uint8Array)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+    return `0x` + hex.padStart(length, "0");
   }
-  return  `0x`;
-}
+  return `0x`;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns a buffer string for binary arrays; eg: 0xc0ffee returns '<Buffer c0 ff ee>'  |
 //+--------------------------------------------------------------------------------------+
-export function bufferString(uint8Array: Uint8Array): string {
+export const bufferString = (uint8Array: Uint8Array): string => {
   const hex = Array.from(uint8Array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join(" ");
   return `<Buffer ${hex}>`;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Parses supplied string into a JSON|props object of <T> typically xfer'd via cli      |
 //+--------------------------------------------------------------------------------------+
-export function parseJSON<T extends object>(arg: string): Required<T> | undefined {
+export const parseJSON = <T extends object>(arg: string): Required<T> | undefined => {
   try {
     const json = JSON.parse(arg);
 
@@ -68,7 +68,7 @@ export function parseJSON<T extends object>(arg: string): Required<T> | undefine
     throw new Error(`Something jacked up; ${arg} is not a valid JSON;`);
   }
   return undefined;
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns date modified by timeframe from supplied date;                               |
@@ -189,7 +189,7 @@ export const hasValues = <T extends object>(props: T) => Object.keys(props).leng
 //+--------------------------------------------------------------------------------------+
 import * as fs from "node:fs";
 
-export function fileWrite(filePath: string, array: any[]): void {
+export const fileWrite = (filePath: string, array: any[]): void => {
   if (typeof Array.isArray(array) && array.length > 0) {
     try {
       const text = array.join("\n");
@@ -199,4 +199,4 @@ export function fileWrite(filePath: string, array: any[]): void {
       console.error(`Error writing to ${filePath}:`, error.message);
     }
   }
-}
+};

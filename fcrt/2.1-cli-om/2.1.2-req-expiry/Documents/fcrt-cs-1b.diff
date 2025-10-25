@@ -1,11 +1,11 @@
---- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-10-13 12:10:48.400957936 -0700
-+++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-10-13 12:10:48.203951998 -0700
-@@ -266 +266 @@
--F860D311861C,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:40:54.291"
-+F860D311861C,62451C331721,sell,19D388,2.85,100,50,B83296,cross,0,"[Expired]: Queued request changed to Expired",,"2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:46:39.673"
-@@ -814 +814 @@
--24597A,F860D311861C,,F860D311861C,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:40:54.291"
-+24597A,F860D311861C,,F860D311861C,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,19D388,Expired,19D388,Expired,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Expired]: Queued request changed to Expired","2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:46:39.673"
-@@ -1070 +1070 @@
--24597A,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,F860D311861C,"Test 1a: request w/ expiry; w/o tpsl","2025/10/13 05:42:54.262"
-+24597A,Expired,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,F860D311861C,"[Expired]: Queued request changed to Expired","2025/10/13 05:42:54.262"
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-10-23 22:05:29.191603221 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-10-23 22:05:28.947596056 -0700
+@@ -13 +13 @@
+-AB4FB3B430F6,,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
++AB4FB3B430F6,,62451C331721,sell,19D388,2.85,100,50,B83296,cross,0,"[Expired]: Queued request changed to Expired",,"2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:55:22.235"
+@@ -644 +644 @@
+-24597A,AB4FB3B430F6,,AB4FB3B430F6,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
++24597A,AB4FB3B430F6,,AB4FB3B430F6,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,19D388,Expired,19D388,Expired,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Expired]: Queued request changed to Expired","2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:55:22.235"
+@@ -933 +933 @@
+-24597A,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,AB4FB3B430F6,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:49:07.709"
++24597A,Expired,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,AB4FB3B430F6,"[Expired]: Queued request changed to Expired","2025/10/23 21:49:07.709"

@@ -62,7 +62,7 @@ export interface IMessage {
 //+--------------------------------------------------------------------------------------+
 //| Returns initialized Message header (clone) with identity retention (symbol);         |
 //+--------------------------------------------------------------------------------------+
-export function clear(message: IMessage): IMessage {
+export const clear = (message: IMessage): IMessage => {
   return {
     state: message.state,
     symbol: message.symbol,

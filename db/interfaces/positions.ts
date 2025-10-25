@@ -79,7 +79,7 @@ export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export async function Fetch(props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> {
+export const Fetch = async (props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> => {
   const result = await Select<IPositions>(props, { table: `vw_positions` });
   return result.length ? result : undefined;
 }

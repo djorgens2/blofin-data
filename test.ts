@@ -691,38 +691,37 @@ import { parse } from "path";
 
 // console.log(parseObject<IRec>(rec1))
 
-/*
+
 //----------------------------- Copy defined elements -------------------------------------------------------//
-export function copyDefined<T extends object>( source: T, target: Partial<T>) {
-  for (const key in source) {
-    if (source[key] !== undefined) {
-      target[key] = source[key];
-    }
-  }
-}
+// export const copyDefined = <S extends object, T extends Partial<Record<keyof S, any>>>(source: S, target: T): void => {
+//   for (const key in source) {
+//     const k = key as keyof S;
+//     if (source[k] !== undefined) {
+//       (target as any)[key] = source[k];
+//     }
+//   }
+// }
 
 // Example usage:
-const sourceObject = { a: 1, b: undefined, c: 3 };
-const targetObject: Partial<{ a: number; b: number; c: number }> = {};
+// const sourceObject = { a: 1, b: undefined, c: 3, d: 32 };
+// const targetObject: Partial<{ a: number; b: number; c: number }> = {};
 
-// ts-ignore
-copyDefined(sourceObject, targetObject);
+// copyDefined(sourceObject, targetObject);
 
-console.log(targetObject); // Output: { a: 1, c: 3 }
+// console.log(targetObject); // Output: { a: 1, c: 3 }
+// function copyDefinedElements<S extends object, T extends Partial<Record<keyof S, any>>>(source: S, target: T): void {
+//   for (const key in source) {
+//     const k = key as keyof S;
+//     if (source[k] !== undefined) {
+//       (target as any)[key] = source[k];
+//     }
+//   }
+// }
 
-function copyDefinedElements<T extends object>(source: T, target: Partial<T>): void {
-  for (const key in source) {
-    if (source[key] !== undefined) {
-      target[key] = source[key];
-    }
-  }
-}
+// copyDefinedElements(sourceObject, targetObject);
 
-// ts-ignore
-copyDefinedElements(sourceObject, targetObject);
+// console.log(targetObject); // Output: { a: 1, c: 3 }
 
-console.log(targetObject); // Output: { a: 1, c: 3 }
-*/
 
 //----------------------------- load refs generic -------------------------------------------------------//
 // import { Import } from "db/interfaces/reference";
@@ -1752,16 +1751,16 @@ console.log(targetObject); // Output: { a: 1, c: 3 }
 // run();
 
 //---------------------------------- currency/instrument suspension test ----------------------------------------//
-import { Select } from "db/query.utils";
-import { IInstrument } from "db/interfaces/instrument";
+// import { Select } from "db/query.utils";
+// import { IInstrument } from "db/interfaces/instrument";
 
-const run = async (props: Partial<IInstrument>) => {
-  // const local = await Select<IInstrument>({ status: `Suspended` }, { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] });
-  // console.log(local);
-  //const instrument = await Select<IInstrument>({instrument: props.instrument} || { base_currency: props.base_currency, quote_currency: props.quote_currency }, { table: `instrument` });
-    const get = props.instrument ? { instrument: props.instrument } : props.symbol ? { symbol: props.symbol } : { base_currency: props.base_currency, quote_currency: props.quote_currency };
-  const instrument = await Select<IInstrument>(get, { table: `instrument` });
-  console.log(instrument);
-};
+// const run = async (props: Partial<IInstrument>) => {
+//   // const local = await Select<IInstrument>({ status: `Suspended` }, { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] });
+//   // console.log(local);
+//   //const instrument = await Select<IInstrument>({instrument: props.instrument} || { base_currency: props.base_currency, quote_currency: props.quote_currency }, { table: `instrument` });
+//     const get = props.instrument ? { instrument: props.instrument } : props.symbol ? { symbol: props.symbol } : { base_currency: props.base_currency, quote_currency: props.quote_currency };
+//   const instrument = await Select<IInstrument>(get, { table: `instrument` });
+//   console.log(instrument);
+// };
 
-run({symbol: 'BTC-USDT'});
+// run({symbol: 'BTC-USDT'});

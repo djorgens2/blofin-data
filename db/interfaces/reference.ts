@@ -112,7 +112,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Adds seed references for fk's/referential integrity to local database;               |
 //+--------------------------------------------------------------------------------------+
-export async function Add(table: string, props: { [key: string]: any }) {
+export const Add = async (table: string, props: { [key: string]: any }) => {
   if (Object.keys(props).length) {
     props[Object.keys(props)[0]] === 0 && (props[Object.keys(props)[0]] = hashKey(6));
     const result = await Insert<IReference>(props, { table, ignore: true });

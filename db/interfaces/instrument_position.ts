@@ -36,7 +36,7 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 //| Adds new/missing instrument positions;                                               |
 //+--------------------------------------------------------------------------------------+
-export async function Import() {
+export const Import = async () => {
   const state = await State.Key({ status: "Closed" });
   const instrument_position = await Select<IInstrumentPosition>({}, { table: `vw_audit_instrument_positions` });
 

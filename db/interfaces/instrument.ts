@@ -76,8 +76,8 @@ export const Publish = async (props: Partial<IInstrument>) => {
     const instrument: Partial<IInstrument> = {
       instrument: hashKey(6),
       trade_period: props.trade_period || (await Periods.Key({ timeframe: `15m` })),
-      base_currency: props.base_currency || (await Currency.Key({ symbol: base_symbol })),
-      quote_currency: props.quote_currency || (await Currency.Key({ symbol: quote_symbol })),
+      base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })),
+      quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })),
       margin_mode: props.margin_mode || "cross",
       leverage: props.leverage || 10,
       lot_scale_factor: props.lot_scale_factor || 1,

@@ -1,22 +1,22 @@
->> [info] Application.Initialization start: 10/13/2025, 12:34:30 PM
-In Subject.Area.Import: 10/13/2025, 12:34:30 PM
+>> [info] Application.Initialization start: 10/23/2025, 10:24:40 PM
+In Subject.Area.Import: 10/23/2025, 10:24:40 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 10/13/2025, 12:34:31 PM
+In Activity.Import: 10/23/2025, 10:24:40 PM
    # Activity imports:  8 verified
-In Authority.Import: 10/13/2025, 12:34:31 PM
+In Authority.Import: 10/23/2025, 10:24:41 PM
    # Authority imports:  6 verified
-In Broker.Import: 10/13/2025, 12:34:31 PM
+In Broker.Import: 10/23/2025, 10:24:41 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 10/13/2025, 12:34:31 PM
+In Contract.Type.Import: 10/23/2025, 10:24:41 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 10/13/2025, 12:34:31 PM
+In Environment.Import: 10/23/2025, 10:24:41 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 10/13/2025, 12:34:32 PM
+In Instrument.Type.Import: 10/23/2025, 10:24:41 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 10/13/2025, 12:34:32 PM
+In Period.Import: 10/23/2025, 10:24:41 PM
    # Period imports:  15 verified
-In Reference.Import: 10/13/2025, 12:34:32 PM
-   # Order State imports:  7 verified
+In Reference.Import: 10/23/2025, 10:24:42 PM
+   # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
    # Price Type imports:  3 verified
@@ -24,973 +24,324 @@ In Reference.Import: 10/13/2025, 12:34:32 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 10/13/2025, 12:34:32 PM
+In Role.Import: 10/23/2025, 10:24:42 PM
    # Role imports:  4 verified
-In State.Import: 10/13/2025, 12:34:32 PM
+In State.Import: 10/23/2025, 10:24:42 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 10/13/2025, 12:34:33 PM
+In Instruments.Import [API]: 10/23/2025, 10:24:43 PM
 -> Instrument:Publish [API]
--> [info] Application.Initialization finished: 10/13/2025, 12:34:36 PM
-Connected to websocket: [1642264:wss://demo-trading-openapi.blofin.com/ws/private]
+-> [info] Application.Initialization finished: 10/23/2025, 10:24:46 PM
+Connected to websocket: [169007:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:35:06 PM
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:24:47.091Z }
+}
+In Execute.Trades: 10/23/2025, 10:25:15 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Rejected:  34
->> Trades.Queued: Requests processed: 1
+   # History Orders Processed [20]:  20 published
+>> Trades.Queued: Requests in queue: 1
 In Requests.Submit [API]
 -> WSS.Publish [API]
+-> [Info] Response.Request: Received responses: 1 [
+  {
+    orderId: '1000114503757',
+    clientOrderId: '6A06BD104D6B',
+    msg: 'success',
+    code: '0'
+  }
+]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:25:16.646Z }
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'filled_amount',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 40 4d>,
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 4f ae 94>,
+    <Buffer de 78 79>,
+    <Buffer 3d 66 8d>,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: {
+    order_id: <Buffer 00 e8 db 78 40 4d>,
+    state: <Buffer 4b c9 9c>,
+    memo: '[Info] Response.Request: Order submitted successfully',
+    update_time: 2025-10-24T05:25:16.704Z
+  }
+}
 -> Queued requests submitted: 1
    # [Info] Requests accepted: 1
-In Execute.Trades: 10/13/2025, 12:35:35 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Rejected:  24
-In Execute.Trades: 10/13/2025, 12:36:04 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:36:33 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:37:02 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:37:31 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:38:00 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
--> Pending.Publish [API]
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: {
+    available: 51854.047,
+    available_equity: 51854.047,
+    frozen: 587.1,
+    order_frozen: 587.1,
+    update_time: 2025-10-24T05:25:16.634Z
+  }
+}
 -> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:38:29 PM
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 52447.703, update_time: 2025-10-24T05:25:22.054Z }
+}
+-> WSS.Publish [API]
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52447.703, coin_usd_price: 1.000125 }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:25:22.469Z }
+}
+In Execute.Trades: 10/23/2025, 10:25:44 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:38:58 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:26:13 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:39:27 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:26:42 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:39:56 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:27:11 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:40:25 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:27:40 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:40:54 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:28:09 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:41:23 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:28:38 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
-In Execute.Trades: 10/13/2025, 12:41:52 PM
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:29:07 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:29:31.469Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:29:31.469Z }
+}
+In Execute.Trades: 10/23/2025, 10:29:36 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:30:05 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:30:22.370Z }
+}
+In Execute.Trades: 10/23/2025, 10:30:34 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:31:03 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:31:04.786Z }
+}
+In Execute.Trades: 10/23/2025, 10:31:32 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:32:01 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 10/23/2025, 10:32:30 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [3]:  3 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: { state: <Buffer 1b 0c b1>, update_time: 2025-10-24T05:32:31.540Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: {
+    memo: '[Expired]: Pending order state changed to Canceled',
+    update_time: 2025-10-24T05:32:31.605Z
+  }
+}
 >> [Warning] Trades.Pending: Requests canceled: 1 [
   {
-    request: <Buffer 32 a4 2b 79 ac 32>,
+    request: <Buffer 6a 06 bd 10 4d 6b>,
     memo: '[Expired]: Pending order state changed to Canceled'
   }
 ]
 -> Cancel [API]
--> WSS.Publish [API]
+-> [Info] Response.Request: Received responses: 1 [
+  {
+    orderId: '1000114503757',
+    clientOrderId: '6A06BD104D6B',
+    msg: 'Order canceled',
+    code: '0'
+  }
+]
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: {
+    order_id: <Buffer 00 e8 db 78 40 4d>,
+    state: <Buffer e8 fc f7>,
+    memo: '[Info] Response.Request: Order canceled successfully',
+    update_time: 2025-10-24T05:32:31.860Z
+  }
+}
 >> Trades.Canceled: Cancel requests submitted: 1
    # [Info] Canceled requests accepted: 1
-In Execute.Trades: 10/13/2025, 12:42:21 PM
+-> WSS.Publish [API]
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db 78 40 4d> },
+  columns: { order_state: <Buffer 97 e7 4e> }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-10-24T05:32:31.879Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: { update_time: 2025-10-24T05:32:31.864Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: {
+    available: 52441.147,
+    available_equity: 52441.147,
+    frozen: 0,
+    order_frozen: 0,
+    update_time: 2025-10-24T05:32:31.864Z
+  }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 6a 06 bd 10 4d 6b> },
+  columns: { update_time: 2025-10-24T05:32:32.097Z }
+}
+In Execute.Trades: 10/23/2025, 10:32:59 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db 78 40 4d> },
+  columns: { cancel_source: <Buffer ba 05 f1> }
+}
    # History Orders Processed [1]:  1 published
-In Execute.Trades: 10/13/2025, 12:42:50 PM
+In Execute.Trades: 10/23/2025, 10:33:28 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:43:19 PM
+In Execute.Trades: 10/23/2025, 10:33:57 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:43:48 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:44:17 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:44:46 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:45:15 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:45:44 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:46:13 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:46:42 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:47:11 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:47:40 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:48:09 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:48:38 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:49:07 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:49:36 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:50:05 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:50:34 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:51:03 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:51:32 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:52:01 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:52:30 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:52:59 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:53:28 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:53:57 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:54:26 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:54:55 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:55:24 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:55:53 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:56:22 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:56:52 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:57:21 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:57:50 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:58:19 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 12:58:48 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:59:17 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 12:59:46 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:00:15 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:00:44 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:01:13 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:01:42 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:02:11 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:02:40 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:03:09 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:03:38 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:04:07 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:04:36 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:05:05 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:05:34 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:06:03 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:06:32 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:07:01 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:07:30 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:07:59 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:08:28 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:08:57 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:09:26 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:09:55 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:10:24 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:10:53 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:11:22 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:11:51 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:12:20 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:12:49 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:13:18 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:13:47 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:14:16 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:14:45 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:15:14 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:15:43 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:16:12 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:16:41 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:17:10 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:17:39 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:18:09 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:18:38 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:19:07 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:19:36 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:20:05 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:20:34 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:21:03 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:21:32 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:22:01 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:22:30 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:22:59 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:23:28 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:23:57 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:24:26 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:24:55 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:25:24 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:25:53 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:26:22 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:26:51 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:27:20 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:27:49 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:28:18 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:28:47 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:29:16 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:29:45 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:30:14 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:30:43 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:31:12 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:31:41 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:32:10 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:32:39 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:33:08 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:33:37 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:34:06 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:34:35 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:35:04 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:35:33 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:36:02 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:36:31 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:37:00 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:37:29 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:37:58 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:38:27 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:38:56 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:39:25 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:39:54 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:40:24 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:40:53 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:41:22 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:41:51 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:42:20 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:42:49 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:43:18 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:43:47 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:44:16 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:44:45 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:45:14 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:45:43 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:46:12 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:46:41 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:47:10 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:47:39 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:48:08 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:48:37 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:49:06 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:49:35 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:50:04 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:50:33 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:51:02 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:51:31 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:52:00 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:52:29 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:52:58 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:53:27 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:53:56 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:54:25 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:54:54 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:55:23 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:55:52 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:56:21 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:56:50 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:57:19 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:57:48 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:58:17 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 1:58:46 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:59:15 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 1:59:44 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:00:13 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:00:42 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:01:11 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:01:40 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:02:09 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:02:38 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:03:07 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 2:03:36 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:04:05 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:04:35 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:05:04 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:05:33 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:06:02 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:06:31 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:07:00 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:07:29 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:07:58 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 2:08:27 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:08:56 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:09:25 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:09:54 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:10:23 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:10:52 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:11:21 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:11:50 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:12:19 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:12:48 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:13:17 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 2:13:46 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:14:15 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:14:44 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:15:13 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:15:42 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:16:11 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:16:40 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:17:09 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:17:38 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:18:07 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
-In Execute.Trades: 10/13/2025, 2:18:36 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:19:05 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:19:34 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:20:03 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:20:32 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:21:01 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:21:30 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 10/13/2025, 2:21:59 PM
+In Execute.Trades: 10/23/2025, 10:34:26 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]

@@ -1,11 +1,11 @@
---- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-10-13 05:43:49.448787786 -0700
-+++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-10-13 05:43:49.252781783 -0700
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-10-23 21:52:02.251881690 -0700
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-10-23 21:52:02.021874915 -0700
 @@ -2 +2 @@
--253,253,253,253
-+254,253,254,254
-@@ -265,0 +266 @@
-+F860D311861C,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:40:54.291"
-@@ -812,0 +814 @@
-+24597A,F860D311861C,,F860D311861C,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/10/13 05:40:54.291","2025/10/13 05:42:54.262","2025/10/13 05:40:54.291"
-@@ -1067,0 +1070 @@
-+24597A,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,F860D311861C,"Test 1a: request w/ expiry; w/o tpsl","2025/10/13 05:42:54.262"
+-285,303,285,285
++286,303,286,286
+@@ -12,0 +13 @@
++AB4FB3B430F6,,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
+@@ -642,0 +644 @@
++24597A,AB4FB3B430F6,,AB4FB3B430F6,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
+@@ -930,0 +933 @@
++24597A,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,AB4FB3B430F6,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:49:07.709"

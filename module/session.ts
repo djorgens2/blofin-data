@@ -83,7 +83,7 @@ export const signLogon = async (key: string) => {
 //+--------------------------------------------------------------------------------------+
 //| Opens the ws to Blofin and establishes com channels/listeners;                       |
 //+--------------------------------------------------------------------------------------+
-export function openWebSocket(props: Partial<ISession>) {
+export const openWebSocket = (props: Partial<ISession>) => {
   const { account, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
   const ws = new WebSocket(private_wss_url!);
 

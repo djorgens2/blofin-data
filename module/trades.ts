@@ -171,7 +171,7 @@ const processHold = async () => {
 
   if (orders) {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
-    const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: (order_id ?? ``).toString() }));
+    const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: BigInt(hexString(order_id!,10)).toString()}));
     const [processed, errors] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
 
     console.log("Hold cancels", cancels);

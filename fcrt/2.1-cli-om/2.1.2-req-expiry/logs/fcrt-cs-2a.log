@@ -1,5 +1,39 @@
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer 62 57 cb>,
+    2.85,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    'Test 2a: request w/ expiry; w/o tpsl',
+    2025-10-24T05:24:29.304Z,
+    2025-10-24T05:32:29.278Z,
+    2025-10-24T05:24:29.304Z
+  ]
+}
 {
-  submitted: <Buffer 32 a4 2b 79 ac 32>,
+  submitted: <Buffer 6a 06 bd 10 4d 6b>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -9,7 +43,7 @@
     price: 2.85,
     size: 100,
     leverage: 50,
-    expiry_time: 2025-10-13T19:41:46.266Z,
+    expiry_time: 2025-10-24T05:32:29.278Z,
     memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
