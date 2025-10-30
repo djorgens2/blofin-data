@@ -11,12 +11,8 @@ import { hexify, uniqueKey } from "lib/crypto.util";
 import { Session } from "module/session";
 import { hasValues, isEqual } from "lib/std.util";
 
-import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
-import * as References from "db/interfaces/reference";
 import * as States from "db/interfaces/state";
-
-const [tp, sl] = [`e4`, `df`];
 
 export interface IStopRequest {
   instrument_position: Uint8Array;
@@ -36,9 +32,12 @@ export interface IStopRequest {
 }
 
 export interface IStopOrder extends IStopRequest {
-  tpsl_id: number;
+  tpsl_id: Uint8Array;
+  client_order_id: Uint8Array;
   order_state: Uint8Array;
   order_status: string;
+  order_category: Uint8Array;
+  price_type: string;
   actual_size: number;
 }
 
@@ -52,8 +51,6 @@ export interface IStops extends IStopOrder {
   request_state: Uint8Array;
   request_status: TRequest;
 }
-
-export type TAppResponse = Array<{ instId: string | undefined; tpsl_id: number | undefined; memo: string }>;
 
 //+--------------------------------------------------------------------------------------+
 //| Submits application (auto) stop requests locally on Open positions;                  |
@@ -76,22 +73,24 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
           {
             stop_request: props.stop_request,
             memo: props.memo === current.memo ? undefined : props.memo,
-            update_time: props.update_time || new Date(Date.now()),
+            update_time: props.update_time || new Date(),
           },
           { table: `stop_request`, keys: [{ key: `stop_request` }] }
         );
         return result ? result.stop_request : undefined;
-      }
+      } else return undefined;
     } else {
       console.log(">> [Error] Stop.Publish: No properties to update");
       return undefined;
     }
   } else {
+    const queued = await States.Key<IRequestState>({ status: "Queued" });
     const request = {
       stop_request: props.stop_request,
+      tpsl_id: props.tpsl_id,
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
-      state: props.state,
+      state: props.state || queued,
       action: props.action,
       size: props.size,
       trigger_price: props.trigger_price,
@@ -99,6 +98,7 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
       reduce_only: props.reduce_only,
       memo: props.memo || "[Info] Stop.Publish: Stop request does not exist; proceeding with submission",
       create_time: props.create_time,
+      update_time: new Date(),
     };
 
     const result = await Insert(request, { table: "stop_request" });
@@ -130,7 +130,7 @@ export const Key = async (props: Partial<IStops>, options: TOptions = { table: `
 //| Updates active stop orders retrieved, verified and keyed from the blofin api;        |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IStopOrder>) => {
-  const order = await Select<IStopOrder>({ stop_request: props.stop_request }, { table: `stop_order` });
+  const order = await Select<IStopOrder>({ tpsl_id: props.tpsl_id }, { table: `stop_order` });
 
   if (order && order.length) {
     const [current] = order;
@@ -138,85 +138,87 @@ export const Publish = async (props: Partial<IStopOrder>) => {
     if (isEqual(props.tpsl_id!, current.tpsl_id!)) {
       const [result] = await Update(
         {
-          stop_request: props.stop_request,
+          tpsl_id: props.tpsl_id,
           order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
           actual_size: isEqual(props.actual_size!, current.actual_size!) ? undefined : props.actual_size,
         },
-        { table: `stop_order`, keys: [{ key: `stop_request` }] }
+        { table: `stop_order`, keys: [{ key: `tpsl_id` }] }
       );
-      return result ? result.stop_request : undefined;
+      return result ? result.tpsl_id : undefined;
     }
     console.log(">> [Error] Stops.Submit: TP/SL ID mismatch; unauthorized resubmission; stop request rejected");
   } else {
     const result = await Insert(
       {
-        stop_request: props.stop_request,
         tpsl_id: props.tpsl_id,
+        client_order_id: props.stop_request,
         order_state: props.order_state,
+        order_category: props.order_category,
+        price_type: props.price_type,
         actual_size: props.actual_size,
       },
-      { table: `stop_order`, keys: [{ key: `stop_request` }] }
+      { table: `stop_order`, keys: [{ key: `tpsl_id` }] }
     );
-    return result ? result.stop_request : undefined;
+    return result ? result.tpsl_id : undefined;
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
+//+--------------------------------------------------------------------------------------+
+export const Cancel = async (props: Partial<IStops>): Promise<Array<IStops["stop_request"]>> => {
+  const orders = await Fetch(props.stop_request ? { stop_request: props.stop_request } : props);
+
+  if (orders) {
+    const canceled = await States.Key<IRequestState>({ status: "Canceled" });
+    const cancels: Array<IStops["stop_request"]> = [];
+
+    for (const order of orders) {
+      const result = await publish(props, {
+        ...props,
+        state: canceled,
+        memo: props.memo || `[Cancel]: Request ${props.stop_request} canceled by user/system`,
+      });
+      result && cancels.push(result);
+    }
+    return cancels;
+  } else {
+    console.error("[Error]: Unauthorized cancellation attempt");
+    return [];
   }
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Submits application (auto) stop requests locally on Open positions;                  |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (props: Partial<IStopOrder>): Promise<IStopRequest["stop_request"] | undefined> => {
-  if (props && props.instrument_position) {
+export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop_request"] | undefined> => {
+  if (props) {
     if (props.stop_request) {
       const request = await Fetch({ stop_request: props.stop_request });
 
-      if (request && request.length) {
+      if (request) {
         const [current] = request;
+        const state =
+          isEqual(current.state!, props.state!) && isEqual(current.status!, props.status!)
+            ? current.state
+            : await States.Key<IRequestState>({ status: props.status! });
 
-        if (props.create_time! > current.create_time!) {
-          return undefined;
-        }
-
-        if (current.status === "Rejected") {
-          const queued = await States.Key<IRequestState>({ status: "Queued" });
-          const result = await publish(current, {
-            ...props,
-            state: queued,
-            memo: `[Warning] Stops.Submit: Request exists; was previously rejected; resubmitted`,
-          });
-          return result ? result : undefined;
-        }
-
-        if (current.status === "Queued") {
-          const result = await publish(current, {
-            ...props,
-            memo: props.status === "Queued" ? props.memo || `[Info] Stops.Submit: Request exists; was unprocessed; updated and resubmitted` : props.memo,
-          });
-          return result ? result : undefined;
-        }
-
-        if (current.status === "Fulfilled") {
-          const fulfilled = await States.Key<IRequestState>({ status: "Fulfilled" });
-          const result = await publish(current, {
-            ...props,
-            state: fulfilled,
-            memo: props.status === "Fulfilled" ? props.memo || `[Info] Stops.Submit: Request exists; was fulfilled; updated and settled` : props.memo,
-          });
-          return result ? result : undefined;
-        }
-
-        //-- pending requests can be updated but not resubmitted; WIP: resubmission logic possibly 'hold' state?
-        if (current.status === "Pending") {
-          const result = await publish(current, { ...props, memo: `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit` });
-
-          if (result) {
+        if (props.update_time! > current.update_time!) {
+          if (current.tpsl_id && current.status === "Pending" && isEqual(current.state!, props.state!)) {
             const hold = await States.Key<IRequestState>({ status: "Hold" });
+
             const result = await publish(current, {
               ...props,
               state: hold,
+              memo: `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit`,
             });
+
             return result ? result : undefined;
-          } else return undefined;
-        }
+          } else {
+            await publish(current, { ...props, state, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
+            return current.stop_request;
+          }
+        } else return undefined;
       } else {
         const result = await publish(
           {},
@@ -227,6 +229,21 @@ export const Submit = async (props: Partial<IStopOrder>): Promise<IStopRequest["
         );
         return result ? result : undefined;
       }
+    }
+
+    // Handle new request submission
+    const result = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position });
+
+    if (result) {
+      const [{ auto_status, instrument_position }] = result;
+      auto_status === "Enabled" && Cancel({ instrument_position, memo: `[Info] Stops.Submit: New stop request submitted; canceling existing pending stop(s)` });
+      return await publish(
+        {},
+        { ...props, stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`), instrument_position, status: "Queued" }
+      );
+    } else {
+      console.log(">> [Error] Stops.Submit: Invalid stop request; missing instrument position; request rejected");
+      return undefined;
     }
   }
 };

@@ -7,7 +7,7 @@
 import type { ICurrency } from "db/interfaces/currency";
 import type { TSymbol } from "db/interfaces/state";
 
-import { Select, Insert, Update, TOptions } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { splitSymbol } from "lib/app.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues, isEqual } from "lib/std.util";

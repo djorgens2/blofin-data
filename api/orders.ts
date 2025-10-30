@@ -86,9 +86,9 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             instrument_position,
             action: order.side,
             state,
-            price: parseFloat(order.price!),
-            size: parseFloat(order.size!),
-            leverage: parseInt(order.leverage!),
+            price: format(order.price!),
+            size: format(order.size!),
+            leverage: format(order.leverage!),
             request_type: request_type ? request_type : undefined,
             margin_mode: order.marginMode,
             reduce_only: order.reduceOnly === "true",
@@ -103,7 +103,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
                 order_id,
                 symbol: order.instId,
                 position: order.positionSide,
-                memo: `>> [Error] Orders.Publish: Request publication failed; request rejected`,
+                memo: `>> [Error] Orders.Publish: Request publication failed; request rejected; check log for details`,
               });
         } else {
           rejected.push({
@@ -117,7 +117,6 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
       }
     }
   }
-
   return [accepted, rejected];
 };
 

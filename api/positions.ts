@@ -52,8 +52,8 @@ export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partia
       const update: Partial<IPositions> = {
         positions,
         instrument_position,
-        size: parseFloat(position.positions),
-        size_available: parseFloat(position.availablePositions),
+        size: format(position.positions),
+        size_available: format(position.availablePositions),
         leverage: parseInt(position.leverage!),
         margin_mode: position.marginMode,
         margin_used: format(position.margin),

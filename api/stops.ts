@@ -5,12 +5,13 @@
 "use strict";
 
 import type { IStops, IStopOrder } from "db/interfaces/stops";
+import type { TRefKey } from "db/interfaces/reference";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { isEqual } from "lib/std.util";
-import { Select, Insert, Update } from "db/query.utils";
+import { format, isEqual } from "lib/std.util";
 
+import * as Response from "api/response";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 import * as Reference from "db/interfaces/reference";
@@ -22,6 +23,8 @@ export interface IStopsAPI {
   marginMode: "cross" | "isolated";
   positionSide: "short" | "long" | "net";
   side: "buy" | "sell";
+  orderCategory: string;
+  priceType: string;
   tpTriggerPrice: string;
   tpOrderPrice: string;
   slTriggerPrice: string;
@@ -36,95 +39,106 @@ export interface IStopsAPI {
   brokerId: string;
 }
 
-const [tp, sl] = [`e4`, `df`];
-
 //+--------------------------------------------------------------------------------------+
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
 const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
-  const processed: Array<IStopOrder["stop_request"]> = []; //-- handles batched orders; permits only first entry (newest) for insert/update
+  const processed: Array<IStopOrder["stop_request"]> = [];
   const published: Array<IStopOrder["stop_request"]> = [];
   const rejected: Array<Partial<IStops>> = [];
 
-  if (props) {
-    console.log(`-> ${source}.Publish.Stops [API]`);
+  props && console.log(`-> ${source}.Publish.Stops [API]`);
 
-    for (const order of props) {
-      const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
+  for (const order of props) {
+    const tp_id = order.tpTriggerPrice == null && order.tpOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `e4`);
+    const sl_id = order.slTriggerPrice == null && order.slOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `df`);
+    const client_order_id = hexify(order.clientOrderId!, 5);
+    const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
 
-      if (instrument_position === undefined)
+    if (instrument_position === undefined) {
+      const common = {
+        client_order_id,
+        symbol: order.instId,
+        position: order.positionSide,
+        memo: `>> [Error] Stops.Publish: Invalid instrument position; stop order rejected`,
+      };
+      tp_id &&
         rejected.push({
-          tpsl_id: parseInt(order.tpslId!),
-          symbol: order.instId,
-          position: order.positionSide,
-          memo: `>> [Error] Stop.Orders.Publish: Invalid instrument position; stop order rejected`,
+          tpsl_id: tp_id,
+          stop_type: "tp",
+          ...common,
         });
+      sl_id &&
+        rejected.push({
+          tpsl_id: sl_id,
+          stop_type: "sl",
+          ...common,
+        });
+    } else {
+      const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` });
+      const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
+      const expired = await States.Key({ status: "Expired" });
+      const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
+
+      const common: Partial<IStopOrder> = {
+        client_order_id,
+        instrument_position,
+        state: source === "History" && (order.state === "effective" || order.state === "live") ? expired : state,
+        order_state,
+        order_category,
+        price_type: order.priceType,
+        action: order.side,
+        size: format(order.size!),
+        actual_size: format(order.actualSize!),
+        reduce_only: order.reduceOnly === "true",
+        broker_id: order.brokerId === "" ? undefined : order.brokerId,
+        create_time: new Date(parseInt(order.createTime!)),
+        update_time: new Date(),
+      };
+
+      if (tp_id === undefined) continue;
       else {
-        const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
-        const expired = await States.Key({ status: "Expired" });
-        const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
+        processed.push(tp_id);
 
-        const common: Partial<IStopOrder> = {
-          instrument_position,
-          tpsl_id: parseInt(order.tpslId!),
-          state: source === "History" && (order.state === "effective" || order.state === "live") ? expired : state,
-          order_state,
-          action: order.side,
-          size: order.size == null ? undefined : parseFloat(order.size),
-          actual_size: order.actualSize! == null ? undefined : parseFloat(order.actualSize),
-          reduce_only: order.reduceOnly === "true",
-          broker_id: order.brokerId === "" ? undefined : order.brokerId,
-          create_time: new Date(parseInt(order.createTime!)),
-        };
+        const request = await Stops.Submit({
+          ...common,
+          stop_request: client_order_id || tp_id,
+          tpsl_id: tp_id,
+          stop_type: "tp",
+          trigger_price: order.tpTriggerPrice == null ? undefined : format(order.tpTriggerPrice),
+          order_price: order.tpOrderPrice == null ? -1 : format(order.tpOrderPrice),
+        });
 
-        if (order.tpTriggerPrice == null && order.tpOrderPrice == null) continue;
-        else {
-          const key = hexify(order.clientOrderId!, 5) || hexify(parseInt(order.tpslId!), 4, tp);
-          const exists = processed.find((stop_request) => isEqual(stop_request, key!));
-          if (exists) continue;
-          else {
-            const request = await Stops.Submit({
+        const result = await Stops.Publish({ ...common, tpsl_id: tp_id });
+        result
+          ? published.push(result)
+          : rejected.push({
+              tpsl_id: tp_id,
               ...common,
-              stop_request: key,
-              stop_type: "tp",
-              trigger_price: order.tpTriggerPrice == null ? undefined : parseFloat(order.tpTriggerPrice),
-              order_price: order.tpOrderPrice == null ? -1 : parseFloat(order.tpOrderPrice),
+              memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
+      }
 
-            const result = await Stops.Publish({ stop_request: key, ...common });
-            result
-              ? published.push(result)
-              : rejected.push({
-                  ...common,
-                  stop_request: key,
-                  memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-                });
-          }
-        }
+      if (sl_id === undefined) continue;
+      else {
+        processed.push(sl_id);
 
-        if (order.slTriggerPrice == null && order.slOrderPrice == null) continue;
-        else {
-          const key = hexify(order.clientOrderId!, 5) || hexify(parseInt(order.tpslId!), 4, sl);
-          const exists = processed.find((stop_request) => isEqual(stop_request, key!));
-          if (exists) continue;
-          else {
-            const request = await Stops.Submit({
+        const request = await Stops.Submit({
+          ...common,
+          stop_request: client_order_id || sl_id,
+          tpsl_id: sl_id,
+          stop_type: "sl",
+          trigger_price: order.slTriggerPrice == null ? undefined : format(order.slTriggerPrice),
+          order_price: order.slOrderPrice == null ? -1 : format(order.slOrderPrice),
+        });
+        const result = await Stops.Publish({ ...common, tpsl_id: sl_id });
+        result
+          ? published.push(result)
+          : rejected.push({
+              tpsl_id: sl_id,
               ...common,
-              stop_request: key,
-              stop_type: "sl",
-              trigger_price: order.slTriggerPrice == null ? undefined : parseFloat(order.slTriggerPrice),
-              order_price: order.slOrderPrice == null ? -1 : parseFloat(order.slOrderPrice),
+              memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
-            const result = await Stops.Publish({ stop_request: key, ...common });
-            result
-              ? published.push(result)
-              : rejected.push({
-                  ...common,
-                  stop_request: key,
-                  memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-                });
-          }
-        }
       }
     }
   }
@@ -134,7 +148,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
 //+--------------------------------------------------------------------------------------+
 //| History - retrieves active stops from history; reconciles/merges with local db;      |
 //+--------------------------------------------------------------------------------------+
-export async function History() {
+export async function History(): Promise<Array<Partial<IStopsAPI>> | undefined> {
   const method = "GET";
   const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}`;
   const { api, phrase, rest_api_url } = Session();
@@ -166,7 +180,7 @@ export async function History() {
 //+--------------------------------------------------------------------------------------+
 //| Active - retrieves active stops; reconciles with local db;                           |
 //+--------------------------------------------------------------------------------------+
-export async function Pending() {
+export async function Pending(): Promise<Array<Partial<IStopsAPI>> | undefined> {
   const method = "GET";
   const path = "/api/v1/trade/orders-tpsl-pending";
   const { api, phrase, rest_api_url } = Session();
@@ -198,10 +212,10 @@ export async function Pending() {
 //+--------------------------------------------------------------------------------------+
 //| Cancel - closes a pending TP/SL order;                                               |
 //+--------------------------------------------------------------------------------------+
-export async function Cancel(cancel: Partial<IStopsAPI>) {
+export const Cancel = async (cancels: Array<Partial<IStopsAPI>>) => {
   const method = "POST";
   const path = "/api/v1/trade/cancel-tpsl";
-  const body = `[${JSON.stringify((({ instId, tpslId, clientOrderId }) => ({ instId, tpslId, clientOrderId }))(cancel))}]`;
+  const body = JSON.stringify(cancels);
 
   const { api, phrase, rest_api_url } = Session();
   const { sign, timestamp, nonce } = await signRequest(method, path, body);
@@ -275,7 +289,7 @@ export const Import = async () => {
 
     setSession({ audit_stops: history[0].tpslId! });
 
-    published && published.length && console.log(`   # History Stop Orders Processed [${history.length * 2}]:  ${published.length} published`);
+    published && published.length && console.log(`   # History Stop Orders Processed [${history.length + rejected.length}]:  ${published.length} published`);
     rejected && rejected.length && console.log(`   # History Stop Orders Rejected: `, rejected.length);
   }
 

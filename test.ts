@@ -1764,3 +1764,25 @@ import { parse } from "path";
 // };
 
 // run({symbol: 'BTC-USDT'});
+
+//---------------------------------- tpsl_id conversion test ----------------------------------------//
+import { Session,setSession } from "module/session";
+import * as Stops from "db/interfaces/stops";
+
+setSession({ account: hexify(process.env.account!, 3)! });
+
+const run = async () => {
+  const stops = await Stops.Fetch({ status: `Expired` });
+  console.log(stops);
+    // {
+    // account: <Buffer 24 59 7a>,
+    // stop_request: <Buffer e4 00 07 e8 91>,
+    // tpsl_id: <Buffer e4 00 07 e8 91>,
+    // client_order_id: 'e40007e891',
+    // instrument_position: <Buffer 62 45 1c 33 17 21>,
+    // ...
+  const cancels = stops && stops.map(({ symbol, tpsl_id }) => ({ instId: symbol, tpslId: BigInt(`0x${hexString(tpsl_id!, 8).slice(4)}`).toString(10) }));
+  console.log(cancels);
+};
+
+run();

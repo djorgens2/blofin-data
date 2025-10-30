@@ -172,6 +172,25 @@ CREATE  TABLE devel.state (
 	CONSTRAINT ak_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.stop_order ( 
+	tpsl_id              BINARY(5)    NOT NULL   PRIMARY KEY,
+	client_order_id      BINARY(5)       ,
+	order_state          BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)       ,
+	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	actual_size          DOUBLE       ,
+	trigger_type         CHAR(2)       ,
+	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
+
+CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
+
+CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
+
 CREATE  TABLE devel.stop_type ( 
 	stop_type            CHAR(2)    NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -417,7 +436,8 @@ CREATE INDEX fk_ra_state ON devel.role_authority ( state );
 CREATE INDEX fk_ra_activity ON devel.role_authority ( activity );
 
 CREATE  TABLE devel.stop_request ( 
-	stop_request         BINARY(5)    NOT NULL   ,
+	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
+	tpsl_id              BINARY(5)       ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	stop_type            CHAR(2)    NOT NULL   ,
@@ -429,8 +449,8 @@ CREATE  TABLE devel.stop_request (
 	broker_id            VARCHAR(16)       ,
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	update_time          DATETIME(3)  DEFAULT (now())  NOT NULL   ,
-	CONSTRAINT pk_stop_request PRIMARY KEY ( stop_request, stop_type ),
+	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -540,25 +560,6 @@ CREATE  TABLE devel.fractal_point (
 
 CREATE INDEX fk_fp_point_type ON devel.fractal_point ( point_type );
 
-CREATE  TABLE devel.stop_order ( 
-	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
-	tpsl_id              BIGINT    NOT NULL   ,
-	order_state          BINARY(3)    NOT NULL   ,
-	order_category       BINARY(3)       ,
-	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
-	actual_size          DOUBLE       ,
-	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_stop_request FOREIGN KEY ( stop_request ) REFERENCES devel.stop_request( stop_request ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
-
-CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
-
-CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
-
 CREATE VIEW devel.vw_accounts AS
 select
 	a.account AS account,
@@ -638,8 +639,8 @@ select
 	ipos.position AS positionSide,
 	r.action AS side,
 	rt.source_ref AS orderType,
-	replace(format(r.price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS price,
-	replace(format(r.size,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS size,
+	replace(format(r.price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '') AS price,
+	replace(format(r.size, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '') AS size,
 	cast(r.leverage as char charset utf8mb4) AS leverage,
 	if((r.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	r.broker_id AS brokerId,
@@ -666,6 +667,58 @@ join devel.request_type rt on
 	((r.request_type = rt.request_type)))
 join devel.state rs on
 	((r.state = rs.state)));
+
+CREATE VIEW devel.vw_api_stop_requests AS
+select
+	ipos.account AS account,
+	s.status AS status,
+	concat(b.symbol, '-', q.symbol) AS instId,
+	ipos.position AS positionSide,
+	i.margin_mode AS marginMode,
+	sr.action AS side,
+	sr.size AS size,
+	(case
+		when ((sr.stop_type = 'tp')
+			and (sr.trigger_price = -(1))) then '-1'
+		when (sr.stop_type = 'tp') then replace(format(sr.trigger_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
+		else NULL
+	end) AS tpTriggerPrice,
+	(case
+		when ((sr.stop_type = 'tp')
+			and (sr.order_price = -(1))) then '-1'
+		when (sr.stop_type = 'tp') then replace(format(sr.order_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
+		else NULL
+	end) AS tpOrderPrice,
+	(case
+		when ((sr.stop_type = 'sl')
+			and (sr.trigger_price = -(1))) then '-1'
+		when (sr.stop_type = 'sl') then replace(format(sr.trigger_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
+		else NULL
+	end) AS slTriggerPrice,
+	(case
+		when ((sr.stop_type = 'sl')
+			and (sr.order_price = -(1))) then '-1'
+		when (sr.stop_type = 'sl') then replace(format(sr.order_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
+		else NULL
+	end) AS slOrderPrice,
+	sr.reduce_only AS reduceOnly,
+	lower(hex(sr.stop_request)) AS clientOrderId,
+	sr.broker_id AS brokerId,
+	sr.memo AS memo
+from
+	((((((devel.stop_request sr
+join devel.state s on
+	((sr.state = s.state)))
+join devel.instrument_position ipos on
+	((sr.instrument_position = ipos.instrument_position)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.instrument_detail id on
+	((id.instrument = i.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)));
 
 CREATE VIEW devel.vw_audit_instrument_periods AS
 select
@@ -1086,6 +1139,65 @@ join (
 		sa.subject_area) rsa on
 	((ra.activity = rsa.activity)));
 
+CREATE VIEW devel.vw_stop_orders AS
+select
+	ipos.account AS account,
+	sr.stop_request AS stop_request,
+	so.tpsl_id AS tpsl_id,
+	lower(cast(hex(sr.stop_request) as char charset utf8mb4)) AS client_order_id,
+	ipos.instrument_position AS instrument_position,
+	ipos.instrument AS instrument,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	ipos.position AS position,
+	sr.stop_type AS stop_type,
+	i.margin_mode AS margin_mode,
+	ps.state AS position_state,
+	ps.status AS position_status,
+	s.state AS state,
+	s.status AS status,
+	coalesce(if((s.status = 'Expired'), s.state, NULL), rs.state, s.state) AS request_state,
+	coalesce(if((s.status = 'Expired'), s.status, NULL), rs.status, s.status) AS request_status,
+	os.order_state AS order_state,
+	os.source_ref AS order_status,
+	sr.action AS action,
+	sr.size AS size,
+	so.actual_size AS actual_size,
+	sr.trigger_price AS trigger_price,
+	sr.order_price AS order_price,
+	sr.reduce_only AS reduce_only,
+	oc.order_category AS order_category,
+	oc.source_ref AS category,
+	sr.memo AS memo,
+	sr.broker_id AS broker_id,
+	sr.create_time AS create_time,
+	sr.update_time AS update_time
+from
+	((((((((((devel.stop_request sr
+left join devel.stop_order so on
+	((so.tpsl_id = sr.tpsl_id)))
+left join devel.order_state os on
+	((os.order_state = so.order_state)))
+left join devel.state rs on
+	((rs.status = os.status)))
+left join devel.order_category oc on
+	((oc.order_category = so.order_category)))
+join devel.instrument_position ipos on
+	((ipos.instrument_position = sr.instrument_position)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.state ps on
+	((ps.state = ipos.state)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
+join devel.state s on
+	((s.state = sr.state)));
+
 CREATE VIEW devel.vw_users AS
 select
 	u.user AS user,
@@ -1247,68 +1359,6 @@ left join (
 	group by
 		sr.instrument_position) sl on
 	((sl.instrument_position = ipos.instrument_position)));
-
-CREATE VIEW devel.vw_stop_orders AS
-select
-	devel.vip.account AS account,
-	sr.stop_request AS stop_request,
-	sr.stop_type AS stop_type,
-	so.tpsl_id AS tpsl_id,
-	lower(cast(hex(sr.stop_request) as char charset utf8mb4)) AS client_order_id,
-	devel.vip.instrument_position AS instrument_position,
-	devel.vip.instrument AS instrument,
-	devel.vip.symbol AS symbol,
-	devel.vip.position AS position,
-	devel.vip.state AS position_state,
-	devel.vip.status AS position_status,
-	s.state AS state,
-	s.status AS status,
-	coalesce(if((s.status = 'Expired'), s.state, NULL), rs.state, s.state) AS request_state,
-	coalesce(if((s.status = 'Expired'), s.status, NULL), rs.status, s.status) AS request_status,
-	os.order_state AS order_state,
-	os.source_ref AS order_status,
-	sr.action AS action,
-	sr.size AS size,
-	so.actual_size AS actual_size,
-	sr.trigger_price AS trigger_price,
-	sr.order_price AS order_price,
-	sr.reduce_only AS reduce_only,
-	sr.memo AS memo,
-	sr.broker_id AS broker_id,
-	sr.create_time AS create_time,
-	sr.update_time AS update_time
-from
-	(((((devel.stop_request sr
-left join devel.stop_order so on
-	((so.stop_request = sr.stop_request)))
-left join devel.order_state os on
-	((os.order_state = so.order_state)))
-left join devel.state rs on
-	((rs.status = os.status)))
-join devel.vw_instrument_positions vip on
-	((sr.instrument_position = devel.vip.instrument_position)))
-join devel.state s on
-	((s.state = sr.state)));
-
-CREATE VIEW devel.vw_api_stop_requests AS
-select
-	s.status AS status,
-	devel.vip.symbol AS instId,
-	devel.vip.position AS positionSide,
-	sr.action AS side,
-	sr.size AS size,
-	if((sr.stop_type = 'tp'), replace(format(sr.trigger_price, devel.vip.digits), ',', ''), NULL) AS tpTriggerPrice,
-	if((sr.stop_type = 'tp'), replace(format(sr.order_price, devel.vip.digits), ',', ''), NULL) AS tpOrderPrice,
-	if((sr.stop_type = 'sl'), replace(format(sr.trigger_price, devel.vip.digits), ',', ''), NULL) AS slTriggerPrice,
-	if((sr.stop_type = 'sl'), replace(format(sr.order_price, devel.vip.digits), ',', ''), NULL) AS slOrderPrice,
-	sr.reduce_only AS reduceOnly,
-	concat(lower(cast(hex(sr.stop_request) as char charset utf8mb4)), '-', sr.stop_type) AS clientOrderId
-from
-	((devel.stop_request sr
-join devel.state s on
-	((sr.state = s.state)))
-join devel.vw_instrument_positions vip on
-	((sr.instrument_position = devel.vip.instrument_position)));
 
 CREATE VIEW devel.vw_audit_candles AS
 select

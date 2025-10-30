@@ -55,35 +55,38 @@ export interface IRequest {
 const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   if (hasValues<Partial<IRequest>>(current)) {
     if (hasValues<Partial<IRequest>>(props)) {
-      const state = props.state || (await States.Key<IRequestState>({ status: props.status }));
-      const request: Partial<IRequest> = {
-        request: current.request,
-        order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
-        action: props.action === current.action ? undefined : props.action,
-        state: isEqual(state!, current.state!) ? undefined : state,
-        price: isEqual(props.price!, current.price!) ? undefined : props.price,
-        size: isEqual(props.size!, current.size!) ? undefined : props.size,
-        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-        margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
-        reduce_only: !!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
-        broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
-        expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
-        update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
-      };
+      const update_time = props.update_time ? props.update_time : new Date();
 
-      const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
+      if (update_time > current.update_time!) {
+        const state = props.state || (await States.Key<IRequestState>({ status: props.status }));
+        const request: Partial<IRequest> = {
+          request: current.request,
+          order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
+          action: props.action === current.action ? undefined : props.action,
+          state: isEqual(state!, current.state!) ? undefined : state,
+          price: isEqual(props.price!, current.price!) ? undefined : props.price,
+          size: isEqual(props.size!, current.size!) ? undefined : props.size,
+          leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
+          margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
+          reduce_only: !!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
+          broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
+          expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
+        };
 
-      if (result && updates) {
-        const [result, updates] = await Update(
-          {
-            request: props.request,
-            memo: props.memo,
-            update_time: new Date(),
-          },
-          { table: `request`, keys: [{ key: `request` }] }
-        );
+        const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
 
-        return result ? result.request : undefined;
+        if (result && updates) {
+          const [result, updates] = await Update(
+            {
+              request: props.request,
+              memo: props.memo,
+              update_time,
+            },
+            { table: `request`, keys: [{ key: `request` }] }
+          );
+
+          return result ? result.request : undefined;
+        } else return undefined;
       } else return undefined;
     } else {
       console.log(">> [Error] Request.Publish: No properties to update");
@@ -142,10 +145,9 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
 
     for (const order of orders) {
       const result = await publish(props, {
-        ...props,
+        ...order,
         state: canceled,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
-        update_time: new Date(),
       });
       result && cancels.push(result);
     }
@@ -201,10 +203,10 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
 
       if (auto_status === "Enabled") {
         const pending = await Orders.Fetch({ instrument_position, status: "Pending" });
-        pending &&
-          pending.forEach(({ request }) => {
+        if (pending)
+          for (const { request } of pending) {
             Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
-          });
+          }
       }
       const request = await publish({}, { ...props, instrument_position, status: "Queued" });
       return request;
