@@ -41,18 +41,18 @@ export interface IStopsAPI {
   createTime: string;
   brokerId: string;
   memo: string;
-  update_time: Date
+  update_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
 const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
+  props && console.log(`-> ${source}.Publish.Stops [API]`);
+
   const processed: Array<IStopOrder["stop_request"]> = [];
   const published: Array<IStopOrder["stop_request"]> = [];
   const rejected: Array<Partial<IStops>> = [];
-
-  props && console.log(`-> ${source}.Publish.Stops [API]`);
 
   for (const order of props) {
     const tp_id = order.tpTriggerPrice == null && order.tpOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `e4`);
@@ -67,7 +67,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
         client_order_id,
         symbol: order.instId,
         position: order.positionSide,
-        memo: `>> [Error] Stops.Publish: Invalid instrument position; stop order rejected`,
+        memo: `[Error] Stops.Publish: Invalid instrument position; stop order rejected`,
       };
       tp_id &&
         rejected.push({
@@ -123,7 +123,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
           : rejected.push({
               ...common,
               stop_order: tp_id,
-              memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+              memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
       }
 
@@ -145,7 +145,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
           : rejected.push({
               ...common,
               stop_order: sl_id,
-              memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+              memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
       }
     }
@@ -157,6 +157,8 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
 //| History - retrieves active stops from history; reconciles/merges with local db;      |
 //+--------------------------------------------------------------------------------------+
 export async function History(): Promise<Array<Partial<IStopsAPI>> | undefined> {
+  console.log(`-> Fetch:History [API]`);
+
   const method = "GET";
   const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}`;
   const { api, phrase, rest_api_url } = Session();
@@ -186,9 +188,11 @@ export async function History(): Promise<Array<Partial<IStopsAPI>> | undefined> 
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Active - retrieves active stops; reconciles with local db;                           |
+//| Pending - retrieves active stops; reconciles with local db;                          |
 //+--------------------------------------------------------------------------------------+
 export async function Pending(): Promise<Array<Partial<IStopsAPI>> | undefined> {
+  console.log(`-> Fetch:Pending [API]`);
+
   const method = "GET";
   const path = "/api/v1/trade/orders-tpsl-pending";
   const { api, phrase, rest_api_url } = Session();
@@ -221,6 +225,8 @@ export async function Pending(): Promise<Array<Partial<IStopsAPI>> | undefined> 
 //| Cancel - closes a pending TP/SL order;                                               |
 //+--------------------------------------------------------------------------------------+
 export const Cancel = async (cancels: Array<Partial<IStopsAPI>>) => {
+  console.log(`-> Cancel [API]`);
+
   const method = "POST";
   const path = "/api/v1/trade/cancel-tpsl";
   const body = JSON.stringify(cancels);
@@ -289,6 +295,8 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
+  console.log(`In Stop.Orders.Import [API]`);
+
   const history = await History();
   const pending = await Pending();
 
@@ -297,7 +305,7 @@ export const Import = async () => {
 
     setSession({ audit_stops: history[0].tpslId! });
 
-    published && published.length && console.log(`   # History Stop Orders Processed [${history.length + rejected.length}]:  ${published.length} published`);
+    published && published.length && console.log(`   # History Stop Orders Processed [${history.length * 2}]:  ${published.length} published`);
     rejected && rejected.length && console.log(`   # History Stop Orders Rejected: `, rejected.length);
   }
 

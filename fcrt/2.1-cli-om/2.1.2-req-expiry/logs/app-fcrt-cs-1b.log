@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 10/23/2025, 10:10:19 PM
-In Subject.Area.Import: 10/23/2025, 10:10:19 PM
+>> [Info] Application.Initialization start: 11/5/2025, 12:02:06 PM
+In Subject.Area.Import: 11/5/2025, 12:02:06 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 10/23/2025, 10:10:19 PM
+In Activity.Import: 11/5/2025, 12:02:06 PM
    # Activity imports:  8 verified
-In Authority.Import: 10/23/2025, 10:10:20 PM
+In Authority.Import: 11/5/2025, 12:02:06 PM
    # Authority imports:  6 verified
-In Broker.Import: 10/23/2025, 10:10:20 PM
+In Broker.Import: 11/5/2025, 12:02:07 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 10/23/2025, 10:10:20 PM
+In Contract.Type.Import: 11/5/2025, 12:02:07 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 10/23/2025, 10:10:20 PM
+In Environment.Import: 11/5/2025, 12:02:07 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 10/23/2025, 10:10:20 PM
+In Instrument.Type.Import: 11/5/2025, 12:02:07 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 10/23/2025, 10:10:20 PM
+In Period.Import: 11/5/2025, 12:02:07 PM
    # Period imports:  15 verified
-In Reference.Import: 10/23/2025, 10:10:21 PM
+In Reference.Import: 11/5/2025, 12:02:08 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,56 +24,67 @@ In Reference.Import: 10/23/2025, 10:10:21 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 10/23/2025, 10:10:21 PM
+In Role.Import: 11/5/2025, 12:02:08 PM
    # Role imports:  4 verified
-In State.Import: 10/23/2025, 10:10:21 PM
+In State.Import: 11/5/2025, 12:02:08 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 10/23/2025, 10:10:22 PM
+In Instruments.Import [API]: 11/5/2025, 12:02:09 PM
 -> Instrument:Publish [API]
--> [info] Application.Initialization finished: 10/23/2025, 10:10:25 PM
-Connected to websocket: [167813:wss://demo-trading-openapi.blofin.com/ws/private]
+>> [Info] Application.Initialization finished: 11/5/2025, 12:02:12 PM
+Connected to websocket: [434573:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-10-24T05:10:25.684Z }
+  columns: { total_equity: 52907.132, update_time: 2025-11-05T20:02:13.058Z }
 }
-In Execute.Trades: 10/23/2025, 10:10:54 PM
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52907.132, coin_usd_price: 1.000005 }
+}
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-05T20:02:31.502Z }
+}
+In Execute.Trades: 11/5/2025, 12:02:41 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [40]:  34 published
 -> [Info] request updated {
-  filters: { request: <Buffer ab 4f b3 b4 30 f6> },
-  columns: { state: <Buffer 19 d3 88>, update_time: 2025-10-24T05:10:55.080Z }
+  filters: { request: <Buffer ba 4f fd d8 90 0e> },
+  columns: { state: <Buffer 19 d3 88> }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer ab 4f b3 b4 30 f6> },
+  filters: { request: <Buffer ba 4f fd d8 90 0e> },
   columns: {
     memo: '[Expired]: Queued and Rejected request changed to Expired',
-    update_time: 2025-10-24T05:10:55.136Z
+    update_time: 2025-11-05T20:02:42.975Z
   }
 }
 -> Pending expired requests: 1
    # [Info] Expired requests accepted: 1
-In Execute.Trades: 10/23/2025, 10:11:23 PM
+In Execute.Trades: 11/5/2025, 12:03:10 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 10:11:52 PM
-In Orders.Import [API]
+In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 10:12:21 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [38]:  30 published
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-05T20:03:14.789Z }
+}

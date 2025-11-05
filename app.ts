@@ -20,7 +20,7 @@ import * as Instruments from "api/instruments";
 
 import { CMain } from "app/main";
 
-console.log(">> [info] Application.Initialization start:", new Date().toLocaleString());
+console.log(">> [Info] Application.Initialization start:", new Date().toLocaleString());
 
 const initialize = async () => {
   await SubjectAreas.Import();
@@ -38,7 +38,7 @@ const initialize = async () => {
   await Instruments.Import();
 
   setTimeout(async () => {
-    console.log("-> [info] Application.Initialization finished:", new Date().toLocaleString());
+    console.log(">> [Info] Application.Initialization finished:", new Date().toLocaleString());
 
     const app = new CMain();
     app.Start("Blofin Demo");

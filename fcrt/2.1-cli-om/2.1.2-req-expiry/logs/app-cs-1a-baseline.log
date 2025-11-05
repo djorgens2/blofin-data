@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 10/23/2025, 9:23:09 PM
-In Subject.Area.Import: 10/23/2025, 9:23:09 PM
+>> [info] Application.Initialization start: 11/5/2025, 12:44:27 AM
+In Subject.Area.Import: 11/5/2025, 12:44:27 AM
    # Subject Area imports:  5 verified
-In Activity.Import: 10/23/2025, 9:23:09 PM
+In Activity.Import: 11/5/2025, 12:44:27 AM
    # Activity imports:  8 verified
-In Authority.Import: 10/23/2025, 9:23:09 PM
+In Authority.Import: 11/5/2025, 12:44:28 AM
    # Authority imports:  6 verified
-In Broker.Import: 10/23/2025, 9:23:09 PM
+In Broker.Import: 11/5/2025, 12:44:28 AM
    # Broker imports:  1 verified
-In Contract.Type.Import: 10/23/2025, 9:23:10 PM
+In Contract.Type.Import: 11/5/2025, 12:44:28 AM
    # Contract Type imports:  2 verified
-In Environment.Import: 10/23/2025, 9:23:10 PM
+In Environment.Import: 11/5/2025, 12:44:28 AM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 10/23/2025, 9:23:10 PM
+In Instrument.Type.Import: 11/5/2025, 12:44:28 AM
    # Instrument Type imports:  1 verified
-In Period.Import: 10/23/2025, 9:23:10 PM
+In Period.Import: 11/5/2025, 12:44:28 AM
    # Period imports:  15 verified
-In Reference.Import: 10/23/2025, 9:23:10 PM
+In Reference.Import: 11/5/2025, 12:44:29 AM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,27 +24,67 @@ In Reference.Import: 10/23/2025, 9:23:10 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 10/23/2025, 9:23:10 PM
+In Role.Import: 11/5/2025, 12:44:29 AM
    # Role imports:  4 verified
-In State.Import: 10/23/2025, 9:23:11 PM
+In State.Import: 11/5/2025, 12:44:29 AM
    # State imports:  15 verified
-In Instruments.Import [API]: 10/23/2025, 9:23:11 PM
+In Instruments.Import [API]: 11/5/2025, 12:44:30 AM
 -> Instrument:Publish [API]
--> [info] Application.Initialization finished: 10/23/2025, 9:23:14 PM
-Connected to websocket: [162762:wss://demo-trading-openapi.blofin.com/ws/private]
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 84 da 85> },
+  columns: { max_leverage: 50 }
+}
+[Info] Instrument Details updated: { symbol: 'KITE-USDT', updates: { max_leverage: 50 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 87 41 9d> },
+  columns: { max_leverage: 20 }
+}
+[Info] Instrument Details updated: { symbol: 'ASP-USDT', updates: { max_leverage: 20 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 95 2c fc> },
+  columns: { max_leverage: 50 }
+}
+[Info] Instrument Details updated: { symbol: 'NEWT-USDT', updates: { max_leverage: 50 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer a9 d0 c4> },
+  columns: { max_leverage: 50 }
+}
+[Info] Instrument Details updated: { symbol: 'WCT-USDT', updates: { max_leverage: 50 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 57 43 c7> },
+  columns: { max_leverage: 50 }
+}
+[Info] Instrument Details updated: { symbol: 'BANANAS31-USDT', updates: { max_leverage: 50 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 9b c0 05> },
+  columns: { max_leverage: 10 }
+}
+[Info] Instrument Details updated: { symbol: 'CHILLGUY-USDT', updates: { max_leverage: 10 } }
+-> [Info] instrument_detail updated {
+  filters: { instrument: <Buffer 03 8d 38> },
+  columns: { max_leverage: 10 }
+}
+[Info] Instrument Details updated: { symbol: 'PONKE-USDT', updates: { max_leverage: 10 } }
+   # Instruments Updated:  7 modified
+-> [info] Application.Initialization finished: 11/5/2025, 12:44:33 AM
+Connected to websocket: [394249:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52450.062, update_time: 2025-10-24T04:23:15.022Z }
+  columns: { total_equity: 52907.132, update_time: 2025-11-05T08:44:34.390Z }
 }
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52450.062, coin_usd_price: 1.00017 }
+  columns: {
+    equity_usd: 52907.132,
+    coin_usd_price: 1.000005,
+    update_time: 2025-11-05T06:30:08.024Z
+  }
 }
-In Execute.Trades: 10/23/2025, 9:23:43 PM
+In Execute.Trades: 11/5/2025, 12:45:02 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -1210,7 +1250,9 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:24:12 PM
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [20]:  34 published
+In Execute.Trades: 11/5/2025, 12:45:31 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -2376,7 +2418,9 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:24:41 PM
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [19]:  30 published
+In Execute.Trades: 11/5/2025, 12:46:00 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -3542,7 +3586,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:25:10 PM
+In Execute.Trades: 11/5/2025, 12:46:29 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -4708,7 +4752,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:25:39 PM
+In Execute.Trades: 11/5/2025, 12:46:58 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -5874,16 +5918,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-10-24T04:26:04.443Z }
-}
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-10-24T04:26:04.447Z }
-}
-In Execute.Trades: 10/23/2025, 9:26:08 PM
+In Execute.Trades: 11/5/2025, 12:47:27 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -6258,6 +6293,7 @@ In Orders.Import [API]
     285.54
   ]
 }
+-> WSS.Publish [API]
 -> [Info] request inserted {
   fields: [
     'request',
@@ -6352,6 +6388,10 @@ In Orders.Import [API]
     2025-06-09T17:48:01.466Z
   ]
 }
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 52906.074, update_time: 2025-11-05T08:47:31.090Z }
+}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -6373,6 +6413,10 @@ In Orders.Import [API]
     2.110184,
     0
   ]
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52906.074, coin_usd_price: 0.999985 }
 }
 -> [Info] request inserted {
   fields: [
@@ -7049,7 +7093,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:26:37 PM
+In Execute.Trades: 11/5/2025, 12:47:57 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -7815,7 +7859,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:27:06 PM
+In Execute.Trades: 11/5/2025, 12:48:26 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -8256,10 +8300,6 @@ In Orders.Import [API]
     0
   ]
 }
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52449.8, update_time: 2025-10-24T04:27:09.292Z }
-}
 -> [Info] request inserted {
   fields: [
     'request',
@@ -8296,14 +8336,6 @@ In Orders.Import [API]
     2025-06-21T23:42:05.482Z
   ]
 }
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52449.8, update_time: 2025-10-24T04:27:09.372Z }
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52449.8, coin_usd_price: 1.000165 }
-}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -8325,10 +8357,6 @@ In Orders.Import [API]
     0,
     0
   ]
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52449.8, coin_usd_price: 1.000165 }
 }
 -> [Info] request inserted {
   fields: [
@@ -9005,7 +9033,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:27:35 PM
+In Execute.Trades: 11/5/2025, 12:48:55 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -10171,7 +10199,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:28:04 PM
+In Execute.Trades: 11/5/2025, 12:49:24 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -11351,7 +11379,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:28:33 PM
+In Execute.Trades: 11/5/2025, 12:49:53 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -12529,7 +12557,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:29:02 PM
+In Execute.Trades: 11/5/2025, 12:50:22 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -13733,7 +13761,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:29:31 PM
+In Execute.Trades: 11/5/2025, 12:50:51 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -14939,7 +14967,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:30:00 PM
+In Execute.Trades: 11/5/2025, 12:51:20 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -16109,15 +16137,7 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52450.062, update_time: 2025-10-24T04:30:22.097Z }
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52450.062, coin_usd_price: 1.00017 }
-}
-In Execute.Trades: 10/23/2025, 9:30:29 PM
+In Execute.Trades: 11/5/2025, 12:51:49 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -17144,21 +17164,804 @@ In Orders.Import [API]
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
-  columns: {
-    order_id: <Buffer 00 e8 db 72 ec 0c>,
-    update_time: 2025-10-18T18:54:45.594Z
-  }
+  columns: { order_id: <Buffer 00 e8 db 72 ec 0c> }
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
-  columns: { update_time: 2025-10-24T04:30:34.754Z }
+  columns: { update_time: 2025-10-18T18:54:45.594Z }
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 9:30:58 PM
+In Execute.Trades: 11/5/2025, 12:52:18 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 85 63 39>,
+    <Buffer ea c3 b9 f7 61 cf>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer ea c3 b9 f7 61 cf>,
+    <Buffer 00 e8 db 85 63 39>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-05T06:09:26.788Z,
+    2025-11-05T14:09:26.788Z,
+    2025-11-05T06:30:08.017Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 82 12 f7>,
+    <Buffer 99 9c fa c8 64 6f>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 99 9c fa c8 64 6f>,
+    <Buffer 00 e8 db 82 12 f7>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-03T00:05:02.834Z,
+    2025-11-03T08:05:02.834Z,
+    2025-11-05T00:02:35.880Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1220,
+    2.5953,
+    189.97596,
+    2790
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1220,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T21:09:05.775Z,
+    2025-10-30T05:09:05.775Z,
+    2025-10-29T21:09:05.835Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    320,
+    2.5733,
+    49.40736,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    320,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:39:30.718Z,
+    2025-10-30T02:39:30.718Z,
+    2025-10-29T18:39:30.999Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    400,
+    2.6194,
+    62.8656,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    400,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:36:38.026Z,
+    2025-10-30T02:36:38.026Z,
+    2025-10-29T18:36:38.146Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    500,
+    2.6459,
+    79.377,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:23:52.201Z,
+    2025-10-30T02:23:52.201Z,
+    2025-10-29T18:23:52.306Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 18 27 44>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6003,
+    195.0225,
+    10200
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-28T20:19:26.730Z,
+    2025-10-29T04:19:26.730Z,
+    2025-10-28T20:19:26.977Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6819,
+    201.1425,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T16:51:46.202Z,
+    2025-10-28T00:51:46.202Z,
+    2025-10-27T16:51:46.247Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer cf 7f 21>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1875,
+    2.68079999466667,
+    301.5899994,
+    -11149.999
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1875,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T16:08:09.913Z,
+    2025-10-28T00:08:09.913Z,
+    2025-10-27T16:08:10.196Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    625,
+    2.6282,
+    98.5575,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    625,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:54:42.383Z,
+    2025-10-27T20:54:42.383Z,
+    2025-10-27T12:54:42.430Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6179,
+    196.3425,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:42:55.141Z,
+    2025-10-27T20:42:55.141Z,
+    2025-10-27T12:42:55.270Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 e3 f5>,
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 00 e8 db 78 e3 f5>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-24T23:54:43.999Z,
+    2025-10-25T07:54:43.999Z,
+    2025-10-24T23:58:06.534Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 e3 76>,
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 40 4d>,
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 00 e8 db 78 40 4d>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.85,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-24T05:25:16.631Z,
+    2025-10-24T13:25:16.631Z,
+    2025-10-24T05:32:31.864Z
+  ]
+}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -17339,25 +18142,82 @@ In Orders.Import [API]
     2025-10-22T06:06:37.550Z
   ]
 }
-   # History Orders Processed [3]:  3 published
+   # History Orders Processed [17]:  17 published
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52449.8, update_time: 2025-10-24T04:31:04.496Z }
+  columns: { total_equity: 52907.397, update_time: 2025-11-05T08:52:31.123Z }
 }
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52449.8, coin_usd_price: 1.000165 }
+  columns: { equity_usd: 52907.397, coin_usd_price: 1.00001 }
 }
-In Execute.Trades: 10/23/2025, 9:31:27 PM
+In Execute.Trades: 11/5/2025, 12:52:47 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 10/23/2025, 9:31:56 PM
+In Execute.Trades: 11/5/2025, 12:53:16 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 10/23/2025, 9:32:25 PM
+In Execute.Trades: 11/5/2025, 12:53:45 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:54:14 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:54:43 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:55:12 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:55:41 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:56:10 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:56:39 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:57:08 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 52906.074, update_time: 2025-11-05T08:57:31.011Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52906.074, coin_usd_price: 0.999985 }
+}
+In Execute.Trades: 11/5/2025, 12:57:37 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:58:06 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:58:35 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:59:04 AM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/5/2025, 12:59:33 AM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]

@@ -1,11 +1,11 @@
---- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-10-23 21:52:02.251881690 -0700
-+++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-10-23 21:52:02.021874915 -0700
+--- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-11-05 01:08:38.700640360 -0800
++++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-11-05 01:08:38.477632930 -0800
 @@ -2 +2 @@
--285,303,285,285
-+286,303,286,286
+-298,317,298,298
++299,317,299,299
 @@ -12,0 +13 @@
-+AB4FB3B430F6,,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
-@@ -642,0 +644 @@
-+24597A,AB4FB3B430F6,,AB4FB3B430F6,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,50,,,,,,5,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:41:07.735","2025/10/23 21:49:07.709","2025/10/23 21:41:07.735"
-@@ -930,0 +933 @@
-+24597A,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,AB4FB3B430F6,"Test 1a: request w/ expiry; w/o tpsl","2025/10/23 21:49:07.709"
++BA4FFDD8900E,,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 01:05:17.369"
+@@ -669,0 +671 @@
++24597A,BA4FFDD8900E,,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,0,2.85,100,50,,,,,,4,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 01:05:17.369"
+@@ -970,0 +973 @@
++24597A,,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,BA4FFDD8900E,"Test 1a: request w/ expiry; w/o tpsl","2025/11/05 01:13:17.342"
