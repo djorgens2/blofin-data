@@ -14,7 +14,6 @@ import { Session } from "module/session";
 import * as References from "db/interfaces/reference";
 
 export interface IOrder extends IRequest {
-  order_id: Uint8Array;
   client_order_id: Uint8Array;
   base_currency: Uint8Array;
   base_symbol: string;

@@ -32,6 +32,7 @@ import * as Stops from "db/interfaces/stops";
 import { parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { IAuthority } from "db/interfaces/authority";
+import { Select } from "db/query.utils";
 
 enum Subject {
   Account = "-a",
@@ -209,8 +210,8 @@ async function show(subject: string, args: string): Promise<string> {
         ...props,
         account: hexify(props?.account!),
       });
-      const key = await Request.Queue(props!);
-      console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
+      const rows = await Select<IRequestAPI>(props!, {table: `vw_api_requests`});
+      console.log(`Fetch Queue [API] [ ${Object.keys(props!).length} ]:`, props, rows);
       return "ok";
     }
     case Subject.Order: {

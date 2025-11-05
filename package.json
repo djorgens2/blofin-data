@@ -6,7 +6,8 @@
     "main": "npx tsx app > app.log",
     "test": "npx tsx ./test/modules/$TEST_SCRIPT",
     "import": "npx tsx import.ts > import.log",
-    "cli": "npx tsx ./app/cli"
+    "cli": "npx tsx ./app/cli",
+    "prod": "TS_NODE_BASEURL=./build/js node -r tsconfig-paths/register ./build/js/app.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "@types/node": "^22.14.0",
     "@types/prompts": "^2.4.9",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   },

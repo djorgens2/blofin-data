@@ -16,7 +16,7 @@
     'update_time'
   ],
   args: [
-    <Buffer fd 46 98 0a 6f d1>,
+    <Buffer 99 9c fa c8 64 6f>,
     <Buffer 62 45 1c 33 17 21>,
     'sell',
     <Buffer 62 57 cb>,
@@ -26,14 +26,14 @@
     <Buffer b8 32 96>,
     'cross',
     false,
-    'Test 1: request w/o expiry; w/o tpsl',
-    2025-10-23T23:43:52.691Z,
-    2025-10-24T07:43:52.692Z,
-    2025-10-23T23:43:52.691Z
+    'Test 2: request w/o expiry; w/o tpsl',
+    2025-11-02T22:11:54.329Z,
+    2025-11-03T06:11:54.330Z,
+    2025-11-02T22:11:54.329Z
   ]
 }
 {
-  submitted: <Buffer fd 46 98 0a 6f d1>,
+  submitted: <Buffer 99 9c fa c8 64 6f>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -45,13 +45,12 @@
     size: 100
   }
 }
-Test 1: Request submitted, check db for results. <Buffer fd 46 98 0a 6f d1>
+Test 2: Request submitted, check db for results. <Buffer 99 9c fa c8 64 6f>
 Fetched order from DB: [
   {
     account: <Buffer 24 59 7a>,
-    request: <Buffer fd 46 98 0a 6f d1>,
+    request: <Buffer 99 9c fa c8 64 6f>,
     order_id: null,
-    client_order_id: 'FD46980A6FD1',
     instrument_position: <Buffer 62 45 1c 33 17 21>,
     instrument: <Buffer 54 e7 5e>,
     symbol: 'XRP-USDT',
@@ -70,6 +69,7 @@ Fetched order from DB: [
     request_type: <Buffer b8 32 96>,
     order_type: 'limit',
     margin_mode: 'cross',
+    auto_trade: 0,
     price: 2.95,
     size: 100,
     leverage: 50,
@@ -92,9 +92,9 @@ Fetched order from DB: [
     timeframe_units: 15,
     trade_state: <Buffer 5b 34 d5>,
     trade_status: 'Enabled',
-    memo: 'Test 1: request w/o expiry; w/o tpsl',
-    create_time: 2025-10-23T23:43:52.691Z,
-    expiry_time: 2025-10-24T07:43:52.692Z,
-    update_time: 2025-10-23T23:43:52.691Z
+    memo: 'Test 2: request w/o expiry; w/o tpsl',
+    create_time: 2025-11-02T22:11:54.329Z,
+    expiry_time: 2025-11-03T06:11:54.330Z,
+    update_time: 2025-11-02T22:11:54.329Z
   }
 ]

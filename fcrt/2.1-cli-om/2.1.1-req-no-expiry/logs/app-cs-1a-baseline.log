@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 10/23/2025, 4:01:33 PM
-In Subject.Area.Import: 10/23/2025, 4:01:33 PM
+>> [info] Application.Initialization start: 11/2/2025, 12:37:21 PM
+In Subject.Area.Import: 11/2/2025, 12:37:21 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 10/23/2025, 4:01:33 PM
+In Activity.Import: 11/2/2025, 12:37:22 PM
    # Activity imports:  8 verified
-In Authority.Import: 10/23/2025, 4:01:34 PM
+In Authority.Import: 11/2/2025, 12:37:22 PM
    # Authority imports:  6 verified
-In Broker.Import: 10/23/2025, 4:01:34 PM
+In Broker.Import: 11/2/2025, 12:37:22 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 10/23/2025, 4:01:34 PM
+In Contract.Type.Import: 11/2/2025, 12:37:22 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 10/23/2025, 4:01:34 PM
+In Environment.Import: 11/2/2025, 12:37:22 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 10/23/2025, 4:01:34 PM
+In Instrument.Type.Import: 11/2/2025, 12:37:22 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 10/23/2025, 4:01:34 PM
+In Period.Import: 11/2/2025, 12:37:22 PM
    # Period imports:  15 verified
-In Reference.Import: 10/23/2025, 4:01:35 PM
+In Reference.Import: 11/2/2025, 12:37:23 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,23 +24,32 @@ In Reference.Import: 10/23/2025, 4:01:35 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 10/23/2025, 4:01:35 PM
+In Role.Import: 11/2/2025, 12:37:23 PM
    # Role imports:  4 verified
-In State.Import: 10/23/2025, 4:01:35 PM
+In State.Import: 11/2/2025, 12:37:24 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 10/23/2025, 4:01:36 PM
+In Instruments.Import [API]: 11/2/2025, 12:37:24 PM
 -> Instrument:Publish [API]
--> [info] Application.Initialization finished: 10/23/2025, 4:01:39 PM
-Connected to websocket: [137653:wss://demo-trading-openapi.blofin.com/ws/private]
+-> [info] Application.Initialization finished: 11/2/2025, 12:37:27 PM
+Connected to websocket: [160293:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-10-23T23:01:39.995Z }
+  columns: { total_equity: 52906.867, update_time: 2025-11-02T20:37:28.700Z }
 }
-In Execute.Trades: 10/23/2025, 4:02:08 PM
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52906.867, coin_usd_price: 1 }
+}
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-02T20:37:31.512Z }
+}
+In Execute.Trades: 11/2/2025, 12:37:57 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -1206,7 +1215,1646 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:02:37 PM
+-> History.Publish.Stops [API]
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 c9 93>,
+    <Buffer e4 00 06 c9 93>,
+    'tp',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    200,
+    110350,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-10T07:34:30.568Z,
+    2025-11-02T20:38:02.127Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 c9 93>,
+    <Buffer 00 06 c9 93>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 c9 93>,
+    <Buffer df 00 06 c9 93>,
+    'sl',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    200,
+    107400,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-10T07:34:30.568Z,
+    2025-11-02T20:38:02.266Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 c9 93>,
+    <Buffer 00 06 c9 93>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 c2 50>,
+    <Buffer e4 00 06 c2 50>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    200,
+    100903.3,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-08T18:50:03.090Z,
+    2025-11-02T20:38:02.538Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 c2 50>,
+    <Buffer 00 06 c2 50>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    200
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 c2 50>,
+    <Buffer df 00 06 c2 50>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    200,
+    108334.8,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-08T18:50:03.090Z,
+    2025-11-02T20:38:02.734Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 c2 50>,
+    <Buffer 00 06 c2 50>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    200
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 c2 4f>,
+    <Buffer e4 00 06 c2 4f>,
+    'tp',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer 19 d3 88>,
+    'sell',
+    100,
+    108334.8,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-08T18:49:36.424Z,
+    2025-11-02T20:38:02.968Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 c2 4f>,
+    <Buffer 00 06 c2 4f>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    100
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 c2 4f>,
+    <Buffer df 00 06 c2 4f>,
+    'sl',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer 19 d3 88>,
+    'sell',
+    100,
+    104086.3,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-08T18:49:36.424Z,
+    2025-11-02T20:38:03.135Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 c2 4f>,
+    <Buffer 00 06 c2 4f>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    100
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 6b db>,
+    <Buffer e4 00 02 6b db>,
+    'tp',
+    <Buffer d3 28 59 fb 8e 89>,
+    <Buffer e8 fc f7>,
+    'sell',
+    70,
+    34.98,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T09:30:00.932Z,
+    2025-11-02T20:38:03.307Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 6b db>,
+    <Buffer 00 02 6b db>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 6a 46>,
+    <Buffer e4 00 02 6a 46>,
+    'tp',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer e8 fc f7>,
+    'sell',
+    118.7,
+    3.1318,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T03:23:45.234Z,
+    2025-11-02T20:38:03.443Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 6a 46>,
+    <Buffer 00 02 6a 46>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 6a 21>,
+    <Buffer e4 00 02 6a 21>,
+    'tp',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'sell',
+    475,
+    3.2137,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T02:55:38.509Z,
+    2025-11-02T20:38:03.614Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 6a 21>,
+    <Buffer 00 02 6a 21>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    475
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 6a 21>,
+    <Buffer df 00 02 6a 21>,
+    'sl',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'sell',
+    475,
+    2.974,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T02:55:38.509Z,
+    2025-11-02T20:38:03.756Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 6a 21>,
+    <Buffer 00 02 6a 21>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    475
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 69 ce>,
+    <Buffer e4 00 02 69 ce>,
+    'tp',
+    <Buffer d3 28 59 fb 8e 89>,
+    <Buffer 19 d3 88>,
+    'sell',
+    50,
+    34.676,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T01:05:38.839Z,
+    2025-11-02T20:38:03.916Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 69 ce>,
+    <Buffer 00 02 69 ce>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    50
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 69 9f>,
+    <Buffer e4 00 02 69 9f>,
+    'tp',
+    <Buffer d3 28 59 fb 8e 89>,
+    <Buffer e8 fc f7>,
+    'sell',
+    0,
+    35.7,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T00:23:20.375Z,
+    2025-11-02T20:38:04.051Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 69 9f>,
+    <Buffer 00 02 69 9f>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 69 9f>,
+    <Buffer df 00 02 69 9f>,
+    'sl',
+    <Buffer d3 28 59 fb 8e 89>,
+    <Buffer e8 fc f7>,
+    'sell',
+    0,
+    32.96,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-31T00:23:20.375Z,
+    2025-11-02T20:38:04.198Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 69 9f>,
+    <Buffer 00 02 69 9f>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 69 72>,
+    <Buffer e4 00 02 69 72>,
+    'tp',
+    <Buffer ad 0a 0a 70 9d 1e>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2840,
+    1.548,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-30T23:34:00.687Z,
+    2025-11-02T20:38:04.324Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 69 72>,
+    <Buffer 00 02 69 72>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2840
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 69 72>,
+    <Buffer df 00 02 69 72>,
+    'sl',
+    <Buffer ad 0a 0a 70 9d 1e>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2840,
+    1.6416,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-30T23:34:00.687Z,
+    2025-11-02T20:38:04.457Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 69 72>,
+    <Buffer 00 02 69 72>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2840
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 61 dc>,
+    <Buffer e4 00 02 61 dc>,
+    'tp',
+    <Buffer b3 50 b1 b3 6d d2>,
+    <Buffer 19 d3 88>,
+    'buy',
+    250,
+    1.2021,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T23:04:16.784Z,
+    2025-11-02T20:38:04.644Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 61 dc>,
+    <Buffer 00 02 61 dc>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    250
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 61 d4>,
+    <Buffer e4 00 02 61 d4>,
+    'tp',
+    <Buffer b3 50 b1 b3 6d d2>,
+    <Buffer 19 d3 88>,
+    'buy',
+    425,
+    1.063,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T23:01:33.257Z,
+    2025-11-02T20:38:04.804Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 61 d4>,
+    <Buffer 00 02 61 d4>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    425
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 61 d4>,
+    <Buffer df 00 02 61 d4>,
+    'sl',
+    <Buffer b3 50 b1 b3 6d d2>,
+    <Buffer 19 d3 88>,
+    'buy',
+    425,
+    1.3894,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T23:01:33.257Z,
+    2025-11-02T20:38:04.972Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 61 d4>,
+    <Buffer 00 02 61 d4>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    425
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 61 0e>,
+    <Buffer e4 00 02 61 0e>,
+    'tp',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2500,
+    3.0281,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T21:32:16.596Z,
+    2025-11-02T20:38:05.132Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 61 0e>,
+    <Buffer 00 02 61 0e>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2500
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 61 0e>,
+    <Buffer df 00 02 61 0e>,
+    'sl',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2500,
+    3.1178,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T21:32:16.596Z,
+    2025-11-02T20:38:05.399Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 61 0e>,
+    <Buffer 00 02 61 0e>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2500
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 5a b2>,
+    <Buffer e4 00 02 5a b2>,
+    'tp',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    2.8924,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T04:06:32.888Z,
+    2025-11-02T20:38:05.580Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 5a b2>,
+    <Buffer 00 02 5a b2>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 5a b2>,
+    <Buffer df 00 02 5a b2>,
+    'sl',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    3.1686,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-29T04:06:32.888Z,
+    2025-11-02T20:38:05.768Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 5a b2>,
+    <Buffer 00 02 5a b2>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 57 96>,
+    <Buffer e4 00 02 57 96>,
+    'tp',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2500,
+    3.0965,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-28T20:00:03.149Z,
+    2025-11-02T20:38:05.995Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 57 96>,
+    <Buffer 00 02 57 96>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2500
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 57 96>,
+    <Buffer df 00 02 57 96>,
+    'sl',
+    <Buffer 45 ff 94 8e 7d 7d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    2500,
+    3.2158,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-28T20:00:03.149Z,
+    2025-11-02T20:38:06.162Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 57 96>,
+    <Buffer 00 02 57 96>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    2500
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 31 65>,
+    <Buffer e4 00 02 31 65>,
+    'tp',
+    <Buffer 5f 4a f0 0b c4 ca>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    0.20123,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-23T07:42:10.703Z,
+    2025-11-02T20:38:06.381Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 31 65>,
+    <Buffer 00 02 31 65>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 31 65>,
+    <Buffer df 00 02 31 65>,
+    'sl',
+    <Buffer 5f 4a f0 0b c4 ca>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    0.2642,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-23T07:42:10.703Z,
+    2025-11-02T20:38:06.536Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 31 65>,
+    <Buffer 00 02 31 65>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 31 5d>,
+    <Buffer e4 00 02 31 5d>,
+    'tp',
+    <Buffer 21 a6 b9 2b b9 3f>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1000,
+    0.5363,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-23T07:34:18.481Z,
+    2025-11-02T20:38:06.700Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 31 5d>,
+    <Buffer 00 02 31 5d>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1000
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 31 5d>,
+    <Buffer df 00 02 31 5d>,
+    'sl',
+    <Buffer 21 a6 b9 2b b9 3f>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1000,
+    0.574,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-23T07:34:18.481Z,
+    2025-11-02T20:38:06.805Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 31 5d>,
+    <Buffer 00 02 31 5d>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1000
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 21 fd>,
+    <Buffer e4 00 02 21 fd>,
+    'tp',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer 19 d3 88>,
+    'sell',
+    1133.2,
+    0.38689,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-21T11:34:44.869Z,
+    2025-11-02T20:38:06.983Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 21 fd>,
+    <Buffer 00 02 21 fd>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1133.2
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 21 fd>,
+    <Buffer df 00 02 21 fd>,
+    'sl',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer 19 d3 88>,
+    'sell',
+    1133.2,
+    0.34859,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-21T11:34:44.869Z,
+    2025-11-02T20:38:07.115Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 21 fd>,
+    <Buffer 00 02 21 fd>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1133.2
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 16 02>,
+    <Buffer e4 00 02 16 02>,
+    'tp',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    0.34548,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-20T03:28:50.183Z,
+    2025-11-02T20:38:07.282Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 16 02>,
+    <Buffer 00 02 16 02>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 16 02>,
+    <Buffer df 00 02 16 02>,
+    'sl',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    0.36957,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-20T03:28:50.183Z,
+    2025-11-02T20:38:07.407Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 16 02>,
+    <Buffer 00 02 16 02>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 02 10 48>,
+    <Buffer e4 00 02 10 48>,
+    'tp',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    130.9,
+    0.36815,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-19T15:46:47.882Z,
+    2025-11-02T20:38:07.564Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 02 10 48>,
+    <Buffer 00 02 10 48>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    130.9
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 02 10 48>,
+    <Buffer df 00 02 10 48>,
+    'sl',
+    <Buffer 6b bf 13 43 8a 5d>,
+    <Buffer 19 d3 88>,
+    'buy',
+    130.9,
+    0.41,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-01-19T15:46:47.882Z,
+    2025-11-02T20:38:07.732Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 02 10 48>,
+    <Buffer 00 02 10 48>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    130.9
+  ]
+}
+   # History Stop Orders Processed [20]:  34 published
+>> Trades.Queued: Requests in queue: 0
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-02T20:38:15.536Z }
+}
+In Execute.Trades: 11/2/2025, 12:38:26 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -2372,7 +4020,1450 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:03:06 PM
+-> History.Publish.Stops [API]
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 09 80 2e>,
+    <Buffer e4 00 09 80 2e>,
+    'tp',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    2.4868,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:24:17.013Z,
+    2025-11-02T20:38:31.732Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 09 80 2e>,
+    <Buffer 00 09 80 2e>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 09 80 2e>,
+    <Buffer df 00 09 80 2e>,
+    'sl',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    2.9085,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:24:17.013Z,
+    2025-11-02T20:38:31.914Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 09 80 2e>,
+    <Buffer 00 09 80 2e>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 09 74 df>,
+    <Buffer e4 00 09 74 df>,
+    'tp',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1250,
+    2.6004,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T17:09:36.960Z,
+    2025-11-02T20:38:32.074Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 09 74 df>,
+    <Buffer 00 09 74 df>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1250
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 09 74 df>,
+    <Buffer df 00 09 74 df>,
+    'sl',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1250,
+    2.7187,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T17:09:36.960Z,
+    2025-11-02T20:38:32.307Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 09 74 df>,
+    <Buffer 00 09 74 df>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1250
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 09 73 d7>,
+    <Buffer e4 00 09 73 d7>,
+    'tp',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1875,
+    2.5535,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:46:07.884Z,
+    2025-11-02T20:38:32.498Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 09 73 d7>,
+    <Buffer 00 09 73 d7>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1875
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 09 73 d7>,
+    <Buffer df 00 09 73 d7>,
+    'sl',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1875,
+    2.6802,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:46:07.884Z,
+    2025-11-02T20:38:32.866Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 09 73 d7>,
+    <Buffer 00 09 73 d7>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1875
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 e8 91>,
+    <Buffer e4 00 07 e8 91>,
+    'tp',
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 19 d3 88>,
+    'buy',
+    100,
+    2.9916,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-08-06T20:14:55.445Z,
+    2025-11-02T20:38:33.024Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 e8 91>,
+    <Buffer 00 07 e8 91>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    100
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 ad e0>,
+    <Buffer e4 00 07 ad e0>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    114027.4,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-25T06:33:24.033Z,
+    2025-11-02T20:38:33.223Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 ad e0>,
+    <Buffer 00 07 ad e0>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 07 ad e0>,
+    <Buffer df 00 07 ad e0>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    118772.90000000001,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-25T06:33:24.033Z,
+    2025-11-02T20:38:33.426Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 07 ad e0>,
+    <Buffer 00 07 ad e0>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 8e 3b>,
+    <Buffer e4 00 07 8e 3b>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1800,
+    108000,
+    107500,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-18T17:57:09.160Z,
+    2025-11-02T20:38:33.573Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 8e 3b>,
+    <Buffer 00 07 8e 3b>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1800
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 07 8e 3b>,
+    <Buffer df 00 07 8e 3b>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    1800,
+    118400,
+    118500,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-18T17:57:09.160Z,
+    2025-11-02T20:38:33.713Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 07 8e 3b>,
+    <Buffer 00 07 8e 3b>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    1800
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 8d dc>,
+    <Buffer e4 00 07 8d dc>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    3600,
+    108000,
+    107500,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-18T16:30:48.432Z,
+    2025-11-02T20:38:33.935Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 8d dc>,
+    <Buffer 00 07 8d dc>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 07 8d dc>,
+    <Buffer df 00 07 8d dc>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    3600,
+    124000,
+    125000,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-18T16:30:48.432Z,
+    2025-11-02T20:38:34.079Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 07 8d dc>,
+    <Buffer 00 07 8d dc>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 82 1f>,
+    <Buffer e4 00 07 82 1f>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    109974.6,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-16T15:43:21.435Z,
+    2025-11-02T20:38:34.253Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 82 1f>,
+    <Buffer 00 07 82 1f>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 82 1d>,
+    <Buffer e4 00 07 82 1d>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    110104.5,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-16T15:42:53.543Z,
+    2025-11-02T20:38:34.439Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 82 1d>,
+    <Buffer 00 07 82 1d>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 7b 54>,
+    <Buffer e4 00 07 7b 54>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    109919,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-15T04:15:38.283Z,
+    2025-11-02T20:38:34.627Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 7b 54>,
+    <Buffer 00 07 7b 54>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 62 27>,
+    <Buffer e4 00 07 62 27>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    106275.90000000001,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-09T09:01:58.587Z,
+    2025-11-02T20:38:34.808Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 62 27>,
+    <Buffer 00 07 62 27>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 62 12>,
+    <Buffer e4 00 07 62 12>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    107280.20000000001,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-09T07:56:47.476Z,
+    2025-11-02T20:38:34.965Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 62 12>,
+    <Buffer 00 07 62 12>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 5b 2c>,
+    <Buffer e4 00 07 5b 2c>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    105205.70000000001,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-07T11:21:07.398Z,
+    2025-11-02T20:38:35.113Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 5b 2c>,
+    <Buffer 00 07 5b 2c>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 4a c7>,
+    <Buffer e4 00 07 4a c7>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    0,
+    105002.40000000001,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-07-03T07:19:20.414Z,
+    2025-11-02T20:38:35.301Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 4a c7>,
+    <Buffer 00 07 4a c7>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 07 10 2a>,
+    <Buffer e4 00 07 10 2a>,
+    'tp',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    0,
+    105032.4,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-22T08:03:36.765Z,
+    2025-11-02T20:38:35.492Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 07 10 2a>,
+    <Buffer 00 07 10 2a>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 07 10 2a>,
+    <Buffer df 00 07 10 2a>,
+    'sl',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    0,
+    97347.1,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-22T08:03:36.765Z,
+    2025-11-02T20:38:35.633Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 07 10 2a>,
+    <Buffer 00 07 10 2a>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 fe bc>,
+    <Buffer e4 00 06 fe bc>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    300,
+    102998,
+    101000,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-18T14:20:35.979Z,
+    2025-11-02T20:38:35.787Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 fe bc>,
+    <Buffer 00 06 fe bc>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 fe bc>,
+    <Buffer df 00 06 fe bc>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer e8 fc f7>,
+    'buy',
+    300,
+    107202,
+    108000,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-18T14:20:35.979Z,
+    2025-11-02T20:38:36.077Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 fe bc>,
+    <Buffer 00 06 fe bc>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 dd f4>,
+    <Buffer e4 00 06 dd f4>,
+    'tp',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer 19 d3 88>,
+    'sell',
+    300,
+    108265.9,
+    108500,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-13T20:23:47.793Z,
+    2025-11-02T20:38:36.313Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 dd f4>,
+    <Buffer 00 06 dd f4>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    300
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 dd f4>,
+    <Buffer df 00 06 dd f4>,
+    'sl',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer 19 d3 88>,
+    'sell',
+    300,
+    101959.2,
+    101900,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-13T20:23:47.793Z,
+    2025-11-02T20:38:36.536Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 dd f4>,
+    <Buffer 00 06 dd f4>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    300
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 d5 93>,
+    <Buffer e4 00 06 d5 93>,
+    'tp',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    300,
+    109360.9,
+    109400,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-12T11:28:11.716Z,
+    2025-11-02T20:38:36.782Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 d5 93>,
+    <Buffer 00 06 d5 93>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 d5 93>,
+    <Buffer df 00 06 d5 93>,
+    'sl',
+    <Buffer 80 98 80 10 24 90>,
+    <Buffer e8 fc f7>,
+    'sell',
+    300,
+    101855.7,
+    101500,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-12T11:28:11.716Z,
+    2025-11-02T20:38:36.970Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 d5 93>,
+    <Buffer 00 06 d5 93>,
+    <Buffer 97 e7 4e>,
+    <Buffer 4f ae 94>,
+    0
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e4 00 06 cd 03>,
+    <Buffer e4 00 06 cd 03>,
+    'tp',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    300,
+    107525.6,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-10T21:56:14.068Z,
+    2025-11-02T20:38:37.192Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer e4 00 06 cd 03>,
+    <Buffer 00 06 cd 03>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    300
+  ]
+}
+-> [Info] stop_request inserted {
+  fields: [
+    'stop_request',
+    'stop_order',
+    'stop_type',
+    'instrument_position',
+    'state',
+    'action',
+    'size',
+    'trigger_price',
+    'order_price',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer df 00 06 cd 03>,
+    <Buffer df 00 06 cd 03>,
+    'sl',
+    <Buffer f0 30 4c f5 53 9a>,
+    <Buffer 19 d3 88>,
+    'buy',
+    300,
+    111365.8,
+    -1,
+    true,
+    '[Warning] Stops.Submit: Request missing; was added locally; updated and settled',
+    2025-06-10T21:56:14.068Z,
+    2025-11-02T20:38:37.412Z
+  ]
+}
+-> [Info] stop_order inserted {
+  fields: [
+    'stop_order',
+    'tpsl_id',
+    'order_state',
+    'order_category',
+    'actual_size'
+  ],
+  args: [
+    <Buffer df 00 06 cd 03>,
+    <Buffer 00 06 cd 03>,
+    <Buffer 40 b1 c4>,
+    <Buffer 4f ae 94>,
+    300
+  ]
+}
+   # History Stop Orders Processed [19]:  30 published
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:38:55 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -3538,7 +6629,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:03:35 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:39:24 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -4704,7 +7796,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:04:04 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:39:53 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -5870,7 +8963,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:04:33 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:40:22 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -7036,7 +10130,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:05:02 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:40:51 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -7802,7 +10897,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:05:31 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:41:20 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -8976,7 +12072,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:06:00 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:41:49 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -9677,7 +12774,6 @@ In Orders.Import [API]
     2025-06-23T07:50:41.912Z
   ]
 }
--> WSS.Publish [API]
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -9699,10 +12795,6 @@ In Orders.Import [API]
     0,
     0
   ]
-}
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52479.167, update_time: 2025-10-23T23:06:04.153Z }
 }
 -> [Info] request inserted {
   fields: [
@@ -9740,10 +12832,6 @@ In Orders.Import [API]
     2025-06-23T07:47:28.222Z
   ]
 }
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52479.167, coin_usd_price: 1.000725 }
-}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -9765,10 +12853,6 @@ In Orders.Import [API]
     0,
     0
   ]
-}
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-10-23T23:06:04.373Z }
 }
 -> [Info] request inserted {
   fields: [
@@ -9922,7 +13006,6 @@ In Orders.Import [API]
     2025-06-23T07:17:27.020Z
   ]
 }
--> WSS.Publish [API]
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -10156,7 +13239,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:06:29 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:42:18 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -11336,7 +14420,13 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:06:58 PM
+>> Trades.Queued: Requests in queue: 0
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-02T20:42:31.616Z }
+}
+In Execute.Trades: 11/2/2025, 12:42:47 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -12514,7 +15604,12 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:07:27 PM
+>> Trades.Queued: Requests in queue: 0
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-02T20:43:15.400Z }
+}
+In Execute.Trades: 11/2/2025, 12:43:16 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -13718,7 +16813,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:07:56 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:43:45 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -14924,7 +18020,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:08:25 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:44:14 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -16094,7 +19191,8 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:08:54 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:44:43 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -17121,21 +20219,745 @@ In Orders.Import [API]
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
-  columns: {
-    order_id: <Buffer 00 e8 db 72 ec 0c>,
-    update_time: 2025-10-18T18:54:45.594Z
-  }
+  columns: { order_id: <Buffer 00 e8 db 72 ec 0c> }
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
-  columns: { update_time: 2025-10-23T23:08:59.215Z }
+  columns: { update_time: 2025-10-18T18:54:45.594Z }
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 10/23/2025, 4:09:23 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:45:12 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1220,
+    2.5953,
+    189.97596,
+    2790
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 00 e8 db 7e 55 e2>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1220,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T21:09:05.775Z,
+    2025-10-30T05:09:05.775Z,
+    2025-10-29T21:09:05.835Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    320,
+    2.5733,
+    49.40736,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 00 e8 db 7d e7 5b>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    320,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:39:30.718Z,
+    2025-10-30T02:39:30.718Z,
+    2025-10-29T18:39:30.999Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    400,
+    2.6194,
+    62.8656,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 00 e8 db 7d d8 0f>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    400,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:36:38.026Z,
+    2025-10-30T02:36:38.026Z,
+    2025-10-29T18:36:38.146Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    500,
+    2.6459,
+    79.377,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 00 e8 db 7d c8 fc>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-29T18:23:52.201Z,
+    2025-10-30T02:23:52.201Z,
+    2025-10-29T18:23:52.306Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 18 27 44>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6003,
+    195.0225,
+    10200
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 00 e8 db 7c b6 e5>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-28T20:19:26.730Z,
+    2025-10-29T04:19:26.730Z,
+    2025-10-28T20:19:26.977Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6819,
+    201.1425,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 00 e8 db 7b 53 15>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T16:51:46.202Z,
+    2025-10-28T00:51:46.202Z,
+    2025-10-27T16:51:46.247Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer cf 7f 21>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1875,
+    2.68079999466667,
+    301.5899994,
+    -11149.999
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer 00 e8 db 7b 46 4d>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1875,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T16:08:09.913Z,
+    2025-10-28T00:08:09.913Z,
+    2025-10-27T16:08:10.196Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    625,
+    2.6282,
+    98.5575,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 00 e8 db 7a fb 3c>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    625,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:54:42.383Z,
+    2025-10-27T20:54:42.383Z,
+    2025-10-27T12:54:42.430Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1250,
+    2.6179,
+    196.3425,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 00 e8 db 7a f1 be>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    1250,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-27T12:42:55.141Z,
+    2025-10-27T20:42:55.141Z,
+    2025-10-27T12:42:55.270Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 e3 f5>,
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 00 e8 db 78 e3 f5>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-24T23:54:43.999Z,
+    2025-10-25T07:54:43.999Z,
+    2025-10-24T23:58:06.534Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 e3 76>,
+    <Buffer d8 92 99 b3 10 b4>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 40 4d>,
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 6a 06 bd 10 4d 6b>,
+    <Buffer 00 e8 db 78 40 4d>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.85,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-24T05:25:16.631Z,
+    2025-10-24T13:25:16.631Z,
+    2025-10-24T05:32:31.864Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 78 1d 9c>,
+    <Buffer fd 46 98 0a 6f d1>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer fd 46 98 0a 6f d1>,
+    <Buffer 00 e8 db 78 1d 9c>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-10-23T23:59:32.531Z,
+    2025-10-24T07:59:32.531Z,
+    2025-10-24T00:38:39.344Z
+  ]
+}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -17256,12 +21078,20 @@ In Orders.Import [API]
     2025-10-22T06:06:37.550Z
   ]
 }
-   # History Orders Processed [2]:  2 published
-In Execute.Trades: 10/23/2025, 4:09:52 PM
+   # History Orders Processed [15]:  15 published
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:45:41 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 10/23/2025, 4:10:21 PM
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:46:10 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
+>> Trades.Queued: Requests in queue: 0
+In Execute.Trades: 11/2/2025, 12:46:39 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+>> Trades.Queued: Requests in queue: 0

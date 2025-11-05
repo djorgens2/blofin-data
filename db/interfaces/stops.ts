@@ -32,6 +32,7 @@ export interface IStopRequest {
 }
 
 export interface IStopOrder extends IStopRequest {
+  stop_order: Uint8Array;
   tpsl_id: Uint8Array;
   client_order_id: Uint8Array;
   order_state: Uint8Array;
@@ -87,7 +88,7 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const request = {
       stop_request: props.stop_request,
-      tpsl_id: props.tpsl_id,
+      stop_order: props.stop_order,
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
       state: props.state || queued,
@@ -130,7 +131,7 @@ export const Key = async (props: Partial<IStops>, options: TOptions = { table: `
 //| Updates active stop orders retrieved, verified and keyed from the blofin api;        |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IStopOrder>) => {
-  const order = await Select<IStopOrder>({ tpsl_id: props.tpsl_id }, { table: `stop_order` });
+  const order = await Select<IStopOrder>({ stop_order: props.stop_order }, { table: `stop_order` });
 
   if (order && order.length) {
     const [current] = order;
@@ -138,26 +139,27 @@ export const Publish = async (props: Partial<IStopOrder>) => {
     if (isEqual(props.tpsl_id!, current.tpsl_id!)) {
       const [result] = await Update(
         {
-          tpsl_id: props.tpsl_id,
+          stop_order: props.stop_order,
           order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
           actual_size: isEqual(props.actual_size!, current.actual_size!) ? undefined : props.actual_size,
         },
-        { table: `stop_order`, keys: [{ key: `tpsl_id` }] }
+        { table: `stop_order`, keys: [{ key: `stop_order` }] }
       );
-      return result ? result.tpsl_id : undefined;
+      return result ? result.stop_order : undefined;
     }
     console.log(">> [Error] Stops.Submit: TP/SL ID mismatch; unauthorized resubmission; stop request rejected");
   } else {
     const result = await Insert(
       {
+        stop_order: props.stop_order,
         tpsl_id: props.tpsl_id,
-        client_order_id: props.stop_request,
+        client_order_id: props.client_order_id,
         order_state: props.order_state,
         order_category: props.order_category,
         price_type: props.price_type,
         actual_size: props.actual_size,
       },
-      { table: `stop_order`, keys: [{ key: `tpsl_id` }] }
+      { table: `stop_order`, keys: [{ key: `stop_order` }] }
     );
     return result ? result.tpsl_id : undefined;
   }

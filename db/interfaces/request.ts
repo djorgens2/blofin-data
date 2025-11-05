@@ -125,15 +125,6 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
 //-- Public functions
 
 //+--------------------------------------------------------------------------------------+
-//| Returns filtered requests from the db for processing/synchronization with broker;    |
-//+--------------------------------------------------------------------------------------+
-export const Queue = async (props: Partial<IRequestAPI>): Promise<Array<Partial<IRequestAPI>> | undefined> => {
-  Object.assign(props, { account: props.account || Session().account });
-  const result = await Select<IRequestAPI>(props, { table: `vw_api_requests` });
-  return result.length ? result : undefined;
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
 export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["request"]>> => {
@@ -144,8 +135,8 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
     const cancels: Array<IRequest["request"]> = [];
 
     for (const order of orders) {
-      const result = await publish(props, {
-        ...order,
+      const result = await publish(order, {
+        ...props,
         state: canceled,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
       });

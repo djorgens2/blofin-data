@@ -7,6 +7,7 @@
 import { ResultSetHeader, PoolConnection } from "mysql2/promise";
 
 import pool from "db/db.config";
+import { hasValues } from "lib/std.util";
 
 export type TKey = { key: string; sign?: string };
 export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection };
@@ -135,10 +136,10 @@ export const Select = async <T>(props: Partial<T>, options: TOptions): Promise<A
 //+--------------------------------------------------------------------------------------+
 export const Update = async <T>(props: Partial<T>, options: TOptions) => {
   const [columns, filters] = splitKeys<T>(props, options.keys ? options.keys.map((k) => k.key) : []);
-  if (Object.keys(columns).length) {
-    const { table } = options;
+  if (hasValues<Partial<T>>(columns as Partial<T>)) {
     const [fields, values] = parseColumns(columns);
     const [keys, args] = parseKeys(filters);
+    const { table } = options;
     const sql = `UPDATE ${DB_SCHEMA}.${table} SET ${fields.join(", ")}${fields.length ? " WHERE ".concat(keys.join(" AND ")) : ""}`;
 
     try {

@@ -64,7 +64,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
 
         const result = await Orders.Publish({
           order_id,
-          client_order_id: hexify(order.clientOrderId!, 6),
+          client_order_id: hexify(order.clientOrderId!,6),
           order_state,
           order_category,
           cancel_source,

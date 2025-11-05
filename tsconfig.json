@@ -3,9 +3,10 @@
     "target": "ES2017",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "module": "NodeNext",                                /* Specify what module code is generated. */
     "moduleResolution": "nodenext",
+    "sourceMap": true,
     "outDir": "./build/js",
     "rootDir": "./",
-    //"baseUrl": "./",
+    // "baseUrl": "./build/js",
     "lib": 
        ["ESNext",
         "dom",

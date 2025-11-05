@@ -691,7 +691,6 @@ import { parse } from "path";
 
 // console.log(parseObject<IRec>(rec1))
 
-
 //----------------------------- Copy defined elements -------------------------------------------------------//
 // export const copyDefined = <S extends object, T extends Partial<Record<keyof S, any>>>(source: S, target: T): void => {
 //   for (const key in source) {
@@ -721,7 +720,6 @@ import { parse } from "path";
 // copyDefinedElements(sourceObject, targetObject);
 
 // console.log(targetObject); // Output: { a: 1, c: 3 }
-
 
 //----------------------------- load refs generic -------------------------------------------------------//
 // import { Import } from "db/interfaces/reference";
@@ -1745,7 +1743,7 @@ import { parse } from "path";
 // const run = async () => {
 //   const [order] = await Select<IOrder>({order_id: hexify('c0ffee',6)}, { table: `orders` });
 //   console.log(order);
-  
+
 // };
 
 // run();
@@ -1766,23 +1764,63 @@ import { parse } from "path";
 // run({symbol: 'BTC-USDT'});
 
 //---------------------------------- tpsl_id conversion test ----------------------------------------//
-import { Session,setSession } from "module/session";
-import * as Stops from "db/interfaces/stops";
+// import { Session,setSession } from "module/session";
+// import * as Stops from "db/interfaces/stops";
 
-setSession({ account: hexify(process.env.account!, 3)! });
+// setSession({ account: hexify(process.env.account!, 3)! });
+
+// const run = async () => {
+//   const stops = await Stops.Fetch({ status: `Expired` });
+//   console.log(stops);
+//     // {
+//     // account: <Buffer 24 59 7a>,
+//     // stop_request: <Buffer e4 00 07 e8 91>,
+//     // tpsl_id: <Buffer e4 00 07 e8 91>,
+//     // client_order_id: 'e40007e891',
+//     // instrument_position: <Buffer 62 45 1c 33 17 21>,
+//     // ...
+//   const cancels = stops && stops.map(({ symbol, tpsl_id }) => ({ instId: symbol, tpslId: BigInt(`0x${hexString(tpsl_id!, 8).slice(4)}`).toString(10) }));
+//   console.log(cancels);
+// };
+
+// run();
+
+//---------------------------------- tpsl_id conversion test ----------------------------------------//
+// import * as StopsAPI from "api/stops";
+// import { Select } from "db/query.utils";
+
+// const run = async () => {
+//   const stops = await Select<StopsAPI.IStopsAPI>({ status: `Expired` }, { table: `vw_api_stop_requests` });
+//   console.log("tpsl_id:", hexify(stops[0].tpslId!, 4));
+// };
+
+// run();
+
+// //---------------------------------- stops updateable view  test ----------------------------------------//
+// import * as StopsAPI from "api/stops";
+// import { Select, Update } from "db/query.utils";
+
+// const run = async () => {
+//   const stops = await Update({ tpsl_id: hexify('0009802E',4),state: hexify('E8FCF7') }, { table: `vw_stop_states`, keys: [{ key: `tpsl_id` }] });
+//   console.log("Update Result:", stops);
+// };
+
+// run();
+
+//---------------------------------- tpsl_id conversion test ----------------------------------------//
+import * as Stops from "db/interfaces/stops";
+import { Select } from "db/query.utils";
 
 const run = async () => {
-  const stops = await Stops.Fetch({ status: `Expired` });
-  console.log(stops);
-    // {
-    // account: <Buffer 24 59 7a>,
-    // stop_request: <Buffer e4 00 07 e8 91>,
-    // tpsl_id: <Buffer e4 00 07 e8 91>,
-    // client_order_id: 'e40007e891',
-    // instrument_position: <Buffer 62 45 1c 33 17 21>,
-    // ...
-  const cancels = stops && stops.map(({ symbol, tpsl_id }) => ({ instId: symbol, tpslId: BigInt(`0x${hexString(tpsl_id!, 8).slice(4)}`).toString(10) }));
-  console.log(cancels);
+//  const stops = await Select<Stops.IStops>({ status: `Expired` }, { table: `vw_stop_orders`, suffix: `AND tpsl_id IS NOT NULL` });
+  const stops = await Select<Stops.IStops>({ }, { table: `vw_stop_orders` });
+  console.log("tpsl_id:", "1", stops[1].tpsl_id && BigInt(`${hexString(stops[1].tpsl_id!, 8)}`).toString(10));
+  console.log(stops.map(({ symbol, tpsl_id, stop_request }) => ({
+        instId: symbol,
+        tpslId: tpsl_id ? BigInt(hexString(tpsl_id!, 8)).toString(10) : undefined,
+        clientOrderId: stop_request ? hexString(stop_request!,10,``).toUpperCase() : undefined,
+      })));
 };
 
 run();
+

@@ -4,14 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestState } from "db/interfaces/state";
 import type { IRequestAPI } from "api/requests";
+import type { IStopsAPI } from "api/stops";
+import type { IRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
-import type { IStops } from "db/interfaces/stops";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { hexString } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { Session } from "module/session";
+import { Select, Update } from "db/query.utils";
 
 import * as PositionsAPI from "api/positions";
 import * as RequestAPI from "api/requests";
@@ -23,7 +25,7 @@ import * as Orders from "db/interfaces/order";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
-import { Select } from "db/query.utils";
+import { IResponse } from "api/response";
 
 //------------------ Private functions ---------------------//
 
@@ -31,7 +33,7 @@ import { Select } from "db/query.utils";
 //| Handle order submits, rejects, and updates (from hold status);                         |
 //+----------------------------------------------------------------------------------------+
 const processOrders = async () => {
-  //-- Expires requests beyond expiry
+  //-- [Process.Orders] Expires requests beyond expiry
   const Expired = async (expired: Array<Partial<IRequest>>) => {
     if (expired.length) {
       const accepted = [];
@@ -48,7 +50,7 @@ const processOrders = async () => {
     }
   };
 
-  //-- Resubmits rejected requests to broker for execution; closes rejects beyond expiry
+  //-- [Process.Orders] Resubmits rejected requests to broker for execution; closes rejects beyond expiry
   const Rejected = async () => {
     const rejects = await Orders.Fetch({ status: "Rejected", account: Session().account });
 
@@ -81,7 +83,7 @@ const processOrders = async () => {
     }
   };
 
-  //-- Closes pending orders beyond expiry
+  //-- [Process.Orders] Closes pending orders beyond expiry
   const Pending = async () => {
     const pending: Array<Partial<IRequest>> = [];
     const expired: Array<Partial<IRequest>> = [];
@@ -103,12 +105,12 @@ const processOrders = async () => {
     }
   };
 
-  //-- Submit local requests to the API
+  //-- [Process.Orders] Submit local requests to the API
   const Queued = async () => {
     const queued: Array<Partial<IRequestAPI>> = [];
     const expired: Array<Partial<IRequest>> = [];
 
-    const requests = await Request.Queue({ status: "Queued", account: Session().account });
+    const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
     const expiry = new Date();
 
     if (requests) {
@@ -120,11 +122,10 @@ const processOrders = async () => {
         } else expired.push({ request: hexify(request.clientOrderId!, 6), memo: `[Expired]: Queued request changed to Expired` });
       }
 
-      console.log(">> Trades.Queued: Requests in queue:", requests.length);
+      if (requests.length) {
+        const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
 
-      if (queued.length) {
-        const [accepted, rejected] = (await RequestAPI.Submit(queued)) ?? [[], []];
-
+        console.log(">> Trades.Queued: Requests in queue:", requests.length);
         requests.length && console.log("-> Queued requests submitted:", queued.length);
         accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
         rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
@@ -134,7 +135,7 @@ const processOrders = async () => {
     }
   };
 
-  //-- Submit Cancel requests to the API for orders in canceled state
+  //-- [Process.Orders] Submit Cancel requests to the API for orders in canceled state
   const Canceled = async () => {
     const orders = await Orders.Fetch({ status: "Canceled", account: Session().account });
 
@@ -158,7 +159,7 @@ const processOrders = async () => {
     }
   };
 
-  //-- Resubmit requests canceled by modification to the API for orders in hold state
+  //-- [Process.Orders] Resubmit requests canceled by modification to the API for orders in hold state
   const Hold = async () => {
     const orders = await Orders.Fetch({ status: "Hold", account: Session().account });
     const accepted = [];
@@ -200,12 +201,12 @@ const processOrders = async () => {
 //+--------------------------------------------------------------------------------------+
 const processStops = async () => {
   //-- Checks if position is still open
-  const isOpen = async (position: IStops["instrument_position"]) => {
-    const result = await InstrumentPosition.Fetch({ account: Session().account, instrument_position: position, status: "Open" });
+  const isOpen = async (props: Partial<IInstrumentPosition>) => {
+    const result = await InstrumentPosition.Fetch({ ...props, account: Session().account, status: "Open" });
     return !!result;
   };
 
-  //-- Resubmits rejected requests to broker for execution; closes rejects beyond expiry
+  //-- [Process.Stops] Resubmits rejected requests to broker for execution; closes rejects beyond expiry
   const Rejected = async () => {
     const rejects = await Stops.Fetch({ status: "Rejected", account: Session().account });
 
@@ -215,7 +216,7 @@ const processStops = async () => {
       const closures = [];
 
       for (const reject of rejects) {
-        const positionOpen = await isOpen(reject.instrument_position!);
+        const positionOpen = await isOpen({ instrument_position: reject.instrument_position });
         const status = positionOpen ? "Queued" : "Closed";
         const result = await Stops.Submit({
           ...reject,
@@ -238,7 +239,7 @@ const processStops = async () => {
     }
   };
 
-  //-- Closes pending orders beyond expiry
+  //-- [Process.Stops] Closes pending orders beyond expiry
   const Pending = async () => {
     const pending: Array<Partial<IRequest>> = [];
     const expired: Array<Partial<IRequest>> = [];
@@ -247,7 +248,7 @@ const processStops = async () => {
 
     if (requests) {
       for (const request of requests) {
-        const positionOpen = await isOpen(request.instrument_position!);
+        const positionOpen = await isOpen({ instrument_position: request.instrument_position });
         const status = positionOpen ? "Pending" : "Expired";
         const result = await Stops.Submit({
           ...request,
@@ -264,53 +265,96 @@ const processStops = async () => {
     }
   };
 
-  //-- Submit local requests to the API
+  //-- [Process.Stops] Submit local requests to the API
   const Queued = async () => {
-    const queued: Array<Partial<IRequestAPI>> = [];
-    const expired: Array<Partial<IRequest>> = [];
-    const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_stop_requests` });
+    const queued: Array<Partial<IStopsAPI>> = [];
+    const errors: Array<Partial<IStopsAPI>> = [];
+    const success: Array<Partial<IResponse>> = [];
+    const failed: Array<Partial<IResponse>> = [];
+    const expired: Array<Partial<IStopsAPI>> = [];
+
+    const requests = await Select<IStopsAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_stop_requests` });
 
     if (requests) {
       for (const request of requests) {
-        const { status, account, memo, ...api } = request;
-        queued.push(api);
+        const { account, tpslId, status, memo, update_time, ...api } = request;
+        tpslId ? errors.push(api) : queued.push(api);
       }
 
       if (queued.length) {
-        const [accepted, rejected] = (await RequestAPI.Submit(queued)) ?? [[], []];
+        for (const queue of queued) {
+          const positionOpen = await isOpen({ symbol: queue.instId, position: queue.positionSide });
+          if (positionOpen) {
+            const [accepted, rejected] = (await StopsAPI.Submit(queue)) ?? [[], []];
+            success.push(...accepted);
+            failed.push(...rejected);
+          } else {
+            expired.push(queue);
+          }
+        }
 
-        console.log(">> Trades.Queued: Requests in queue:", requests.length);
-        accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
-        rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
+        if (expired.length) {
+          const state = await States.Key<IRequestState>({ status: "Expired" });
+          for (const expire of expired) {
+            const stop_request = {
+              stop_request: hexify(expire.clientOrderId!, 5),
+              state,
+              memo: `[Info] Trades.Queued: Stop order on closed position; state changed to Expired`,
+              update_time: new Date(),
+            };
+            console.log("Expiring stop order", stop_request);
+            const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `stop_request` }] });
+          }
+        }
+
+        console.log(">> Trades.Queued: Stop Requests in queue:", requests.length);
+        success.length && console.log("   # [Info] Stop Requests submitted:", success.length);
+        failed.length && console.log("   # [Error] Stop Requests rejected:", failed.length);
+        expired.length && console.log("   # [Warning] Stop Requests expired:", expired.length);
       }
     }
   };
 
-  //-- Submit Cancel requests to the API for orders in canceled state
+  //-- [Process.Stops] Submit Cancel requests to the API for orders in canceled state
   const Canceled = async () => {
-    const orders = await Stops.Fetch({ status: "Canceled", account: Session().account });
+    const api = await Select<IStopsAPI>({ status: "Canceled", account: Session().account }, { table: `vw_api_stop_requests` });
 
-    if (orders) {
+    if (api.length) {
       const cancels = [];
-      const closed = [];
+      const closures: Array<Partial<IStopsAPI>> = [];
+      const errors = [];
 
-      for (const order of orders) {
-        const tpslId = BigInt(`0x${hexString(order.tpsl_id!, 8).slice(4)}`).toString(10);
-        tpslId && order.request_status === "Pending" ? cancels.push({ instId: order.symbol, tpslId }) : closed.push(order);
+      for (const order of api) {
+        const { tpslId, instId, positionSide, clientOrderId } = order;
+        order.tpslId ? cancels.push({ tpslId, instId, clientOrderId }) : clientOrderId ? closures.push({ clientOrderId }) : errors.push(order);
       }
 
-      if (orders.length) {
-        const [accepted, rejected] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
+      if (closures.length) {
+        console.log(">> Trades.Canceled: Stop orders on closed positions; changing state to Closed:", closures.length);
+        for (const close of closures) {
+          const closed = await States.Key<IRequestState>({ status: "Closed" });
+          const stop_request = {
+            tpsl_id: hexify(close.clientOrderId!.slice(2), 4),
+            state: closed,
+            memo: `[Info] Trades.Canceled: Stop order on closed position; state changed to Closed`,
+            update_time: new Date(),
+          };
+          const [result, updates] = await Update(stop_request, { table: `vw_stop_states`, keys: [{ key: `tpsl_id` }] });
+        }
 
-        console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
-        accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
-        rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
-        closed.length && console.log("   # [Warning] Canceled requests previously closed (???):", closed.length);
+        if (cancels.length) {
+          const [accepted, rejected] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
+
+          console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
+          accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
+          rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
+          closures.length && console.log("   # [Warning] Canceled requests previously closed (???):", closures.length);
+        }
       }
     }
   };
 
-  //-- Resubmit requests canceled by modification to the API for orders in hold state
+  //-- [Process.Stops] Resubmit requests canceled by modification to the API for orders in hold state
   const Hold = async () => {
     const holds = await Stops.Fetch({ status: "Hold", account: Session().account });
     const accepted = [];
@@ -318,15 +362,18 @@ const processStops = async () => {
 
     if (holds) {
       const queued = await States.Key<IRequestState>({ status: "Queued" });
-      const cancels = holds && holds.map(({ symbol, tpsl_id }) => ({ instId: symbol, tpslId: BigInt(`0x${hexString(tpsl_id!, 8).slice(4)}`).toString(10) }));
-      const [processed, errors] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
+      const cancels: Array<Partial<IStopsAPI>> = holds.map(({ symbol, tpsl_id, client_order_id }) => ({
+        instId: symbol,
+        tpslId: BigInt(hexString(tpsl_id!, 8)).toString(10),
+        clientOrderId: BigInt(hexString(client_order_id!, 10)).toString(10),
+      }));
+      const [processed, errors] = (await StopsAPI.Cancel(cancels)) ?? [[], []];
 
-      console.log("Hold cancels", cancels);
       for (const hold of processed) {
         const result = await Request.Submit({
           request: hold.request!,
           state: queued,
-          memo: `[Info] Trades.Hold: Hold request successfully resubmitted`,
+          memo: `[Info] Trades.Hold: Modified stop request successfully resubmitted`,
           update_time: new Date(),
         });
         result ? accepted.push(result) : rejected.push(result);

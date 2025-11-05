@@ -130,6 +130,8 @@ CREATE INDEX fk_o_order_category ON devel.orders ( order_category );
 
 CREATE INDEX fk_o_cancel_source ON devel.orders ( cancel_source );
 
+CREATE INDEX ie_o_client_order_id ON devel.orders ( client_order_id );
+
 CREATE  TABLE devel.period ( 
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
 	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -173,7 +175,8 @@ CREATE  TABLE devel.state (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE devel.stop_order ( 
-	tpsl_id              BINARY(5)    NOT NULL   PRIMARY KEY,
+	stop_order           BINARY(5)    NOT NULL   PRIMARY KEY,
+	tpsl_id              BINARY(4)    NOT NULL   ,
 	client_order_id      BINARY(5)       ,
 	order_state          BINARY(3)    NOT NULL   ,
 	order_category       BINARY(3)       ,
@@ -190,6 +193,10 @@ CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
 CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
 
 CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
+
+CREATE INDEX ie_so_tpsl_id ON devel.stop_order ( tpsl_id );
+
+CREATE INDEX ie_so_client_order_id ON devel.stop_order ( client_order_id );
 
 CREATE  TABLE devel.stop_type ( 
 	stop_type            CHAR(2)    NOT NULL   PRIMARY KEY
@@ -398,7 +405,7 @@ CREATE  TABLE devel.request (
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	CONSTRAINT uk_r_orders UNIQUE ( order_id ) ,
+	CONSTRAINT uk_r_order_id UNIQUE ( order_id ) ,
 	CONSTRAINT fk_r_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_request_type FOREIGN KEY ( request_type ) REFERENCES devel.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -437,7 +444,7 @@ CREATE INDEX fk_ra_activity ON devel.role_authority ( activity );
 
 CREATE  TABLE devel.stop_request ( 
 	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
-	tpsl_id              BINARY(5)       ,
+	stop_order           BINARY(5)       ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	stop_type            CHAR(2)    NOT NULL   ,
@@ -450,7 +457,7 @@ CREATE  TABLE devel.stop_request (
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id ) ,
+	CONSTRAINT uk_sr_stop_order UNIQUE ( stop_order ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -633,6 +640,7 @@ join devel.activity a on
 CREATE VIEW devel.vw_api_requests AS
 select
 	ipos.account AS account,
+	conv(hex(o.order_id), 16, 10) AS orderId,
 	if((rs.status = 'Queued'), 'Queued', ifnull(os.status, rs.status)) AS status,
 	concat(b.symbol, '-', q.symbol) AS instId,
 	r.margin_mode AS marginMode,
@@ -668,57 +676,134 @@ join devel.request_type rt on
 join devel.state rs on
 	((r.state = rs.state)));
 
-CREATE VIEW devel.vw_api_stop_requests AS
+CREATE VIEW devel.vw_api_stop_requests AS with InstrumentDetails as (
 select
-	ipos.account AS account,
-	s.status AS status,
-	concat(b.symbol, '-', q.symbol) AS instId,
-	ipos.position AS positionSide,
-	i.margin_mode AS marginMode,
-	sr.action AS side,
-	sr.size AS size,
-	(case
-		when ((sr.stop_type = 'tp')
-			and (sr.trigger_price = -(1))) then '-1'
-		when (sr.stop_type = 'tp') then replace(format(sr.trigger_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
-		else NULL
-	end) AS tpTriggerPrice,
-	(case
-		when ((sr.stop_type = 'tp')
-			and (sr.order_price = -(1))) then '-1'
-		when (sr.stop_type = 'tp') then replace(format(sr.order_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
-		else NULL
-	end) AS tpOrderPrice,
-	(case
-		when ((sr.stop_type = 'sl')
-			and (sr.trigger_price = -(1))) then '-1'
-		when (sr.stop_type = 'sl') then replace(format(sr.trigger_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
-		else NULL
-	end) AS slTriggerPrice,
-	(case
-		when ((sr.stop_type = 'sl')
-			and (sr.order_price = -(1))) then '-1'
-		when (sr.stop_type = 'sl') then replace(format(sr.order_price, coalesce(length(substring_index(id.tick_size, '.',-(1))), 0)), ',', '')
-		else NULL
-	end) AS slOrderPrice,
-	sr.reduce_only AS reduceOnly,
-	lower(hex(sr.stop_request)) AS clientOrderId,
-	sr.broker_id AS brokerId,
-	sr.memo AS memo
+	i.instrument AS instrument,
+	i.margin_mode AS margin_mode,
+	b.symbol AS base_symbol,
+	q.symbol AS quote_symbol,
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits
 from
-	((((((devel.stop_request sr
-join devel.state s on
-	((sr.state = s.state)))
-join devel.instrument_position ipos on
-	((sr.instrument_position = ipos.instrument_position)))
-join devel.instrument i on
-	((i.instrument = ipos.instrument)))
+	(((devel.instrument i
 join devel.instrument_detail id on
 	((id.instrument = i.instrument)))
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
-	((q.currency = i.quote_currency)));
+	((q.currency = i.quote_currency)))),
+BaseStopRequests as (
+select
+	sr.stop_request AS stop_request,
+	sr.stop_order AS stop_order,
+	sr.instrument_position AS instrument_position,
+	sr.state AS state,
+	sr.stop_type AS stop_type,
+	sr.action AS action,
+	sr.size AS size,
+	sr.trigger_price AS trigger_price,
+	sr.order_price AS order_price,
+	sr.reduce_only AS reduce_only,
+	sr.broker_id AS broker_id,
+	sr.memo AS memo,
+	sr.create_time AS create_time,
+	sr.update_time AS update_time,
+	s.status AS status,
+	ipos.account AS account,
+	ipos.position AS positionSide,
+	id.margin_mode AS marginMode,
+	id.base_symbol AS base_symbol,
+	id.quote_symbol AS quote_symbol,
+	id.digits AS digits,
+	concat(id.base_symbol, '-', id.quote_symbol) AS instId,
+	sr.action AS side,
+	upper(hex(sr.broker_id)) AS brokerId
+from
+	(((devel.stop_request sr
+join devel.state s on
+	((sr.state = s.state)))
+join devel.instrument_position ipos on
+	((sr.instrument_position = ipos.instrument_position)))
+join InstrumentDetails id on
+	((id.instrument = ipos.instrument)))),
+GroupedOrderPrices as (
+select
+	ipos.account AS account,
+	o.tpsl_id AS tpsl_id,
+	max((case when (sr.stop_type = 'tp') then replace(format(sr.trigger_price, id.digits, 'en_US'), ',', '') end)) AS tpTriggerPrice,
+	max((case when (sr.stop_type = 'tp') then replace(format(sr.order_price, id.digits, 'en_US'), ',', '') end)) AS tpOrderPrice,
+	max((case when (sr.stop_type = 'sl') then replace(format(sr.trigger_price, id.digits, 'en_US'), ',', '') end)) AS slTriggerPrice,
+	max((case when (sr.stop_type = 'sl') then replace(format(sr.order_price, id.digits, 'en_US'), ',', '') end)) AS slOrderPrice,
+	max(sr.update_time) AS update_time
+from
+	(((devel.stop_request sr
+join devel.instrument_position ipos on
+	((sr.instrument_position = ipos.instrument_position)))
+join InstrumentDetails id on
+	((id.instrument = ipos.instrument)))
+join devel.stop_order o on
+	((o.stop_order = sr.stop_order)))
+group by
+	ipos.account,
+	o.tpsl_id)
+select
+	bsr.account AS account,
+	conv(hex(so.tpsl_id), 16, 10) AS tpslId,
+	bsr.status AS status,
+	bsr.instId AS instId,
+	bsr.positionSide AS positionSide,
+	bsr.marginMode AS marginMode,
+	bsr.side AS side,
+	bsr.size AS size,
+	gop.tpTriggerPrice AS tpTriggerPrice,
+	gop.tpOrderPrice AS tpOrderPrice,
+	gop.slTriggerPrice AS slTriggerPrice,
+	gop.slOrderPrice AS slOrderPrice,
+	bsr.reduce_only AS reduceOnly,
+	upper(hex(so.client_order_id)) AS clientOrderId,
+	bsr.brokerId AS brokerId,
+	bsr.memo AS memo,
+	gop.update_time AS update_time
+from
+	((BaseStopRequests bsr
+join devel.stop_order so on
+	((so.stop_order = bsr.stop_order)))
+join GroupedOrderPrices gop on
+	(((gop.account = bsr.account) and (gop.tpsl_id = so.tpsl_id))))
+union
+select
+	bsr.account AS account,
+	NULL AS tpsl_id,
+	bsr.status AS status,
+	bsr.instId AS instId,
+	bsr.positionSide AS positionSide,
+	bsr.marginMode AS marginMode,
+	bsr.side AS side,
+	bsr.size AS size,
+	(case
+		when (bsr.stop_type = 'tp') then replace(format(bsr.trigger_price, bsr.digits, 'en_US'), ',', '')
+		else NULL
+	end) AS tpTriggerPrice,
+	(case
+		when (bsr.stop_type = 'tp') then replace(format(bsr.order_price, bsr.digits, 'en_US'), ',', '')
+		else NULL
+	end) AS tpOrderPrice,
+	(case
+		when (bsr.stop_type = 'sl') then replace(format(bsr.trigger_price, bsr.digits, 'en_US'), ',', '')
+		else NULL
+	end) AS slTriggerPrice,
+	(case
+		when (bsr.stop_type = 'sl') then replace(format(bsr.order_price, bsr.digits, 'en_US'), ',', '')
+		else NULL
+	end) AS slOrderPrice,
+	bsr.reduce_only AS reduceOnly,
+	upper(hex(bsr.stop_request)) AS clientOrderId,
+	bsr.brokerId AS brokerId,
+	bsr.memo AS memo,
+	bsr.update_time AS update_time
+from
+	BaseStopRequests bsr
+where
+	(bsr.stop_order is null);
 
 CREATE VIEW devel.vw_audit_instrument_periods AS
 select
@@ -977,8 +1062,7 @@ CREATE VIEW devel.vw_orders AS
 select
 	ipos.account AS account,
 	r.request AS request,
-	r.order_id AS order_id,
-	cast(hex(r.request) as char charset utf8mb4) AS client_order_id,
+	o.order_id AS order_id,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
 	devel.vi.symbol AS symbol,
@@ -997,6 +1081,7 @@ select
 	r.request_type AS request_type,
 	rt.source_ref AS order_type,
 	r.margin_mode AS margin_mode,
+	if((o.client_order_id is null), false, true) AS auto_trade,
 	r.price AS price,
 	r.size AS size,
 	r.leverage AS leverage,
@@ -1142,9 +1227,9 @@ join (
 CREATE VIEW devel.vw_stop_orders AS
 select
 	ipos.account AS account,
+	so.stop_order AS stop_order,
 	sr.stop_request AS stop_request,
 	so.tpsl_id AS tpsl_id,
-	lower(cast(hex(sr.stop_request) as char charset utf8mb4)) AS client_order_id,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -1155,6 +1240,7 @@ select
 	ipos.position AS position,
 	sr.stop_type AS stop_type,
 	i.margin_mode AS margin_mode,
+	if((so.client_order_id is null), false, true) AS auto_trade,
 	ps.state AS position_state,
 	ps.status AS position_status,
 	s.state AS state,
@@ -1178,7 +1264,7 @@ select
 from
 	((((((((((devel.stop_request sr
 left join devel.stop_order so on
-	((so.tpsl_id = sr.tpsl_id)))
+	((so.stop_order = sr.stop_request)))
 left join devel.order_state os on
 	((os.order_state = so.order_state)))
 left join devel.state rs on
@@ -1197,6 +1283,28 @@ join devel.currency q on
 	((q.currency = i.quote_currency)))
 join devel.state s on
 	((s.state = sr.state)));
+
+CREATE VIEW devel.vw_stop_states AS
+select
+	sr.stop_request AS stop_request,
+	sr.stop_order AS stop_order,
+	so.tpsl_id AS tpsl_id,
+	sr.instrument_position AS instrument_position,
+	sr.state AS state,
+	sr.stop_type AS stop_type,
+	sr.action AS action,
+	sr.size AS size,
+	sr.trigger_price AS trigger_price,
+	sr.order_price AS order_price,
+	sr.reduce_only AS reduce_only,
+	sr.broker_id AS broker_id,
+	sr.memo AS memo,
+	sr.create_time AS create_time,
+	sr.update_time AS update_time
+from
+	(devel.stop_request sr
+join devel.stop_order so on
+	((so.stop_order = sr.stop_order)));
 
 CREATE VIEW devel.vw_users AS
 select

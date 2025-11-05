@@ -6,6 +6,7 @@
 
 import type { IStops, IStopOrder } from "db/interfaces/stops";
 import type { TRefKey } from "db/interfaces/reference";
+import type { TRequest } from "db/interfaces/state";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -18,6 +19,8 @@ import * as Reference from "db/interfaces/reference";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IStopsAPI {
+  account: Uint8Array;
+  status: TRequest;
   tpslId: string;
   instId: string;
   marginMode: "cross" | "isolated";
@@ -37,6 +40,8 @@ export interface IStopsAPI {
   clientOrderId: string;
   createTime: string;
   brokerId: string;
+  memo: string;
+  update_time: Date
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -52,11 +57,13 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
   for (const order of props) {
     const tp_id = order.tpTriggerPrice == null && order.tpOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `e4`);
     const sl_id = order.slTriggerPrice == null && order.slOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `df`);
+    const tpsl_id = hexify(parseInt(order.tpslId!), 4);
     const client_order_id = hexify(order.clientOrderId!, 5);
     const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
 
     if (instrument_position === undefined) {
       const common = {
+        tpsl_id,
         client_order_id,
         symbol: order.instId,
         position: order.positionSide,
@@ -64,15 +71,15 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
       };
       tp_id &&
         rejected.push({
-          tpsl_id: tp_id,
-          stop_type: "tp",
           ...common,
+          stop_order: tp_id,
+          stop_type: "tp",
         });
       sl_id &&
         rejected.push({
-          tpsl_id: sl_id,
-          stop_type: "sl",
           ...common,
+          stop_order: sl_id,
+          stop_type: "sl",
         });
     } else {
       const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` });
@@ -81,6 +88,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
       const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
 
       const common: Partial<IStopOrder> = {
+        tpsl_id,
         client_order_id,
         instrument_position,
         state: source === "History" && (order.state === "effective" || order.state === "live") ? expired : state,
@@ -103,18 +111,18 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
         const request = await Stops.Submit({
           ...common,
           stop_request: client_order_id || tp_id,
-          tpsl_id: tp_id,
+          stop_order: tp_id,
           stop_type: "tp",
           trigger_price: order.tpTriggerPrice == null ? undefined : format(order.tpTriggerPrice),
           order_price: order.tpOrderPrice == null ? -1 : format(order.tpOrderPrice),
         });
 
-        const result = await Stops.Publish({ ...common, tpsl_id: tp_id });
+        const result = await Stops.Publish({ ...common, stop_order: tp_id });
         result
           ? published.push(result)
           : rejected.push({
-              tpsl_id: tp_id,
               ...common,
+              stop_order: tp_id,
               memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
       }
@@ -126,17 +134,17 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
         const request = await Stops.Submit({
           ...common,
           stop_request: client_order_id || sl_id,
-          tpsl_id: sl_id,
+          stop_order: sl_id,
           stop_type: "sl",
           trigger_price: order.slTriggerPrice == null ? undefined : format(order.slTriggerPrice),
           order_price: order.slOrderPrice == null ? -1 : format(order.slOrderPrice),
         });
-        const result = await Stops.Publish({ ...common, tpsl_id: sl_id });
+        const result = await Stops.Publish({ ...common, stop_order: sl_id });
         result
           ? published.push(result)
           : rejected.push({
-              tpsl_id: sl_id,
               ...common,
+              stop_order: sl_id,
               memo: `>> [Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
             });
       }
@@ -241,7 +249,7 @@ export const Cancel = async (cancels: Array<Partial<IStopsAPI>>) => {
     console.log(error);
     return [];
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Submit - submits a pending TP/SL order;                                              |
@@ -270,7 +278,7 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
 
     if (response.ok) {
       const json = await response.json();
-      return json.data;
+      return await Response.Stops(json.data, { success: "Pending", fail: "Rejected" });
     }
   } catch (error) {
     console.log(error);
