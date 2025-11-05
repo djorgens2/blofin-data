@@ -1,18 +1,18 @@
 -> [Info] request updated {
-  filters: { request: <Buffer fd 46 98 0a 6f d1> },
-  columns: { state: <Buffer 1b 0c b1>, update_time: 2025-10-24T00:09:05.109Z }
+  filters: { request: <Buffer ea c3 b9 f7 61 cf> },
+  columns: { state: <Buffer 1b 0c b1> }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer fd 46 98 0a 6f d1> },
+  filters: { request: <Buffer ea c3 b9 f7 61 cf> },
   columns: {
-    memo: 'Test 2: Success! Canceled pending request locally.',
-    update_time: 2025-10-24T00:09:05.215Z
+    memo: 'Test 3: Success! Canceled pending request locally.',
+    update_time: 2025-11-05T06:21:15.596Z
   }
 }
-Test 2: Request canceled, check db for results.
+Test 3: Request canceled, check db for results.
 {
   account: <Buffer 24 59 7a>,
-  request: <Buffer fd 46 98 0a 6f d1>,
+  request: <Buffer ea c3 b9 f7 61 cf>,
   symbol: 'XRP-USDT',
   status: 'Canceled'
 }

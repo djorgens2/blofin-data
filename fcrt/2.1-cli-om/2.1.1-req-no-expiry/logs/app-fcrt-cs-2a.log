@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 11/2/2025, 4:04:25 PM
-In Subject.Area.Import: 11/2/2025, 4:04:25 PM
+>> [info] Application.Initialization start: 11/4/2025, 10:08:50 PM
+In Subject.Area.Import: 11/4/2025, 10:08:50 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 11/2/2025, 4:04:25 PM
+In Activity.Import: 11/4/2025, 10:08:51 PM
    # Activity imports:  8 verified
-In Authority.Import: 11/2/2025, 4:04:25 PM
+In Authority.Import: 11/4/2025, 10:08:51 PM
    # Authority imports:  6 verified
-In Broker.Import: 11/2/2025, 4:04:26 PM
+In Broker.Import: 11/4/2025, 10:08:51 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 11/2/2025, 4:04:26 PM
+In Contract.Type.Import: 11/4/2025, 10:08:51 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 11/2/2025, 4:04:26 PM
+In Environment.Import: 11/4/2025, 10:08:51 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 11/2/2025, 4:04:26 PM
+In Instrument.Type.Import: 11/4/2025, 10:08:51 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 11/2/2025, 4:04:26 PM
+In Period.Import: 11/4/2025, 10:08:51 PM
    # Period imports:  15 verified
-In Reference.Import: 11/2/2025, 4:04:27 PM
+In Reference.Import: 11/4/2025, 10:08:52 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,23 +24,27 @@ In Reference.Import: 11/2/2025, 4:04:27 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 11/2/2025, 4:04:27 PM
+In Role.Import: 11/4/2025, 10:08:52 PM
    # Role imports:  4 verified
-In State.Import: 11/2/2025, 4:04:27 PM
+In State.Import: 11/4/2025, 10:08:52 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 11/2/2025, 4:04:28 PM
+In Instruments.Import [API]: 11/4/2025, 10:08:53 PM
 -> Instrument:Publish [API]
--> [info] Application.Initialization finished: 11/2/2025, 4:04:31 PM
-Connected to websocket: [178878:wss://demo-trading-openapi.blofin.com/ws/private]
+-> [info] Application.Initialization finished: 11/4/2025, 10:08:56 PM
+Connected to websocket: [375404:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-03T00:04:32.174Z }
+  columns: { total_equity: 52907.661, update_time: 2025-11-05T06:08:56.975Z }
 }
-In Execute.Trades: 11/2/2025, 4:05:00 PM
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 52907.661, coin_usd_price: 1.000015 }
+}
+In Execute.Trades: 11/4/2025, 10:09:25 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -48,33 +52,28 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [20]:  34 published
->> Trades.Queued: Requests in queue: 1
 In Requests.Submit [API]
 -> [Info] Response.Request: Responses received: 1 [
   {
-    orderId: '1000115147511',
-    clientOrderId: '999CFAC8646F',
+    orderId: '1000115364665',
+    clientOrderId: 'EAC3B9F761CF',
     msg: 'success',
     code: '0'
   }
 ]
 -> WSS.Publish [API]
 -> [Info] request updated {
-  filters: { request: <Buffer 99 9c fa c8 64 6f> },
+  filters: { request: <Buffer ea c3 b9 f7 61 cf> },
   columns: {
-    order_id: <Buffer 00 e8 db 82 12 f7>,
+    order_id: <Buffer 00 e8 db 85 63 39>,
     state: <Buffer 4b c9 9c>,
     memo: '[Info] Response.Request: Order submitted successfully',
-    update_time: 2025-11-03T00:05:02.912Z
+    update_time: 2025-11-05T06:09:26.863Z
   }
 }
+>> Trades.Queued: Requests in queue: 1
 -> Queued requests submitted: 1
    # [Info] Requests accepted: 1
-In Requests.Submit [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-03T00:05:02.858Z }
-}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -89,8 +88,8 @@ In Requests.Submit [API]
     'pnl'
   ],
   args: [
-    <Buffer 00 e8 db 82 12 f7>,
-    <Buffer 99 9c fa c8 64 6f>,
+    <Buffer 00 e8 db 85 63 39>,
+    <Buffer ea c3 b9 f7 61 cf>,
     <Buffer 4f ae 94>,
     <Buffer de 78 79>,
     <Buffer 3d 66 8d>,
@@ -101,6 +100,10 @@ In Requests.Submit [API]
     0
   ]
 }
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-05T06:09:26.818Z }
+}
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
   columns: {
@@ -108,12 +111,10 @@ In Requests.Submit [API]
     available_equity: 52299.167,
     frozen: 607.7,
     order_frozen: 607.7,
-    update_time: 2025-11-03T00:05:02.837Z
+    update_time: 2025-11-05T06:09:26.791Z
   }
 }
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:05:29 PM
+In Execute.Trades: 11/4/2025, 10:09:54 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -123,11 +124,7 @@ In Orders.Import [API]
    # Pending Orders Processed [1]:  1 published
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [19]:  30 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:05:58 PM
+In Execute.Trades: 11/4/2025, 10:10:23 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -135,11 +132,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:06:27 PM
+In Execute.Trades: 11/4/2025, 10:10:52 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -147,11 +140,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:06:56 PM
+In Execute.Trades: 11/4/2025, 10:11:21 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -159,11 +148,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:07:25 PM
+In Execute.Trades: 11/4/2025, 10:11:50 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -171,11 +156,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:07:54 PM
+In Execute.Trades: 11/4/2025, 10:12:19 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -183,25 +164,24 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-05T06:12:30.992Z }
+}
+In Execute.Trades: 11/4/2025, 10:12:48 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52906.312, update_time: 2025-11-03T00:08:14.474Z }
+  columns: { update_time: 2025-11-05T06:13:14.134Z }
 }
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52906.312, coin_usd_price: 0.999989 }
-}
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-03T00:08:15.255Z }
-}
--> WSS.Publish [API]
-In Execute.Trades: 11/2/2025, 4:08:23 PM
+In Execute.Trades: 11/4/2025, 10:13:17 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -209,11 +189,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:08:52 PM
+In Execute.Trades: 11/4/2025, 10:13:46 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -221,11 +197,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:09:21 PM
+In Execute.Trades: 11/4/2025, 10:14:15 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -233,11 +205,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:09:50 PM
+In Execute.Trades: 11/4/2025, 10:14:44 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -245,11 +213,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:10:19 PM
+In Execute.Trades: 11/4/2025, 10:15:13 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -257,11 +221,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:10:48 PM
+In Execute.Trades: 11/4/2025, 10:15:42 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -269,11 +229,7 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:11:17 PM
+In Execute.Trades: 11/4/2025, 10:16:11 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -281,61 +237,74 @@ In Orders.Import [API]
    # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:11:46 PM
+In Execute.Trades: 11/4/2025, 10:16:40 PM
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
-   # History Orders Processed [20]:  20 published
+   # History Orders Processed [16]:  16 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:12:15 PM
+In Execute.Trades: 11/4/2025, 10:17:09 PM
 In Orders.Import [API]
 -> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [15]:  15 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:12:45 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
-In Execute.Trades: 11/2/2025, 4:13:14 PM
-In Orders.Import [API]
--> Fetch:History [API]
--> WSS.Publish [API]
 -> Fetch:Pending [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-03T00:13:14.481Z }
+  columns: { update_time: 2025-11-05T06:17:30.977Z }
 }
->> Trades.Queued: Requests in queue: 0
-In Requests.Submit [API]
--> [Error] Response.Request: No response data received from broker API
->> Trades.Queued: Requests in queue: 1
+In Execute.Trades: 11/4/2025, 10:17:38 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:18:07 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-03T00:13:15.338Z }
+  columns: { update_time: 2025-11-05T06:18:14.130Z }
 }
--> WSS.Publish [API]
+In Execute.Trades: 11/4/2025, 10:18:36 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:19:05 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:19:34 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:20:03 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:20:32 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+In Execute.Trades: 11/4/2025, 10:21:01 PM
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
