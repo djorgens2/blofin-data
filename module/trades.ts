@@ -10,7 +10,7 @@ import type { IRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
-import { hexString } from "lib/std.util";
+import { format, hexString } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { Session } from "module/session";
 import { Select, Update } from "db/query.utils";
@@ -269,6 +269,8 @@ const processStops = async () => {
   const Queued = async () => {
     const queued: Array<Partial<IStopsAPI>> = [];
     const errors: Array<Partial<IStopsAPI>> = [];
+    const verify: Array<Partial<IStopsAPI>> = [];
+    const closures: Array<Partial<IStopsAPI>> = [];
     const success: Array<Partial<IResponse>> = [];
     const failed: Array<Partial<IResponse>> = [];
     const expired: Array<Partial<IStopsAPI>> = [];
@@ -277,40 +279,64 @@ const processStops = async () => {
 
     if (requests) {
       for (const request of requests) {
+        const positionOpen = await isOpen({ symbol: request.instId, position: request.positionSide });
         const { account, tpslId, status, memo, update_time, ...api } = request;
-        tpslId ? errors.push(api) : queued.push(api);
+        tpslId ? errors.push(api) : positionOpen ? queued.push(api) : verify.push(api);
+      }
+
+      if (verify.length) {
+        for (const verified of verify) {
+          const instrument_position = await InstrumentPosition.Fetch({ symbol: verified.instId, position: verified.positionSide, account: Session().account });
+
+          if (instrument_position) {
+            const [current] = instrument_position;
+            const { open_request } = current;
+
+            if (open_request) {
+              await Stops.Submit({
+                stop_request: hexify(verified.clientOrderId!, 5),
+                instrument_position: current.instrument_position,
+                trigger_price: verified.tpTriggerPrice == null ? format(verified.slTriggerPrice!) : format(verified.tpTriggerPrice),
+                order_price: verified.tpOrderPrice == null ? format(verified.slOrderPrice!) : format(verified.tpOrderPrice),
+                size: format(verified.size!),
+                reduce_only: verified.reduceOnly === "true",
+                broker_id: verified.brokerId == null ? undefined : verified.brokerId,
+                update_time: new Date(),
+              });
+            } else expired.push(verified);
+          } else errors.push(verified);
+        }
+      }
+
+      if (expired.length) {
+        const state = await States.Key<IRequestState>({ status: "Expired" });
+        for (const expire of expired) {
+          const stop_request = {
+            stop_request: hexify(expire.clientOrderId!, 5),
+            state,
+            memo: `[Info] Trades.Queued: Stop order on closed position; state changed to Expired`,
+            update_time: new Date(),
+          };
+          const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `stop_request` }] });
+          result && closures.push(expire);
+        }
       }
 
       if (queued.length) {
         for (const queue of queued) {
-          const positionOpen = await isOpen({ symbol: queue.instId, position: queue.positionSide });
-          if (positionOpen) {
-            const [accepted, rejected] = (await StopsAPI.Submit(queue)) ?? [[], []];
-            success.push(...accepted);
-            failed.push(...rejected);
-          } else {
-            expired.push(queue);
-          }
+          const [accepted, rejected] = (await StopsAPI.Submit(queue)) ?? [[], []];
+          success.push(...accepted);
+          failed.push(...rejected);
         }
 
-        if (expired.length) {
-          const state = await States.Key<IRequestState>({ status: "Expired" });
-          for (const expire of expired) {
-            const stop_request = {
-              stop_request: hexify(expire.clientOrderId!, 5),
-              state,
-              memo: `[Info] Trades.Queued: Stop order on closed position; state changed to Expired`,
-              update_time: new Date(),
-            };
-            console.log("Expiring stop order", stop_request);
-            const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `stop_request` }] });
-          }
-        }
-
-        console.log(">> Trades.Queued: Stop Requests in queue:", requests.length);
+        console.log("-> Trades.Queued: Stop Requests in queue:", requests.length);
         success.length && console.log("   # [Info] Stop Requests submitted:", success.length);
         failed.length && console.log("   # [Error] Stop Requests rejected:", failed.length);
-        expired.length && console.log("   # [Warning] Stop Requests expired:", expired.length);
+      }
+
+      if (expired.length) {
+        console.log("-> Trades.Queued: Stop Requests processed as expired [", expired.length, "]");
+        closures.length && console.log("   # [Warning] Stop Requests expired:", closures.length);
       }
     }
   };

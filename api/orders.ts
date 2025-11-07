@@ -38,10 +38,10 @@ export interface IOrderAPI extends IRequestAPI {
 //| Format order object for database insertion;                                          |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) => {
+  props && console.log(`-> ${source}.Publish [API]`);
+
   const accepted: Array<IOrder["order_id"]> = [];
   const rejected: Array<Partial<IOrder>> = [];
-
-  props && console.log(`-> ${source}.Publish [API]`);
 
   for (const order of props) {
     const order_id = hexify(parseInt(order.orderId!).toString(16), 6);
@@ -125,6 +125,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
 //+--------------------------------------------------------------------------------------+
 const Pending = async (): Promise<Array<Partial<IOrderAPI>> | undefined> => {
   console.log(`-> Fetch:Pending [API]`);
+
   const method = "GET";
   const path = "/api/v1/trade/orders-pending";
   const { api, phrase, rest_api_url } = Session();
@@ -158,6 +159,7 @@ const Pending = async (): Promise<Array<Partial<IOrderAPI>> | undefined> => {
 //+--------------------------------------------------------------------------------------+
 export const Cancel = async (cancels: Array<Partial<IOrderAPI>>) => {
   console.log(`-> Cancel [API]`);
+
   const method = "POST";
   const path = "/api/v1/trade/cancel-batch-orders";
   const body = JSON.stringify(cancels.map(({ instId, orderId }) => ({ instId, orderId })));
@@ -245,6 +247,7 @@ export const Import = async () => {
 
   if (pending && pending.length) {
     const [published, rejected] = await Publish("Pending", pending);
+
     published && published.length && console.log(`   # Pending Orders Processed [${pending.length}]:  ${published.length} published`);
     rejected && rejected.length && console.log("   # Pending Orders Rejected: ", rejected.length);
   }

@@ -60,6 +60,7 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
   if (Object.keys(current).length) {
     if (Object.keys(props).length) {
       const revised: Partial<IStops> = {
+        stop_request: props.stop_request,
         size: isEqual(props.size!, current.size!) ? undefined : props.size,
         trigger_price: isEqual(props.trigger_price!, current.trigger_price!) ? undefined : props.trigger_price,
         order_price: isEqual(props.order_price!, current.order_price!) ? undefined : props.order_price,

@@ -11,18 +11,19 @@ import { isEqual } from "lib/std.util";
 
 export interface IPositions {
   account: Uint8Array;
-  instrument_position: Uint8Array;
   positions: Uint8Array;
+  instrument_position: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
   position: "short" | "long" | "net";
+  state: Uint8Array;
+  status: TStatus;
   instrument_type: Uint8Array;
   action: "buy" | "sell";
   counter_action: "buy" | "sell";
   size: number;
   size_available: number;
   leverage: number;
-  digits: number;
   margin_mode: "cross" | "isolated";
   margin_used: number;
   margin_ratio: number;
@@ -34,8 +35,6 @@ export interface IPositions {
   unrealized_pnl: number;
   unrealized_pnl_ratio: number;
   adl: number;
-  state: Uint8Array;
-  status: TStatus;
   create_time: Date;
   update_time: Date;
 }

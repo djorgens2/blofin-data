@@ -13,13 +13,16 @@ import { hashKey } from "lib/crypto.util";
 import * as State from "db/interfaces/state";
 
 export interface IInstrumentPosition {
-  instrument_position: Uint8Array;
   account: Uint8Array;
+  instrument_position: Uint8Array;
   instrument: Uint8Array;
   position: `long` | `net` | `short`;
   symbol: string;
   state: Uint8Array;
   status: TStatus;
+  trade_period: Uint8Array;
+  timeframe: string;
+  timeframe_units: number;
   auto_state: Uint8Array;
   auto_status: TSystem;
   strict_stops: boolean;

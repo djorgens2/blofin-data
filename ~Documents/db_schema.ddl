@@ -758,7 +758,7 @@ select
 	gop.tpOrderPrice AS tpOrderPrice,
 	gop.slTriggerPrice AS slTriggerPrice,
 	gop.slOrderPrice AS slOrderPrice,
-	bsr.reduce_only AS reduceOnly,
+	if((bsr.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	upper(hex(so.client_order_id)) AS clientOrderId,
 	bsr.brokerId AS brokerId,
 	bsr.memo AS memo,
@@ -795,7 +795,7 @@ select
 		when (bsr.stop_type = 'sl') then replace(format(bsr.order_price, bsr.digits, 'en_US'), ',', '')
 		else NULL
 	end) AS slOrderPrice,
-	bsr.reduce_only AS reduceOnly,
+	if((bsr.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	upper(hex(bsr.stop_request)) AS clientOrderId,
 	bsr.brokerId AS brokerId,
 	bsr.memo AS memo,
@@ -922,6 +922,8 @@ select
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	i.trade_period AS trade_period,
+	p.timeframe AS timeframe,
+	p.timeframe_units AS timeframe_units,
 	s.state AS auto_state,
 	s.status AS auto_status,
 	i.margin_mode AS margin_mode,
@@ -933,9 +935,9 @@ select
 	id.min_size AS min_size,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
-	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits
 from
-	(((((devel.instrument_position ipos
+	(((((((devel.instrument_position ipos
 join devel.instrument i on
 	((i.instrument = ipos.instrument)))
 join devel.instrument_detail id on
@@ -945,7 +947,11 @@ join devel.currency b on
 join devel.currency q on
 	((q.currency = i.quote_currency)))
 join devel.state s on
-	((s.state = ipos.auto_state)));
+	((s.state = ipos.auto_state)))
+join devel.instrument_period ip on
+	(((ip.instrument = i.instrument) and (ip.period = i.trade_period))))
+join devel.period p on
+	((p.period = ip.period)));
 
 CREATE VIEW devel.vw_currency AS
 select
@@ -1013,7 +1019,7 @@ select
 	id.lot_size AS lot_size,
 	i.lot_scale_factor AS lot_scale_factor,
 	id.tick_size AS tick_size,
-	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits,
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
 	i.martingale_factor AS martingale_factor,
 	ip.bulk_collection_rate AS bulk_collection_rate,
 	if(((ip.bulk_collection_rate = 0) or (ip.bulk_collection_rate is null)), NULL, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
@@ -1137,25 +1143,25 @@ select
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	ipos.position AS position,
+	s.state AS state,
+	s.status AS status,
 	it.source_ref AS instrument_type,
 	if((p.size > 0), 'buy', 'sell') AS action,
 	if((p.size < 0), 'buy', 'sell') AS counter_action,
 	p.size AS size,
 	p.size_available AS size_available,
 	p.leverage AS leverage,
-	(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits,
 	p.margin_mode AS margin_mode,
+	p.margin_used AS margin_used,
 	p.margin_ratio AS margin_ratio,
-	replace(format(p.margin_initial, 3), ',', '') AS margin_initial,
-	replace(format(p.margin_maint, 3), ',', '') AS margin_maint,
-	replace(format(p.average_price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS average_price,
-	replace(format(p.liquidation_price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS liquidation_price,
-	replace(format(p.mark_price,(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1)), ',', '') AS mark_price,
-	replace(format(p.unrealized_pnl, 3), ',', '') AS unrealized_pnl,
+	p.margin_initial AS margin_initial,
+	p.margin_maint AS margin_maint,
+	p.average_price AS average_price,
+	p.liquidation_price AS liquidation_price,
+	p.mark_price AS mark_price,
+	p.unrealized_pnl AS unrealized_pnl,
 	p.unrealized_pnl_ratio AS unrealized_pnl_ratio,
 	p.adl AS adl,
-	s.state AS state,
-	s.status AS status,
 	p.create_time AS create_time,
 	p.update_time AS update_time
 from
@@ -1411,7 +1417,6 @@ select
 	auto.status AS auto_status,
 	ipos.strict_stops AS strict_stops,
 	ipos.strict_targets AS strict_targets,
-	id.digits AS digits,
 	ifnull(r.open_request, 0) AS open_request,
 	ifnull(tp.open_take_profit, 0) AS open_take_profit,
 	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
@@ -1419,20 +1424,13 @@ select
 	ipos.close_time AS close_time,
 	r.create_time AS create_time
 from
-	(((((((devel.instrument_position ipos
+	((((((devel.instrument_position ipos
 join devel.vw_instruments vi on
 	((ipos.instrument = devel.vi.instrument)))
 join devel.state s on
 	((ipos.state = s.state)))
 join devel.state auto on
 	((auto.state = ipos.auto_state)))
-join (
-	select
-		id.instrument AS instrument,
-		(length(substring_index(cast(id.tick_size as char charset utf8mb4), '.',-(1))) + 1) AS digits
-	from
-		devel.instrument_detail id) id on
-	((id.instrument = ipos.instrument)))
 left join (
 	select
 		r.instrument_position AS instrument_position,
