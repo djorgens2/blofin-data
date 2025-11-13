@@ -1,8 +1,7 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                           Environ.ts |
+//|                                                                               URL.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
 import Prompt, { IOption } from "cli/modules/Prompts";
@@ -12,17 +11,17 @@ import { Answers } from "prompts";
 //| Retrieves environment assignments in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
 export const setUrl = async <T extends Answers<string>>(props: T) => {
-    const choices: Array<IOption> = [];
-    
-    const url = await Prompt(["text"], { message: props.message, initial: props.initial });
-    const verified = await checkURL(url.value);
-    return { url, verified };
+  const choices: Array<IOption> = [];
+
+  const url = await Prompt(["text"], { message: props.message, initial: props.initial });
+  const verified = await checkURL(url.value);
+  return { url, verified };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves environment assignments in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
-async function checkURL(url: string) {
+const checkURL = async (url: string) => {
   try {
     const response = await fetch(url, { mode: "no-cors" });
     if (response.status === 200) {
@@ -33,5 +32,4 @@ async function checkURL(url: string) {
   } catch (error) {
     console.log(`URL "${url}" is offline or an error occurred:`, error);
   }
-}
-
+};

@@ -39,6 +39,10 @@ CREATE  TABLE devel.cancel_source (
 	CONSTRAINT ak_cancel UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+ALTER TABLE devel.cancel_source COMMENT 'not_canceled
+user_canceled
+system_canceled';
+
 CREATE  TABLE devel.contract_type ( 
 	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -62,6 +66,15 @@ CREATE  TABLE devel.fibonacci (
 CREATE  TABLE devel.fractal_state ( 
 	fractal_state        CHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+ALTER TABLE devel.fractal_state COMMENT 'Rally
+Pullback
+Retrace
+Correction
+Recovery
+Breakout
+Reversal
+Extension';
 
 CREATE  TABLE devel.full_audit_request ( 
 	request              BINARY(6)    NOT NULL   ,
@@ -93,12 +106,23 @@ CREATE  TABLE devel.margin_mode (
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+ALTER TABLE devel.margin_mode COMMENT 'Margin mode
+cross
+isolated';
+
 CREATE  TABLE devel.order_category ( 
 	order_category       BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT ak_category UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+ALTER TABLE devel.order_category COMMENT 'normal
+full_liquidation
+partial_liquidation
+adl
+tp
+sl';
 
 CREATE  TABLE devel.order_state ( 
 	order_state          BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -107,6 +131,8 @@ CREATE  TABLE devel.order_state (
 	status               VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_order_state UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+ALTER TABLE devel.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
 
 CREATE  TABLE devel.orders ( 
 	order_id             BINARY(6)    NOT NULL   PRIMARY KEY,
@@ -144,6 +170,14 @@ CREATE  TABLE devel.point_type (
 	point_type           CHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+ALTER TABLE devel.point_type COMMENT 'Origin
+Base
+Root
+Expansion
+Retrace
+Recovery
+Close';
+
 CREATE  TABLE devel.position ( 
 	position             CHAR(5)    NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -153,12 +187,23 @@ CREATE  TABLE devel.price_type (
 	description          VARCHAR(16)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+ALTER TABLE devel.price_type COMMENT 'Trigger price type.
+last: last price
+index: index price
+mark: mark price';
+
 CREATE  TABLE devel.request_type ( 
 	request_type         BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	CONSTRAINT ak_request_type UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+ALTER TABLE devel.request_type COMMENT 'market: market order
+limit: limit order
+post_only: Post-only order
+fok: Fill-or-kill order
+ioc: Immediate-or-cancel order';
 
 CREATE  TABLE devel.role ( 
 	role                 BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -444,7 +489,7 @@ CREATE INDEX fk_ra_activity ON devel.role_authority ( activity );
 
 CREATE  TABLE devel.stop_request ( 
 	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
-	stop_order           BINARY(5)       ,
+	tpsl_id              BINARY(4)       ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	stop_type            CHAR(2)    NOT NULL   ,
@@ -457,7 +502,6 @@ CREATE  TABLE devel.stop_request (
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	CONSTRAINT uk_sr_stop_order UNIQUE ( stop_order ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -470,6 +514,8 @@ CREATE INDEX fk_sr_stop_type ON devel.stop_request ( stop_type );
 CREATE INDEX fk_sr_instrument_position ON devel.stop_request ( instrument_position );
 
 CREATE INDEX fk_sr_state ON devel.stop_request ( state );
+
+CREATE INDEX ie_sr_stop_order ON devel.stop_request ( tpsl_id );
 
 CREATE  TABLE devel.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
@@ -554,6 +600,9 @@ ALTER TABLE devel.fractal_fibonacci ADD CONSTRAINT ck_ff_fractal_type CHECK ( fr
 CREATE INDEX fk_ff_fibonacci ON devel.fractal_fibonacci ( fibonacci );
 
 CREATE INDEX fk_ff_fractal_state ON devel.fractal_fibonacci ( fractal_state );
+
+ALTER TABLE devel.fractal_fibonacci MODIFY fractal_type CHAR(10)  NOT NULL   COMMENT 'Retrace
+Extension';
 
 CREATE  TABLE devel.fractal_point ( 
 	fractal              BINARY(3)    NOT NULL   ,
@@ -694,7 +743,7 @@ join devel.currency q on
 BaseStopRequests as (
 select
 	sr.stop_request AS stop_request,
-	sr.stop_order AS stop_order,
+	sr.tpsl_id AS tpsl_id,
 	sr.instrument_position AS instrument_position,
 	sr.state AS state,
 	sr.stop_type AS stop_type,
@@ -741,7 +790,7 @@ join devel.instrument_position ipos on
 join InstrumentDetails id on
 	((id.instrument = ipos.instrument)))
 join devel.stop_order o on
-	((o.stop_order = sr.stop_order)))
+	((o.tpsl_id = sr.tpsl_id)))
 group by
 	ipos.account,
 	o.tpsl_id)
@@ -766,7 +815,7 @@ select
 from
 	((BaseStopRequests bsr
 join devel.stop_order so on
-	((so.stop_order = bsr.stop_order)))
+	((so.tpsl_id = bsr.tpsl_id)))
 join GroupedOrderPrices gop on
 	(((gop.account = bsr.account) and (gop.tpsl_id = so.tpsl_id))))
 union
@@ -803,7 +852,7 @@ select
 from
 	BaseStopRequests bsr
 where
-	(bsr.stop_order is null);
+	(bsr.tpsl_id is null);
 
 CREATE VIEW devel.vw_audit_instrument_periods AS
 select
@@ -1235,7 +1284,7 @@ select
 	ipos.account AS account,
 	so.stop_order AS stop_order,
 	sr.stop_request AS stop_request,
-	so.tpsl_id AS tpsl_id,
+	sr.tpsl_id AS tpsl_id,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -1270,7 +1319,7 @@ select
 from
 	((((((((((devel.stop_request sr
 left join devel.stop_order so on
-	((so.stop_order = sr.stop_request)))
+	((so.tpsl_id = sr.tpsl_id)))
 left join devel.order_state os on
 	((os.order_state = so.order_state)))
 left join devel.state rs on
@@ -1289,28 +1338,6 @@ join devel.currency q on
 	((q.currency = i.quote_currency)))
 join devel.state s on
 	((s.state = sr.state)));
-
-CREATE VIEW devel.vw_stop_states AS
-select
-	sr.stop_request AS stop_request,
-	sr.stop_order AS stop_order,
-	so.tpsl_id AS tpsl_id,
-	sr.instrument_position AS instrument_position,
-	sr.state AS state,
-	sr.stop_type AS stop_type,
-	sr.action AS action,
-	sr.size AS size,
-	sr.trigger_price AS trigger_price,
-	sr.order_price AS order_price,
-	sr.reduce_only AS reduce_only,
-	sr.broker_id AS broker_id,
-	sr.memo AS memo,
-	sr.create_time AS create_time,
-	sr.update_time AS update_time
-from
-	(devel.stop_request sr
-join devel.stop_order so on
-	((so.stop_order = sr.stop_order)));
 
 CREATE VIEW devel.vw_users AS
 select
@@ -1510,7 +1537,6 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
-
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
@@ -1556,52 +1582,4 @@ CREATE TRIGGER devel.trig_update_audit_request AFTER UPDATE ON request FOR EACH 
               NEW.update_time
              );
 END;
-
-ALTER TABLE devel.cancel_source COMMENT 'not_canceled
-user_canceled
-system_canceled';
-
-ALTER TABLE devel.fractal_state COMMENT 'Rally
-Pullback
-Retrace
-Correction
-Recovery
-Breakout
-Reversal
-Extension';
-
-ALTER TABLE devel.margin_mode COMMENT 'Margin mode
-cross
-isolated';
-
-ALTER TABLE devel.order_category COMMENT 'normal
-full_liquidation
-partial_liquidation
-adl
-tp
-sl';
-
-ALTER TABLE devel.order_state COMMENT 'live, effective, canceled, order_failed, filled, partially_canceled, partially_filled';
-
-ALTER TABLE devel.point_type COMMENT 'Origin
-Base
-Root
-Expansion
-Retrace
-Recovery
-Close';
-
-ALTER TABLE devel.price_type COMMENT 'Trigger price type.
-last: last price
-index: index price
-mark: mark price';
-
-ALTER TABLE devel.request_type COMMENT 'market: market order
-limit: limit order
-post_only: Post-only order
-fok: Fill-or-kill order
-ioc: Immediate-or-cancel order';
-
-ALTER TABLE devel.fractal_fibonacci MODIFY fractal_type CHAR(10)  NOT NULL   COMMENT 'Retrace
-Extension';
 

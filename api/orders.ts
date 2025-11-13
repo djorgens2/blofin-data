@@ -182,7 +182,7 @@ export const Cancel = async (cancels: Array<Partial<IOrderAPI>>) => {
     });
     if (response.ok) {
       const json = await response.json();
-      return await Response.Request(json.data, { success: "Closed", fail: "Canceled" });
+      return await Response.Request(json, { success: "Closed", fail: "Canceled" });
     } else throw new Error(`Order.Cancel: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(">> [Error] Order.Cancel:", error, method, headers, body);

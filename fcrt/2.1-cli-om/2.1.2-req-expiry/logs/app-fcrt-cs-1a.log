@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 11/5/2025, 11:08:47 AM
-In Subject.Area.Import: 11/5/2025, 11:08:47 AM
+>> [Info] Application.Initialization start: 11/12/2025, 2:49:56 PM
+In Subject.Area.Import: 11/12/2025, 2:49:57 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 11/5/2025, 11:08:47 AM
+In Activity.Import: 11/12/2025, 2:49:57 PM
    # Activity imports:  8 verified
-In Authority.Import: 11/5/2025, 11:08:48 AM
+In Authority.Import: 11/12/2025, 2:49:57 PM
    # Authority imports:  6 verified
-In Broker.Import: 11/5/2025, 11:08:48 AM
+In Broker.Import: 11/12/2025, 2:49:57 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 11/5/2025, 11:08:48 AM
+In Contract.Type.Import: 11/12/2025, 2:49:58 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 11/5/2025, 11:08:48 AM
+In Environment.Import: 11/12/2025, 2:49:58 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 11/5/2025, 11:08:48 AM
+In Instrument.Type.Import: 11/12/2025, 2:49:58 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 11/5/2025, 11:08:48 AM
+In Period.Import: 11/12/2025, 2:49:58 PM
    # Period imports:  15 verified
-In Reference.Import: 11/5/2025, 11:08:49 AM
+In Reference.Import: 11/12/2025, 2:49:59 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,122 +24,845 @@ In Reference.Import: 11/5/2025, 11:08:49 AM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 11/5/2025, 11:08:49 AM
+In Role.Import: 11/12/2025, 2:49:59 PM
    # Role imports:  4 verified
-In State.Import: 11/5/2025, 11:08:49 AM
+In State.Import: 11/12/2025, 2:49:59 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 11/5/2025, 11:08:50 AM
+In Instruments.Import [API]: 11/12/2025, 2:50:00 PM
 -> Instrument:Publish [API]
--> [Info] currency inserted {
-  fields: [ 'currency', 'symbol', 'state', 'image_url' ],
-  args: [
-    <Buffer 1d 25 42>,
-    'TRUST',
-    <Buffer 5b 34 d5>,
-    './public/images/currency/no-image.png'
-  ]
-}
--> [Info] instrument inserted {
-  fields: [
-    'instrument',
-    'trade_period',
-    'base_currency',
-    'quote_currency',
-    'margin_mode',
-    'leverage',
-    'lot_scale_factor',
-    'martingale_factor'
-  ],
-  args: [
-    <Buffer 88 46 fb>,
-    <Buffer 03 e8 0e>,
-    <Buffer 1d 25 42>,
-    <Buffer cb 69 43>,
-    'cross',
-    10,
-    1,
-    1
-  ]
-}
--> [Info] instrument_detail inserted {
-  fields: [
-    'instrument',
-    'instrument_type',
-    'contract_type',
-    'contract_value',
-    'max_leverage',
-    'min_size',
-    'lot_size',
-    'tick_size',
-    'max_limit_size',
-    'max_market_size',
-    'list_time',
-    'expiry_time'
-  ],
-  args: [
-    <Buffer 88 46 fb>,
-    <Buffer e1 a1 fa>,
-    <Buffer 9b 1a cc>,
-    10,
-    50,
-    1,
-    1,
-    0.0001,
-    250000,
-    25000,
-    2025-11-05T09:45:00.000Z,
-    2124-08-01T10:00:00.000Z
-  ]
-}
-   # Instruments Updated:  1 modified
--> [info] Application.Initialization finished: 11/5/2025, 11:08:54 AM
-Connected to websocket: [430659:wss://demo-trading-openapi.blofin.com/ws/private]
+>> [Info] Application.Initialization finished: 11/12/2025, 2:50:02 PM
+Connected to websocket: [90283:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
+-> Candle:Publish [API]: ENA-USDT / 7
+-> Candle:Publish [API]: XRP-USDT / 7
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    0.3064,
+    0.3073,
+    0.3064,
+    0.3073,
+    503,
+    503,
+    154.3823,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    2.3747,
+    2.3729,
+    2.3712,
+    2.3729,
+    87786,
+    87786,
+    208382.8552,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    0.3051,
+    0.3064,
+    0.3046,
+    0.3064,
+    60172,
+    60172,
+    18364.302,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    2.3682,
+    2.3747,
+    2.362,
+    2.3747,
+    233721,
+    233721,
+    553241.6777,
+    true
+  ]
+}
+-> Candle:Publish [API]: PONKE-USDT / 7
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 0.307,
+    low: 0.3053,
+    close: 0.3053,
+    volume: 5890,
+    vol_currency: 58903,
+    vol_currency_quote: 18057.5904,
+    completed: true
+  }
+}
+-> Candle:Publish [API]: ARC-USDT / 7
+-> Candle:Publish [API]: ORCA-USDT / 7
+-> Candle:Publish [API]: BTC-USDT / 7
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 2.3763,
+    close: 2.368,
+    volume: 4101,
+    vol_currency: 410105,
+    vol_currency_quote: 972168.131,
+    completed: true
+  }
+}
+-> Candle:Publish [API]: VIRTUAL-USDT / 7
 -> WSS.Publish [API]
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    0.04889,
+    0.04898,
+    0.04889,
+    0.04898,
+    300,
+    300,
+    14.6824,
+    false
+  ]
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 2.3928, volume: 6814 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 0.3082, volume: 7988 }
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    0.0302,
+    0.03043,
+    0.0302,
+    0.03043,
+    370,
+    370,
+    11.2403,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    1.2651,
+    1.2683,
+    1.2642,
+    1.2683,
+    1922,
+    1922,
+    2437.4921,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    1.376,
+    1.376,
+    1.376,
+    1.376,
+    5,
+    5,
+    6.88,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:45:00.000Z,
+    101774.2,
+    101830.8,
+    101703,
+    101830.8,
+    10.7188,
+    10.7188,
+    1091064.98863,
+    false
+  ]
+}
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52903.958, update_time: 2025-11-05T19:08:54.852Z }
+  columns: { total_equity: 55140.459, update_time: 2025-11-12T22:50:04.091Z }
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    0.04879,
+    0.0488,
+    0.04874,
+    0.0488,
+    1090,
+    1090,
+    53.1938,
+    true
+  ]
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { high: 0.3086, volume: 2370 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { high: 2.3931, volume: 2630 }
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    1.379,
+    1.376,
+    1.373,
+    1.376,
+    52,
+    52,
+    71.477,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    0.03032,
+    0.0302,
+    0.0302,
+    0.0302,
+    1540,
+    1540,
+    46.7017,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    1.2558,
+    1.2652,
+    1.2558,
+    1.2652,
+    2792,
+    2792,
+    3522.9723,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:30:00.000Z,
+    101629.6,
+    101774.1,
+    101528.5,
+    101774.1,
+    13.7573,
+    13.7573,
+    1399231.77379,
+    true
+  ]
 }
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52903.958, coin_usd_price: 0.999945 }
+  columns: { equity_usd: 55140.459, coin_usd_price: 0.999789 }
 }
-In Execute.Trades: 11/5/2025, 11:09:23 AM
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 0.049,
+    close: 0.0488,
+    volume: 152,
+    vol_currency: 1520,
+    vol_currency_quote: 74.2324,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 1.2654,
+    low: 1.2547,
+    close: 1.2553,
+    volume: 20984,
+    vol_currency: 20984,
+    vol_currency_quote: 26429.8616,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { volume: 4233 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: { completed: true }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 101695.1,
+    close: 101628.5,
+    volume: 21277,
+    vol_currency: 21.2774,
+    vol_currency_quote: 2160385.86017,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 0.3096, volume: 1415 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:15:00.000Z
+  },
+  columns: {
+    high: 0.03056,
+    low: 0.03032,
+    close: 0.03032,
+    volume: 203,
+    vol_currency: 2030,
+    vol_currency_quote: 61.8288,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 0.04919, volume: 4319 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 2.376, volume: 5804 }
+}
+[process]  Symbol: [XRP-USDT] exit; PID: 90362 exited with code 1
+[main] Symbol: [XRP-USDT] exit; PID: [90283:90362] with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { high: 0.04921, volume: 90 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 101888.4, volume: 22059 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 1.383 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 1.265 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 0.3096, volume: 51526 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T22:00:00.000Z
+  },
+  columns: { high: 0.03062, volume: 204 }
+}
+[process]  Symbol: [ENA-USDT] exit; PID: 90354 exited with code 1
+[main] Symbol: [ENA-USDT] exit; PID: [90283:90354] with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { high: 1.2651 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { volume: 225 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 1.382 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:45:00.000Z
+  },
+  columns: { volume: 12259 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 0.04922, volume: 134 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 101876.2, volume: 33879 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 0.03062, volume: 54482 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:30:00.000Z
+  },
+  columns: { high: 1.2712 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 1.379 }
+}
+[process]  Symbol: [ORCA-USDT] exit; PID: 90379 exited with code 1
+[main] Symbol: [ORCA-USDT] exit; PID: [90283:90379] with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 0.03068, volume: 37868 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 0.0493, volume: 185 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 1.2665 }
+}
+[process]  Symbol: [ARC-USDT] exit; PID: 90355 exited with code 1
+[process]  Symbol: [PONKE-USDT] exit; PID: 90353 exited with code 1
+[main] Symbol: [PONKE-USDT] exit; PID: [90283:90353] with code 1
+[main] Symbol: [ARC-USDT] exit; PID: [90283:90355] with code 1
+[process]  Symbol: [VIRTUAL-USDT] exit; PID: 90361 exited with code 1
+[main] Symbol: [VIRTUAL-USDT] exit; PID: [90283:90361] with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T21:15:00.000Z
+  },
+  columns: { high: 101818.1, volume: 18281 }
+}
+[process]  Symbol: [BTC-USDT] exit; PID: 90373 exited with code 1
+[main] Symbol: [BTC-USDT] exit; PID: [90283:90373] with code 1
+In Execute.Trades: 11/12/2025, 2:50:32 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
 -> History.Publish.Stops [API]
-   # History Stop Orders Processed [20]:  34 published
+   # History Stop Orders Processed [40]:  35 published
 >> Trades.Queued: Requests in queue: 1
 -> Queued requests submitted: 0
 -> [Info] request updated {
-  filters: { request: <Buffer ba 4f fd d8 90 0e> },
-  columns: { state: <Buffer 19 d3 88> }
+  filters: { request: <Buffer 17 63 d6 ea 3b 75> },
+  columns: { state: <Buffer 19 d3 88>, reduce_only: false }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer ba 4f fd d8 90 0e> },
+  filters: { request: <Buffer 17 63 d6 ea 3b 75> },
   columns: {
     memo: '[Expired]: Queued request changed to Expired',
-    update_time: 2025-11-05T19:09:24.662Z
+    update_time: 2025-11-12T22:50:33.450Z
   }
 }
 -> Pending expired requests: 1
    # [Info] Expired requests accepted: 1
-In Execute.Trades: 11/5/2025, 11:09:52 AM
+In Execute.Trades: 11/12/2025, 2:51:01 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
 -> History.Publish.Stops [API]
-   # History Stop Orders Processed [19]:  30 published
-In Execute.Trades: 11/5/2025, 11:10:21 AM
+   # History Stop Orders Processed [40]:  31 published
+In Execute.Trades: 11/12/2025, 2:51:30 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [40]:  20 published
+In Execute.Trades: 11/12/2025, 2:51:59 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [38]:  19 published
+In Execute.Trades: 11/12/2025, 2:52:28 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-12T22:52:31.127Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-12T22:52:31.131Z }
+}
+In Execute.Trades: 11/12/2025, 2:52:57 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]

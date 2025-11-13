@@ -150,8 +150,8 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     timeframe: instrument.trade_timeframe!,
   };
   const candles = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
-  console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0});
-  const start: Partial<ICandle> = { ...candles![candles!.length - 1] || 0 }; // -- oldest candle
+  console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0 });
+  const start: Partial<ICandle> = { ...(candles![candles!.length - 1] || 0) }; // -- oldest candle
 
   if (!start.timestamp) throw new Error("CFractal: Unable to initialize; no candle data");
 
@@ -176,7 +176,7 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
   //+--------------------------------------------------------------------------------------+
   //| iBar - Returns bar index for supplied timestamp                                      |
   //+--------------------------------------------------------------------------------------+
-  function iBar(time: number): number {
+  const iBar = (time: number): number => {
     let left = 0;
     let right = price.length - 1;
 
@@ -188,12 +188,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     }
 
     return -1;
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| iHigh - Returns highest IBar(obj) between provided bounds                            |
   //+--------------------------------------------------------------------------------------+
-  function iHigh(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+  const iHigh = (timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint => {
     let startBar = timeStart ? iBar(timeStart) : 0;
     const stopBar = timeStop ? iBar(timeStop) : price.length;
     const searchDir = direction(stopBar - startBar);
@@ -207,12 +207,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     }
 
     return { timestamp: price[searchIndex].timestamp, price: price[searchIndex].high };
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| iLow - Returns lowest IBar(obj) between provided bounds                              |
   //+--------------------------------------------------------------------------------------+
-  function iLow(timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint {
+  const iLow = (timeStart?: number, timeStop?: number, includeStart: boolean = true): IPoint => {
     let startBar = timeStart ? iBar(timeStart) : 0;
 
     const stopBar = timeStop ? iBar(timeStop) : price.length;
@@ -228,12 +228,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     }
 
     return { timestamp: price[searchIndex].timestamp, price: price[searchIndex].low };
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| UpdateBar - Wraps up Bar processing                                                  |
   //+--------------------------------------------------------------------------------------+
-  async function UpdateBar(candle: Partial<ICandle>) {
+  const UpdateBar = async (candle: Partial<ICandle>) => {
     event.clear();
 
     //--- set Bias
@@ -309,12 +309,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     Bar.close = candle.close;
 
     Object.assign(report, { bar: { timestamp: Bar.timestamp, open: Bar.open, high: Bar.high, low: Bar.low, close: Bar.close } });
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| UpdateSMA - Computes SMA measures, trend detail, values                              |
   //+--------------------------------------------------------------------------------------+
-  async function UpdateSMA() {
+  const UpdateSMA = async () => {
     if (event.isActive(Event.NewBar)) {
       sma.open += Bar.open!;
       sma.close += Bar.close!;
@@ -341,12 +341,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     SMA.low = 0;
 
     Object.assign(report, { sma: { open: SMA.open, close: SMA.close } });
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| UpdateFractal - completes fractal calcs                                              |
   //+--------------------------------------------------------------------------------------+
-  async function UpdateFractal() {
+  const UpdateFractal = async () => {
     const resistance = iHigh();
     const support = iLow();
     const close = { timestamp: Bar.timestamp!, price: Bar.close! };
@@ -412,12 +412,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     Fractal.point!.close = close;
     Fractal.support = support;
     Fractal.resistance = resistance;
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| Fibonacci - Returns Calculated fibonacci %sequence's for the active Fractal          |
   //+--------------------------------------------------------------------------------------+
-  function Fibonacci(): IFibonacci {
+  const Fibonacci = (): IFibonacci => {
     const recovery: number = Fractal.point!.recovery.timestamp > 0 ? Fractal.point!.recovery.price : Fractal.point!.retrace.price;
     return {
       retrace: {
@@ -431,12 +431,12 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
         now: format((Fractal.point!.root.price - Bar.close!) / (Fractal.point!.root.price - Fractal.point!.base.price), 3),
       },
     };
-  }
+  };
 
   //+--------------------------------------------------------------------------------------+
   //| UpdateFibonacci - Updates Fractal state, properties, events                          |
   //+--------------------------------------------------------------------------------------+
-  async function UpdateFibonacci() {
+  const UpdateFibonacci = async () => {
     const percent = Fibonacci();
 
     if (event.isActive(Event.NewExpansion)) {
@@ -522,7 +522,7 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
       }
       report.retracement.push(Fractal.retrace!);
     }
-  }
+  };
   //+--------------------------------------------------------------------------------------+
   //| Main Update loop; processes bar, sma, fractal, events                                |
   //+--------------------------------------------------------------------------------------+

@@ -21,8 +21,8 @@ if (args.length) {
     const expiry_time = setExpiry(`1d`); // 1 day from now
     const instrument_position = await IPos.Key({account: Session().account, symbol: req_fcrt_2a.symbol, position: req_fcrt_2a.position});
     const request_type = await References.Key<TRefKey>({ source_ref: req_fcrt_2a.order_type }, { table: `request_type` });
-    const submitted = await Requests.Submit({ ...request, instrument_position, request_type, expiry_time: request.expiry_time || expiry_time, memo: "Test 2a: stops with request;" });
-    console.log({ submitted, request });
+    const submitted = await Requests.Submit({ ...request, instrument_position, request_type, expiry_time: request.expiry_time || expiry_time, memo: "Test 2a: stops with open position;" });
+
     return [submitted, request];
   };
   

@@ -104,7 +104,7 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
 
       if (response.ok) {
         const json = await response.json();
-        return await Response.Request(json.data, { success: "Pending", fail: "Rejected" });
+        return await Response.Request(json, { success: "Pending", fail: "Rejected" });
       } else throw new Error(`Order.Submit: Response not ok: ${response.status} ${response.statusText}`);
     } catch (error) {
       console.log(">> [Error] Order.Submit:", error, method, headers, body);

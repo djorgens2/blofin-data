@@ -19,7 +19,6 @@ import * as User from "db/interfaces/user";
 import * as Area from "db/interfaces/subject_area";
 import * as Environ from "db/interfaces/environment";
 import * as Account from "db/interfaces/account";
-import * as Request from "db/interfaces/request";
 import * as Order from "db/interfaces/order";
 import * as Reference from "db/interfaces/reference";
 import * as Activity from "db/interfaces/activity";
@@ -33,6 +32,8 @@ import { parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { IAuthority } from "db/interfaces/authority";
 import { Select } from "db/query.utils";
+import { IStops } from "db/interfaces/stops";
+import { IStopsAPI } from "api/stops";
 
 enum Subject {
   Account = "-a",
@@ -47,7 +48,7 @@ enum Subject {
   Broker = "-b",
   Role = "-r",
   Order = "-ord",
-  Request = "-req",
+  StopsQueue = "-soq",
   Queue = "-q",
   User = "-u",
   Login = "-login",
@@ -61,7 +62,7 @@ enum Subject {
   InstrumentPosition = "-ipos",
 }
 
-async function show(subject: string, args: string): Promise<string> {
+const show = async (subject: string, args: string): Promise<string> => {
   console.log(subject, args);
 
   switch (subject) {
@@ -140,7 +141,7 @@ async function show(subject: string, args: string): Promise<string> {
     case Subject.State: {
       const props = parseJSON<State.IState>(args);
       props!.state && Object.assign(props!, { ...props, state: hexify(props!.state) });
-//      props!.status && Object.assign(props!, {status: undefined})
+      //      props!.status && Object.assign(props!, {status: undefined})
       const key = await State.Key(props!);
       const rows = await State.Fetch(props!);
       console.log("Fetch state:", props, { key }, rows);
@@ -191,27 +192,24 @@ async function show(subject: string, args: string): Promise<string> {
       console.log("Fetch Account:", props, { key: 0 }, rows);
       return "ok";
     }
-    case Subject.Request: {
-      const props = parseJSON<Order.IOrder>(args);
-      Object.assign(props!, {
-        ...props,
-        account: hexify(props?.account!),
-        request: hexify(props?.request!),
-        instrument: hexify(props?.instrument!),
-        state: hexify(props?.state!),
-      });
-      const key = await Order.Fetch(props!);
-      console.log(`Fetch Request [ ${Object.keys(props!).length} ]:`, props, key);
-      return "ok";
-    }
     case Subject.Queue: {
       const props = parseJSON<IRequestAPI>(args);
       Object.assign(props!, {
         ...props,
         account: hexify(props?.account!),
       });
-      const rows = await Select<IRequestAPI>(props!, {table: `vw_api_requests`});
+      const rows = await Select<IRequestAPI>(props!, { table: `vw_api_requests` });
       console.log(`Fetch Queue [API] [ ${Object.keys(props!).length} ]:`, props, rows);
+      return "ok";
+    }
+    case Subject.StopsQueue: {
+      const props = parseJSON<IStopsAPI>(args);
+      Object.assign(props!, {
+        ...props,
+        account: hexify(props?.account!),
+      });
+      const rows = await Select<IStopsAPI>(props!, { table: `vw_api_stop_requests` });
+      console.log(`Fetch Stop Request Queue [API] [ ${Object.keys(props!).length} ]:`, props, rows);
       return "ok";
     }
     case Subject.Order: {
@@ -222,6 +220,7 @@ async function show(subject: string, args: string): Promise<string> {
         request: hexify(props?.request!),
         order_id: hexify(props?.order_id!),
         instrument: hexify(props?.instrument!),
+        instrument_position: hexify(props?.instrument_position!),
         request_type: hexify(props?.request_type!),
         order_state: hexify(props?.order_state!),
         order_category: hexify(props?.order_category!),
@@ -238,7 +237,8 @@ async function show(subject: string, args: string): Promise<string> {
         return "error";
       }
       const { table, ...props } = json;
-      Object.assign(props!, {...props,
+      Object.assign(props!, {
+        ...props,
         order_state: hexify(props.order_state!),
         order_category: hexify(props.order_category!),
         cancel_source: hexify(props.cancel_source!),
@@ -261,21 +261,21 @@ async function show(subject: string, args: string): Promise<string> {
     }
     case Subject.InstrumentPosition: {
       const props = parseJSON<InstrumentPosition.IInstrumentPosition>(args);
-      props && 
-      Object.assign(props!, {
-        ...props,
-        account: hexify(props.account!),
-        instrument_position: hexify(props.instrument_position!),
-        instrument: hexify(props.instrument),
-        state: hexify(props.state),
-        auto_state: hexify(props.auto_state),
-      });
+      props &&
+        Object.assign(props!, {
+          ...props,
+          account: hexify(props.account!),
+          instrument_position: hexify(props.instrument_position!),
+          instrument: hexify(props.instrument),
+          state: hexify(props.state),
+          auto_state: hexify(props.auto_state),
+        });
       const key = await InstrumentPosition.Fetch(props!);
       console.log(`Fetch Instrument Positions [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
     case Subject.Stops: {
-      const props = parseJSON<Stops.IStops>(args);
+      const props = parseJSON<IStops>(args);
       Object.assign(props!, {
         ...props,
         instrument_position: hexify(props?.instrument_position!),
@@ -293,6 +293,9 @@ async function show(subject: string, args: string): Promise<string> {
       const props = parseJSON<Positions.IPositions>(args);
       Object.assign(props!, {
         ...props,
+        account: hexify(props?.account!),
+        positions: hexify(props?.positions!),
+        instrument_position: hexify(props?.instrument_position!),
         instrument: hexify(props?.instrument!),
         state: hexify(props?.state!),
       });
@@ -302,15 +305,15 @@ async function show(subject: string, args: string): Promise<string> {
     }
   }
   return "error";
-}
+};
 
 const [cli_subject] = process.argv.slice(2);
 const [cli_props] = process.argv.slice(3);
 const [cli_extended_props] = process.argv.slice(4);
 
-async function run() {
+const run = async () => {
   const run = await show(cli_subject, cli_props);
   process.exit(0);
-}
+};
 
 run();

@@ -19,7 +19,7 @@ if [ -z "$1" ]; then
     echo "-b: Brokers"
     echo "-r: Roles"
     echo "-ord: Orders"
-    echo "-req: Requests"
+    echo "-soq: StopsAPI"
     echo "-q: Request Queue"
     echo "-pos: Positions"
     echo "-so: Stop Orders"
@@ -43,7 +43,7 @@ if [ -z "$2" ]; then
     echo "JSON argument is required."
     exit 1
 fi
-if [[ "$1" != "-a" && "$1" != "-auth" && "$1" != "-i" && "$1" != "-ctype" && "$1" != "-sym" && "$1" != "-itype" && "$1" != "-p" && "$1" != "-d" && "$1" != "-q" && "$1" != "-s" &&  "$1" != "-bars" && "$1" != "-b" && "$1" != "-r" && "$1" != "-ord" && "$1" != "-req" && "$1" != "-pos" && "$1" != "-so" && "$1" != "-u" && "$1" != "-login" && "$1" != "-task" && "$1" != "-area" && "$1" != "-e" && "$1" != "-ref" && "$1" != "-ip" && "$1" != "-ipos" ]]; then
+if [[ "$1" != "-a" && "$1" != "-auth" && "$1" != "-i" && "$1" != "-ctype" && "$1" != "-sym" && "$1" != "-itype" && "$1" != "-p" && "$1" != "-d" && "$1" != "-q" && "$1" != "-s" &&  "$1" != "-bars" && "$1" != "-b" && "$1" != "-r" && "$1" != "-ord" && "$1" != "-soq" && "$1" != "-pos" && "$1" != "-so" && "$1" != "-u" && "$1" != "-login" && "$1" != "-task" && "$1" != "-area" && "$1" != "-e" && "$1" != "-ref" && "$1" != "-ip" && "$1" != "-ipos" ]]; then
     echo "Invalid subject: $1"
     exit 1
 fi

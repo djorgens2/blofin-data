@@ -1,5 +1,5 @@
 REQUEST,ORDERS,VW_ORDERS,VW_API_REQUESTS
-300,318,300,300
+320,341,320,320
 REQUEST,,,,,,,,,,,,,,,
 Request,"Order Id","Instrument
 Position",Action,State,Price,Size,Leverage,"Request
@@ -10,8 +10,28 @@ ID","Create
 Time","Expiry
 Time","Update
 Time"
-B3CEC99E5D33,00E8DB85E2F1,62451C331721,sell,4BC99C,2.85,100,50,B83296,cross,0,"[Info] Response.Request: Order submitted successfully",,"2025/11/05 13:09:48.104","2025/11/05 13:17:48.074","2025/11/05 13:12:41.215"
-BA4FFDD8900E,,62451C331721,sell,19D388,2.85,100,50,B83296,cross,0,"[Expired]: Queued and Rejected request changed to Expired",,"2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 12:02:42.975"
+DFAC76CCD9C7,00E8DB8C3F59,62451C331721,sell,4BC99C,2.85,100,50,B83296,cross,0,"Test 2a: request w/ expiry; w/o tpsl",,"2025/11/12 15:00:57.036","2025/11/12 15:08:57.009","2025/11/12 15:02:46.510"
+1763D6EA3B75,,62451C331721,sell,19D388,2.85,100,50,B83296,cross,0,"[Expired]: Queued and Rejected request changed to Expired",,"2025/11/12 14:41:06.378","2025/11/12 14:49:06.348","2025/11/12 14:55:28.244"
+E9854A64B238,00E8DB8C2015,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/12 10:59:10.405","2025/11/12 18:59:10.405","2025/11/12 11:41:30.605"
+C925613E6581,00E8DB8B6FCF,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/11 21:48:48.658","2025/11/12 05:48:48.658","2025/11/11 22:08:34.698"
+00E8DB8B26C3,00E8DB8B26C3,FABA05B06213,sell,E1CB25,0,500,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/11 17:00:26.239","2025/11/12 01:00:26.239","2025/11/11 17:00:26.288"
+08F4D4CC1DA3,00E8DB8ABEFD,FABA05B06213,buy,E1CB25,2.42,500,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/11 10:55:27.565","2025/11/11 18:55:27.565","2025/11/11 11:00:33.495"
+00E8DB8ABDBA,00E8DB8ABDBA,FABA05B06213,sell,E1CB25,0,750,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/11 10:40:14.751","2025/11/11 18:40:14.751","2025/11/11 10:40:14.789"
+00E8DB8ABDBB,00E8DB8ABDBB,62451C331721,buy,E1CB25,0,1500,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/11 10:40:14.751","2025/11/11 18:40:14.751","2025/11/11 10:40:14.848"
+00E8DB8A3D3A,00E8DB8A3D3A,FABA05B06213,buy,E1CB25,2.43,750,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/10 22:54:33.430","2025/11/11 06:54:33.430","2025/11/11 07:31:25.112"
+00E8DB89B930,00E8DB89B930,62451C331721,sell,E1CB25,2.5295,500,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/10 13:28:37.605","2025/11/10 21:28:37.605","2025/11/10 13:31:44.485"
+00E8DB89B921,00E8DB89B921,62451C331721,sell,E8FCF7,2.5295,5,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/10 13:27:59.441","2025/11/10 21:27:59.441","2025/11/10 13:28:18.149"
+00E8DB89526E,00E8DB89526E,62451C331721,buy,E8FCF7,2.2552,500,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/10 01:53:14.881","2025/11/10 09:53:14.881","2025/11/10 05:26:54.927"
+E322F05B2C18,00E8DB88F47D,62451C331721,sell,E1CB25,2.382,1000,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/09 15:48:25.360","2025/11/09 23:48:25.360","2025/11/09 16:20:17.406"
+00E8DB88C000,00E8DB88C000,62451C331721,buy,E1CB25,0,1000,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/09 10:04:42.797","2025/11/09 18:04:42.797","2025/11/09 10:04:42.836"
+DEA6197EB860,00E8DB88AD50,62451C331721,sell,E1CB25,2.322,1000,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/09 07:40:44.515","2025/11/09 15:40:44.515","2025/11/09 07:52:54.310"
+00E8DB88A38B,00E8DB88A38B,FABA05B06213,sell,E1CB25,0,1000,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/09 06:49:55.632","2025/11/09 14:49:55.632","2025/11/09 06:49:55.669"
+A52293DEB5FF,00E8DB8813C2,FABA05B06213,buy,E1CB25,2.262,1000,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/08 05:35:16.316","2025/11/08 13:35:16.316","2025/11/08 06:19:36.779"
+E2D5C7EE48AE,00E8DB87CDBB,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/07 19:41:26.245","2025/11/08 03:41:26.245","2025/11/07 19:46:44.763"
+22261170B29B,00E8DB87B48A,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/07 16:55:05.079","2025/11/08 00:55:05.079","2025/11/07 16:59:54.945"
+70A6E8ECA21E,00E8DB86A4EE,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/06 21:41:26.095","2025/11/07 05:41:26.095","2025/11/07 01:55:22.174"
+24512DE2D3DE,00E8DB8607ED,62451C331721,sell,E8FCF7,2.55,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/05 16:27:07.044","2025/11/06 00:27:07.044","2025/11/05 16:34:51.265"
+B3CEC99E5D33,00E8DB85E2F1,62451C331721,sell,E8FCF7,2.85,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/05 13:12:41.145","2025/11/05 21:12:41.145","2025/11/05 13:18:00.435"
 EAC3B9F761CF,00E8DB856339,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/04 22:09:26.788","2025/11/05 06:09:26.788","2025/11/04 22:30:08.017"
 999CFAC8646F,00E8DB8212F7,62451C331721,sell,E8FCF7,2.95,100,50,B83296,cross,0,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/11/02 16:05:02.834","2025/11/03 00:05:02.834","2025/11/04 16:02:35.880"
 00E8DB7E55E2,00E8DB7E55E2,62451C331721,buy,E1CB25,0,1220,50,B83296,cross,1,"[Warning] Request.Submit: Request missing; was added locally; updated and settled",,"2025/10/29 14:09:05.775","2025/10/29 22:09:05.775","2025/10/29 14:09:05.835"
@@ -319,7 +339,30 @@ Source","Filled
 Size","Filled
 Amount","Average
 Price",Fee,PNL
-00E8DB85E2F1,B3CEC99E5D33,4FAE94,DE7879,3D668D,0,0,0,0,0
+00E8DB8C3F59,DFAC76CCD9C7,4FAE94,DE7879,3D668D,0,0,0,0,0
+00E8DB8C2015,E9854A64B238,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB8B6FCF,C925613E6581,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB8B26C3,,4FAE94,70D49C,3D668D,500,0,2.3831,71.493,-1845
+00E8DB8ABEFD,08F4D4CC1DA3,4FAE94,70D49C,3D668D,500,0,2.42,24.2,0
+00E8DB8ABDBB,,4FAE94,70D49C,3D668D,1500,0,2.4272,218.448,594.999999999999
+00E8DB8ABDBA,,4FAE94,70D49C,3D668D,750,0,2.427,109.215,-225
+00E8DB8A3D3A,,4FAE94,70D49C,3D668D,750,0,2.43,36.45,0
+00E8DB89B930,,4FAE94,70D49C,3D668D,500,0,2.5295,25.295,0
+00E8DB89B921,,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB89526E,,CF7F21,97E74E,BA05F1,0,0,0,0,0
+00E8DB88F47D,E322F05B2C18,4FAE94,70D49C,3D668D,1000,0,2.382,47.64,0
+00E8DB88C000,,4FAE94,70D49C,3D668D,1000,0,2.3067,138.402,1530
+00E8DB88AD50,DEA6197EB860,4FAE94,70D49C,3D668D,1000,0,2.322,46.44,0
+00E8DB88A38B,,4FAE94,70D49C,3D668D,1000,0,2.2921,137.526,3010
+00E8DB8813C2,A52293DEB5FF,4FAE94,70D49C,3D668D,1000,0,2.262,45.24,0
+00E8DB87CDBB,E2D5C7EE48AE,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB87CA3B,E2D5C7EE48AE,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB87B48A,22261170B29B,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB87ABA9,22261170B29B,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB86A4EE,70A6E8ECA21E,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB8607ED,24512DE2D3DE,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB860576,24512DE2D3DE,4FAE94,97E74E,BA05F1,0,0,0,0,0
+00E8DB85E2F1,B3CEC99E5D33,4FAE94,97E74E,BA05F1,0,0,0,0,0
 00E8DB856339,EAC3B9F761CF,4FAE94,97E74E,BA05F1,0,0,0,0,0
 00E8DB8212F7,999CFAC8646F,4FAE94,97E74E,BA05F1,0,0,0,0,0
 00E8DB7E55E2,,4FAE94,70D49C,3D668D,1220,0,2.5953,189.97596,2790
@@ -670,8 +713,28 @@ Status",Memo,"Create
 Time","Update
 Time","Expiry
 Time"
-24597A,B3CEC99E5D33,00E8DB85E2F1,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,4BC99C,Pending,4BC99C,Pending,DE7879,live,short,sell,B83296,limit,cross,1,2.85,100,50,0,0,0,0,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Info] Response.Request: Order submitted successfully","2025/11/05 13:09:48.104","2025/11/05 13:17:48.074","2025/11/05 13:12:41.215"
-24597A,BA4FFDD8900E,,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,19D388,Expired,19D388,Expired,,,short,sell,B83296,limit,cross,0,2.85,100,50,,,,,,4,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Expired]: Queued and Rejected request changed to Expired","2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 12:02:42.975"
+24597A,DFAC76CCD9C7,00E8DB8C3F59,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,4BC99C,Pending,4BC99C,Pending,DE7879,live,short,sell,B83296,limit,cross,1,2.85,100,50,0,0,0,0,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 2a: request w/ expiry; w/o tpsl","2025/11/12 15:00:57.036","2025/11/12 15:08:57.009","2025/11/12 15:02:46.510"
+24597A,1763D6EA3B75,,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,19D388,Expired,19D388,Expired,,,short,sell,B83296,limit,cross,0,2.85,100,50,,,,,,4,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Expired]: Queued and Rejected request changed to Expired","2025/11/12 14:41:06.378","2025/11/12 14:49:06.348","2025/11/12 14:55:28.244"
+24597A,E9854A64B238,00E8DB8C2015,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/12 10:59:10.405","2025/11/12 18:59:10.405","2025/11/12 11:41:30.605"
+24597A,C925613E6581,00E8DB8B6FCF,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 21:48:48.658","2025/11/12 05:48:48.658","2025/11/11 22:08:34.698"
+24597A,00E8DB8B26C3,00E8DB8B26C3,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,sell,B83296,limit,cross,0,0,500,50,500,0,2.3831,71.493,-1845,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 17:00:26.239","2025/11/12 01:00:26.239","2025/11/11 17:00:26.288"
+24597A,08F4D4CC1DA3,00E8DB8ABEFD,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,buy,B83296,limit,cross,1,2.42,500,50,500,0,2.42,24.2,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 10:55:27.565","2025/11/11 18:55:27.565","2025/11/11 11:00:33.495"
+24597A,00E8DB8ABDBA,00E8DB8ABDBA,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,sell,B83296,limit,cross,0,0,750,50,750,0,2.427,109.215,-225,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 10:40:14.751","2025/11/11 18:40:14.751","2025/11/11 10:40:14.789"
+24597A,00E8DB8ABDBB,00E8DB8ABDBB,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,buy,B83296,limit,cross,0,0,1500,50,1500,0,2.4272,218.448,594.999999999999,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 10:40:14.751","2025/11/11 18:40:14.751","2025/11/11 10:40:14.848"
+24597A,00E8DB8A3D3A,00E8DB8A3D3A,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,buy,B83296,limit,cross,0,2.43,750,50,750,0,2.43,36.45,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 22:54:33.430","2025/11/11 06:54:33.430","2025/11/11 07:31:25.112"
+24597A,00E8DB89B930,00E8DB89B930,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,sell,B83296,limit,cross,0,2.5295,500,50,500,0,2.5295,25.295,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 13:28:37.605","2025/11/10 21:28:37.605","2025/11/10 13:31:44.485"
+24597A,00E8DB89B921,00E8DB89B921,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,0,2.5295,5,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 13:27:59.441","2025/11/10 21:27:59.441","2025/11/10 13:28:18.149"
+24597A,00E8DB89526E,00E8DB89526E,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,buy,B83296,limit,cross,0,2.2552,500,50,0,0,0,0,0,4,CF7F21,sl,BA05F1,user_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 01:53:14.881","2025/11/10 09:53:14.881","2025/11/10 05:26:54.927"
+24597A,E322F05B2C18,00E8DB88F47D,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,sell,B83296,limit,cross,1,2.382,1000,50,1000,0,2.382,47.64,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 15:48:25.360","2025/11/09 23:48:25.360","2025/11/09 16:20:17.406"
+24597A,00E8DB88C000,00E8DB88C000,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,buy,B83296,limit,cross,0,0,1000,50,1000,0,2.3067,138.402,1530,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 10:04:42.797","2025/11/09 18:04:42.797","2025/11/09 10:04:42.836"
+24597A,DEA6197EB860,00E8DB88AD50,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,sell,B83296,limit,cross,1,2.322,1000,50,1000,0,2.322,46.44,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 07:40:44.515","2025/11/09 15:40:44.515","2025/11/09 07:52:54.310"
+24597A,00E8DB88A38B,00E8DB88A38B,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,sell,B83296,limit,cross,0,0,1000,50,1000,0,2.2921,137.526,3010,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 06:49:55.632","2025/11/09 14:49:55.632","2025/11/09 06:49:55.669"
+24597A,A52293DEB5FF,00E8DB8813C2,FABA05B06213,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,long,buy,B83296,limit,cross,1,2.262,1000,50,1000,0,2.262,45.24,0,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/08 05:35:16.316","2025/11/08 13:35:16.316","2025/11/08 06:19:36.779"
+24597A,E2D5C7EE48AE,00E8DB87CDBB,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/07 19:41:26.245","2025/11/08 03:41:26.245","2025/11/07 19:46:44.763"
+24597A,22261170B29B,00E8DB87B48A,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/07 16:55:05.079","2025/11/08 00:55:05.079","2025/11/07 16:59:54.945"
+24597A,70A6E8ECA21E,00E8DB86A4EE,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/06 21:41:26.095","2025/11/07 05:41:26.095","2025/11/07 01:55:22.174"
+24597A,24512DE2D3DE,00E8DB8607ED,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.55,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/05 16:27:07.044","2025/11/06 00:27:07.044","2025/11/05 16:34:51.265"
+24597A,B3CEC99E5D33,00E8DB85E2F1,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.85,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/05 13:12:41.145","2025/11/05 21:12:41.145","2025/11/05 13:18:00.435"
 24597A,EAC3B9F761CF,00E8DB856339,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/04 22:09:26.788","2025/11/05 06:09:26.788","2025/11/04 22:30:08.017"
 24597A,999CFAC8646F,00E8DB8212F7,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E8FCF7,Closed,E8FCF7,Closed,97E74E,canceled,short,sell,B83296,limit,cross,1,2.95,100,50,0,0,0,0,0,4,4FAE94,normal,BA05F1,user_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/02 16:05:02.834","2025/11/03 00:05:02.834","2025/11/04 16:02:35.880"
 24597A,00E8DB7E55E2,00E8DB7E55E2,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,short,buy,B83296,limit,cross,0,0,1220,50,1220,0,2.5953,189.97596,2790,4,4FAE94,normal,3D668D,not_canceled,linear,SWAP,1,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/10/29 14:09:05.775","2025/10/29 22:09:05.775","2025/10/29 14:09:05.835"
@@ -972,9 +1035,29 @@ Time"
 24597A,00E8DAC53439,00E8DAC53439,EB1593C2750E,5E0555,BTC-USDT,D203F8,BTC,CB6943,USDT,E1CB25,Fulfilled,E1CB25,Fulfilled,70D49C,filled,net,buy,B83296,limit,cross,0,0,50,3,50,0,94793.2,2.843796,0,1,4FAE94,normal,3D668D,not_canceled,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/01/13 17:56:07.462","2025/01/14 01:56:07.462","2025/01/13 17:56:07.555"
 VW_API_REQUESTS,,,,,,,,,,,,,,,
 account,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,leverage,reduceOnly,brokerId,clientOrderId,memo,expiry_time
-24597A,1000115397361,Pending,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,B3CEC99E5D33,"[Info] Response.Request: Order submitted successfully","2025/11/05 13:17:48.074"
+24597A,1000115806229,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,E9854A64B238,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/12 18:59:10.405"
+24597A,1000115814233,Pending,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,DFAC76CCD9C7,"Test 2a: request w/ expiry; w/o tpsl","2025/11/12 15:08:57.009"
+24597A,,Expired,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,1763D6EA3B75,"[Expired]: Queued and Rejected request changed to Expired","2025/11/12 14:49:06.348"
+24597A,1000115761103,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,C925613E6581,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/12 05:48:48.658"
+24597A,1000115742403,Fulfilled,XRP-USDT,cross,long,sell,limit,0,500,50,true,,00E8DB8B26C3,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/12 01:00:26.239"
+24597A,1000115715837,Fulfilled,XRP-USDT,cross,long,buy,limit,2.42,500,50,false,,08F4D4CC1DA3,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 18:55:27.565"
+24597A,1000115715514,Fulfilled,XRP-USDT,cross,long,sell,limit,0,750,50,true,,00E8DB8ABDBA,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 18:40:14.751"
+24597A,1000115715515,Fulfilled,XRP-USDT,cross,short,buy,limit,0,1500,50,true,,00E8DB8ABDBB,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 18:40:14.751"
+24597A,1000115682618,Fulfilled,XRP-USDT,cross,long,buy,limit,2.43,750,50,false,,00E8DB8A3D3A,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/11 06:54:33.430"
+24597A,1000115648816,Fulfilled,XRP-USDT,cross,short,sell,limit,2.5295,500,50,false,,00E8DB89B930,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 21:28:37.605"
+24597A,1000115648801,Closed,XRP-USDT,cross,short,sell,limit,2.5295,5,50,false,,00E8DB89B921,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 21:27:59.441"
+24597A,1000115622510,Closed,XRP-USDT,cross,short,buy,limit,2.2552,500,50,true,,00E8DB89526E,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/10 09:53:14.881"
+24597A,1000115598461,Fulfilled,XRP-USDT,cross,short,sell,limit,2.382,1000,50,false,,E322F05B2C18,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 23:48:25.360"
+24597A,1000115585024,Fulfilled,XRP-USDT,cross,short,buy,limit,0,1000,50,true,,00E8DB88C000,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 18:04:42.797"
+24597A,1000115580240,Fulfilled,XRP-USDT,cross,short,sell,limit,2.322,1000,50,false,,DEA6197EB860,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 15:40:44.515"
+24597A,1000115577739,Fulfilled,XRP-USDT,cross,long,sell,limit,0,1000,50,true,,00E8DB88A38B,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/09 14:49:55.632"
+24597A,1000115540930,Fulfilled,XRP-USDT,cross,long,buy,limit,2.262,1000,50,false,,A52293DEB5FF,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/08 13:35:16.316"
+24597A,1000115523003,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,E2D5C7EE48AE,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/08 03:41:26.245"
+24597A,1000115516554,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,22261170B29B,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/08 00:55:05.079"
+24597A,1000115447022,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,70A6E8ECA21E,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/07 05:41:26.095"
+24597A,1000115406829,Closed,XRP-USDT,cross,short,sell,limit,2.55,100,50,false,,24512DE2D3DE,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/06 00:27:07.044"
+24597A,1000115397361,Closed,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,B3CEC99E5D33,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/05 21:12:41.145"
 24597A,1000115364665,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,EAC3B9F761CF,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/05 06:09:26.788"
-24597A,,Expired,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,BA4FFDD8900E,"[Expired]: Queued and Rejected request changed to Expired","2025/11/05 01:13:17.342"
 24597A,1000115147511,Closed,XRP-USDT,cross,short,sell,limit,2.95,100,50,false,,999CFAC8646F,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/11/03 00:05:02.834"
 24597A,1000114902498,Fulfilled,XRP-USDT,cross,short,buy,limit,0,1220,50,true,,00E8DB7E55E2,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/10/29 22:09:05.775"
 24597A,1000114874203,Fulfilled,XRP-USDT,cross,short,sell,limit,0,320,50,false,,00E8DB7DE75B,"[Warning] Request.Submit: Request missing; was added locally; updated and settled","2025/10/29 19:39:30.718"

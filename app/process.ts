@@ -15,9 +15,9 @@ import * as Candle from "db/interfaces/candle";
 import * as Instrument from "db/interfaces/instrument";
 
 //+--------------------------------------------------------------------------------------+
-//| CProcess - Master Processing Instantiator/Monitor Class for Enabled Instruments;     |
+//| Process - Main processing loop for updating/monitoring enabled instruments;          |
 //+--------------------------------------------------------------------------------------+
-export const CProcess = async () => {
+export const Process = async () => {
   const [cli_message] = process.argv.slice(2);
   const message: IMessage | undefined = parseJSON<IMessage>(cli_message);
   const [instrument]: Array<Partial<IInstrument>> = (await Instrument.Fetch({ symbol: message!.symbol })) ?? [];
@@ -42,4 +42,4 @@ export const CProcess = async () => {
   process.send && process.send(message);
 };
 
-const thread = CProcess();
+const thread = Process();

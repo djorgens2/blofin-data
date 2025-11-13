@@ -9,14 +9,13 @@
     'leverage',
     'request_type',
     'margin_mode',
-    'reduce_only',
     'memo',
     'create_time',
     'expiry_time',
     'update_time'
   ],
   args: [
-    <Buffer ba 4f fd d8 90 0e>,
+    <Buffer 17 63 d6 ea 3b 75>,
     <Buffer 62 45 1c 33 17 21>,
     'sell',
     <Buffer 62 57 cb>,
@@ -25,15 +24,14 @@
     50,
     <Buffer b8 32 96>,
     'cross',
-    false,
     'Test 1a: request w/ expiry; w/o tpsl',
-    2025-11-05T09:05:17.369Z,
-    2025-11-05T09:13:17.342Z,
-    2025-11-05T09:05:17.369Z
+    2025-11-12T22:41:06.378Z,
+    2025-11-12T22:49:06.348Z,
+    2025-11-12T22:41:06.378Z
   ]
 }
 {
-  submitted: <Buffer ba 4f fd d8 90 0e>,
+  submitted: <Buffer 17 63 d6 ea 3b 75>,
   request: {
     symbol: 'XRP-USDT',
     margin_mode: 'cross',
@@ -43,7 +41,7 @@
     price: 2.85,
     size: 100,
     leverage: 50,
-    expiry_time: 2025-11-05T09:13:17.342Z,
+    expiry_time: 2025-11-12T22:49:06.348Z,
     memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }

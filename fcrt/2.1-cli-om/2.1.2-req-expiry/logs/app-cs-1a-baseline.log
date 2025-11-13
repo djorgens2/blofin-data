@@ -1,21 +1,21 @@
->> [info] Application.Initialization start: 11/5/2025, 12:44:27 AM
-In Subject.Area.Import: 11/5/2025, 12:44:27 AM
+>> [Info] Application.Initialization start: 11/12/2025, 2:29:06 PM
+In Subject.Area.Import: 11/12/2025, 2:29:06 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 11/5/2025, 12:44:27 AM
+In Activity.Import: 11/12/2025, 2:29:06 PM
    # Activity imports:  8 verified
-In Authority.Import: 11/5/2025, 12:44:28 AM
+In Authority.Import: 11/12/2025, 2:29:06 PM
    # Authority imports:  6 verified
-In Broker.Import: 11/5/2025, 12:44:28 AM
+In Broker.Import: 11/12/2025, 2:29:07 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 11/5/2025, 12:44:28 AM
+In Contract.Type.Import: 11/12/2025, 2:29:07 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 11/5/2025, 12:44:28 AM
+In Environment.Import: 11/12/2025, 2:29:07 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 11/5/2025, 12:44:28 AM
+In Instrument.Type.Import: 11/12/2025, 2:29:07 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 11/5/2025, 12:44:28 AM
+In Period.Import: 11/12/2025, 2:29:07 PM
    # Period imports:  15 verified
-In Reference.Import: 11/5/2025, 12:44:29 AM
+In Reference.Import: 11/12/2025, 2:29:08 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -24,67 +24,2422 @@ In Reference.Import: 11/5/2025, 12:44:29 AM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 11/5/2025, 12:44:29 AM
+In Role.Import: 11/12/2025, 2:29:08 PM
    # Role imports:  4 verified
-In State.Import: 11/5/2025, 12:44:29 AM
+In State.Import: 11/12/2025, 2:29:08 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 11/5/2025, 12:44:30 AM
+In Instruments.Import [API]: 11/12/2025, 2:29:09 PM
 -> Instrument:Publish [API]
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 84 da 85> },
-  columns: { max_leverage: 50 }
-}
-[Info] Instrument Details updated: { symbol: 'KITE-USDT', updates: { max_leverage: 50 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 87 41 9d> },
-  columns: { max_leverage: 20 }
-}
-[Info] Instrument Details updated: { symbol: 'ASP-USDT', updates: { max_leverage: 20 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 95 2c fc> },
-  columns: { max_leverage: 50 }
-}
-[Info] Instrument Details updated: { symbol: 'NEWT-USDT', updates: { max_leverage: 50 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer a9 d0 c4> },
-  columns: { max_leverage: 50 }
-}
-[Info] Instrument Details updated: { symbol: 'WCT-USDT', updates: { max_leverage: 50 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 57 43 c7> },
-  columns: { max_leverage: 50 }
-}
-[Info] Instrument Details updated: { symbol: 'BANANAS31-USDT', updates: { max_leverage: 50 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 9b c0 05> },
-  columns: { max_leverage: 10 }
-}
-[Info] Instrument Details updated: { symbol: 'CHILLGUY-USDT', updates: { max_leverage: 10 } }
--> [Info] instrument_detail updated {
-  filters: { instrument: <Buffer 03 8d 38> },
-  columns: { max_leverage: 10 }
-}
-[Info] Instrument Details updated: { symbol: 'PONKE-USDT', updates: { max_leverage: 10 } }
-   # Instruments Updated:  7 modified
--> [info] Application.Initialization finished: 11/5/2025, 12:44:33 AM
-Connected to websocket: [394249:wss://demo-trading-openapi.blofin.com/ws/private]
+>> [Info] Application.Initialization finished: 11/12/2025, 2:29:12 PM
+Connected to websocket: [87133:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52907.132, update_time: 2025-11-05T08:44:34.390Z }
+  columns: { total_equity: 55137.288, update_time: 2025-11-12T22:29:12.794Z }
 }
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55137.288, coin_usd_price: 0.999731 }
+}
+-> Candle:Publish [API]: PONKE-USDT / 16
+-> Candle:Publish [API]: ARC-USDT / 16
+-> Candle:Publish [API]: VIRTUAL-USDT / 16
+-> Candle:Publish [API]: XRP-USDT / 16
+-> Candle:Publish [API]: ORCA-USDT / 16
+-> Candle:Publish [API]: ENA-USDT / 16
+-> Candle:Publish [API]: BTC-USDT / 16
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    0.04884,
+    0.04885,
+    0.04865,
+    0.04885,
+    1460,
+    1460,
+    71.3044,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    0.0305,
+    0.03038,
+    0.03038,
+    0.03038,
+    1690,
+    1690,
+    51.5002,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    1.377,
+    1.379,
+    1.374,
+    1.379,
+    104,
+    104,
+    143.149,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    0.3064,
+    0.3054,
+    0.3054,
+    0.3054,
+    58682,
+    58682,
+    17990.0791,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    2.3652,
+    2.3679,
+    2.3652,
+    2.3679,
+    401986,
+    401986,
+    952942.169,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    1.2596,
+    1.2551,
+    1.2549,
+    1.2551,
+    20884,
+    20884,
+    26304.3528,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    0.04919,
+    0.04884,
+    0.04882,
+    0.04884,
+    43190,
+    43190,
+    2112.6364,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:15:00.000Z,
+    101375.9,
+    101612.3,
+    101375.9,
+    101612.3,
+    20.1517,
+    20.1517,
+    2046008.61638,
+    false
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    0.0306,
+    0.0305,
+    0.0305,
+    0.0305,
+    2040,
+    2040,
+    62.3548,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    0.04908,
+    0.04918,
+    0.04903,
+    0.04918,
+    900,
+    900,
+    44.2094,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    0.3078,
+    0.3064,
+    0.306,
+    0.3064,
+    79889,
+    79889,
+    24513.9763,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    2.3923,
+    2.3661,
+    2.362,
+    2.3661,
+    681418,
+    681418,
+    1618625.0833,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    101875,
+    101389.7,
+    101367,
+    101389.7,
+    22.0596,
+    22.0596,
+    2240442.21542,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    1.383,
+    1.377,
+    1.377,
+    1.377,
+    125,
+    125,
+    172.49,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T22:00:00.000Z,
+    1.2637,
+    1.2594,
+    1.2586,
+    1.2594,
+    11232,
+    11232,
+    14170.9319,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    0.03053,
+    0.0306,
+    0.03047,
+    0.0306,
+    2250,
+    2250,
+    68.65,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    0.04898,
+    0.04908,
+    0.04898,
+    0.04908,
+    1340,
+    1340,
+    65.8063,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    101750,
+    101870.8,
+    101649.7,
+    101870.8,
+    12.2598,
+    12.2598,
+    1247703.38859,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    1.379,
+    1.383,
+    1.377,
+    1.383,
+    107,
+    107,
+    147.688,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    2.3865,
+    2.3923,
+    2.3809,
+    2.3923,
+    263076,
+    263076,
+    627653.4062,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    0.3086,
+    0.3079,
+    0.307,
+    0.3079,
+    23706,
+    23706,
+    7309.8532,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:45:00.000Z,
+    1.2649,
+    1.2637,
+    1.2574,
+    1.2637,
+    15995,
+    15995,
+    20187.6935,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    0.03057,
+    0.03053,
+    0.03043,
+    0.03053,
+    544820,
+    544820,
+    16610.218,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    0.0493,
+    0.04898,
+    0.04893,
+    0.04898,
+    1850,
+    1850,
+    90.7543,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    0.3084,
+    0.3086,
+    0.3083,
+    0.3086,
+    14159,
+    14159,
+    4372.6519,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    0.03068,
+    0.03057,
+    0.03049,
+    0.03057,
+    378680,
+    378680,
+    11567.4766,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    1.2635,
+    1.2653,
+    1.2625,
+    1.2653,
+    5012,
+    5012,
+    6346.6576,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    2.371,
+    2.3862,
+    2.3692,
+    2.3862,
+    423331,
+    423331,
+    1007896.5098,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    1.375,
+    1.379,
+    1.375,
+    1.379,
+    136,
+    136,
+    187.561,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:30:00.000Z,
+    101688,
+    101750.1,
+    101658.2,
+    101750.1,
+    33.8798,
+    33.8798,
+    3448295.05604,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    0.3096,
+    0.3085,
+    0.3077,
+    0.3085,
+    515266,
+    515266,
+    158849.3089,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    101810.5,
+    101688,
+    101621.7,
+    101688,
+    18.2817,
+    18.2817,
+    1859335.93505,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    2.3741,
+    2.3703,
+    2.3672,
+    2.3703,
+    580454,
+    580454,
+    1377121.7043,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    1.266,
+    1.2631,
+    1.2605,
+    1.2631,
+    8300,
+    8300,
+    10478.4675,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:15:00.000Z,
+    1.379,
+    1.375,
+    1.375,
+    1.375,
+    138,
+    138,
+    190.064,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    0.04904,
+    0.0493,
+    0.04892,
+    0.0493,
+    3210,
+    3210,
+    157.4848,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    0.03069,
+    0.03068,
+    0.0305,
+    0.03068,
+    2900,
+    2900,
+    88.8689,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    0.3066,
+    0.3096,
+    0.3066,
+    0.3096,
+    70765,
+    70765,
+    21878.2005,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    1.2651,
+    1.2662,
+    1.2575,
+    1.2662,
+    15715,
+    15715,
+    19819.7337,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    0.03065,
+    0.03066,
+    0.03062,
+    0.03066,
+    1940,
+    1940,
+    59.5948,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    101534.6,
+    101827.5,
+    101450.5,
+    101827.5,
+    32.8309,
+    32.8309,
+    3337694.0247,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    2.3529,
+    2.3742,
+    2.3529,
+    2.3742,
+    710660,
+    710660,
+    1681237.8119,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T21:00:00.000Z,
+    1.376,
+    1.379,
+    1.373,
+    1.379,
+    126,
+    126,
+    173.35,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    0.04921,
+    0.04904,
+    0.04902,
+    0.04904,
+    1550,
+    1550,
+    76.1041,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    0.3071,
+    0.3066,
+    0.3056,
+    0.3066,
+    75954,
+    75954,
+    23267.8036,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    0.03074,
+    0.03065,
+    0.03063,
+    0.03065,
+    3240,
+    3240,
+    99.6246,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    101611.2,
+    101491.9,
+    101412.8,
+    101491.9,
+    29.4428,
+    29.4428,
+    2989341.15077,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    0.04897,
+    0.04921,
+    0.04892,
+    0.04921,
+    1820,
+    1820,
+    89.4918,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    1.2668,
+    1.2651,
+    1.2638,
+    1.2651,
+    12187,
+    12187,
+    15434.4418,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    2.3489,
+    2.3528,
+    2.3464,
+    2.3528,
+    738504,
+    738504,
+    1735618.4495,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:45:00.000Z,
+    1.38,
+    1.376,
+    1.376,
+    1.376,
+    79,
+    79,
+    108.766,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    0.3075,
+    0.307,
+    0.3068,
+    0.307,
+    48405,
+    48405,
+    14900.8947,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    0.04839,
+    0.04897,
+    0.04837,
+    0.04897,
+    1460,
+    1460,
+    71.1483,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    1.377,
+    1.38,
+    1.375,
+    1.38,
+    82,
+    82,
+    113.092,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    0.03044,
+    0.03074,
+    0.03035,
+    0.03074,
+    3010,
+    3010,
+    92.0529,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    101650.8,
+    101611.2,
+    101543.3,
+    101611.2,
+    55.9238,
+    55.9238,
+    5685119.84459,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    2.3478,
+    2.3488,
+    2.3438,
+    2.3488,
+    241967,
+    241967,
+    568563.3442,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:30:00.000Z,
+    1.2768,
+    1.2671,
+    1.2658,
+    1.2671,
+    41192,
+    41192,
+    52370.7908,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    0.3055,
+    0.3075,
+    0.3049,
+    0.3075,
+    73702,
+    73702,
+    22600.6632,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    1.2592,
+    1.2771,
+    1.259,
+    1.2771,
+    24858,
+    24858,
+    31609.3415,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    101364.7,
+    101655.7,
+    101360,
+    101655.7,
+    32.8292,
+    32.8292,
+    3335318.08563,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    0.04813,
+    0.04839,
+    0.04793,
+    0.04839,
+    43470,
+    43470,
+    2104.1298,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    0.03012,
+    0.0303,
+    0.03004,
+    0.0303,
+    3380,
+    3380,
+    101.9169,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    1.366,
+    1.377,
+    1.365,
+    1.377,
+    117,
+    117,
+    160.621,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:15:00.000Z,
+    2.3383,
+    2.3478,
+    2.3376,
+    2.3478,
+    359901,
+    359901,
+    843545.7633,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    0.3048,
+    0.3053,
+    0.3034,
+    0.3053,
+    130100,
+    130100,
+    39751.3899,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    1.2511,
+    1.2589,
+    1.245,
+    1.2589,
+    35109,
+    35109,
+    44038.1533,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 24 2a 33>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    0.0301,
+    0.03015,
+    0.02993,
+    0.03015,
+    2720,
+    2720,
+    81.7105,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    101208.4,
+    101360.1,
+    101075,
+    101360.1,
+    41.7764,
+    41.7764,
+    4233059.91964,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 03 8d 38>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    0.04813,
+    0.04813,
+    0.04796,
+    0.04813,
+    1560,
+    1560,
+    74.9652,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    2.3361,
+    2.3383,
+    2.3319,
+    2.3383,
+    332152,
+    332152,
+    776660.8416,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T20:00:00.000Z,
+    1.363,
+    1.366,
+    1.359,
+    1.366,
+    219,
+    219,
+    298.888,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 21 e2 ef>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    0.3048,
+    0.3047,
+    0.3028,
+    0.3047,
+    94998,
+    94998,
+    28865.3207,
+    true
+  ]
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
   columns: {
-    equity_usd: 52907.132,
-    coin_usd_price: 1.000005,
-    update_time: 2025-11-05T06:30:08.024Z
+    high: 0.04833,
+    close: 0.04815,
+    volume: 156,
+    vol_currency: 1560,
+    vol_currency_quote: 74.7174,
+    completed: true
   }
 }
-In Execute.Trades: 11/5/2025, 12:45:02 AM
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 54 e7 5e>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    2.3418,
+    2.3373,
+    2.3335,
+    2.3373,
+    362183,
+    362183,
+    847060.6727,
+    true
+  ]
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 0.03019,
+    close: 0.0301,
+    volume: 335,
+    vol_currency: 3350,
+    vol_currency_quote: 100.4436,
+    completed: true
+  }
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 5e 05 55>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    101301.6,
+    101224.2,
+    101137.5,
+    101224.2,
+    39.6801,
+    39.6801,
+    4017354.96853,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 6c c5 82>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    1.368,
+    1.363,
+    1.361,
+    1.363,
+    118,
+    118,
+    160.809,
+    true
+  ]
+}
+-> [Info] candle inserted {
+  fields: [
+    'instrument',
+    'period',
+    'bar_time',
+    'open',
+    'high',
+    'low',
+    'close',
+    'volume',
+    'vol_currency',
+    'vol_currency_quote',
+    'completed'
+  ],
+  args: [
+    <Buffer 29 40 8c>,
+    <Buffer 03 e8 0e>,
+    2025-11-12T19:45:00.000Z,
+    1.2525,
+    1.2518,
+    1.2472,
+    1.2518,
+    14526,
+    14526,
+    18158.5413,
+    true
+  ]
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 0.3066,
+    close: 0.3046,
+    volume: 14505,
+    vol_currency: 145050,
+    vol_currency_quote: 43920.5504,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 0.04791, volume: 86 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 1.26,
+    close: 1.2532,
+    volume: 40066,
+    vol_currency: 40066,
+    vol_currency_quote: 49640.3893,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 2.351,
+    close: 2.3415,
+    volume: 10100,
+    vol_currency: 1010062,
+    vol_currency_quote: 2348720.9702,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 0.0302, volume: 8438 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 0.3045, volume: 9584 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 101500.2,
+    close: 101300.2,
+    volume: 83698,
+    vol_currency: 83.6988,
+    vol_currency_quote: 8467115.17551,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:30:00.000Z
+  },
+  columns: {
+    high: 1.368,
+    close: 1.368,
+    volume: 203,
+    vol_currency: 203,
+    vol_currency_quote: 275.283,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 03 8d 38>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 0.04843, volume: 230 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 1.358 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 101266.7, volume: 104118 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 24 2a 33>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 0.03022, volume: 3675 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 1.2586 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:15:00.000Z
+  },
+  columns: { high: 2.3315, volume: 4740 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 21 e2 ef>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 0.3062, volume: 16958 }
+}
+[process]  Symbol: [PONKE-USDT] exit; PID: 87200 exited with code 1
+[process]  Symbol: [ENA-USDT] exit; PID: 87201 exited with code 1
+[process]  Symbol: [ARC-USDT] exit; PID: 87202 exited with code 1
+[main] Symbol: [PONKE-USDT] exit; PID: [87133:87200] with code 1
+[main] Symbol: [ENA-USDT] exit; PID: [87133:87201] with code 1
+[main] Symbol: [ARC-USDT] exit; PID: [87133:87202] with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 101530, volume: 102048 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6c c5 82>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 1.365 }
+}
+[process]  Symbol: [ORCA-USDT] exit; PID: 87226 exited with code 1
+[process]  Symbol: [BTC-USDT] exit; PID: 87216 exited with code 1
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 2.3418, volume: 5851 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 29 40 8c>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-12T19:00:00.000Z
+  },
+  columns: { high: 1.2709 }
+}
+[main] Symbol: [ORCA-USDT] exit; PID: [87133:87226] with code 1
+[main] Symbol: [BTC-USDT] exit; PID: [87133:87216] with code 1
+[process]  Symbol: [VIRTUAL-USDT] exit; PID: 87208 exited with code 1
+[process]  Symbol: [XRP-USDT] exit; PID: 87209 exited with code 1
+[main] Symbol: [VIRTUAL-USDT] exit; PID: [87133:87208] with code 1
+[main] Symbol: [XRP-USDT] exit; PID: [87133:87209] with code 1
+In Execute.Trades: 11/12/2025, 2:29:41 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -1250,9 +3605,13 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
 -> History.Publish.Stops [API]
-   # History Stop Orders Processed [20]:  34 published
-In Execute.Trades: 11/5/2025, 12:45:31 AM
+   # History Stop Orders Processed [40]:  35 published
+In Execute.Trades: 11/12/2025, 2:30:10 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -2418,9 +4777,13 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
 -> History.Publish.Stops [API]
-   # History Stop Orders Processed [19]:  30 published
-In Execute.Trades: 11/5/2025, 12:46:00 AM
+   # History Stop Orders Processed [40]:  31 published
+In Execute.Trades: 11/12/2025, 2:30:39 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -3586,7 +5949,13 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:46:29 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [40]:  20 published
+In Execute.Trades: 11/12/2025, 2:31:08 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -4752,7 +7121,13 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:46:58 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [38]:  19 published
+In Execute.Trades: 11/12/2025, 2:31:37 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -5918,7 +8293,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:47:27 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:32:06 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -6293,7 +8672,6 @@ In Orders.Import [API]
     285.54
   ]
 }
--> WSS.Publish [API]
 -> [Info] request inserted {
   fields: [
     'request',
@@ -6388,10 +8766,6 @@ In Orders.Import [API]
     2025-06-09T17:48:01.466Z
   ]
 }
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52906.074, update_time: 2025-11-05T08:47:31.090Z }
-}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -6413,10 +8787,6 @@ In Orders.Import [API]
     2.110184,
     0
   ]
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52906.074, coin_usd_price: 0.999985 }
 }
 -> [Info] request inserted {
   fields: [
@@ -7093,7 +9463,15 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:47:57 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-12T22:32:31.155Z }
+}
+In Execute.Trades: 11/12/2025, 2:32:35 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -7859,7 +10237,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:48:26 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:33:04 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -9033,7 +11415,20 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:48:55 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55135.909, update_time: 2025-11-12T22:33:15.023Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55135.909, coin_usd_price: 0.999707 }
+}
+In Execute.Trades: 11/12/2025, 2:33:33 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -10199,7 +12594,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:49:24 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:34:02 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -11379,7 +13778,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:49:53 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:34:31 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -12557,7 +14960,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:50:22 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:35:00 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -13761,7 +16168,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:50:51 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:35:29 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -14967,7 +17378,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:51:20 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:35:58 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -16137,7 +18552,11 @@ In Orders.Import [API]
   ]
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:51:49 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:36:27 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
@@ -17164,18 +19583,166 @@ In Orders.Import [API]
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
-  columns: { order_id: <Buffer 00 e8 db 72 ec 0c> }
+  columns: { order_id: <Buffer 00 e8 db 72 ec 0c>, reduce_only: false }
 }
 -> [Info] request updated {
   filters: { request: <Buffer 30 77 34 b9 57 a1> },
   columns: { update_time: 2025-10-18T18:54:45.594Z }
 }
    # History Orders Processed [20]:  20 published
-In Execute.Trades: 11/5/2025, 12:52:18 AM
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:36:56 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 86 07 ed>,
+    <Buffer 24 51 2d e2 d3 de>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 24 51 2d e2 d3 de>,
+    <Buffer 00 e8 db 86 07 ed>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-06T00:27:07.044Z,
+    2025-11-06T08:27:07.044Z,
+    2025-11-06T00:34:51.265Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 86 05 76>,
+    <Buffer 24 51 2d e2 d3 de>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 85 e2 f1>,
+    <Buffer b3 ce c9 9e 5d 33>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer b3 ce c9 9e 5d 33>,
+    <Buffer 00 e8 db 85 e2 f1>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.85,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-05T21:12:41.145Z,
+    2025-11-06T05:12:41.145Z,
+    2025-11-05T21:18:00.435Z
+  ]
+}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -18142,82 +20709,1139 @@ In Orders.Import [API]
     2025-10-22T06:06:37.550Z
   ]
 }
-   # History Orders Processed [17]:  17 published
--> WSS.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/12/2025, 2:37:25 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8c 20 15>,
+    <Buffer e9 85 4a 64 b2 38>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e9 85 4a 64 b2 38>,
+    <Buffer 00 e8 db 8c 20 15>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-12T18:59:10.405Z,
+    2025-11-13T02:59:10.405Z,
+    2025-11-12T19:41:30.605Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8b 6f cf>,
+    <Buffer c9 25 61 3e 65 81>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer c9 25 61 3e 65 81>,
+    <Buffer 00 e8 db 8b 6f cf>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-12T05:48:48.658Z,
+    2025-11-12T13:48:48.658Z,
+    2025-11-12T06:08:34.698Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8b 26 c3>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    500,
+    2.3831,
+    71.493,
+    -1845
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 8b 26 c3>,
+    <Buffer 00 e8 db 8b 26 c3>,
+    <Buffer fa ba 05 b0 62 13>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-12T01:00:26.239Z,
+    2025-11-12T09:00:26.239Z,
+    2025-11-12T01:00:26.288Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a be fd>,
+    <Buffer 08 f4 d4 cc 1d a3>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    500,
+    2.42,
+    24.2,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 08 f4 d4 cc 1d a3>,
+    <Buffer 00 e8 db 8a be fd>,
+    <Buffer fa ba 05 b0 62 13>,
+    'buy',
+    <Buffer e1 cb 25>,
+    2.42,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-11T18:55:27.565Z,
+    2025-11-12T02:55:27.565Z,
+    2025-11-11T19:00:33.495Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a bd bb>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1500,
+    2.4272,
+    218.448,
+    594.9999999999999
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a bd bb>,
+    <Buffer 00 e8 db 8a bd bb>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-11T18:40:14.751Z,
+    2025-11-12T02:40:14.751Z,
+    2025-11-11T18:40:14.848Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a bd ba>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    750,
+    2.427,
+    109.215,
+    -225
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a bd ba>,
+    <Buffer 00 e8 db 8a bd ba>,
+    <Buffer fa ba 05 b0 62 13>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    750,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-11T18:40:14.751Z,
+    2025-11-12T02:40:14.751Z,
+    2025-11-11T18:40:14.789Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a 3d 3a>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    750,
+    2.43,
+    36.45,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 8a 3d 3a>,
+    <Buffer 00 e8 db 8a 3d 3a>,
+    <Buffer fa ba 05 b0 62 13>,
+    'buy',
+    <Buffer e1 cb 25>,
+    2.43,
+    750,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-11T06:54:33.430Z,
+    2025-11-11T14:54:33.430Z,
+    2025-11-11T15:31:25.112Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 b9 30>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    500,
+    2.5295,
+    25.295,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 b9 30>,
+    <Buffer 00 e8 db 89 b9 30>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    2.5295,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-10T21:28:37.605Z,
+    2025-11-11T05:28:37.605Z,
+    2025-11-10T21:31:44.485Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 b9 21>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 b9 21>,
+    <Buffer 00 e8 db 89 b9 21>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.5295,
+    5,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-10T21:27:59.441Z,
+    2025-11-11T05:27:59.441Z,
+    2025-11-10T21:28:18.149Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 52 6e>,
+    <Buffer cf 7f 21>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 89 52 6e>,
+    <Buffer 00 e8 db 89 52 6e>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e8 fc f7>,
+    2.2552,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-10T09:53:14.881Z,
+    2025-11-10T17:53:14.881Z,
+    2025-11-10T13:26:54.927Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 f4 7d>,
+    <Buffer e3 22 f0 5b 2c 18>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1000,
+    2.382,
+    47.64,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e3 22 f0 5b 2c 18>,
+    <Buffer 00 e8 db 88 f4 7d>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    2.382,
+    1000,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-09T23:48:25.360Z,
+    2025-11-10T07:48:25.360Z,
+    2025-11-10T00:20:17.406Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 c0 00>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1000,
+    2.3067,
+    138.402,
+    1530
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 c0 00>,
+    <Buffer 00 e8 db 88 c0 00>,
+    <Buffer 62 45 1c 33 17 21>,
+    'buy',
+    <Buffer e1 cb 25>,
+    0,
+    1000,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-09T18:04:42.797Z,
+    2025-11-10T02:04:42.797Z,
+    2025-11-09T18:04:42.836Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 ad 50>,
+    <Buffer de a6 19 7e b8 60>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1000,
+    2.322,
+    46.44,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer de a6 19 7e b8 60>,
+    <Buffer 00 e8 db 88 ad 50>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e1 cb 25>,
+    2.322,
+    1000,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-09T15:40:44.515Z,
+    2025-11-09T23:40:44.515Z,
+    2025-11-09T15:52:54.310Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 a3 8b>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1000,
+    2.2921,
+    137.526,
+    3010
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 a3 8b>,
+    <Buffer 00 e8 db 88 a3 8b>,
+    <Buffer fa ba 05 b0 62 13>,
+    'sell',
+    <Buffer e1 cb 25>,
+    0,
+    1000,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    true,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-09T14:49:55.632Z,
+    2025-11-09T22:49:55.632Z,
+    2025-11-09T14:49:55.669Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 88 13 c2>,
+    <Buffer a5 22 93 de b5 ff>,
+    <Buffer 4f ae 94>,
+    <Buffer 70 d4 9c>,
+    <Buffer 3d 66 8d>,
+    1000,
+    2.262,
+    45.24,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer a5 22 93 de b5 ff>,
+    <Buffer 00 e8 db 88 13 c2>,
+    <Buffer fa ba 05 b0 62 13>,
+    'buy',
+    <Buffer e1 cb 25>,
+    2.262,
+    1000,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-08T13:35:16.316Z,
+    2025-11-08T21:35:16.316Z,
+    2025-11-08T14:19:36.779Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 87 cd bb>,
+    <Buffer e2 d5 c7 ee 48 ae>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e2 d5 c7 ee 48 ae>,
+    <Buffer 00 e8 db 87 cd bb>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-08T03:41:26.245Z,
+    2025-11-08T11:41:26.245Z,
+    2025-11-08T03:46:44.763Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 87 ca 3b>,
+    <Buffer e2 d5 c7 ee 48 ae>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 87 b4 8a>,
+    <Buffer 22 26 11 70 b2 9b>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 22 26 11 70 b2 9b>,
+    <Buffer 00 e8 db 87 b4 8a>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-08T00:55:05.079Z,
+    2025-11-08T08:55:05.079Z,
+    2025-11-08T00:59:54.945Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 87 ab a9>,
+    <Buffer 22 26 11 70 b2 9b>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 86 a4 ee>,
+    <Buffer 70 a6 e8 ec a2 1e>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'reduce_only',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 70 a6 e8 ec a2 1e>,
+    <Buffer 00 e8 db 86 a4 ee>,
+    <Buffer 62 45 1c 33 17 21>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    false,
+    '[Warning] Request.Submit: Request missing; was added locally; updated and settled',
+    2025-11-07T05:41:26.095Z,
+    2025-11-07T13:41:26.095Z,
+    2025-11-07T09:55:22.174Z
+  ]
+}
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52907.397, update_time: 2025-11-05T08:52:31.123Z }
+  columns: { update_time: 2025-11-12T22:37:31.072Z }
 }
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52907.397, coin_usd_price: 1.00001 }
-}
-In Execute.Trades: 11/5/2025, 12:52:47 AM
+In Execute.Trades: 11/12/2025, 2:37:54 PM
+In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:53:16 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:53:45 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:54:14 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:54:43 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:55:12 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:55:41 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:56:10 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:56:39 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:57:08 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 52906.074, update_time: 2025-11-05T08:57:31.011Z }
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 52906.074, coin_usd_price: 0.999985 }
-}
-In Execute.Trades: 11/5/2025, 12:57:37 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:58:06 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:58:35 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:59:04 AM
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/5/2025, 12:59:33 AM
-In Orders.Import [API]
+In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]

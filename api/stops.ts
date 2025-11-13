@@ -48,7 +48,7 @@ export interface IStopsAPI {
 //| Updates active stops from the blofin api;                                            |
 //+--------------------------------------------------------------------------------------+
 const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
-  props && console.log(`-> ${source}.Publish.Stops [API]`);
+  console.log(`-> ${source}.Publish.Stops [API]`);
 
   const processed: Array<IStopOrder["stop_request"]> = [];
   const published: Array<IStopOrder["stop_request"]> = [];
@@ -104,49 +104,52 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
         update_time: new Date(),
       };
 
-      if (tp_id === undefined) continue;
-      else {
+      if (tp_id) {
         processed.push(tp_id);
 
-        const request = await Stops.Submit({
+        const request: Partial<IStops> = {
           ...common,
           stop_request: client_order_id || tp_id,
           stop_order: tp_id,
           stop_type: "tp",
           trigger_price: order.tpTriggerPrice == null ? undefined : format(order.tpTriggerPrice),
           order_price: order.tpOrderPrice == null ? -1 : format(order.tpOrderPrice),
-        });
-
-        const result = await Stops.Publish({ ...common, stop_order: tp_id });
-        result
-          ? published.push(result)
-          : rejected.push({
-              ...common,
-              stop_order: tp_id,
-              memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-            });
+        };
+        const submit = await Stops.Submit(request);
+        if (isEqual(submit!, request.stop_request!)) {
+          const result = await Stops.Publish(request);
+          result
+            ? published.push(result)
+            : rejected.push({
+                ...common,
+                stop_order: tp_id,
+                memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+              });
+        }
       }
 
-      if (sl_id === undefined) continue;
-      else {
+      if (sl_id) {
         processed.push(sl_id);
 
-        const request = await Stops.Submit({
+        const request: Partial<IStops> = {
           ...common,
           stop_request: client_order_id || sl_id,
           stop_order: sl_id,
           stop_type: "sl",
           trigger_price: order.slTriggerPrice == null ? undefined : format(order.slTriggerPrice),
           order_price: order.slOrderPrice == null ? -1 : format(order.slOrderPrice),
-        });
-        const result = await Stops.Publish({ ...common, stop_order: sl_id });
-        result
-          ? published.push(result)
-          : rejected.push({
-              ...common,
-              stop_order: sl_id,
-              memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-            });
+        };
+        const submit = await Stops.Submit(request);
+        if (isEqual(submit!, request.stop_request!)) {
+          const result = await Stops.Publish(request);
+          result
+            ? published.push(result)
+            : rejected.push({
+                ...common,
+                stop_order: sl_id,
+                memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
+              });
+        }
       }
     }
   }
@@ -156,7 +159,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
 //+--------------------------------------------------------------------------------------+
 //| History - retrieves active stops from history; reconciles/merges with local db;      |
 //+--------------------------------------------------------------------------------------+
-export async function History(): Promise<Array<Partial<IStopsAPI>> | undefined> {
+export const History = async (): Promise<Array<Partial<IStopsAPI>> | undefined> => {
   console.log(`-> Fetch:History [API]`);
 
   const method = "GET";
@@ -185,12 +188,12 @@ export async function History(): Promise<Array<Partial<IStopsAPI>> | undefined> 
     console.log(error);
     return [];
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Pending - retrieves active stops; reconciles with local db;                          |
 //+--------------------------------------------------------------------------------------+
-export async function Pending(): Promise<Array<Partial<IStopsAPI>> | undefined> {
+export const Pending = async (): Promise<Array<Partial<IStopsAPI>> | undefined> => {
   console.log(`-> Fetch:Pending [API]`);
 
   const method = "GET";
@@ -284,7 +287,7 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
 
     if (response.ok) {
       const json = await response.json();
-      return await Response.Stops(json.data, { success: "Pending", fail: "Rejected" });
+      return await Response.Stops(json, { success: "Pending", fail: "Rejected" });
     }
   } catch (error) {
     console.log(error);

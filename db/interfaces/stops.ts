@@ -17,6 +17,7 @@ import * as States from "db/interfaces/state";
 export interface IStopRequest {
   instrument_position: Uint8Array;
   stop_request: Uint8Array;
+  tpsl_id: Uint8Array;
   state: Uint8Array;
   status: TRequest;
   stop_type: "tp" | "sl";
@@ -33,7 +34,6 @@ export interface IStopRequest {
 
 export interface IStopOrder extends IStopRequest {
   stop_order: Uint8Array;
-  tpsl_id: Uint8Array;
   client_order_id: Uint8Array;
   order_state: Uint8Array;
   order_status: string;
@@ -54,32 +54,40 @@ export interface IStops extends IStopOrder {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Submits application (auto) stop requests locally on Open positions;                  |
+//| Submits application generated auto stop requests and updates locally;                |
 //+--------------------------------------------------------------------------------------+
-const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>) => {
-  if (Object.keys(current).length) {
-    if (Object.keys(props).length) {
-      const revised: Partial<IStops> = {
-        stop_request: props.stop_request,
-        size: isEqual(props.size!, current.size!) ? undefined : props.size,
-        trigger_price: isEqual(props.trigger_price!, current.trigger_price!) ? undefined : props.trigger_price,
-        order_price: isEqual(props.order_price!, current.order_price!) ? undefined : props.order_price,
-        reduce_only: !!props.reduce_only! === !!current.reduce_only! ? undefined : props.reduce_only,
-        create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
-      };
+const publish = async (current: Partial<IStopRequest>, props: Partial<IStopRequest>): Promise<IStopRequest["stop_request"] | undefined> => {
+  if (hasValues<Partial<IStopRequest>>(current)) {
+    if (hasValues<Partial<IStopRequest>>(props)) {
+      const update_time = props.update_time ? props.update_time : new Date();
+      const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
+      if (update_time > current.update_time!) {
+        const revised: Partial<IStopRequest> = {
+          stop_request: props.stop_request,
+          tpsl_id: isEqual(props.tpsl_id!, current.tpsl_id!) ? undefined : props.tpsl_id,
+          state: isEqual(state!, current.state!) ? undefined : state,
+          size: isEqual(props.size!, current.size!) ? undefined : props.size,
+          trigger_price: isEqual(props.trigger_price!, current.trigger_price!) ? undefined : props.trigger_price,
+          order_price: isEqual(props.order_price!, current.order_price!) ? undefined : props.order_price,
+          reduce_only: props.reduce_only && !!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only,
+          create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
+        };
 
-      const [result, updates] = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }] });
+        const [result, updates] = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }] });
 
-      if (result && updates) {
-        const [result, updates] = await Update(
-          {
-            stop_request: props.stop_request,
-            memo: props.memo === current.memo ? undefined : props.memo,
-            update_time: props.update_time || new Date(),
-          },
-          { table: `stop_request`, keys: [{ key: `stop_request` }] }
-        );
-        return result ? result.stop_request : undefined;
+        if (result && updates) {
+          const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
+          const [result, updates] = await Update(
+            {
+              stop_request: props.stop_request,
+              state,
+              memo: props.memo === current.memo ? undefined : props.memo,
+              update_time: props.update_time || new Date(),
+            },
+            { table: `stop_request`, keys: [{ key: `stop_request` }] }
+          );
+          return result ? result.stop_request : undefined;
+        } else return undefined;
       } else return undefined;
     } else {
       console.log(">> [Error] Stop.Publish: No properties to update");
@@ -87,9 +95,9 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
     }
   } else {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
-    const request = {
+    const request: Partial<IStopRequest> = {
       stop_request: props.stop_request,
-      stop_order: props.stop_order,
+      tpsl_id: props.tpsl_id,
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
       state: props.state || queued,
@@ -97,13 +105,13 @@ const publish = async (current: Partial<IStopOrder>, props: Partial<IStopOrder>)
       size: props.size,
       trigger_price: props.trigger_price,
       order_price: props.order_price,
-      reduce_only: props.reduce_only,
+      reduce_only: !!props.reduce_only,
       memo: props.memo || "[Info] Stop.Publish: Stop request does not exist; proceeding with submission",
-      create_time: props.create_time,
+      create_time: props.create_time || new Date(),
       update_time: new Date(),
     };
 
-    const result = await Insert(request, { table: "stop_request" });
+    const result = await Insert<Partial<IStopRequest>>(request, { table: "stop_request" });
     return result ? result.stop_request : undefined;
   }
 };
@@ -201,24 +209,17 @@ export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop
 
       if (request) {
         const [current] = request;
-        const state =
-          isEqual(current.state!, props.state!) && isEqual(current.status!, props.status!)
-            ? current.state
-            : await States.Key<IRequestState>({ status: props.status! });
 
         if (props.update_time! > current.update_time!) {
-          if (current.tpsl_id && current.status === "Pending" && isEqual(current.state!, props.state!)) {
-            const hold = await States.Key<IRequestState>({ status: "Hold" });
-
+          if (props.status === "Hold") {
             const result = await publish(current, {
               ...props,
-              state: hold,
-              memo: `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit`,
+              memo: props.memo || `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit`,
             });
 
             return result ? result : undefined;
           } else {
-            await publish(current, { ...props, state, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
+            await publish(current, { ...props, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
             return current.stop_request;
           }
         } else return undefined;
@@ -238,11 +239,24 @@ export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop
     const result = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position });
 
     if (result) {
-      const [{ auto_status, instrument_position }] = result;
-      auto_status === "Enabled" && Cancel({ instrument_position, memo: `[Info] Stops.Submit: New stop request submitted; canceling existing pending stop(s)` });
+      const [current] = result;
+
+      if (current.auto_status === "Enabled") {
+        if (props.stop_type && ((props.stop_type === "tp" && current.open_take_profit) || (props.stop_type === "sl" && current.open_stop_loss))) {
+          await Cancel({
+            instrument_position: current.instrument_position,
+            memo: `[Info] Stops.Submit: New stop request submitted; canceling existing pending stop(s)`,
+          });
+        }
+      }
       return await publish(
         {},
-        { ...props, stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`), instrument_position, status: "Queued" }
+        {
+          ...props,
+          stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`),
+          instrument_position: current.instrument_position,
+          status: "Queued",
+        }
       );
     } else {
       console.log(">> [Error] Stops.Submit: Invalid stop request; missing instrument position; request rejected");

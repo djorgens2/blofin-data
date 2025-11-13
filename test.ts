@@ -798,9 +798,9 @@ import { parse } from "path";
 // checkRef();
 
 //----------------------------- expiry calc test  -------------------------------------------------------//
-// import { setExpiry } from "lib/std.util";
+//import { setExpiry } from "lib/std.util";
 
-// console.log(setExpiry(`30s`))
+console.log(setExpiry(`1m`))
 
 //----------------------------- order test  -------------------------------------------------------//
 // import { hexify } from "lib/crypto.util";
@@ -1808,19 +1808,19 @@ import { parse } from "path";
 // run();
 
 //---------------------------------- tpsl_id conversion test ----------------------------------------//
-import * as Stops from "db/interfaces/stops";
-import { Select } from "db/query.utils";
+// import * as Stops from "db/interfaces/stops";
+// import { Select } from "db/query.utils";
 
-const run = async () => {
-//  const stops = await Select<Stops.IStops>({ status: `Expired` }, { table: `vw_stop_orders`, suffix: `AND tpsl_id IS NOT NULL` });
-  const stops = await Select<Stops.IStops>({ }, { table: `vw_stop_orders` });
-  console.log("tpsl_id:", "1", stops[1].tpsl_id && BigInt(`${hexString(stops[1].tpsl_id!, 8)}`).toString(10));
-  console.log(stops.map(({ symbol, tpsl_id, stop_request }) => ({
-        instId: symbol,
-        tpslId: tpsl_id ? BigInt(hexString(tpsl_id!, 8)).toString(10) : undefined,
-        clientOrderId: stop_request ? hexString(stop_request!,10,``).toUpperCase() : undefined,
-      })));
-};
+// const run = async () => {
+// //  const stops = await Select<Stops.IStops>({ status: `Expired` }, { table: `vw_stop_orders`, suffix: `AND tpsl_id IS NOT NULL` });
+//   const stops = await Select<Stops.IStops>({ }, { table: `vw_stop_orders` });
+//   console.log("tpsl_id:", "1", stops[1].tpsl_id && BigInt(`${hexString(stops[1].tpsl_id!, 8)}`).toString(10));
+//   console.log(stops.map(({ symbol, tpsl_id, stop_request }) => ({
+//         instId: symbol,
+//         tpslId: tpsl_id ? BigInt(hexString(tpsl_id!, 8)).toString(10) : undefined,
+//         clientOrderId: stop_request ? hexString(stop_request!,10,``).toUpperCase() : undefined,
+//       })));
+// };
 
-run();
+// run();
 

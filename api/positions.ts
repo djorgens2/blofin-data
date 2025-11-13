@@ -42,14 +42,16 @@ export interface IPositionsAPI {
 //+--------------------------------------------------------------------------------------+
 //| Format and publish position updates;                                                 |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partial<IPositions>>> => {
+export const Publish = async (props: Array<IPositionsAPI>) => {
   const updates: Array<Partial<IPositions>> = [];
+  const errors: Array<Partial<IPositions>> = [];
+
   if (props && props.length)
     for (const position of props) {
       const positions = hexify(parseInt(position.positionId), 6);
       const instrument = await Instrument.Key({ symbol: position.instId });
       const instrument_position = await InstrumentPositions.Key({ account: Session().account, instrument: instrument!, position: position.positionSide });
-      const update: Partial<IPositions> = {
+      const result = await Positions.Publish({
         positions,
         instrument_position,
         size: format(position.positions),
@@ -66,13 +68,16 @@ export const Publish = async (props: Array<IPositionsAPI>): Promise<Array<Partia
         unrealized_pnl: format(position.unrealizedPnl),
         unrealized_pnl_ratio: format(position.unrealizedPnlRatio, 3),
         adl: parseInt(position.adl),
-        create_time: position.createTime ? new Date(parseInt(position.createTime)) : new Date(Date.now()),
-        update_time: position.updateTime ? new Date(parseInt(position.updateTime)) : new Date(Date.now()),
-      };
-      await Positions.Publish(update);
-      updates.push({ instrument_position, status: "Open" });
+        create_time: position.createTime ? new Date(parseInt(position.createTime)) : new Date(),
+        update_time: position.updateTime ? new Date(parseInt(position.updateTime)) : new Date(),
+      });
+
+      if (result) {
+        const result = await InstrumentPositions.Publish({ instrument_position, status: "Open" });
+        result ? updates.push(result) : errors.push({ instrument_position });
+      }
     }
-  return updates.length ? updates : [];
+  return [updates, errors];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -111,19 +116,27 @@ export const Active = async () => {
 //| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const active: Array<IPositionsAPI> = await Active();
-  const updates = await Publish(active);
-  const history = await Select<IInstrumentPosition>({ status: `Open` }, { table: `vw_instrument_positions` });
+  console.log("In Position.Import [API]");
 
-  if (history.length)
+  const active: Array<IPositionsAPI> = await Active();
+  const [accepted, rejected] = await Publish(active);
+  const history = await Select<IInstrumentPosition>({ status: `Open` }, { table: `vw_instrument_positions` });
+  const success: Array<Partial<IInstrumentPosition>> = [];
+  const failed: Array<Partial<IInstrumentPosition>> = [];
+
+  if (history.length) {
     for (const local of history) {
-      const { instrument_position } = local;
-      const found = updates.find(({ instrument_position }) => isEqual);
-      !found && updates.push({ instrument_position, status: "Closed" });
+      if (accepted.find(({ instrument_position }) => isEqual(instrument_position!, local.instrument_position!))) continue;
+      else {
+        const result = await InstrumentPositions.Publish({ instrument_position: local.instrument_position, status: "Closed" });
+        result
+          ? success.push({ instrument_position: local.instrument_position, status: "Closed" })
+          : failed.push({ instrument_position: local.instrument_position, status: "Closed" });
+      }
     }
-  
-  if (updates.length) for (const update of updates) { 
-    const instrument_position = await InstrumentPositions.Publish(update);
-    console.log(`[Info] Position update processed:`, { instrument_position, status: update.status });
+    active.length && console.log(`>> Active Positions Processed [${active.length}]:  ${active.length} published`);
+    success && success.length && console.log(`   # [Info] Positions processed [${history.length}]:  ${success.length} published`);
+    failed && failed.length && console.log(`   # [Error] Errors publishing Position: `, failed.length, failed);
+    rejected && rejected.length && console.log(`   # [Warning] Positions rejected: `, rejected.length, rejected);
   }
 };

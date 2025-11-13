@@ -12,14 +12,18 @@ import { Update } from "db/query.utils";
 
 import * as States from "db/interfaces/state";
 import * as Orders from "db/interfaces/order";
-import * as StopOrders from "db/interfaces/stops";
+import { isArray } from "util";
 
 export type TResponse = {
-  orderId: string;
-  tpslId: string;
-  clientOrderId: string;
-  msg: string;
   code: string;
+  msg: string;
+  data: Array<{
+    orderId: string;
+    tpslId: string;
+    clientOrderId: string;
+    msg: string;
+    code: string;
+  }>;
 };
 
 export interface IResponse {
@@ -37,31 +41,35 @@ export interface IResponse {
 //+--------------------------------------------------------------------------------------+
 //| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
-export const Request = async (responses: TResponse[], props: { success: TRequest; fail: TRequest }) => {
-  const success = await States.Key<IRequestState>({ status: props.success });
-  const fail = await States.Key<IRequestState>({ status: props.fail });
+export const Request = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
   const accept: Array<Partial<IResponse>> = [];
   const reject: Array<Partial<IResponse>> = [];
 
-  if (Array.isArray(responses) && responses.length) {
-    console.log(`-> [Info] Response.Request: Responses received:`, responses.length, responses);
-    for (const response of responses) {
+  if (Array.isArray(response.data)) {
+    const success = await States.Key<IRequestState>({ status: props.success });
+    const fail = await States.Key<IRequestState>({ status: props.fail });
+
+    for (const current of response.data) {
       const request = {
-        request: hexify(response.clientOrderId, 6) || hexify(parseInt(response.orderId), 6),
-        order_id: hexify(parseInt(response.orderId), 6),
-        state: response.code === "0" ? success : fail,
+        request: hexify(current.clientOrderId, 6) || hexify(parseInt(current.orderId), 6),
+        order_id: hexify(parseInt(current.orderId), 6),
+        state: current.code === "0" ? success : fail,
         memo:
-          response.code === "0"
+          current.code === "0"
             ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Error] Response.Request: ${props.fail === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
+            : `[Error] Response.Request: ${props.fail === "Rejected" ? `Order` : `Cancellation`} failed with code [${current.code}]: ${current.msg}`,
         update_time: new Date(),
       };
       const [result, updates] = await Update<Orders.IOrder>(request, { table: `request`, keys: [{ key: `request` }] });
-      result ? accept.push({ ...request, code: parseInt(response.code) }) : reject.push({ ...request, code: parseInt(response.code) });
+      result ? accept.push({ ...request, code: parseInt(current.code) }) : reject.push({ ...request, code: parseInt(current.code) });
     }
     return [accept, reject];
   } else {
-    console.log("-> [Error] Response.Request: No response data received from broker API");
+    console.log(
+      `-> [Error] Response.Request: Request not processed; error returned:`,
+      response.code || -1,
+      `[Error] Unknown error occurred; check logfile; ${response ? `response: `.concat(response.msg) : ``}`
+    );
     return [accept, reject];
   }
 };
@@ -69,32 +77,37 @@ export const Request = async (responses: TResponse[], props: { success: TRequest
 //+--------------------------------------------------------------------------------------+
 //| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
-export const Stops = async (responses: TResponse[], props: { success: TRequest; fail: TRequest }) => {
-  const success = await States.Key<IRequestState>({ status: props.success });
-  const fail = await States.Key<IRequestState>({ status: props.fail });
-  const queued: Array<Partial<IStops>> = [];
+export const Stops = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
   const accept: Array<Partial<IResponse>> = [];
   const reject: Array<Partial<IResponse>> = [];
+  
+  const current = response.data ? Array.isArray(response.data) ? response.data : [response.data] : undefined;
 
-  if (Array.isArray(responses) && responses.length) {
-    console.log(`-> [Info] Response.Stops: Responses received:`, responses.length, responses);
-    for (const response of responses) {
+  if (current) {
+    const success = await States.Key<IRequestState>({ status: props.success });
+    const fail = await States.Key<IRequestState>({ status: props.fail });
+
+    for (const request of current) {
       const stop_request = {
-        tpsl_id: hexify(parseInt(response.tpslId), 4),
-        state: response.code === "0" ? success : fail,
+        stop_request: hexify(request.clientOrderId, 5),
+        tpsl_id: hexify(parseInt(request.tpslId), 4),
+        state: request.code === "0" ? success : fail,
         memo:
-          response.code === "0"
+          request.code === "0"
             ? `[Info] Response.Stops: StopOrder ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Error] Response.Stops: ${props.fail === "Rejected" ? `Stop` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
+            : `[Error] Response.Stops: ${props.fail === "Rejected" ? `Stop` : `Cancellation`} failed with code [${request.code}]: ${request.msg}`,
         update_time: new Date(),
       };
-      const [result, updates] = await Update(stop_request, { table: `vw_stop_states`, keys: [{ key: `tpsl_id` }] });
-
-      result ? accept.push({ ...stop_request, code: parseInt(response.code) }) : reject.push({ ...stop_request, code: parseInt(response.code) });
+      const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `stop_request` }] });
+      result ? accept.push({ ...stop_request, code: parseInt(request.code) }) : reject.push({ ...stop_request, code: parseInt(request.code) });
     }
     return [accept, reject];
   } else {
-    console.log("-> [Error] Response.Stops: No response data received from broker API");
+    console.log(
+      `-> [Error] Response.Stops: Stop request not processed; error returned:`,
+      response.code || -1,
+      `[Error] Unknown error occurred; check logfile; ${response ? `response: `.concat(response.msg) : ``}`
+    );
     return [accept, reject];
   }
 };

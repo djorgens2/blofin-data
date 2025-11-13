@@ -170,7 +170,6 @@ const processOrders = async () => {
       const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: BigInt(hexString(order_id!, 10)).toString() }));
       const [processed, errors] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
 
-      console.log("Hold cancels", cancels);
       for (const hold of processed) {
         const result = await Request.Submit({
           request: hold.request!,
@@ -246,6 +245,8 @@ const processStops = async () => {
 
     const requests = await Stops.Fetch({ status: "Pending", account: Session().account });
 
+    requests && console.log(`In Stops.Pending[${requests.length}]`);
+
     if (requests) {
       for (const request of requests) {
         const positionOpen = await isOpen({ instrument_position: request.instrument_position });
@@ -299,7 +300,7 @@ const processStops = async () => {
                 trigger_price: verified.tpTriggerPrice == null ? format(verified.slTriggerPrice!) : format(verified.tpTriggerPrice),
                 order_price: verified.tpOrderPrice == null ? format(verified.slOrderPrice!) : format(verified.tpOrderPrice),
                 size: format(verified.size!),
-                reduce_only: verified.reduceOnly === "true",
+                reduce_only: verified.reduceOnly ? verified.reduceOnly === "true" : undefined,
                 broker_id: verified.brokerId == null ? undefined : verified.brokerId,
                 update_time: new Date(),
               });
@@ -356,7 +357,6 @@ const processStops = async () => {
       }
 
       if (closures.length) {
-        console.log(">> Trades.Canceled: Stop orders on closed positions; changing state to Closed:", closures.length);
         for (const close of closures) {
           const closed = await States.Key<IRequestState>({ status: "Closed" });
           const stop_request = {

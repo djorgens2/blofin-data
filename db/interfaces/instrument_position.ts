@@ -9,6 +9,7 @@ import type { TStatus, TSystem } from "db/interfaces/state";
 import { Select, Update, Load } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
+import { Session } from "module/session";
 
 import * as State from "db/interfaces/state";
 
@@ -65,20 +66,27 @@ export const Import = async () => {
     await Load<IInstrumentPosition>(imports, { table: `instrument_position` });
     console.log("   # Instrument Position imports: ", instrument_position.length, "verified");
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrumentPosition>) => {
-  const instrument_position = await Select<IInstrumentPosition>({ instrument_position: props.instrument_position }, { table: `instrument_position` });
+  const instrument_position = await Select<IInstrumentPosition>(
+    props.instrument_position
+      ? { instrument_position: props.instrument_position }
+      : { account: props.account || Session().account, instrument: props.instrument, symbol: props.symbol, position: props.position },
+    { table: `instrument_position` }
+  );
 
   if (instrument_position.length) {
     const [current] = instrument_position;
+    const state = props.state || (await State.Key({ status: props.status }));
+    const auto_state = props.auto_state || (await State.Key({ status: props.auto_status }));
     const revised: Partial<IInstrumentPosition> = {
       instrument_position: current.instrument_position,
-      state: isEqual(props.state!, current.state!) ? undefined : props.state,
-      auto_state: isEqual(props.auto_state!, current.auto_state!) ? undefined : props.auto_state,
+      state: isEqual(state!, current.state!) ? undefined : state,
+      auto_state: isEqual(auto_state!, current.auto_state!) ? undefined : auto_state,
       strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
       strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
@@ -86,7 +94,7 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
     };
     const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
 
-    return result ? [result.instrument_position, updates] : [undefined, undefined]; 
+    return result ? result : undefined;
   }
 };
 

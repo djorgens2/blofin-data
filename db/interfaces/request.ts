@@ -4,12 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "api/requests";
 import type { IOrder } from "db/interfaces/order";
 import type { TRefKey } from "db/interfaces/reference";
 import type { IRequestState, TRequest } from "db/interfaces/state";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Insert, Update } from "db/query.utils";
 import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
@@ -56,10 +55,9 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
   if (hasValues<Partial<IRequest>>(current)) {
     if (hasValues<Partial<IRequest>>(props)) {
       const update_time = props.update_time ? props.update_time : new Date();
-
+      const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
       if (update_time > current.update_time!) {
-        const state = props.state || (await States.Key<IRequestState>({ status: props.status }));
-        const request: Partial<IRequest> = {
+        const revised: Partial<IRequest> = {
           request: current.request,
           order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
           action: props.action === current.action ? undefined : props.action,
@@ -68,18 +66,20 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
           margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
-          reduce_only: !!props.reduce_only === !!current.reduce_only ? undefined : props.reduce_only,
+          reduce_only: props.reduce_only && !!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only,
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
           expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
         };
 
-        const [result, updates] = await Update(request, { table: `request`, keys: [{ key: `request` }] });
+        const [result, updates] = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
 
         if (result && updates) {
+          const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
           const [result, updates] = await Update(
             {
               request: props.request,
-              memo: props.memo,
+              state,
+              memo: props.memo === current.memo ? undefined : props.memo,
               update_time,
             },
             { table: `request`, keys: [{ key: `request` }] }
@@ -96,28 +96,25 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
     const process_time = new Date();
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const request_type = await References.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
-    const result = await Insert<IRequest>(
-      {
-        request: props.request || hashKey(12),
-        order_id: props.order_id,
-        instrument_position: props.instrument_position,
-        action: props.action,
-        state: props.request ? props.state || queued : queued,
-        price: props.price,
-        size: props.size,
-        leverage: props.leverage,
-        request_type,
-        margin_mode: props.margin_mode,
-        reduce_only: props.reduce_only || false,
-        broker_id: props.broker_id || undefined,
-        memo: props.memo || undefined,
-        create_time: props.create_time || process_time,
-        expiry_time: props.expiry_time || setExpiry("8h", props.create_time || new Date()),
-        update_time: props.update_time || process_time,
-      },
-      { table: `request` }
-    );
-
+    const request: Partial<IRequest> = {
+      request: props.request || hashKey(12),
+      order_id: props.order_id,
+      instrument_position: props.instrument_position,
+      action: props.action,
+      state: props.request ? props.state || queued : queued,
+      price: props.price,
+      size: props.size,
+      leverage: props.leverage,
+      request_type,
+      margin_mode: props.margin_mode,
+      reduce_only: props.reduce_only && !!props.reduce_only,
+      broker_id: props.broker_id || undefined,
+      memo: props.memo || "[Info] Request.Publish: Request does not exist; proceeding with submission",
+      create_time: props.create_time || process_time,
+      expiry_time: props.expiry_time || setExpiry("8h", props.create_time || new Date()),
+      update_time: props.update_time || process_time,
+    };
+    const result = await Insert<IRequest>(request, { table: `request` });
     return result ? result.request : undefined;
   }
 };
@@ -161,12 +158,10 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
         const [current] = request;
 
         if (props.update_time! > current.update_time!) {
-          if (current.order_id && current.status === "Pending" && isEqual(current.state!, props.state!)) {
-            const hold = await States.Key<IRequestState>({ status: "Hold" });
+          if (props.status === "Hold") {
             const result = await publish(current, {
               ...props,
-              state: hold,
-              memo: `[Info] Request.Submit: Request exists; was put on hold; awaiting cancel for resubmit`,
+              memo: props.memo || `[Info] Request.Submit: Request exists; was put on hold; awaiting cancel for resubmit`,
             });
             return result ? result : undefined;
           } else {

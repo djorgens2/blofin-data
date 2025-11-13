@@ -5,7 +5,7 @@ import { Session, setSession } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { req_fcrt_1a } from "./req_fcrt_1a";
 import { req_fcrt_1b } from "./req_fcrt_1b";
-import { req_fcrt_1c } from "./req_fcrt_1c";
+import { req_fcrt_1c, req_fcrt_1d } from "./req_fcrt_1c";
 import { Select } from "db/query.utils";
 
 import * as IPos from "db/interfaces/instrument_position";
@@ -78,6 +78,21 @@ if (cli_account && cli_test) {
         }
         throw new Error(`[Error] No Order: Test ${cli_test} failed; request does not exist for this instrument;`);
       }
+      if (cli_test === "1d") {
+        const request = await Orders.Fetch({ status: "Pending" });
+        if (request) {
+          const [current] = request;
+          const submitted = await Requests.Submit({
+            ...current,
+            ...req_fcrt_1d,
+            memo: `Test ${cli_test}: Updating Order: setting expiry to 1m;`,
+            update_time: new Date(),
+          });
+          console.log(`[Info] Starting Order: submitting request [req_fcrt_1d]`, { account: Session().account, instrument_position, ...req_fcrt_1d});
+          return [submitted, req_fcrt_1d];
+        }
+        throw new Error(`[Error] No Order: Test ${cli_test} failed; request does not exist for this instrument;`);
+      }
       throw new Error(`[Error] Invalid Test: ${cli_test} does not exist;`);
     }
     throw new Error(`[Error] Existing Order Found: Only One (1) order for [${req_fcrt_1a.symbol}/${req_fcrt_1a.position}] is permitted for test ${cli_test};`);
@@ -88,7 +103,7 @@ if (cli_account && cli_test) {
   submit()
     .then(async ([submitted, request]) => {
       if (submitted === undefined) {
-        console.error("Test 1: Request submission failed.");
+        console.error(`Test ${cli_test}: Request submission failed.`);
         console.error("Request details:", request);
         console.error("Exiting process with code 1.");
         process.exit(1);
