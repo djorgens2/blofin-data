@@ -32,14 +32,14 @@ export const req_fcrt_2b: Array<Partial<IStops>> = [
 //-- Test 3b: submit updates to queued stop requests--//
 export const req_fcrt_3b: Array<Partial<IStops>> = [
   {
-    stop_request: hexify("DFBF4FBFE5"),
+    stop_request: hexify("DF8AE8D2CB"),
     size: 100,
     trigger_price: 3.05,
     order_price: 3.15,
     memo: "Test 3b: submit update to stop loss request",
   },
   {
-    stop_request: hexify("E42C43BAA8"),
+    stop_request: hexify("E4BA01AD14"),
     size: 100,
     trigger_price: 1.95,
     order_price: 1.975,

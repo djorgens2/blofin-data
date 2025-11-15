@@ -66,7 +66,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
           margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
-          reduce_only: props.reduce_only && !!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only,
+          reduce_only: props.reduce_only ? (!!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only) : undefined,
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
           expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
         };
@@ -107,7 +107,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
       leverage: props.leverage,
       request_type,
       margin_mode: props.margin_mode,
-      reduce_only: props.reduce_only && !!props.reduce_only,
+      reduce_only: props.reduce_only ? !!props.reduce_only : undefined,
       broker_id: props.broker_id || undefined,
       memo: props.memo || "[Info] Request.Publish: Request does not exist; proceeding with submission",
       create_time: props.create_time || process_time,

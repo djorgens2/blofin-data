@@ -271,14 +271,15 @@ const processStops = async () => {
     const queued: Array<Partial<IStopsAPI>> = [];
     const errors: Array<Partial<IStopsAPI>> = [];
     const verify: Array<Partial<IStopsAPI>> = [];
-    const closures: Array<Partial<IStopsAPI>> = [];
+    const processed: Array<Stops.IStopRequest["stop_request"]> = [];
     const success: Array<Partial<IResponse>> = [];
     const failed: Array<Partial<IResponse>> = [];
     const expired: Array<Partial<IStopsAPI>> = [];
+    const closures: Array<Partial<IStopsAPI>> = [];
 
     const requests = await Select<IStopsAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_stop_requests` });
 
-    if (requests) {
+    if (requests.length) {
       for (const request of requests) {
         const positionOpen = await isOpen({ symbol: request.instId, position: request.positionSide });
         const { account, tpslId, status, memo, update_time, ...api } = request;
@@ -294,16 +295,17 @@ const processStops = async () => {
             const { open_request } = current;
 
             if (open_request) {
-              await Stops.Submit({
+              const result = await Stops.Submit({
                 stop_request: hexify(verified.clientOrderId!, 5),
                 instrument_position: current.instrument_position,
                 trigger_price: verified.tpTriggerPrice == null ? format(verified.slTriggerPrice!) : format(verified.tpTriggerPrice),
                 order_price: verified.tpOrderPrice == null ? format(verified.slOrderPrice!) : format(verified.tpOrderPrice),
                 size: format(verified.size!),
-                reduce_only: verified.reduceOnly ? verified.reduceOnly === "true" : undefined,
+                reduce_only: verified.reduceOnly === "true",
                 broker_id: verified.brokerId == null ? undefined : verified.brokerId,
                 update_time: new Date(),
               });
+              result ? processed.push(result) : errors.push(verified);
             } else expired.push(verified);
           } else errors.push(verified);
         }
@@ -311,6 +313,7 @@ const processStops = async () => {
 
       if (expired.length) {
         const state = await States.Key<IRequestState>({ status: "Expired" });
+
         for (const expire of expired) {
           const stop_request = {
             stop_request: hexify(expire.clientOrderId!, 5),
@@ -329,14 +332,15 @@ const processStops = async () => {
           success.push(...accepted);
           failed.push(...rejected);
         }
+      }
 
-        console.log("-> Trades.Queued: Stop Requests in queue:", requests.length);
+      console.log("-> Trades.Queued: Stop Requests in queue:", requests.length);
+      if (queued.length) {
         success.length && console.log("   # [Info] Stop Requests submitted:", success.length);
         failed.length && console.log("   # [Error] Stop Requests rejected:", failed.length);
       }
-
-      if (expired.length) {
-        console.log("-> Trades.Queued: Stop Requests processed as expired [", expired.length, "]");
+      if (verify.length) {
+        processed.length && console.log("   # [Info] Stop Requests waiting:", processed.length);
         closures.length && console.log("   # [Warning] Stop Requests expired:", closures.length);
       }
     }

@@ -841,7 +841,7 @@ mark: mark price]]></comment>
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
 			<column name="reduce_only" type="BOOLEAN" mandatory="y" >
-				<defo><![CDATA[false]]></defo>
+				<defo><![CDATA['1']]></defo>
 			</column>
 			<column name="memo" type="VARCHAR" length="200" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
@@ -983,6 +983,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		<table name="stop_order" row_count="0" spec="" >
 			<column name="stop_order" prior="tpsl_id" type="BINARY" length="5" mandatory="y" />
 			<column name="tpsl_id" type="BINARY" length="4" mandatory="y" />
+			<column name="stop_type" type="CHAR" length="2" mandatory="y" />
 			<column name="client_order_id" type="BINARY" length="5" />
 			<column name="order_state" type="BINARY" length="3" mandatory="y" />
 			<column name="order_category" type="BINARY" length="3" />
@@ -1009,6 +1010,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			<index name="ie_so_client_order_id" unique="NORMAL" >
 				<column name="client_order_id" />
 			</index>
+			<index name="fk_so_stop_type" unique="NORMAL" >
+				<column name="stop_type" />
+			</index>
 			<fk name="fk_so_order_state" to_schema="devel" to_table="order_state" options="" >
 				<fk_column name="order_state" pk="order_state" />
 			</fk>
@@ -1017,6 +1021,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			</fk>
 			<fk name="fk_so_price_type" to_schema="devel" to_table="price_type" >
 				<fk_column name="price_type" pk="price_type" />
+			</fk>
+			<fk name="fk_so_stop_type" to_schema="devel" to_table="stop_type" >
+				<fk_column name="stop_type" pk="stop_type" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
 		</table>
@@ -1029,13 +1036,13 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="action" type="CHAR" length="4" mandatory="y" />
 			<column name="size" type="DOUBLE" />
 			<column name="trigger_price" type="DOUBLE" mandatory="y" >
-				<defo><![CDATA[_utf8mb4'0']]></defo>
+				<defo><![CDATA['0']]></defo>
 			</column>
 			<column name="order_price" type="DOUBLE" mandatory="y" >
-				<defo><![CDATA[_utf8mb4'0']]></defo>
+				<defo><![CDATA['0']]></defo>
 			</column>
 			<column name="reduce_only" type="BOOLEAN" mandatory="y" >
-				<defo><![CDATA[false]]></defo>
+				<defo><![CDATA['1']]></defo>
 			</column>
 			<column name="broker_id" type="VARCHAR" length="16" />
 			<column name="memo" type="VARCHAR" length="100" />
@@ -1057,8 +1064,9 @@ ioc: Immediate-or-cancel order]]></comment>
 			<index name="pk_stop_request" unique="PRIMARY_KEY" >
 				<column name="stop_request" />
 			</index>
-			<index name="ie_sr_stop_order" unique="NORMAL" >
+			<index name="uk_sr_stop_order" unique="UNIQUE_KEY" >
 				<column name="tpsl_id" />
+				<column name="stop_type" />
 			</index>
 			<constraint name="ck_sr_action" >
 				<string><![CDATA[`action` in (_utf8mb4'buy',_utf8mb4'sell')]]></string>
@@ -1562,7 +1570,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_stop_orders" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,`so`.`stop_order` AS `stop_order`,`sr`.`stop_request` AS `stop_request`,`sr`.`tpsl_id` AS `tpsl_id`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`ipos`.`position` AS `position`,`sr`.`stop_type` AS `stop_type`,`i`.`margin_mode` AS `margin_mode`,if((`so`.`client_order_id` is null),false,true) AS `auto_trade`,`ps`.`state` AS `position_state`,`ps`.`status` AS `position_status`,`s`.`state` AS `state`,`s`.`status` AS `status`,coalesce(if((`s`.`status` = 'Expired'),`s`.`state`,NULL),`rs`.`state`,`s`.`state`) AS `request_state`,coalesce(if((`s`.`status` = 'Expired'),`s`.`status`,NULL),`rs`.`status`,`s`.`status`) AS `request_status`,`os`.`order_state` AS `order_state`,`os`.`source_ref` AS `order_status`,`sr`.`action` AS `action`,`sr`.`size` AS `size`,`so`.`actual_size` AS `actual_size`,`sr`.`trigger_price` AS `trigger_price`,`sr`.`order_price` AS `order_price`,`sr`.`reduce_only` AS `reduce_only`,`oc`.`order_category` AS `order_category`,`oc`.`source_ref` AS `category`,`sr`.`memo` AS `memo`,`sr`.`broker_id` AS `broker_id`,`sr`.`create_time` AS `create_time`,`sr`.`update_time` AS `update_time` from ((((((((((`devel`.`stop_request` `sr` left join `devel`.`stop_order` `so` on((`so`.`tpsl_id` = `sr`.`tpsl_id`))) left join `devel`.`order_state` `os` on((`os`.`order_state` = `so`.`order_state`))) left join `devel`.`state` `rs` on((`rs`.`status` = `os`.`status`))) left join `devel`.`order_category` `oc` on((`oc`.`order_category` = `so`.`order_category`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,`so`.`stop_order` AS `stop_order`,`sr`.`stop_request` AS `stop_request`,`sr`.`tpsl_id` AS `tpsl_id`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`ipos`.`position` AS `position`,`sr`.`stop_type` AS `stop_type`,`i`.`margin_mode` AS `margin_mode`,if((`so`.`client_order_id` is null),false,true) AS `auto_trade`,`ps`.`state` AS `position_state`,`ps`.`status` AS `position_status`,`s`.`state` AS `state`,`s`.`status` AS `status`,coalesce(if((`s`.`status` = 'Expired'),`s`.`state`,NULL),`rs`.`state`,`s`.`state`) AS `request_state`,coalesce(if((`s`.`status` = 'Expired'),`s`.`status`,NULL),`rs`.`status`,`s`.`status`) AS `request_status`,`os`.`order_state` AS `order_state`,`os`.`source_ref` AS `order_status`,`sr`.`action` AS `action`,`sr`.`size` AS `size`,`so`.`actual_size` AS `actual_size`,`sr`.`trigger_price` AS `trigger_price`,`sr`.`order_price` AS `order_price`,`sr`.`reduce_only` AS `reduce_only`,`oc`.`order_category` AS `order_category`,`oc`.`source_ref` AS `category`,`sr`.`memo` AS `memo`,`sr`.`broker_id` AS `broker_id`,`sr`.`create_time` AS `create_time`,`sr`.`update_time` AS `update_time` from ((((((((((`devel`.`stop_request` `sr` join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`))) left join `devel`.`stop_order` `so` on(((`so`.`tpsl_id` = `sr`.`tpsl_id`) and (`so`.`stop_type` = `sr`.`stop_type`)))) left join `devel`.`order_state` `os` on((`os`.`order_state` = `so`.`order_state`))) left join `devel`.`state` `rs` on((`rs`.`status` = `os`.`status`))) left join `devel`.`order_category` `oc` on((`oc`.`order_category` = `so`.`order_category`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="stop_request" type="BINARY" />
 			<column name="stop_type" type="CHAR" />
@@ -1668,66 +1676,66 @@ END]]></string>
 		</trigger>
 	</schema>
 	<layout name="Main Diagram" id="8ebd5325-da29-41a9-b71d-52356bcda289" show_relation="fk_name" >
-		<entity schema="devel" name="positions" color="FFFF00" x="779" y="817" />
-		<entity schema="devel" name="margin_mode" color="FFFF00" x="475" y="1159" />
-		<entity schema="devel" name="activity" color="C7F4BE" x="1007" y="95" />
+		<entity schema="devel" name="positions" color="FFFF00" x="779" y="855" />
+		<entity schema="devel" name="margin_mode" color="FFFF00" x="475" y="1197" />
+		<entity schema="devel" name="activity" color="C7F4BE" x="1007" y="133" />
+		<entity schema="devel" name="subject_area" color="C7F4BE" x="1007" y="418" />
+		<entity schema="devel" name="request_type" color="FFFF00" x="209" y="741" />
+		<entity schema="devel" name="cancel_source" color="FFFF00" x="57" y="893" />
+		<entity schema="devel" name="orders" color="FFFF00" x="57" y="456" />
+		<entity schema="devel" name="instrument" color="F0ECF7" x="1482" y="1159" />
+		<entity schema="devel" name="authority" color="C7F4BE" x="1672" y="133" />
+		<entity schema="devel" name="vw_candles" color="4D66CC" x="2166" y="1311" />
+		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="2375" y="1311" />
+		<entity schema="devel" name="vw_audit_requests" color="00FFFF" x="779" y="1387" />
+		<entity schema="devel" name="period" color="F0ECF7" x="1007" y="1729" />
+		<entity schema="devel" name="vw_audit_instrument_positions" color="00FFFF" x="57" y="1387" />
+		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="57" y="1539" />
+		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="57" y="1653" />
+		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="323" y="1387" />
+		<entity schema="devel" name="full_audit_request" color="00FFFF" x="551" y="1387" />
+		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="2812" y="1311" />
+		<entity schema="devel" name="vw_currency" color="4D66CC" x="2185" y="1748" />
+		<entity schema="devel" name="account_detail" color="F4DDBE" x="1938" y="817" />
+		<entity schema="devel" name="vw_positions" color="666666" x="3268" y="969" />
+		<entity schema="devel" name="role" color="C7F4BE" x="1463" y="399" />
+		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1615" y="1653" />
+		<entity schema="devel" name="api_error" color="00FFFF" x="798" y="1824" />
+		<entity schema="devel" name="audit_request" color="00FFFF" x="57" y="1786" />
+		<entity schema="devel" name="vw_order_states" color="00FFFF" x="342" y="1748" />
+		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="551" y="1748" />
+		<entity schema="devel" name="vw_role_subject_areas" color="E6B3E6" x="2850" y="950" />
+		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2641" y="1064" />
+		<entity schema="devel" name="vw_stop_orders" color="666666" x="3268" y="228" />
+		<entity schema="devel" name="vw_orders" color="666666" x="3059" y="228" />
+		<entity schema="devel" name="vw_users" color="E6B3E6" x="2869" y="589" />
+		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2850" y="228" />
+		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3268" y="1558" />
+		<entity schema="devel" name="vw_api_requests" color="666666" x="3078" y="1577" />
+		<entity schema="devel" name="vw_accounts" color="E6B3E6" x="2603" y="228" />
+		<entity schema="devel" name="currency" color="F0ECF7" x="1539" y="874" />
+		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1007" y="1311" />
+		<entity schema="devel" name="candle" color="F0ECF7" x="1330" y="1520" />
+		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1691" y="1216" />
+		<entity schema="devel" name="contract_type" color="F0ECF7" x="1748" y="1387" />
+		<entity schema="devel" name="state" color="F4BECD" x="1311" y="589" />
+		<entity schema="devel" name="user" color="C7F4BE" x="1767" y="399" />
+		<entity schema="devel" name="environment" color="F4DDBE" x="2394" y="1045" />
+		<entity schema="devel" name="broker" color="F4DDBE" x="2432" y="228" />
+		<entity schema="devel" name="account" color="F4DDBE" x="2318" y="570" />
+		<entity schema="devel" name="user_account" color="F4DDBE" x="2242" y="342" />
+		<entity schema="devel" name="vw_instruments" color="4D66CC" x="1938" y="1311" />
+		<entity schema="devel" name="vw_auth_trade_instruments" color="4D66CC" x="2584" y="1311" />
+		<entity schema="devel" name="position" color="F0ECF7" x="1121" y="1140" />
+		<entity schema="devel" name="request" color="FFFF00" x="551" y="646" />
+		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1178" y="760" />
+		<entity schema="devel" name="price_type" color="FFFF00" x="190" y="266" />
+		<entity schema="devel" name="order_category" color="FFFF00" x="361" y="494" />
+		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="95" />
 		<entity schema="devel" name="role_authority" color="C7F4BE" x="1368" y="95" />
-		<entity schema="devel" name="subject_area" color="C7F4BE" x="1007" y="380" />
-		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="114" />
-		<entity schema="devel" name="request_type" color="FFFF00" x="209" y="703" />
-		<entity schema="devel" name="cancel_source" color="FFFF00" x="57" y="855" />
-		<entity schema="devel" name="price_type" color="FFFF00" x="798" y="114" />
-		<entity schema="devel" name="orders" color="FFFF00" x="57" y="418" />
-		<entity schema="devel" name="order_category" color="FFFF00" x="361" y="456" />
-		<entity schema="devel" name="stop_type" color="FFFF00" x="532" y="342" />
-		<entity schema="devel" name="stop_order" color="FFFF00" x="361" y="95" />
-		<entity schema="devel" name="instrument" color="F0ECF7" x="1482" y="1121" />
-		<entity schema="devel" name="authority" color="C7F4BE" x="1672" y="95" />
-		<entity schema="devel" name="vw_candles" color="4D66CC" x="2166" y="1273" />
-		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="2375" y="1273" />
-		<entity schema="devel" name="vw_audit_requests" color="00FFFF" x="779" y="1349" />
-		<entity schema="devel" name="period" color="F0ECF7" x="1007" y="1691" />
-		<entity schema="devel" name="vw_audit_instrument_positions" color="00FFFF" x="57" y="1349" />
-		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="57" y="1501" />
-		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="57" y="1615" />
-		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="323" y="1349" />
-		<entity schema="devel" name="full_audit_request" color="00FFFF" x="551" y="1349" />
-		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="2812" y="1273" />
-		<entity schema="devel" name="vw_currency" color="4D66CC" x="2185" y="1710" />
-		<entity schema="devel" name="account_detail" color="F4DDBE" x="1938" y="779" />
-		<entity schema="devel" name="vw_positions" color="666666" x="3268" y="931" />
-		<entity schema="devel" name="role" color="C7F4BE" x="1463" y="361" />
-		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1615" y="1615" />
-		<entity schema="devel" name="api_error" color="00FFFF" x="798" y="1786" />
-		<entity schema="devel" name="audit_request" color="00FFFF" x="57" y="1748" />
-		<entity schema="devel" name="vw_order_states" color="00FFFF" x="342" y="1710" />
-		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="551" y="1710" />
-		<entity schema="devel" name="vw_role_subject_areas" color="E6B3E6" x="2850" y="912" />
-		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2641" y="1026" />
-		<entity schema="devel" name="vw_stop_orders" color="666666" x="3268" y="190" />
-		<entity schema="devel" name="vw_orders" color="666666" x="3059" y="190" />
-		<entity schema="devel" name="vw_users" color="E6B3E6" x="2869" y="551" />
-		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2850" y="190" />
-		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3268" y="1520" />
-		<entity schema="devel" name="vw_api_requests" color="666666" x="3078" y="1539" />
-		<entity schema="devel" name="vw_accounts" color="E6B3E6" x="2603" y="190" />
-		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1178" y="722" />
-		<entity schema="devel" name="currency" color="F0ECF7" x="1539" y="836" />
-		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1007" y="1273" />
-		<entity schema="devel" name="candle" color="F0ECF7" x="1330" y="1482" />
-		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1691" y="1178" />
-		<entity schema="devel" name="contract_type" color="F0ECF7" x="1748" y="1349" />
-		<entity schema="devel" name="request" color="FFFF00" x="551" y="608" />
-		<entity schema="devel" name="state" color="F4BECD" x="1311" y="551" />
-		<entity schema="devel" name="user" color="C7F4BE" x="1767" y="361" />
-		<entity schema="devel" name="environment" color="F4DDBE" x="2394" y="1007" />
-		<entity schema="devel" name="broker" color="F4DDBE" x="2432" y="190" />
-		<entity schema="devel" name="account" color="F4DDBE" x="2318" y="532" />
-		<entity schema="devel" name="user_account" color="F4DDBE" x="2242" y="304" />
-		<entity schema="devel" name="vw_instruments" color="4D66CC" x="1938" y="1273" />
-		<entity schema="devel" name="vw_auth_trade_instruments" color="4D66CC" x="2584" y="1273" />
-		<entity schema="devel" name="stop_request" color="FFFF00" x="760" y="247" />
-		<entity schema="devel" name="position" color="F0ECF7" x="1121" y="1102" />
+		<entity schema="devel" name="stop_type" color="FFFF00" x="779" y="95" />
+		<entity schema="devel" name="stop_order" color="FFFF00" x="456" y="95" />
+		<entity schema="devel" name="stop_request" color="FFFF00" x="741" y="285" />
 		<group name="broker" color="F7F2EC" >
 			<entity schema="devel" name="account_detail" />
 			<entity schema="devel" name="environment" />
@@ -1737,36 +1745,36 @@ END]]></string>
 		</group>
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="activity" />
-			<entity schema="devel" name="role_authority" />
 			<entity schema="devel" name="subject_area" />
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="role" />
 			<entity schema="devel" name="user" />
+			<entity schema="devel" name="role_authority" />
 		</group>
 		<group name="instruments" color="F0ECF7" >
 			<entity schema="devel" name="instrument" />
 			<entity schema="devel" name="period" />
 			<entity schema="devel" name="instrument_detail" />
-			<entity schema="devel" name="instrument_position" />
 			<entity schema="devel" name="currency" />
 			<entity schema="devel" name="instrument_period" />
 			<entity schema="devel" name="candle" />
 			<entity schema="devel" name="instrument_type" />
 			<entity schema="devel" name="contract_type" />
 			<entity schema="devel" name="position" />
+			<entity schema="devel" name="instrument_position" />
 		</group>
 		<group name="orders" color="FFFF00" >
 			<entity schema="devel" name="positions" />
 			<entity schema="devel" name="margin_mode" />
-			<entity schema="devel" name="order_state" />
 			<entity schema="devel" name="request_type" />
 			<entity schema="devel" name="cancel_source" />
-			<entity schema="devel" name="price_type" />
 			<entity schema="devel" name="orders" />
+			<entity schema="devel" name="request" />
+			<entity schema="devel" name="price_type" />
 			<entity schema="devel" name="order_category" />
+			<entity schema="devel" name="order_state" />
 			<entity schema="devel" name="stop_type" />
 			<entity schema="devel" name="stop_order" />
-			<entity schema="devel" name="request" />
 			<entity schema="devel" name="stop_request" />
 		</group>
 		<group name="audit" color="00FFFF" >
@@ -5833,6 +5841,81 @@ ioc: Immediate-or-cancel order';
 
 ALTER TABLE devel.fractal_fibonacci MODIFY fractal_type CHAR(10)  NOT NULL   COMMENT 'Retrace
 Extension';
+
+]]></string>
+		</script>
+		<script name="stop_order" id="ba6f374b-fb46-4922-8321-daba8e8c05bd" language="SQL" >
+			<string><![CDATA[CREATE  TABLE devel.stop_order ( 
+	stop_order           BINARY(5)    NOT NULL   PRIMARY KEY,
+	tpsl_id              BINARY(4)    NOT NULL   ,
+	stop_type            CHAR(2)    NOT NULL   ,
+	client_order_id      BINARY(5)       ,
+	order_state          BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)       ,
+	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	actual_size          DOUBLE       ,
+	trigger_type         CHAR(2)       
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
+
+CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
+
+CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
+
+CREATE INDEX ie_so_tpsl_id ON devel.stop_order ( tpsl_id );
+
+CREATE INDEX ie_so_client_order_id ON devel.stop_order ( client_order_id );
+
+ALTER TABLE devel.stop_order ADD CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE devel.stop_order ADD CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE devel.stop_order ADD CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE devel.stop_order ADD CONSTRAINT fk_so_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+]]></string>
+		</script>
+		<script name="stop_request" id="85853305-b716-451b-b7e8-a207993bfef3" language="SQL" >
+			<string><![CDATA[CREATE  TABLE devel.stop_request ( 
+	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
+	tpsl_id              BINARY(4)       ,
+	instrument_position  BINARY(6)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	stop_type            CHAR(2)    NOT NULL   ,
+	action               CHAR(4)    NOT NULL   ,
+	size                 DOUBLE       ,
+	trigger_price        DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
+	order_price          DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
+	reduce_only          BOOLEAN  DEFAULT (_utf8mb4'1')  NOT NULL   ,
+	broker_id            VARCHAR(16)       ,
+	memo                 VARCHAR(100)       ,
+	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id, stop_type ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ALTER TABLE devel.stop_request ADD CONSTRAINT ck_sr_action CHECK ( `action` in (_utf8mb4'buy',_utf8mb4'sell') );
+
+CREATE INDEX fk_sr_stop_type ON devel.stop_request ( stop_type );
+
+CREATE INDEX fk_sr_instrument_position ON devel.stop_request ( instrument_position );
+
+CREATE INDEX fk_sr_state ON devel.stop_request ( state );
+
+ALTER TABLE devel.stop_request ADD CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE devel.stop_request ADD CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE devel.stop_request ADD CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+]]></string>
+		</script>
+		<script name="stop_type" id="1438f26a-2f89-42ff-a6ed-549e7faab013" language="SQL" >
+			<string><![CDATA[CREATE  TABLE devel.stop_type ( 
+	stop_type            CHAR(2)    NOT NULL   PRIMARY KEY
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 ]]></string>
 		</script>

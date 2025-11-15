@@ -219,30 +219,6 @@ CREATE  TABLE devel.state (
 	CONSTRAINT ak_state UNIQUE ( status ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE devel.stop_order ( 
-	stop_order           BINARY(5)    NOT NULL   PRIMARY KEY,
-	tpsl_id              BINARY(4)    NOT NULL   ,
-	client_order_id      BINARY(5)       ,
-	order_state          BINARY(3)    NOT NULL   ,
-	order_category       BINARY(3)       ,
-	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
-	actual_size          DOUBLE       ,
-	trigger_type         CHAR(2)       ,
-	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
-
-CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
-
-CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
-
-CREATE INDEX ie_so_tpsl_id ON devel.stop_order ( tpsl_id );
-
-CREATE INDEX ie_so_client_order_id ON devel.stop_order ( client_order_id );
-
 CREATE  TABLE devel.stop_type ( 
 	stop_type            CHAR(2)    NOT NULL   PRIMARY KEY
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -444,7 +420,7 @@ CREATE  TABLE devel.request (
 	leverage             INT    NOT NULL   ,
 	request_type         BINARY(3)    NOT NULL   ,
 	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	reduce_only          BOOLEAN  DEFAULT ('1')  NOT NULL   ,
 	memo                 VARCHAR(200)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	broker_id            VARCHAR(16)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
@@ -487,6 +463,34 @@ CREATE INDEX fk_ra_state ON devel.role_authority ( state );
 
 CREATE INDEX fk_ra_activity ON devel.role_authority ( activity );
 
+CREATE  TABLE devel.stop_order ( 
+	stop_order           BINARY(5)    NOT NULL   PRIMARY KEY,
+	tpsl_id              BINARY(4)    NOT NULL   ,
+	stop_type            CHAR(2)    NOT NULL   ,
+	client_order_id      BINARY(5)       ,
+	order_state          BINARY(3)    NOT NULL   ,
+	order_category       BINARY(3)       ,
+	price_type           CHAR(5)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
+	actual_size          DOUBLE       ,
+	trigger_type         CHAR(2)       ,
+	CONSTRAINT fk_so_order_state FOREIGN KEY ( order_state ) REFERENCES devel.order_state( order_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_order_category FOREIGN KEY ( order_category ) REFERENCES devel.order_category( order_category ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_price_type FOREIGN KEY ( price_type ) REFERENCES devel.price_type( price_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_so_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_so_order_state ON devel.stop_order ( order_state );
+
+CREATE INDEX fk_so_order_category ON devel.stop_order ( order_category );
+
+CREATE INDEX fk_so_price_type ON devel.stop_order ( price_type );
+
+CREATE INDEX ie_so_tpsl_id ON devel.stop_order ( tpsl_id );
+
+CREATE INDEX ie_so_client_order_id ON devel.stop_order ( client_order_id );
+
+CREATE INDEX fk_so_stop_type ON devel.stop_order ( stop_type );
+
 CREATE  TABLE devel.stop_request ( 
 	stop_request         BINARY(5)    NOT NULL   PRIMARY KEY,
 	tpsl_id              BINARY(4)       ,
@@ -495,13 +499,14 @@ CREATE  TABLE devel.stop_request (
 	stop_type            CHAR(2)    NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
 	size                 DOUBLE       ,
-	trigger_price        DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
-	order_price          DOUBLE  DEFAULT (_utf8mb4'0')  NOT NULL   ,
-	reduce_only          BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	trigger_price        DOUBLE  DEFAULT ('0')  NOT NULL   ,
+	order_price          DOUBLE  DEFAULT ('0')  NOT NULL   ,
+	reduce_only          BOOLEAN  DEFAULT ('1')  NOT NULL   ,
 	broker_id            VARCHAR(16)       ,
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id, stop_type ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -514,8 +519,6 @@ CREATE INDEX fk_sr_stop_type ON devel.stop_request ( stop_type );
 CREATE INDEX fk_sr_instrument_position ON devel.stop_request ( instrument_position );
 
 CREATE INDEX fk_sr_state ON devel.stop_request ( state );
-
-CREATE INDEX ie_sr_stop_order ON devel.stop_request ( tpsl_id );
 
 CREATE  TABLE devel.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
@@ -1318,14 +1321,6 @@ select
 	sr.update_time AS update_time
 from
 	((((((((((devel.stop_request sr
-left join devel.stop_order so on
-	((so.tpsl_id = sr.tpsl_id)))
-left join devel.order_state os on
-	((os.order_state = so.order_state)))
-left join devel.state rs on
-	((rs.status = os.status)))
-left join devel.order_category oc on
-	((oc.order_category = so.order_category)))
 join devel.instrument_position ipos on
 	((ipos.instrument_position = sr.instrument_position)))
 join devel.instrument i on
@@ -1337,7 +1332,15 @@ join devel.currency b on
 join devel.currency q on
 	((q.currency = i.quote_currency)))
 join devel.state s on
-	((s.state = sr.state)));
+	((s.state = sr.state)))
+left join devel.stop_order so on
+	(((so.tpsl_id = sr.tpsl_id) and (so.stop_type = sr.stop_type))))
+left join devel.order_state os on
+	((os.order_state = so.order_state)))
+left join devel.state rs on
+	((rs.status = os.status)))
+left join devel.order_category oc on
+	((oc.order_category = so.order_category)));
 
 CREATE VIEW devel.vw_users AS
 select
@@ -1537,6 +1540,7 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
+
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

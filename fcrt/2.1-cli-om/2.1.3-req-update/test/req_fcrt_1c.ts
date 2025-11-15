@@ -18,12 +18,6 @@ export const req_fcrt_1c: Partial<IRequest> = {
 //-- Test 1d: request reject on size, resub, then edit and resub
 export const req_fcrt_1d: Partial<IRequest> = {
   symbol: "XRP-USDT",
-  margin_mode: "cross",
   position: "short",
-  action: "sell",
-  order_type: "limit",
-  price: 2.55,
-  size: 100,
-  leverage: 50,
   expiry_time: setExpiry("1m"),
 };

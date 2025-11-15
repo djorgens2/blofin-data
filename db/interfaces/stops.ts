@@ -69,7 +69,7 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           trigger_price: isEqual(props.trigger_price!, current.trigger_price!) ? undefined : props.trigger_price,
           order_price: isEqual(props.order_price!, current.order_price!) ? undefined : props.order_price,
-          reduce_only: props.reduce_only && !!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only,
+          reduce_only: props.reduce_only ? (!!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only) : undefined,
           create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
         };
 
@@ -105,7 +105,7 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
       size: props.size,
       trigger_price: props.trigger_price,
       order_price: props.order_price,
-      reduce_only: !!props.reduce_only,
+      reduce_only: props.reduce_only ? (!!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only) : undefined,
       memo: props.memo || "[Info] Stop.Publish: Stop request does not exist; proceeding with submission",
       create_time: props.create_time || new Date(),
       update_time: new Date(),
@@ -162,6 +162,7 @@ export const Publish = async (props: Partial<IStopOrder>) => {
       {
         stop_order: props.stop_order,
         tpsl_id: props.tpsl_id,
+        stop_type: props.stop_type,
         client_order_id: props.client_order_id,
         order_state: props.order_state,
         order_category: props.order_category,
