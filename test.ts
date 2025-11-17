@@ -800,7 +800,7 @@ import { parse } from "path";
 //----------------------------- expiry calc test  -------------------------------------------------------//
 //import { setExpiry } from "lib/std.util";
 
-console.log(setExpiry(`1m`))
+// console.log(setExpiry(`1m`))
 
 //----------------------------- order test  -------------------------------------------------------//
 // import { hexify } from "lib/crypto.util";
@@ -1511,31 +1511,37 @@ console.log(setExpiry(`1m`))
 // Instrument.Audit(props);
 
 //----------------------------- Select distinct Tests ---------------------------------------//
-// import type { IAccess } from "db/interfaces/state";
-// import * as db from "db/query.utils";
+import type { IAccess } from "db/interfaces/state";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import { setSession, Session } from "module/session";
 
-// export interface IRoleAuthority {
-//   role: Uint8Array;
-//   title: string;
-//   subject_area: Uint8Array;
-//   subject_area_title: Uint8Array;
-//   activity: Uint8Array;
-//   task: string;
-//   authority: Uint8Array;
-//   privilege: string;
-//   priority: number;
-//   state: Uint8Array;
-//   status: IAccess;
-// }
+setSession({ account: hexify("24597a")});
 
-// (async () => {
-//   const results = await db.Distinct<IRoleAuthority>({title: `Admin`, subject_area_title: undefined}, {table: `vw_role_authority`, keys: [{key: `title`}]});
-//   console.log(results);
+import * as db from "db/query.utils";
 
-//   setTimeout(async () => {
-//     process.exit(0);
-//   }, 1500);
-// })();
+export interface IRoleAuthority {
+  role: Uint8Array;
+  title: string;
+  subject_area: Uint8Array;
+  subject_area_title: Uint8Array;
+  activity: Uint8Array;
+  task: string;
+  authority: Uint8Array;
+  privilege: string;
+  priority: number;
+  state: Uint8Array;
+  status: IAccess;
+}
+
+(async () => {
+  //const results = await db.Distinct<IRoleAuthority>({title: `Admin`, subject_area_title: undefined}, {table: `vw_role_authority`, keys: [{key: `title`}]});
+  const results = await db.Distinct<IInstrumentPosition>({ account: Session().account, auto_status: "Enabled", symbol: undefined }, {table: `vw_instrument_positions`, keys: [{key: `account`}, {key: `auto_status`}]});
+  console.log(results);
+
+  setTimeout(async () => {
+    process.exit(0);
+  }, 1500);
+})();
 
 //----------------------------- Format Console Lines Test ---------------------------------------//
 // import type { IUser } from "db/interfaces/user";

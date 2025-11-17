@@ -12,6 +12,7 @@ import { Insert, Update } from "db/query.utils";
 import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
+import { Leverage } from "api/requests";
 
 import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
@@ -54,8 +55,9 @@ export interface IRequest {
 const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   if (hasValues<Partial<IRequest>>(current)) {
     if (hasValues<Partial<IRequest>>(props)) {
-      const update_time = props.update_time ? props.update_time : new Date();
+      const update_time = props.update_time || new Date();
       const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
+
       if (update_time > current.update_time!) {
         const revised: Partial<IRequest> = {
           request: current.request,
@@ -77,7 +79,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
           const [result, updates] = await Update(
             {
-              request: props.request,
+              request: current.request,
               state,
               memo: props.memo === current.memo ? undefined : props.memo,
               update_time,
@@ -150,7 +152,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
 //| Verify/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  if (props) {
+  if (hasValues(props)) {
     if (props.request) {
       const request = await Orders.Fetch({ request: props.request });
 
@@ -182,20 +184,25 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
     }
 
     // Handle new request submission
-    const result = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position });
+    const [result] = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position }) ?? [];
+    const { instrument_position, status, auto_status, leverage } = result;
 
-    if (result) {
-      const [{ auto_status, instrument_position }] = result;
-
+    if (instrument_position) {
       if (auto_status === "Enabled") {
         const pending = await Orders.Fetch({ instrument_position, status: "Pending" });
         if (pending)
           for (const { request } of pending) {
             Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
           }
+
+        if (status === "Closed")
+          if (props.leverage ? (props.leverage === leverage ? undefined : props.leverage) : undefined)
+            await Leverage({ instId: props.symbol, leverage: props.leverage?.toString(), marginMode: props.margin_mode, positionSide: props.position });
       }
-      const request = await publish({}, { ...props, instrument_position, status: "Queued" });
-      return request;
+
+      const [current] = await Orders.Fetch({ instrument_position, status: "Queued" }) ?? [{}];
+      const result = await publish(current, { ...props, instrument_position, status: "Queued" });
+      return result ? result : undefined;
     } else {
       console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
       return undefined;

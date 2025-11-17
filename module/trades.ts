@@ -113,7 +113,7 @@ const processOrders = async () => {
     const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
     const expiry = new Date();
 
-    if (requests) {
+    if (requests.length) {
       for (const request of requests) {
         const { status, account, expiry_time, ...api } = request;
 
@@ -122,14 +122,12 @@ const processOrders = async () => {
         } else expired.push({ request: hexify(request.clientOrderId!, 6), memo: `[Expired]: Queued request changed to Expired` });
       }
 
-      if (requests.length) {
-        const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
+      const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
 
-        console.log(">> Trades.Queued: Requests in queue:", requests.length);
-        requests.length && console.log("-> Queued requests submitted:", queued.length);
-        accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
-        rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
-      }
+      console.log(">> Trades.Queued: Requests in queue:", requests.length);
+      requests.length && console.log("-> Queued requests submitted:", queued.length);
+      accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
+      rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
 
       expired.length && Expired(expired);
     }

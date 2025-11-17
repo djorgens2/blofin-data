@@ -41,7 +41,7 @@ export const Import = async () => {
 
   const symbol = `PONKE-USDT`;
   await apiInst.Import();
-  await api.Import(clear({ state: `init`, symbol, node: 1 }), { symbol });
+  await api.Import(clear({ state: `init`, symbol }), { symbol });
 
   setTimeout(async () => {
     console.log(`Delay`);

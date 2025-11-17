@@ -10,7 +10,7 @@ import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 import { Session, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { format, isEqual } from "lib/std.util";
-import { DB_SCHEMA, Select } from "db/query.utils";
+import { Select } from "db/query.utils";
 
 import * as Instrument from "db/interfaces/instrument";
 import * as Positions from "db/interfaces/positions";
@@ -43,7 +43,7 @@ export interface IPositionsAPI {
 //| Format and publish position updates;                                                 |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Array<IPositionsAPI>) => {
-  const updates: Array<Partial<IPositions>> = [];
+  const updates: Array<Partial<IInstrumentPosition>> = [];
   const errors: Array<Partial<IPositions>> = [];
 
   if (props && props.length)

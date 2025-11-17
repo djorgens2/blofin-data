@@ -50,7 +50,7 @@ export const Import = async () => {
     if (instruments) {
       console.log("In Candles.Import [API]:", new Date().toLocaleString());
       console.log("-> [Info] Importing:", instruments.map((i) => i.symbol).join(", "));
-      for (const local of instruments) await Candles.Import(clear({ state: `init`, symbol: local.symbol!, node: 1 }), { symbol: local.symbol! });
+      for (const local of instruments) await Candles.Import(clear({ state: `init`, symbol: local.symbol! }), { symbol: local.symbol! });
       console.log("-> [info] Candles.Import complete:", new Date().toLocaleString());
     }
   };

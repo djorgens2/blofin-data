@@ -40,7 +40,6 @@ export type Role = (typeof Role)[keyof typeof Role];
 export interface IMessage {
   state: `init` | `api` | `update` | `ready`;
   symbol: string;
-  node: number;
   code?: number;
   success?: boolean;
   text?: string;
@@ -66,7 +65,6 @@ export const clear = (message: IMessage): IMessage => {
   return {
     state: message.state,
     symbol: message.symbol,
-    node: message.node,
     code: 0,
     success: true,
     text: "",

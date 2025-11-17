@@ -9,8 +9,8 @@ import type { IOrder } from "db/interfaces/order";
 import type { IRequestAPI } from "api/requests";
 
 import { Session, setSession, signRequest } from "module/session";
-import { hexify } from "lib/crypto.util";
 import { format, hexString } from "lib/std.util";
+import { hexify } from "lib/crypto.util";
 
 import * as Response from "api/response";
 import * as Requests from "db/interfaces/request";

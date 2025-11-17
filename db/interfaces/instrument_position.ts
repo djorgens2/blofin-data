@@ -17,24 +17,33 @@ export interface IInstrumentPosition {
   account: Uint8Array;
   instrument_position: Uint8Array;
   instrument: Uint8Array;
-  position: `long` | `net` | `short`;
   symbol: string;
+  position: `long` | `net` | `short`;
   state: Uint8Array;
   status: TStatus;
+  auto_state: Uint8Array;
+  auto_status: TSystem;
   trade_period: Uint8Array;
   timeframe: string;
   timeframe_units: number;
-  auto_state: Uint8Array;
-  auto_status: TSystem;
   strict_stops: boolean;
   strict_targets: boolean;
-  digits: number;
   open_request: number;
   open_take_profit: number;
   open_stop_loss: number;
-  create_time: Date;
+  margin_mode: string;
+  leverage: number;
+  max_leverage: number;
+  lot_scale_factor: number;
+  martingale_factor: number;
+  lot_size: number;
+  min_size: number;
+  max_limit_size: number;
+  max_market_size: number;
+  digits: number;
   update_time: Date;
   close_time: Date;
+  create_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -103,14 +112,6 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IInstrumentPosition>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
   const result = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
-  return result.length ? result : undefined;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Fetches authorized (open for trading) instrument configuration data from local db;   |
-//+--------------------------------------------------------------------------------------+
-export const Authorized = async (props: Partial<IInstrumentPosition>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
-  const result = await Select<IInstrumentPosition>(props, { table: `vw_auth_trade_instruments` });
   return result.length ? result : undefined;
 };
 

@@ -51,7 +51,7 @@ const submit = async (request: Partial<IRequest>) => {
     instrument_position,
     request_type,
     expiry_time: request.expiry_time || expiry_time,
-    memo: "Test 2a: stops with open position;",
+    memo: request.memo || "Test 2a: leverage test;",
   });
   return [submitted, request];
 };

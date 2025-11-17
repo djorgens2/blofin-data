@@ -1679,7 +1679,6 @@ END]]></string>
 		<entity schema="devel" name="positions" color="FFFF00" x="779" y="855" />
 		<entity schema="devel" name="margin_mode" color="FFFF00" x="475" y="1197" />
 		<entity schema="devel" name="activity" color="C7F4BE" x="1007" y="133" />
-		<entity schema="devel" name="subject_area" color="C7F4BE" x="1007" y="418" />
 		<entity schema="devel" name="request_type" color="FFFF00" x="209" y="741" />
 		<entity schema="devel" name="cancel_source" color="FFFF00" x="57" y="893" />
 		<entity schema="devel" name="orders" color="FFFF00" x="57" y="456" />
@@ -1718,38 +1717,39 @@ END]]></string>
 		<entity schema="devel" name="candle" color="F0ECF7" x="1330" y="1520" />
 		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1691" y="1216" />
 		<entity schema="devel" name="contract_type" color="F0ECF7" x="1748" y="1387" />
-		<entity schema="devel" name="state" color="F4BECD" x="1311" y="589" />
-		<entity schema="devel" name="user" color="C7F4BE" x="1767" y="399" />
 		<entity schema="devel" name="environment" color="F4DDBE" x="2394" y="1045" />
 		<entity schema="devel" name="broker" color="F4DDBE" x="2432" y="228" />
-		<entity schema="devel" name="account" color="F4DDBE" x="2318" y="570" />
 		<entity schema="devel" name="user_account" color="F4DDBE" x="2242" y="342" />
 		<entity schema="devel" name="vw_instruments" color="4D66CC" x="1938" y="1311" />
 		<entity schema="devel" name="vw_auth_trade_instruments" color="4D66CC" x="2584" y="1311" />
 		<entity schema="devel" name="position" color="F0ECF7" x="1121" y="1140" />
-		<entity schema="devel" name="request" color="FFFF00" x="551" y="646" />
 		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1178" y="760" />
 		<entity schema="devel" name="price_type" color="FFFF00" x="190" y="266" />
-		<entity schema="devel" name="order_category" color="FFFF00" x="361" y="494" />
 		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="95" />
 		<entity schema="devel" name="role_authority" color="C7F4BE" x="1368" y="95" />
 		<entity schema="devel" name="stop_type" color="FFFF00" x="779" y="95" />
 		<entity schema="devel" name="stop_order" color="FFFF00" x="456" y="95" />
-		<entity schema="devel" name="stop_request" color="FFFF00" x="741" y="285" />
+		<entity schema="devel" name="account" color="F4DDBE" x="2318" y="570" />
+		<entity schema="devel" name="user" color="C7F4BE" x="1767" y="380" />
+		<entity schema="devel" name="state" color="F4BECD" x="1311" y="551" />
+		<entity schema="devel" name="stop_request" color="FFFF00" x="779" y="285" />
+		<entity schema="devel" name="order_category" color="FFFF00" x="361" y="475" />
+		<entity schema="devel" name="request" color="FFFF00" x="532" y="589" />
+		<entity schema="devel" name="subject_area" color="C7F4BE" x="1064" y="380" />
 		<group name="broker" color="F7F2EC" >
 			<entity schema="devel" name="account_detail" />
 			<entity schema="devel" name="environment" />
 			<entity schema="devel" name="broker" />
-			<entity schema="devel" name="account" />
 			<entity schema="devel" name="user_account" />
+			<entity schema="devel" name="account" />
 		</group>
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="activity" />
-			<entity schema="devel" name="subject_area" />
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="role" />
-			<entity schema="devel" name="user" />
 			<entity schema="devel" name="role_authority" />
+			<entity schema="devel" name="user" />
+			<entity schema="devel" name="subject_area" />
 		</group>
 		<group name="instruments" color="F0ECF7" >
 			<entity schema="devel" name="instrument" />
@@ -1769,13 +1769,13 @@ END]]></string>
 			<entity schema="devel" name="request_type" />
 			<entity schema="devel" name="cancel_source" />
 			<entity schema="devel" name="orders" />
-			<entity schema="devel" name="request" />
 			<entity schema="devel" name="price_type" />
-			<entity schema="devel" name="order_category" />
 			<entity schema="devel" name="order_state" />
 			<entity schema="devel" name="stop_type" />
 			<entity schema="devel" name="stop_order" />
 			<entity schema="devel" name="stop_request" />
+			<entity schema="devel" name="order_category" />
+			<entity schema="devel" name="request" />
 		</group>
 		<group name="audit" color="00FFFF" >
 			<entity schema="devel" name="vw_audit_requests" />

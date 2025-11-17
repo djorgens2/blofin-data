@@ -6,13 +6,14 @@
 
 import type { TRequest, IRequestState } from "db/interfaces/state";
 import type { IStops } from "db/interfaces/stops";
+import type { IInstrument } from "db/interfaces/instrument";
 
 import { hexify } from "lib/crypto.util";
 import { Update } from "db/query.utils";
 
 import * as States from "db/interfaces/state";
 import * as Orders from "db/interfaces/order";
-import { isArray } from "util";
+import * as Instruments from "db/interfaces/instrument";
 
 export type TResponse = {
   code: string;
@@ -21,6 +22,8 @@ export type TResponse = {
     orderId: string;
     tpslId: string;
     clientOrderId: string;
+    instId: string;
+    leverage: string;
     msg: string;
     code: string;
   }>;
@@ -80,8 +83,8 @@ export const Request = async (response: TResponse, props: { success: TRequest; f
 export const Stops = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
   const accept: Array<Partial<IResponse>> = [];
   const reject: Array<Partial<IResponse>> = [];
-  
-  const current = response.data ? Array.isArray(response.data) ? response.data : [response.data] : undefined;
+
+  const current = response.data ? (Array.isArray(response.data) ? response.data : [response.data]) : undefined;
 
   if (current) {
     const success = await States.Key<IRequestState>({ status: props.success });
@@ -113,12 +116,26 @@ export const Stops = async (response: TResponse, props: { success: TRequest; fai
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Sets request states based on changes recieved from WSS/API or POST ops;              |
+//| Sets leverage locally on success;                                                    |
 //+--------------------------------------------------------------------------------------+
-export const Leverage = async (props: { results: TResponse[] }) => {
-  const accepted = [];
-  const rejected = [];
-  const errors = [];
+export const Leverage = async (response: TResponse) => {
+  if (response.code === "0") {
+    const current = response.data ? (Array.isArray(response.data) ? response.data : [response.data]) : undefined;
 
-  console.log("In Response.Leverage", props);
+    if (current) {
+      const [leverage] = current;
+      const props = {
+        instrument: await Instruments.Key({ symbol: leverage.instId }),
+        leverage: parseInt(leverage.leverage),
+      };
+      const [result, updates] = await Update<IInstrument>(props, { table: `instrument`, keys: [{ key: `instrument` }] });
+      result && updates && console.log("-> Leverage updated:", props);
+    }
+  } else {
+    console.log(
+      `-> [Error] Response.Leverage: update not processed; error returned:`,
+      response.code || -1,
+      response.msg ? `response: `.concat(response.msg) : ``
+    );
+  }
 };

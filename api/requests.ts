@@ -9,7 +9,6 @@ import type { TRequest } from "db/interfaces/state";
 import { Session, signRequest } from "module/session";
 
 import * as Response from "api/response";
-import { rejects } from "node:assert";
 
 export interface IRequestAPI {
   account: Uint8Array;
@@ -39,8 +38,8 @@ export interface IRequestAPI {
 //+--------------------------------------------------------------------------------------+
 //| Sets Leverage for a trading instrument; ** Non-op pending relo to instrument API;    |
 //+--------------------------------------------------------------------------------------+
-const setLeverage = async (props: Partial<IRequestAPI>) => {
-  console.log("In Requests.Leverage [API]", props);
+export const Leverage = async (props: Partial<IRequestAPI>) => {
+  console.log("In Requests.Leverage [API]");
 
   const method = "POST";
   const path = "/api/v1/account/set-leverage";
@@ -65,11 +64,11 @@ const setLeverage = async (props: Partial<IRequestAPI>) => {
     });
     if (response.ok) {
       const json = await response.json();
-      console.log(">> [Info: Orders.Leverage] Leverage set:", json);
-      await Response.Leverage({ results: json.data });
+      console.log("-> [Info: Requests.Leverage] Leverage set:", json);
+      return await Response.Leverage(json);
     } else throw new Error(`Order.Leverage: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
-    console.log(">> [Error] Order.Leverage:", error, method, headers, body);
+    console.log("-> [Error] Requests.Leverage:", error, method, headers, body);
   }
 };
 
@@ -109,5 +108,5 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
     } catch (error) {
       console.log(">> [Error] Order.Submit:", error, method, headers, body);
     }
-  } else return []
+  } else return [];
 };

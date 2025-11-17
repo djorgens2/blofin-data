@@ -6,12 +6,13 @@
 
 import type { IMessage } from "lib/app.util";
 import type { ISession } from "module/session";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { openWebSocket, Session } from "module/session";
 import { fork } from "child_process";
 import { clear } from "lib/app.util";
+import { Distinct } from "db/query.utils";
 
-import * as InstrumentPositions from "db/interfaces/instrument_position";
 import * as Accounts from "db/interfaces/account";
 
 //+--------------------------------------------------------------------------------------+
@@ -33,12 +34,15 @@ export class CMain {
   //+------------------------------------------------------------------------------------+
   async Start(service: string) {
     let wss = await this.setService(service);
-    
-    const instruments = await InstrumentPositions.Authorized({ account: Session().account, auto_status: "Enabled" });
 
-    instruments &&
-      instruments.forEach((instrument, id) => {
-        const ipc = clear({ state: "init", symbol: instrument.symbol!, node: id });
+    const authorized: Array<Partial<IInstrumentPosition>> = await Distinct<IInstrumentPosition>(
+      { account: Session().account, auto_status: "Enabled", symbol: undefined },
+      { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+    );
+
+    if (authorized.length)
+      for (const instrument of authorized) {
+        const ipc = clear({ state: "init", symbol: instrument.symbol! });
         const app = fork("./app/process.ts", [JSON.stringify(ipc)]);
 
         app.on("message", (message: IMessage) => {
@@ -46,10 +50,11 @@ export class CMain {
           message.state === "api" && app.send({ ...message, state: "update" });
           message.state === "update" && Object.assign(ipc, clear({ ...message, state: "ready" }));
         });
+
         app.on("exit", (code) => {
           console.log(`[main] Symbol: [${ipc.symbol}] exit; PID: [${process.pid}:${app.pid}] with code ${code}`);
         });
-      });
+      }
 
     setInterval(async () => {
       if (wss) {

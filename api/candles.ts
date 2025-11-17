@@ -148,7 +148,7 @@ export const Loader = async (props: { symbol: string; timeframe: string; start_t
           }));
 
           props.start_time = parseInt(api[api.length - 1].ts);
-          publish(clear({ state: "init", symbol: symbol, node: 1 }), { ...props, timestamp: props.start_time }, api);
+          publish(clear({ state: "init", symbol: symbol}), { ...props, timestamp: props.start_time }, api);
         } else {
           await new Promise((r) => setTimeout(r, 30000)); //--- wait 30 seconds for data to apply ---
           console.log(`Loader end for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);

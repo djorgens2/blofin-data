@@ -29,7 +29,7 @@ export type IResponseProps = {
 export interface ISession {
   account: Uint8Array;
   alias: string;
-  state: "disconnected" | "connected" | "connecting" | "error" | "closed";
+  state: "disconnected" | "connected" | "connecting" | "error" | "closed" | "testing";
   audit_order: string;
   audit_stops: string;
   api: string;
