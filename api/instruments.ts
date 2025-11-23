@@ -4,9 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import { Session, signRequest } from "module/session";
+
+import * as Response from "api/response";
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentDetail from "db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "db/interfaces/instrument_period";
+import * as InstrumentPosition from "db/interfaces/instrument_position"
 
 export interface IInstrumentAPI {
   instId: string;
@@ -66,10 +70,32 @@ const publish = async (props: Array<IInstrumentAPI>) => {
   }
 
   const suspense = await Instrument.Suspense(published);
+  
   await InstrumentPeriod.Import();
-
+  await InstrumentPosition.Import();
+  
   suspense && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
   modified.length && console.log("   # Instruments Updated: ", modified.length, "modified");
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Fetches instruments specific to the account (demo/production)                        |
+//+--------------------------------------------------------------------------------------+
+export const Fetch = async () => {
+  console.log("In Instruments.Fetch [API]:", new Date().toLocaleString());
+
+  try {
+    const response = await fetch(`${Session().rest_api_url}/api/v1/market/instruments`);
+
+    if (response.ok) {
+      const json = await response.json();
+      const result: IResult = json;
+
+      return await Response.Instruments(json);
+    } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
+  } catch (error) {
+    console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+

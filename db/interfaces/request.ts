@@ -12,12 +12,12 @@ import { Insert, Update } from "db/query.utils";
 import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
-import { Leverage } from "api/requests";
 
 import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
 import * as References from "db/interfaces/reference";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
+import * as Leverage from "api/leverage";
 
 export interface IRequest {
   request: Uint8Array;
@@ -153,13 +153,36 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   if (hasValues(props)) {
-    if (props.request) {
-      const request = await Orders.Fetch({ request: props.request });
+    const query = props.instrument_position
+      ? { instrument_position: props.instrument_position }
+      : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
+    const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
+    const { instrument_position, status, auto_status, leverage } = result;
 
-      if (request) {
-        const [current] = request;
+    if (instrument_position) {
+      const query = props.request ? { request: props.request } : ({ instrument_position, status: "Queued" } as Partial<IRequest>);
+      const [current] = (await Orders.Fetch(query)) ?? [{}];
 
+      if (current.request) {
         if (props.update_time! > current.update_time!) {
+          if (auto_status === "Enabled") {
+            const pending = await Orders.Fetch({ instrument_position, status: "Pending" });
+
+            if (pending)
+              for (const { request } of pending) {
+                Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
+                props.status = "Hold";
+              }
+            else if (status === "Closed")
+              if (props.leverage ? (props.leverage === leverage ? undefined : props.leverage) : undefined)
+                await Leverage.Publish({
+                  instId: props.symbol,
+                  leverage: props.leverage?.toString(),
+                  marginMode: props.margin_mode,
+                  positionSide: props.position,
+                });
+          }
+
           if (props.status === "Hold") {
             const result = await publish(current, {
               ...props,
@@ -172,37 +195,13 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
           }
         } else return current.request;
       } else {
-        const result = await publish(
-          {},
-          {
-            ...props,
-            memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
-          }
-        );
+        // Handle new request submission
+        const result = await publish(current, {
+          ...props,
+          memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
+        });
         return result ? result : undefined;
       }
-    }
-
-    // Handle new request submission
-    const [result] = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position }) ?? [];
-    const { instrument_position, status, auto_status, leverage } = result;
-
-    if (instrument_position) {
-      if (auto_status === "Enabled") {
-        const pending = await Orders.Fetch({ instrument_position, status: "Pending" });
-        if (pending)
-          for (const { request } of pending) {
-            Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
-          }
-
-        if (status === "Closed")
-          if (props.leverage ? (props.leverage === leverage ? undefined : props.leverage) : undefined)
-            await Leverage({ instId: props.symbol, leverage: props.leverage?.toString(), marginMode: props.margin_mode, positionSide: props.position });
-      }
-
-      const [current] = await Orders.Fetch({ instrument_position, status: "Queued" }) ?? [{}];
-      const result = await publish(current, { ...props, instrument_position, status: "Queued" });
-      return result ? result : undefined;
     } else {
       console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
       return undefined;

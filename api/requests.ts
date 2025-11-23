@@ -36,43 +36,6 @@ export interface IRequestAPI {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Sets Leverage for a trading instrument; ** Non-op pending relo to instrument API;    |
-//+--------------------------------------------------------------------------------------+
-export const Leverage = async (props: Partial<IRequestAPI>) => {
-  console.log("In Requests.Leverage [API]");
-
-  const method = "POST";
-  const path = "/api/v1/account/set-leverage";
-  const body = JSON.stringify(props);
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
-
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
-
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-      body,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      console.log("-> [Info: Requests.Leverage] Leverage set:", json);
-      return await Response.Leverage(json);
-    } else throw new Error(`Order.Leverage: Response not ok: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log("-> [Error] Requests.Leverage:", error, method, headers, body);
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
 //| Submits supplied requests to broker API;                                             |
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {

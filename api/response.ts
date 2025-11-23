@@ -5,15 +5,16 @@
 "use strict";
 
 import type { TRequest, IRequestState } from "db/interfaces/state";
-import type { IStops } from "db/interfaces/stops";
-import type { IInstrument } from "db/interfaces/instrument";
+import type { ILeverageAPI } from "api/leverage";
 
 import { hexify } from "lib/crypto.util";
 import { Update } from "db/query.utils";
+import { Session } from "module/session";
 
 import * as States from "db/interfaces/state";
 import * as Orders from "db/interfaces/order";
-import * as Instruments from "db/interfaces/instrument";
+import * as Instrument from "db/interfaces/instrument";
+import { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 export type TResponse = {
   code: string;
@@ -23,7 +24,10 @@ export type TResponse = {
     tpslId: string;
     clientOrderId: string;
     instId: string;
+    state: string;
     leverage: string;
+    marginMode: string;
+    positionSide: string;
     msg: string;
     code: string;
   }>;
@@ -71,7 +75,7 @@ export const Request = async (response: TResponse, props: { success: TRequest; f
     console.log(
       `-> [Error] Response.Request: Request not processed; error returned:`,
       response.code || -1,
-      `[Error] Unknown error occurred; check logfile; ${response ? `response: `.concat(response.msg) : ``}`
+      `${response ? `response: `.concat(response.msg) : ``}`
     );
     return [accept, reject];
   }
@@ -109,7 +113,7 @@ export const Stops = async (response: TResponse, props: { success: TRequest; fai
     console.log(
       `-> [Error] Response.Stops: Stop request not processed; error returned:`,
       response.code || -1,
-      `[Error] Unknown error occurred; check logfile; ${response ? `response: `.concat(response.msg) : ``}`
+      `${response ? `response: `.concat(response.msg) : ``}`
     );
     return [accept, reject];
   }
@@ -120,22 +124,43 @@ export const Stops = async (response: TResponse, props: { success: TRequest; fai
 //+--------------------------------------------------------------------------------------+
 export const Leverage = async (response: TResponse) => {
   if (response.code === "0") {
-    const current = response.data ? (Array.isArray(response.data) ? response.data : [response.data]) : undefined;
-
-    if (current) {
-      const [leverage] = current;
-      const props = {
-        instrument: await Instruments.Key({ symbol: leverage.instId }),
-        leverage: parseInt(leverage.leverage),
-      };
-      const [result, updates] = await Update<IInstrument>(props, { table: `instrument`, keys: [{ key: `instrument` }] });
-      result && updates && console.log("-> Leverage updated:", props);
+    if (Array.isArray(response.data)) {
+      return response.data as Array<ILeverageAPI>;
     }
-  } else {
-    console.log(
-      `-> [Error] Response.Leverage: update not processed; error returned:`,
-      response.code || -1,
-      response.msg ? `response: `.concat(response.msg) : ``
-    );
+
+    const { instId, positionSide, leverage } = response.data;
+    const props = {
+      account: Session().account,
+      instrument: await Instrument.Key({ symbol: instId }),
+      position: positionSide,
+      leverage: parseInt(leverage),
+    };
+    const [result, updates] = await Update<IInstrumentPosition>(props, {
+      table: `instrument_position`,
+      keys: [{ key: `account` }, { key: `instrument` }, { key: `position` }],
+    });
+    result && updates && console.log("-> Leverage updated:", props);
+    return result ? [response.data] : undefined;
   }
+
+  console.log(
+    `-> [Error] Response.Leverage: update not processed; error returned:`,
+    response.code || -1,
+    response.msg ? `response: `.concat(response.msg) : ``
+  );
+  return undefined;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns instrument data from the api on success, error if api call failed;           |
+//+--------------------------------------------------------------------------------------+
+export const Instruments = async (response: TResponse) => {
+  if (response.code === "0") return Array.isArray(response.data) ? response.data : undefined;
+
+  console.log(
+    `-> [Error] Response.Instruments: update not processed; error returned:`,
+    response.code || -1,
+    response.msg ? `response: `.concat(response.msg) : ``
+  );
+  return undefined;
 };

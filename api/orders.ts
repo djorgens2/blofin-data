@@ -64,7 +64,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
 
         const result = await Orders.Publish({
           order_id,
-          client_order_id: hexify(order.clientOrderId!,6),
+          client_order_id: hexify(order.clientOrderId!, 6),
           order_state,
           order_category,
           cancel_source,
@@ -91,7 +91,8 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             leverage: format(order.leverage!),
             request_type: request_type ? request_type : undefined,
             margin_mode: order.marginMode,
-            reduce_only: order.reduceOnly ? order.reduceOnly === "true" ? true : false : undefined,
+            reduce_only: order.reduceOnly ? (order.reduceOnly === "true" ? true : false) : undefined,
+            memo: "[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed",
             broker_id: order.brokerId ? order.brokerId : undefined,
             create_time: new Date(parseInt(order.createTime!)),
             update_time: new Date(parseInt(order.updateTime!)),
@@ -112,7 +113,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             position: order.positionSide,
             memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
           });
-          console.log(`>> [Error] Orders.Publish: ${hexString(result!,6)}<>${hexString(order_id,6)}`);
+          console.log(`>> [Error] Orders.Publish: ${hexString(result!, 6)}<>${hexString(order_id, 6)}`);
         }
       }
     }

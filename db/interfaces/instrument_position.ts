@@ -5,20 +5,38 @@
 "use strict";
 
 import type { TStatus, TSystem } from "db/interfaces/state";
+import type { IInstrumentAPI } from "api/instruments";
+import type { ILeverageAPI } from "api/leverage";
 
-import { Select, Update, Load } from "db/query.utils";
+import { Select, Update, Insert } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
 
 import * as State from "db/interfaces/state";
+import * as Account from "db/interfaces/account";
+import * as Instrument from "db/interfaces/instrument";
+
+import * as LeverageAPI from "api/leverage";
+import * as InstrumentAPI from "api/instruments";
+
+export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;
+export type TPosition = `long` | `short` | `net`;
 
 export interface IInstrumentPosition {
-  account: Uint8Array;
+  account: Uint8Array;  
+  alias: string;
+  environment: Uint8Array;
+  environ: string;
   instrument_position: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
-  position: `long` | `net` | `short`;
+  base_currency: Uint8Array;
+  base_symbol: string;
+  quote_currency: Uint8Array;
+  quote_symbol: string;
+  position: TPosition;
+  hedging: boolean;
   state: Uint8Array;
   status: TStatus;
   auto_state: Uint8Array;
@@ -31,11 +49,11 @@ export interface IInstrumentPosition {
   open_request: number;
   open_take_profit: number;
   open_stop_loss: number;
-  margin_mode: string;
+  margin_mode: "cross" | "isolated";
   leverage: number;
   max_leverage: number;
-  lot_scale_factor: number;
-  martingale_factor: number;
+  lot_scale: number;
+  martingale: number;
   lot_size: number;
   min_size: number;
   max_limit_size: number;
@@ -44,38 +62,84 @@ export interface IInstrumentPosition {
   update_time: Date;
   close_time: Date;
   create_time: Date;
-}
+}  
 
-//+--------------------------------------------------------------------------------------+
-//| Adds new/missing instrument positions;                                               |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  const state = await State.Key({ status: "Closed" });
-  const instrument_position = await Select<IInstrumentPosition>({}, { table: `vw_audit_instrument_positions` });
+//------------------ Private functions ---------------------//
 
-  if (instrument_position.length) {
-    console.log("In Instrument.Position.Import:", new Date().toLocaleString());
+//+----------------------------------------------------------------------------------------+
+//| function to create batches of instruments (e.g., 20; max limit set by broker)          |
+//+----------------------------------------------------------------------------------------+
+const createBatches = (props: Array<Partial<IInstrumentAPI>>, batchSize = 20) => {
+  const batches = [];
+  for (let i = 0; i < props.length; i += batchSize) {
+    batches.push(props.slice(i, i + batchSize));
+  }
+  return batches;
+};
 
-    const imports: Array<Partial<IInstrumentPosition>> = [];
+//+----------------------------------------------------------------------------------------+
+//| Merges leverage data with account-specific instrument data;                            |
+//+----------------------------------------------------------------------------------------+
+const mergeLeverage = (instruments: Partial<IInstrumentAPI>[], leverages: ILeverageAPI[]): TInstrumentLeverage[] => {
+  const instrumentMap = new Map<string, Partial<IInstrumentAPI>>();
+  for (const item of instruments) {
+    item.instId && instrumentMap.set(item.instId, item);
+  }
 
-    for (const ipos of instrument_position) {
-      const time = new Date();
-      const key = hashKey(12);
-
-      imports.push({
-        ...ipos,
-        instrument_position: key,
-        state: state,
-        strict_stops: false,
-        strict_targets: false,
-        update_time: time,
-        close_time: time,
-      });
+  const mergedData: TInstrumentLeverage[] = leverages.map((leverageItem) => {
+    const matchingInstrument = instrumentMap.get(leverageItem.instId);
+    if (!matchingInstrument) {
+      console.warn(`No matching instrument found for instId: ${leverageItem.instId}`);
     }
-    await Load<IInstrumentPosition>(imports, { table: `instrument_position` });
-    console.log("   # Instrument Position imports: ", instrument_position.length, "verified");
+
+    return {
+      ...(matchingInstrument || {}),
+      ...leverageItem,
+    };
+  });
+
+  return mergedData;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Creates new (*missing) instrument positions for the logged account;                  |
+//+--------------------------------------------------------------------------------------+
+const publish = async (props: Array<TInstrumentLeverage>) => {
+  if (hasValues(props)) {
+    const state = await State.Key({ status: `Closed` });
+
+    const promises = props.map(async (position) => {
+      const instrument_position = await Select<IInstrumentPosition>(
+        { account: Session().account, symbol: position.instId, position: position.positionSide },
+        { table: `vw_instrument_positions` }
+      );
+
+      if (instrument_position.length === 0) {
+        const promise = Instrument.Key({ symbol: position.instId }) ?? Promise.resolve(undefined);
+        const instrument = await promise;
+        const instrument_position: Partial<IInstrumentPosition> = {
+          instrument_position: hashKey(12),
+          account: Session().account,
+          instrument,
+          position: position.positionSide,
+          leverage: parseInt(position.leverage),
+          state,
+          update_time: new Date(),
+          close_time: new Date(),
+        };
+        return Insert(instrument_position, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+      }
+      return Promise.resolve(undefined);
+    });
+    const results = await Promise.all(promises);
+    const success = results.filter(result => result !== null && result !== undefined);
+    const fail = props.length - success.length;
+
+    console.log(`Published ${success.length} new positions successfully. Failures/Skips: ${fail}`);
   }
 };
+
+//------------------ Public functions ---------------------//
 
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
@@ -91,11 +155,9 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
   if (instrument_position.length) {
     const [current] = instrument_position;
     const state = props.state || (await State.Key({ status: props.status }));
-    const auto_state = props.auto_state || (await State.Key({ status: props.auto_status }));
     const revised: Partial<IInstrumentPosition> = {
       instrument_position: current.instrument_position,
       state: isEqual(state!, current.state!) ? undefined : state,
-      auto_state: isEqual(auto_state!, current.auto_state!) ? undefined : auto_state,
       strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
       strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
@@ -123,4 +185,27 @@ export const Key = async (props: Partial<IInstrumentPosition>): Promise<IInstrum
     const [result] = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
     return result ? result.instrument_position : undefined;
   } else return undefined;
+};
+
+// +----------------------------------------------------------------------------------------+
+// | Main import function with batching and concurrency                                     |
+// +----------------------------------------------------------------------------------------+
+export const Import = async () => {
+  const instruments = await InstrumentAPI.Fetch();
+
+  if (instruments && instruments.length) {
+    console.log("-> Instrument.Position.Import [API]");
+
+    const [account] = (await Account.Fetch({ account: Session().account })) ?? [];
+    const batches = createBatches(instruments, 20);
+    const promises = batches.map(async (batch) => {
+      const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
+      const api = (await LeverageAPI.Fetch([{ symbol: symbols, margin_mode: account.margin_mode! }])) ?? [];
+      const positions = mergeLeverage(batch, api);
+      return positions;
+    });
+
+    const results = await Promise.all(promises);
+    await publish(results.flat() as Array<TInstrumentLeverage>);
+  }
 };

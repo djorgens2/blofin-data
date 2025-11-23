@@ -29,6 +29,8 @@ export interface IAccount {
   status: TAccess;
   environment: Uint8Array;
   environ: string;
+  margin_mode: 'cross' | 'isolated';
+  hedging: boolean;
   broker_image_url: string;
   broker_website_url: string;
   owner_email: string;

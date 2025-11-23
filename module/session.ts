@@ -4,6 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IAccount } from "db/interfaces/account";
+
 import { parseJSON } from "lib/std.util";
 import { uniqueKey } from "lib/crypto.util";
 import { createHmac } from "node:crypto";
@@ -12,6 +14,7 @@ import { TextEncoder } from "node:util";
 import * as PositionsAPI from "api/positions";
 import * as AccountAPI from "api/accounts";
 import * as OrderAPI from "api/orders";
+import * as Accounts from "db/interfaces/account";
 import * as Execute from "module/trades";
 
 export type IResponseProps = {
@@ -29,7 +32,7 @@ export type IResponseProps = {
 export interface ISession {
   account: Uint8Array;
   alias: string;
-  state: "disconnected" | "connected" | "connecting" | "error" | "closed" | "testing";
+  state: "disconnected" | "connected" | "connecting" | "error" | "closed";
   audit_order: string;
   audit_stops: string;
   api: string;
@@ -45,7 +48,31 @@ const session: Partial<ISession> = {};
 export const Session = () => {
   return session;
 };
+
 export const setSession = (props: Partial<ISession>) => Object.assign(session, { ...session, ...props });
+
+//+--------------------------------------------------------------------------------------+
+//| Configures session account from user-supplied account details (keys);                |
+//+--------------------------------------------------------------------------------------+
+export const config = async (props: Partial<IAccount>) => {
+  const [search] = (await Accounts.Fetch(props)) ?? [undefined];
+
+  if (search) {
+    const keys: Array<ISession> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
+    const props = keys.find(({ alias }) => alias === search.alias);
+
+    if (props) {
+      const { alias, ...config } = props;
+      setSession({
+        ...config,
+        account: search.account,
+        state: "disconnected",
+        audit_order: "0",
+        audit_stops: "0",
+      });
+    }
+  }
+};
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |

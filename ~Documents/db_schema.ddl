@@ -94,6 +94,14 @@ CREATE  TABLE devel.full_audit_request (
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.hedging ( 
+	hedging              BOOLEAN  DEFAULT (true)  NOT NULL   PRIMARY KEY,
+	source_ref           VARCHAR(15)    NOT NULL   ,
+	description          VARCHAR(20)    NOT NULL   
+ ) engine=InnoDB;
+
+ALTER TABLE devel.hedging COMMENT 'Position Mode: Hedge Mode or One-way Mode';
+
 CREATE  TABLE devel.instrument_type ( 
 	instrument_type      BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -257,6 +265,8 @@ CREATE  TABLE devel.account (
 	broker               BINARY(3)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	environment          BINARY(3)    NOT NULL   ,
+	margin_mode          VARCHAR(10)    NOT NULL   ,
+	hedging              BOOLEAN  DEFAULT ('1')  NOT NULL   ,
 	total_equity         DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
 	isolated_equity      DECIMAL(15,3)  DEFAULT (0)  NOT NULL   ,
 	rest_api_url         VARCHAR(100)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs    ,
@@ -268,7 +278,9 @@ CREATE  TABLE devel.account (
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES devel.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES devel.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_owner FOREIGN KEY ( owner ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_a_owner FOREIGN KEY ( owner ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_a_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_account_hedging FOREIGN KEY ( hedging ) REFERENCES devel.hedging( hedging ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_a_state ON devel.account ( state );
@@ -278,6 +290,10 @@ CREATE INDEX fk_a_broker ON devel.account ( broker );
 CREATE INDEX fk_a_environment ON devel.account ( environment );
 
 CREATE INDEX fk_a_owner ON devel.account ( owner );
+
+CREATE INDEX fk_a_margin_mode ON devel.account ( margin_mode );
+
+CREATE INDEX fk_account_hedging ON devel.account ( hedging );
 
 CREATE  TABLE devel.activity ( 
 	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -302,25 +318,15 @@ CREATE INDEX fk_c_state ON devel.currency ( state );
 
 CREATE  TABLE devel.instrument ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
-	trade_period         BINARY(3)    NOT NULL   ,
 	base_currency        BINARY(3)    NOT NULL   ,
 	quote_currency       BINARY(3)    NOT NULL   ,
-	margin_mode          VARCHAR(10)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	leverage             SMALLINT  DEFAULT (10)  NOT NULL   ,
-	lot_scale_factor     SMALLINT UNSIGNED DEFAULT (1)     ,
-	martingale_factor    SMALLINT  DEFAULT (1)  NOT NULL   ,
+	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	CONSTRAINT ak_instrument UNIQUE ( base_currency, quote_currency ) ,
 	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_trade_period FOREIGN KEY ( trade_period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_i_quote_currency ON devel.instrument ( quote_currency );
-
-CREATE INDEX fk_i_trade_period ON devel.instrument ( trade_period );
-
-CREATE INDEX fk_i_margin_mode ON devel.instrument ( margin_mode );
 
 CREATE  TABLE devel.instrument_detail ( 
 	instrument           BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -352,8 +358,8 @@ CREATE  TABLE devel.instrument_period (
 	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
 	active_collection    BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
-	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ip_period ON devel.instrument_period ( period );
@@ -364,7 +370,10 @@ CREATE  TABLE devel.instrument_position (
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
-	auto_state           BINARY(3)    NOT NULL   ,
+	leverage             INT  DEFAULT (3)  NOT NULL   ,
+	period               BINARY(3)       ,
+	lot_scale            DECIMAL(5,2)  DEFAULT (0)  NOT NULL   ,
+	martingale           DECIMAL(5,2)  DEFAULT (_utf8mb4'0.00')  NOT NULL   ,
 	strict_stops         BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	strict_targets       BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
@@ -373,7 +382,8 @@ CREATE  TABLE devel.instrument_position (
 	CONSTRAINT fk_ipos_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ipos_position FOREIGN KEY ( position ) REFERENCES devel.position( position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ipos_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ipos_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ipos_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ipos_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE INDEX fk_ipos_state ON devel.instrument_position ( state );
@@ -381,6 +391,8 @@ CREATE INDEX fk_ipos_state ON devel.instrument_position ( state );
 CREATE INDEX fk_ipos_position ON devel.instrument_position ( position );
 
 CREATE INDEX fk_ipos_instrument ON devel.instrument_position ( instrument );
+
+CREATE INDEX fk_ipos_period ON devel.instrument_position ( period );
 
 CREATE  TABLE devel.positions ( 
 	positions            BINARY(6)    NOT NULL   PRIMARY KEY,
@@ -506,10 +518,12 @@ CREATE  TABLE devel.stop_request (
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
+	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id, stop_type ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_sr_stop_type FOREIGN KEY ( stop_type ) REFERENCES devel.stop_type( stop_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_sr_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 ALTER TABLE devel.stop_request ADD CONSTRAINT ck_sr_action CHECK ( action in (_utf8mb4'buy',_utf8mb4'sell') );
@@ -519,6 +533,8 @@ CREATE INDEX fk_sr_stop_type ON devel.stop_request ( stop_type );
 CREATE INDEX fk_sr_instrument_position ON devel.stop_request ( instrument_position );
 
 CREATE INDEX fk_sr_state ON devel.stop_request ( state );
+
+CREATE INDEX fk_sr_margin_mode ON devel.stop_request ( margin_mode );
 
 CREATE  TABLE devel.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
@@ -628,6 +644,8 @@ select
 	s.status AS status,
 	e.environment AS environment,
 	e.environ AS environ,
+	a.margin_mode AS margin_mode,
+	a.hedging AS hedging,
 	b.name AS broker_name,
 	b.image_url AS broker_image_url,
 	b.website_url AS broker_website_url,
@@ -731,9 +749,7 @@ join devel.state rs on
 CREATE VIEW devel.vw_api_stop_requests AS with InstrumentDetails as (
 select
 	i.instrument AS instrument,
-	i.margin_mode AS margin_mode,
-	b.symbol AS base_symbol,
-	q.symbol AS quote_symbol,
+	concat(b.symbol, '-', q.symbol) AS instId,
 	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits
 from
 	(((devel.instrument i
@@ -745,30 +761,23 @@ join devel.currency q on
 	((q.currency = i.quote_currency)))),
 BaseStopRequests as (
 select
+	ipos.account AS account,
 	sr.stop_request AS stop_request,
+	s.status AS status,
+	id.instId AS instId,
 	sr.tpsl_id AS tpsl_id,
-	sr.instrument_position AS instrument_position,
-	sr.state AS state,
 	sr.stop_type AS stop_type,
-	sr.action AS action,
+	ipos.position AS positionSide,
+	sr.action AS side,
 	sr.size AS size,
 	sr.trigger_price AS trigger_price,
 	sr.order_price AS order_price,
 	sr.reduce_only AS reduce_only,
-	sr.broker_id AS broker_id,
-	sr.memo AS memo,
-	sr.create_time AS create_time,
-	sr.update_time AS update_time,
-	s.status AS status,
-	ipos.account AS account,
-	ipos.position AS positionSide,
-	id.margin_mode AS marginMode,
-	id.base_symbol AS base_symbol,
-	id.quote_symbol AS quote_symbol,
+	sr.margin_mode AS marginMode,
 	id.digits AS digits,
-	concat(id.base_symbol, '-', id.quote_symbol) AS instId,
-	sr.action AS side,
-	upper(hex(sr.broker_id)) AS brokerId
+	sr.broker_id AS brokerId,
+	sr.memo AS memo,
+	sr.update_time AS update_time
 from
 	(((devel.stop_request sr
 join devel.state s on
@@ -777,7 +786,7 @@ join devel.instrument_position ipos on
 	((sr.instrument_position = ipos.instrument_position)))
 join InstrumentDetails id on
 	((id.instrument = ipos.instrument)))),
-GroupedOrderPrices as (
+OrderPrices as (
 select
 	ipos.account AS account,
 	o.tpsl_id AS tpsl_id,
@@ -806,21 +815,21 @@ select
 	bsr.marginMode AS marginMode,
 	bsr.side AS side,
 	bsr.size AS size,
-	gop.tpTriggerPrice AS tpTriggerPrice,
-	gop.tpOrderPrice AS tpOrderPrice,
-	gop.slTriggerPrice AS slTriggerPrice,
-	gop.slOrderPrice AS slOrderPrice,
+	op.tpTriggerPrice AS tpTriggerPrice,
+	op.tpOrderPrice AS tpOrderPrice,
+	op.slTriggerPrice AS slTriggerPrice,
+	op.slOrderPrice AS slOrderPrice,
 	if((bsr.reduce_only = 0), 'false', 'true') AS reduceOnly,
 	upper(hex(so.client_order_id)) AS clientOrderId,
 	bsr.brokerId AS brokerId,
 	bsr.memo AS memo,
-	gop.update_time AS update_time
+	op.update_time AS update_time
 from
 	((BaseStopRequests bsr
 join devel.stop_order so on
 	((so.tpsl_id = bsr.tpsl_id)))
-join GroupedOrderPrices gop on
-	(((gop.account = bsr.account) and (gop.tpsl_id = so.tpsl_id))))
+join OrderPrices op on
+	(((op.account = bsr.account) and (op.tpsl_id = so.tpsl_id))))
 union
 select
 	bsr.account AS account,
@@ -873,6 +882,20 @@ left join devel.instrument_period ip on
 	(((ip.instrument = missing.instrument) and (ip.period = missing.period))))
 where
 	(ip.period is null);
+
+CREATE VIEW devel.vw_audit_instrument_positions AS
+select
+	a.account AS account,
+	i.instrument AS instrument,
+	p.position AS position
+from
+	(((devel.account a
+join devel.instrument i)
+join devel.position p)
+left join devel.instrument_position ipos on
+	(((a.account = ipos.account) and (i.instrument = ipos.instrument) and (p.position = ipos.position))))
+where
+	(ipos.account is null);
 
 CREATE VIEW devel.vw_audit_requests AS
 select
@@ -968,43 +991,6 @@ join devel.state os on
 join devel.state ns on
 	((ns.state = ar.new_state)));
 
-CREATE VIEW devel.vw_auth_trade_instruments AS
-select
-	distinct ipos.account AS account,
-	ipos.instrument AS instrument,
-	concat(b.symbol, '-', q.symbol) AS symbol,
-	i.trade_period AS trade_period,
-	p.timeframe AS timeframe,
-	p.timeframe_units AS timeframe_units,
-	s.state AS auto_state,
-	s.status AS auto_status,
-	i.margin_mode AS margin_mode,
-	i.leverage AS leverage,
-	id.max_leverage AS max_leverage,
-	i.lot_scale_factor AS lot_scale_factor,
-	i.martingale_factor AS martingale_factor,
-	id.lot_size AS lot_size,
-	id.min_size AS min_size,
-	id.max_limit_size AS max_limit_size,
-	id.max_market_size AS max_market_size,
-	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits
-from
-	(((((((devel.instrument_position ipos
-join devel.instrument i on
-	((i.instrument = ipos.instrument)))
-join devel.instrument_detail id on
-	((id.instrument = ipos.instrument)))
-join devel.currency b on
-	((b.currency = i.base_currency)))
-join devel.currency q on
-	((q.currency = i.quote_currency)))
-join devel.state s on
-	((s.state = ipos.auto_state)))
-join devel.instrument_period ip on
-	(((ip.instrument = i.instrument) and (ip.period = i.trade_period))))
-join devel.period p on
-	((p.period = ip.period)));
-
 CREATE VIEW devel.vw_currency AS
 select
 	c.currency AS currency,
@@ -1051,8 +1037,97 @@ join devel.currency q on
 join devel.state qs on
 	((q.state = qs.state)));
 
+CREATE VIEW devel.vw_instrument_positions AS
+select
+	a.account AS account,
+	a.alias AS alias,
+	ipos.instrument_position AS instrument_position,
+	ipos.instrument AS instrument,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	ipos.position AS position,
+	e.environment AS environment,
+	e.environ AS environ,
+	a.hedging AS hedging,
+	ipos.state AS state,
+	s.status AS status,
+	if((ipos.period is null), 'Disabled', if((qs.status = 'Suspended'), qs.status, bs.status)) AS auto_status,
+	p.period AS period,
+	p.timeframe AS timeframe,
+	p.timeframe_units AS timeframe_units,
+	a.margin_mode AS margin_mode,
+	ipos.leverage AS leverage,
+	ipos.lot_scale AS lot_scale,
+	ipos.martingale AS martingale,
+	ipos.strict_stops AS strict_stops,
+	ipos.strict_targets AS strict_targets,
+	ifnull(r.open_request, 0) AS open_request,
+	ifnull(tp.open_take_profit, 0) AS open_take_profit,
+	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
+	ipos.update_time AS update_time,
+	ipos.close_time AS close_time,
+	r.create_time AS create_time
+from
+	((((((((((((devel.instrument_position ipos
+join devel.account a on
+	((a.account = ipos.account)))
+join devel.environment e on
+	((e.environment = a.environment)))
+join devel.instrument i on
+	((ipos.instrument = i.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
+join devel.state s on
+	((ipos.state = s.state)))
+join devel.state bs on
+	((bs.state = b.state)))
+join devel.state qs on
+	((qs.state = q.state)))
+left join blofin.period p on
+	((p.period = ipos.period)))
+left join (
+	select
+		r.instrument_position AS instrument_position,
+		max(r.create_time) AS create_time,
+		count(0) AS open_request
+	from
+		(devel.state s
+	join devel.request r on
+		(((r.state = s.state) and (s.status in ('Pending', 'Queued')))))
+	group by
+		r.instrument_position) r on
+	((r.instrument_position = ipos.instrument_position)))
+left join (
+	select
+		sr.instrument_position AS instrument_position,
+		count(0) AS open_take_profit
+	from
+		(devel.state s
+	join devel.stop_request sr on
+		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')) and (sr.stop_type = 'tp'))))
+	group by
+		sr.instrument_position) tp on
+	((tp.instrument_position = ipos.instrument_position)))
+left join (
+	select
+		sr.instrument_position AS instrument_position,
+		count(0) AS open_stop_loss
+	from
+		(devel.state s
+	join devel.stop_request sr on
+		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')) and (sr.stop_type = 'sl'))))
+	group by
+		sr.instrument_position) sl on
+	((sl.instrument_position = ipos.instrument_position)));
+
 CREATE VIEW devel.vw_instruments AS
 select
+	a.account AS account,
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
@@ -1062,29 +1137,22 @@ select
 	it.source_ref AS instrument_type,
 	ct.source_ref AS contract_type,
 	id.contract_value AS contract_value,
-	i.margin_mode AS margin_mode,
-	i.leverage AS leverage,
+	a.hedging AS hedging,
+	a.margin_mode AS margin_mode,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
 	id.max_limit_size AS max_limit_size,
 	id.max_market_size AS max_market_size,
 	id.lot_size AS lot_size,
-	i.lot_scale_factor AS lot_scale_factor,
 	id.tick_size AS tick_size,
 	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
-	i.martingale_factor AS martingale_factor,
-	ip.bulk_collection_rate AS bulk_collection_rate,
-	if(((ip.bulk_collection_rate = 0) or (ip.bulk_collection_rate is null)), NULL, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
-	ip.sma_factor AS sma_factor,
-	p.period AS trade_period,
-	p.timeframe AS trade_timeframe,
-	p.timeframe_units AS timeframe_units,
 	if((qs.status = 'Suspended'), qs.state, bs.state) AS state,
 	if((qs.status = 'Suspended'), qs.status, bs.status) AS status,
 	id.list_time AS list_time,
 	id.expiry_time AS expiry_time
 from
-	(((((((((devel.instrument i
+	((((((((devel.instrument i
+join devel.account a)
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
@@ -1093,16 +1161,12 @@ join devel.state bs on
 	((bs.state = b.state)))
 join devel.state qs on
 	((qs.state = q.state)))
-left join devel.instrument_period ip on
-	(((ip.period = i.trade_period) and (ip.instrument = i.instrument))))
 left join devel.instrument_detail id on
 	((id.instrument = i.instrument)))
 left join devel.instrument_type it on
 	((it.instrument_type = id.instrument_type)))
 left join devel.contract_type ct on
-	((ct.contract_type = id.contract_type)))
-left join devel.period p on
-	((p.period = i.trade_period)));
+	((ct.contract_type = id.contract_type)));
 
 CREATE VIEW devel.vw_order_states AS
 select
@@ -1118,16 +1182,16 @@ join devel.state s on
 
 CREATE VIEW devel.vw_orders AS
 select
-	ipos.account AS account,
 	r.request AS request,
 	o.order_id AS order_id,
-	ipos.instrument_position AS instrument_position,
+	ipos.account AS account,
 	ipos.instrument AS instrument,
-	devel.vi.symbol AS symbol,
-	devel.vi.base_currency AS base_currency,
-	devel.vi.base_symbol AS base_symbol,
-	devel.vi.quote_currency AS quote_currency,
-	devel.vi.quote_symbol AS quote_symbol,
+	ipos.instrument_position AS instrument_position,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
 	s.state AS state,
 	s.status AS status,
 	ifnull(rs.state, s.state) AS request_state,
@@ -1139,7 +1203,6 @@ select
 	r.request_type AS request_type,
 	rt.source_ref AS order_type,
 	r.margin_mode AS margin_mode,
-	if((o.client_order_id is null), false, true) AS auto_trade,
 	r.price AS price,
 	r.size AS size,
 	r.leverage AS leverage,
@@ -1148,34 +1211,41 @@ select
 	o.average_price AS average_price,
 	o.fee AS fee,
 	o.pnl AS pnl,
-	devel.vi.digits AS digits,
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
 	cat.order_category AS order_category,
 	cat.source_ref AS category,
 	can.cancel_source AS cancel_source,
 	can.source_ref AS canceled_by,
-	devel.vi.contract_type AS contract_type,
-	devel.vi.instrument_type AS instrument_type,
+	id.contract_type AS contract_type,
+	id.instrument_type AS instrument_type,
 	r.reduce_only AS reduce_only,
 	r.broker_id AS broker_id,
-	devel.vi.trade_period AS trade_period,
-	devel.vi.trade_timeframe AS trade_timeframe,
-	devel.vi.timeframe_units AS timeframe_units,
-	devel.vi.state AS trade_state,
-	devel.vi.status AS trade_status,
+	ipos.period AS trade_period,
+	p.timeframe AS trade_timeframe,
+	p.timeframe_units AS timeframe_units,
+	if((ipos.period is null), 'Disabled', 'Enabled') AS trade_status,
 	r.memo AS memo,
 	r.create_time AS create_time,
 	r.expiry_time AS expiry_time,
 	r.update_time AS update_time
 from
-	(((((((((devel.request r
+	(((((((((((((devel.request r
 join devel.instrument_position ipos on
 	((ipos.instrument_position = r.instrument_position)))
-join devel.vw_instruments vi on
-	((devel.vi.instrument = ipos.instrument)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.instrument_detail id on
+	((id.instrument = i.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
 join devel.state s on
 	((r.state = s.state)))
 join devel.request_type rt on
 	((r.request_type = rt.request_type)))
+left join devel.period p on
+	((p.period = ipos.period)))
 left join devel.orders o on
 	((o.order_id = r.order_id)))
 left join devel.order_state os on
@@ -1297,7 +1367,7 @@ select
 	q.symbol AS quote_symbol,
 	ipos.position AS position,
 	sr.stop_type AS stop_type,
-	i.margin_mode AS margin_mode,
+	sr.margin_mode AS margin_mode,
 	if((so.client_order_id is null), false, true) AS auto_trade,
 	ps.state AS position_state,
 	ps.status AS position_status,
@@ -1379,27 +1449,6 @@ join (
 join devel.state s on
 	((s.state = u.state)));
 
-CREATE VIEW devel.vw_audit_instrument_positions AS
-select
-	a.account AS account,
-	devel.i.instrument AS instrument,
-	p.position AS position,
-	devel.i.state AS auto_state
-from
-	((devel.vw_instruments i
-join devel.position p)
-join devel.account a)
-where
-	(a.account,
-	devel.i.instrument,
-	p.position) in (
-	select
-		ipos.account,
-		ipos.instrument,
-		ipos.position
-	from
-		devel.instrument_position ipos) is false;
-
 CREATE VIEW devel.vw_candles AS
 select
 	devel.vi.instrument AS instrument,
@@ -1433,68 +1482,6 @@ join devel.currency b on
 	((devel.vi.base_currency = b.currency)))
 join devel.currency q on
 	((devel.vi.quote_currency = q.currency)));
-
-CREATE VIEW devel.vw_instrument_positions AS
-select
-	ipos.instrument_position AS instrument_position,
-	ipos.account AS account,
-	ipos.instrument AS instrument,
-	ipos.position AS position,
-	devel.vi.symbol AS symbol,
-	ipos.state AS state,
-	s.status AS status,
-	ipos.auto_state AS auto_state,
-	auto.status AS auto_status,
-	ipos.strict_stops AS strict_stops,
-	ipos.strict_targets AS strict_targets,
-	ifnull(r.open_request, 0) AS open_request,
-	ifnull(tp.open_take_profit, 0) AS open_take_profit,
-	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
-	ipos.update_time AS update_time,
-	ipos.close_time AS close_time,
-	r.create_time AS create_time
-from
-	((((((devel.instrument_position ipos
-join devel.vw_instruments vi on
-	((ipos.instrument = devel.vi.instrument)))
-join devel.state s on
-	((ipos.state = s.state)))
-join devel.state auto on
-	((auto.state = ipos.auto_state)))
-left join (
-	select
-		r.instrument_position AS instrument_position,
-		max(r.create_time) AS create_time,
-		count(0) AS open_request
-	from
-		(devel.state s
-	join devel.request r on
-		(((r.state = s.state) and (s.status in ('Pending', 'Queued')))))
-	group by
-		r.instrument_position) r on
-	((r.instrument_position = ipos.instrument_position)))
-left join (
-	select
-		sr.instrument_position AS instrument_position,
-		count(0) AS open_take_profit
-	from
-		(devel.state s
-	join devel.stop_request sr on
-		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')) and (sr.stop_type = 'tp'))))
-	group by
-		sr.instrument_position) tp on
-	((tp.instrument_position = ipos.instrument_position)))
-left join (
-	select
-		sr.instrument_position AS instrument_position,
-		count(0) AS open_stop_loss
-	from
-		(devel.state s
-	join devel.stop_request sr on
-		(((sr.state = s.state) and (s.status in ('Pending', 'Queued')) and (sr.stop_type = 'sl'))))
-	group by
-		sr.instrument_position) sl on
-	((sl.instrument_position = ipos.instrument_position)));
 
 CREATE VIEW devel.vw_audit_candles AS
 select
@@ -1540,7 +1527,6 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
-
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

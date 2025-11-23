@@ -6,6 +6,7 @@
 
 import type { IPositions } from "db/interfaces/positions";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IResult } from "api/instruments";
 
 import { Session, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -119,6 +120,7 @@ export const Import = async () => {
   console.log("In Position.Import [API]");
 
   const active: Array<IPositionsAPI> = await Active();
+
   const [accepted, rejected] = await Publish(active);
   const history = await Select<IInstrumentPosition>({ status: `Open` }, { table: `vw_instrument_positions` });
   const success: Array<Partial<IInstrumentPosition>> = [];

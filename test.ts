@@ -2,6 +2,8 @@
 // import { KeySet, IKeyProps } from "./db/interfaces/keyset";
 
 //import { parseColumns, parseKeys } from "db/query.utils";
+// import { ILeverageAPI, Instruments } from "api/instruments";
+// import { IInstrument } from "db/interfaces/instrument";
 import { hexify } from "lib/crypto.util";
 import { bufferString, hexString, isEqual, setExpiry } from "lib/std.util";
 import { parse } from "path";
@@ -1510,39 +1512,6 @@ import { parse } from "path";
 // const props = keys.map(item => hexify(item, 3)).filter((item): item is Uint8Array => item !== undefined);
 // Instrument.Audit(props);
 
-//----------------------------- Select distinct Tests ---------------------------------------//
-import type { IAccess } from "db/interfaces/state";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
-import { setSession, Session } from "module/session";
-
-setSession({ account: hexify("24597a")});
-
-import * as db from "db/query.utils";
-
-export interface IRoleAuthority {
-  role: Uint8Array;
-  title: string;
-  subject_area: Uint8Array;
-  subject_area_title: Uint8Array;
-  activity: Uint8Array;
-  task: string;
-  authority: Uint8Array;
-  privilege: string;
-  priority: number;
-  state: Uint8Array;
-  status: IAccess;
-}
-
-(async () => {
-  //const results = await db.Distinct<IRoleAuthority>({title: `Admin`, subject_area_title: undefined}, {table: `vw_role_authority`, keys: [{key: `title`}]});
-  const results = await db.Distinct<IInstrumentPosition>({ account: Session().account, auto_status: "Enabled", symbol: undefined }, {table: `vw_instrument_positions`, keys: [{key: `account`}, {key: `auto_status`}]});
-  console.log(results);
-
-  setTimeout(async () => {
-    process.exit(0);
-  }, 1500);
-})();
-
 //----------------------------- Format Console Lines Test ---------------------------------------//
 // import type { IUser } from "db/interfaces/user";
 // import * as User from "db/interfaces/user";
@@ -1829,4 +1798,214 @@ export interface IRoleAuthority {
 // };
 
 // run();
+
+//---------------------------------- Session config running Distinct test ----------------------------------------//
+// import type { ISession } from "module/session";
+// import type { IAccount } from "db/interfaces/account";
+// import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+
+// import { setSession, Session, signRequest } from "module/session";
+
+// import * as Accounts from "db/interfaces/account";
+// import * as db from "db/query.utils";
+
+// const args = process.argv.slice(2); // get account id
+// const config = async (props: Partial<IAccount>) => {
+//   const [search] = (await Accounts.Fetch(props)) ?? [undefined];
+
+//   if (search) {
+//     const keys: Array<ISession> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
+//     const props = keys.find(({ alias }) => alias === search.alias);
+
+//     if (props) {
+//       const { api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
+//       setSession({
+//         account: search.account,
+//         state: "testing",
+//         audit_order: "0",
+//         audit_stops: "0",
+//         api,
+//         secret,
+//         phrase,
+//         rest_api_url,
+//         private_wss_url,
+//         public_wss_url,
+//       });
+//     }
+//   }
+// };
+
+// (async () => {
+//   const symbols: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+//     { account: Session().account, auto_status: "Enabled", symbol: undefined },
+//     { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+//   );
+
+//   if (symbols.length) {
+//     await config({ account: hexify(args[0]) });
+
+//     const method = "GET";
+//     const path = `/api/v1/account/batch-leverage-info?instId=${symbols.map((symbols) => symbols.symbol).join()}&marginMode=cross`;
+//     const { api, phrase, rest_api_url } = Session();
+//     const { sign, timestamp, nonce } = await signRequest(method, path);
+//     const headers = {
+//       "ACCESS-KEY": api!,
+//       "ACCESS-SIGN": sign!,
+//       "ACCESS-TIMESTAMP": timestamp!,
+//       "ACCESS-NONCE": nonce!,
+//       "ACCESS-PASSPHRASE": phrase!,
+//       "Content-Type": "application/json",
+//     };
+
+//     try {
+//       const response = await fetch(rest_api_url!.concat(path), {
+//         method,
+//         headers,
+//       });
+//       if (response.ok) {
+//         const json = await response.json();
+//         console.log(json);
+//         return json.data;
+//       } else throw new Error(`Position.Active: Response not ok: ${response.status} ${response.statusText}`);
+//     } catch (error) {
+//       console.log(">> [Error]: Position.Active:", error, method, path, headers);
+//       return [];
+//     }
+//   }
+// })();
+
+//---------------------------------- reduce after instrument by account fetch test ----------------------------------------//
+// import type { IInstrument } from "db/interfaces/instrument";
+
+// import { config } from "module/session";
+
+// import * as InstrumentAPI from "api/instruments";
+
+// const args = process.argv.slice(2); // get account id
+
+// (async () => {
+//   await config({ account: hexify(args[0]) });
+//   const symbols = await InstrumentAPI.Fetch();
+
+//   if (symbols && symbols.length) {
+//     console.log(`-> Instrument.Position.Import [ ${symbols.length} ]`);
+
+//     const instruments = symbols.reduce<Record<string, Array<Partial<IInstrument>>>>((acc, api) => {
+//       if (!acc["exists"]) acc["exists"] = [];
+//       if (!acc["missing"]) acc["missing"] = [];
+
+//       acc[api.instrument ? "exists" : "missing"].push(api);
+//       return acc;
+//     }, {});
+    
+//     console.log(instruments['exists']);
+//   }
+// })();
+
+// const leverages: Array<ILeverageAPI> = [
+//   {
+//     leverage: "1",
+//     marginMode: "cross",
+//     instId: "JASMY-USDT",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "2",
+//     marginMode: "cross",
+//     instId: "JASMY-USDT",
+//     positionSide: "short",
+//   },
+//   {
+//     leverage: "3",
+//     marginMode: "cross",
+//     instId: "KAS-USDT",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "4",
+//     marginMode: "cross",
+//     instId: "KAS-USDT",
+//     positionSide: "short",
+//   },
+//   {
+//     leverage: "5",
+//     marginMode: "cross",
+//     instId: "BRETT-USDT",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "6",
+//     marginMode: "cross",
+//     instId: "BRETT-USDT",
+//     positionSide: "short",
+//   },
+//   {
+//     leverage: "7",
+//     marginMode: "cross",
+//     instId: "BTC-USD",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "8",
+//     marginMode: "cross",
+//     instId: "BTC-USD",
+//     positionSide: "short",
+//   },
+//   {
+//     leverage: "9",
+//     marginMode: "cross",
+//     instId: "BTC-USDC",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "10",
+//     marginMode: "cross",
+//     instId: "BTC-USDC",
+//     positionSide: "short",
+//   },
+//   {
+//     leverage: "11",
+//     marginMode: "cross",
+//     instId: "BTC-USDT",
+//     positionSide: "long",
+//   },
+//   {
+//     leverage: "12",
+//     marginMode: "cross",
+//     instId: "BTC-USDT",
+//     positionSide: "short",
+//   },
+// ];
+
+// const batch = [
+//   { symbol: "JASMY-USDT", position: `short` },
+//   { symbol: "KAS-USDT", position: `short` },
+//   { symbol: "BRETT-USDT", position: `short` },
+//   { symbol: "BTC-USD", position: `short` },
+//   { symbol: "BTC-USDC", position: `short` },
+//   { symbol: "BTC-USDT", position: `short` },
+// ];
+// (async () => {
+//   const leverageLookup: Record<string, string> = leverages.reduce((map, item) => {
+//     map[item.instId+item.positionSide] = item.leverage;
+//     return map;
+//   }, {} as Record<string, string>);
+
+//   return batch.map((auditItem) => {
+//     const leverageValue: string = leverageLookup[(auditItem.symbol+auditItem.position)] || "0";
+//     console.log(auditItem.symbol, leverageValue);
+//   });
+// })();
+
+//---------------------------------- instrument position import test ----------------------------------------//
+import { config } from "module/session";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
+
+const args = process.argv.slice(2); // get account id
+
+(async () => {
+  await config({ account: hexify(args[0]) });
+  await InstrumentPosition.Import();
+
+})();
 
