@@ -22,6 +22,7 @@ export interface IStopRequest {
   status: TRequest;
   stop_type: "tp" | "sl";
   action: "buy" | "sell";
+  margin_mode: "cross" | "isolated";
   size: number;
   trigger_price: number;
   order_price: number;
@@ -101,6 +102,7 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
       state: props.state || queued,
+      margin_mode: props.margin_mode,
       action: props.action,
       size: props.size,
       trigger_price: props.trigger_price,

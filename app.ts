@@ -4,6 +4,10 @@
 //+------------------------------------------------------------------+
 "use strict";
 
+import { Session, config } from "module/session";
+import { hexify } from "lib/crypto.util";
+import { CMain } from "app/main";
+
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
 import * as Broker from "db/interfaces/broker";
@@ -18,9 +22,16 @@ import * as Roles from "db/interfaces/role";
 import * as RoleAuthority from "db/interfaces/role_authority";
 import * as Instruments from "api/instruments";
 
-import { CMain } from "app/main";
+import * as dotenv from "dotenv";
+import * as path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
+
+const account = process.env.SEED_ACCOUNT || '24597a';
+config({ account: hexify(account) });
 
 console.log(">> [Info] Application.Initialization start:", new Date().toLocaleString());
+console.log(`-> Seed Account:`, Session());
 
 const initialize = async () => {
   await SubjectAreas.Import();

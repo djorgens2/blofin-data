@@ -341,6 +341,7 @@ CREATE  TABLE devel.instrument_detail (
 	max_market_size      DECIMAL(13,2)    NOT NULL   ,
 	list_time            DATETIME(3)    NOT NULL   ,
 	expiry_time          DATETIME(3)    NOT NULL   ,
+	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES devel.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES devel.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -511,6 +512,7 @@ CREATE  TABLE devel.stop_request (
 	stop_type            CHAR(2)    NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
 	size                 DOUBLE       ,
+	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	trigger_price        DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	order_price          DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT ('1')  NOT NULL   ,
@@ -518,7 +520,6 @@ CREATE  TABLE devel.stop_request (
 	memo                 VARCHAR(100)       ,
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT uk_sr_stop_order UNIQUE ( tpsl_id, stop_type ) ,
 	CONSTRAINT fk_sr_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_sr_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -883,20 +884,6 @@ left join devel.instrument_period ip on
 where
 	(ip.period is null);
 
-CREATE VIEW devel.vw_audit_instrument_positions AS
-select
-	a.account AS account,
-	i.instrument AS instrument,
-	p.position AS position
-from
-	(((devel.account a
-join devel.instrument i)
-join devel.position p)
-left join devel.instrument_position ipos on
-	(((a.account = ipos.account) and (i.instrument = ipos.instrument) and (p.position = ipos.position))))
-where
-	(ipos.account is null);
-
 CREATE VIEW devel.vw_audit_requests AS
 select
 	ipos.account AS account,
@@ -1039,50 +1026,60 @@ join devel.state qs on
 
 CREATE VIEW devel.vw_instrument_positions AS
 select
-	a.account AS account,
+	pos.account AS account,
 	a.alias AS alias,
 	ipos.instrument_position AS instrument_position,
-	ipos.instrument AS instrument,
+	pos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
 	q.symbol AS quote_symbol,
-	ipos.position AS position,
+	pos.position AS position,
 	e.environment AS environment,
 	e.environ AS environ,
 	a.hedging AS hedging,
-	ipos.state AS state,
-	s.status AS status,
-	if((ipos.period is null), 'Disabled', if((qs.status = 'Suspended'), qs.status, bs.status)) AS auto_status,
+	coalesce(ipos.state, disabled.state) AS state,
+	coalesce(s.status, disabled.status) AS status,
+	if((ipos.period is null), disabled.state, if((qs.status = 'Suspended'), qs.state, bs.state)) AS auto_state,
+	if((ipos.period is null), disabled.status, if((qs.status = 'Suspended'), qs.status, bs.status)) AS auto_status,
 	p.period AS period,
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	a.margin_mode AS margin_mode,
-	ipos.leverage AS leverage,
-	ipos.lot_scale AS lot_scale,
-	ipos.martingale AS martingale,
-	ipos.strict_stops AS strict_stops,
-	ipos.strict_targets AS strict_targets,
-	ifnull(r.open_request, 0) AS open_request,
-	ifnull(tp.open_take_profit, 0) AS open_take_profit,
-	ifnull(sl.open_stop_loss, 0) AS open_stop_loss,
-	ipos.update_time AS update_time,
+	coalesce(ipos.leverage, 0) AS leverage,
+	coalesce(ipos.lot_scale, 0) AS lot_scale,
+	coalesce(ipos.martingale, 0) AS martingale,
+	coalesce(ipos.strict_stops, 0) AS strict_stops,
+	coalesce(ipos.strict_targets, 0) AS strict_targets,
+	coalesce(r.open_request, 0) AS open_request,
+	coalesce(tp.open_take_profit, 0) AS open_take_profit,
+	coalesce(sl.open_stop_loss, 0) AS open_stop_loss,
+	r.create_time AS create_time,
 	ipos.close_time AS close_time,
-	r.create_time AS create_time
+	ipos.update_time AS update_time
 from
-	((((((((((((devel.instrument_position ipos
+	(((((((((((((((
+	select
+		distinct ipos.account AS account,
+		ipos.instrument AS instrument,
+		pos.position AS position
+	from
+		(devel.instrument_position ipos
+	join devel.position pos)) pos
+left join devel.instrument_position ipos on
+	(((ipos.account = pos.account) and (ipos.instrument = pos.instrument) and (ipos.position = pos.position))))
 join devel.account a on
-	((a.account = ipos.account)))
+	((a.account = pos.account)))
 join devel.environment e on
 	((e.environment = a.environment)))
 join devel.instrument i on
-	((ipos.instrument = i.instrument)))
+	((pos.instrument = i.instrument)))
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
 	((q.currency = i.quote_currency)))
-join devel.state s on
+left join devel.state s on
 	((ipos.state = s.state)))
 join devel.state bs on
 	((bs.state = b.state)))
@@ -1090,6 +1087,8 @@ join devel.state qs on
 	((qs.state = q.state)))
 left join blofin.period p on
 	((p.period = ipos.period)))
+join devel.state disabled on
+	((disabled.status = 'Disabled')))
 left join (
 	select
 		r.instrument_position AS instrument_position,
@@ -1149,7 +1148,8 @@ select
 	if((qs.status = 'Suspended'), qs.state, bs.state) AS state,
 	if((qs.status = 'Suspended'), qs.status, bs.status) AS status,
 	id.list_time AS list_time,
-	id.expiry_time AS expiry_time
+	id.expiry_time AS expiry_time,
+	id.update_time AS update_time
 from
 	((((((((devel.instrument i
 join devel.account a)
@@ -1527,6 +1527,7 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
+
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

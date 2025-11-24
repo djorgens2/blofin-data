@@ -10,7 +10,7 @@ import pool from "db/db.config";
 import { hasValues } from "lib/std.util";
 
 export type TKey = { key: string; sign?: string };
-export type TOptions = { table: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection };
+export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; suffix?: string; connection?: PoolConnection };
 
 export const DB_SCHEMA = process.env.DB_SCHEMA || process.env.DB_DATABASE;
 

@@ -8,7 +8,7 @@ import type { TStatus, TSystem } from "db/interfaces/state";
 import type { IInstrumentAPI } from "api/instruments";
 import type { ILeverageAPI } from "api/leverage";
 
-import { Select, Update, Insert } from "db/query.utils";
+import { Select, Update, Insert, TOptions } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
@@ -24,7 +24,7 @@ export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;
 export type TPosition = `long` | `short` | `net`;
 
 export interface IInstrumentPosition {
-  account: Uint8Array;  
+  account: Uint8Array;
   alias: string;
   environment: Uint8Array;
   environ: string;
@@ -41,7 +41,7 @@ export interface IInstrumentPosition {
   status: TStatus;
   auto_state: Uint8Array;
   auto_status: TSystem;
-  trade_period: Uint8Array;
+  period: Uint8Array;
   timeframe: string;
   timeframe_units: number;
   strict_stops: boolean;
@@ -62,7 +62,7 @@ export interface IInstrumentPosition {
   update_time: Date;
   close_time: Date;
   create_time: Date;
-}  
+}
 
 //------------------ Private functions ---------------------//
 
@@ -104,25 +104,22 @@ const mergeLeverage = (instruments: Partial<IInstrumentAPI>[], leverages: ILever
 //+--------------------------------------------------------------------------------------+
 //| Creates new (*missing) instrument positions for the logged account;                  |
 //+--------------------------------------------------------------------------------------+
-const publish = async (props: Array<TInstrumentLeverage>) => {
+const merge = async (props: Array<TInstrumentLeverage>) => {
   if (hasValues(props)) {
     const state = await State.Key({ status: `Closed` });
 
-    const promises = props.map(async (position) => {
-      const instrument_position = await Select<IInstrumentPosition>(
-        { account: Session().account, symbol: position.instId, position: position.positionSide },
-        { table: `vw_instrument_positions` }
-      );
+    const promises = props.map(async (prop) => {
+      const instrument_position = (await Fetch({ account: Session().account, symbol: prop.instId, position: prop.positionSide })) ?? [];
 
       if (instrument_position.length === 0) {
-        const promise = Instrument.Key({ symbol: position.instId }) ?? Promise.resolve(undefined);
+        const promise = Instrument.Key({ symbol: prop.instId }) ?? Promise.resolve(undefined);
         const instrument = await promise;
         const instrument_position: Partial<IInstrumentPosition> = {
           instrument_position: hashKey(12),
           account: Session().account,
           instrument,
-          position: position.positionSide,
-          leverage: parseInt(position.leverage),
+          position: prop.positionSide,
+          leverage: parseInt(prop.leverage),
           state,
           update_time: new Date(),
           close_time: new Date(),
@@ -132,10 +129,11 @@ const publish = async (props: Array<TInstrumentLeverage>) => {
       return Promise.resolve(undefined);
     });
     const results = await Promise.all(promises);
-    const success = results.filter(result => result !== null && result !== undefined);
+    const success = results.filter((result) => result !== null && result !== undefined);
     const fail = props.length - success.length;
 
-    console.log(`Published ${success.length} new positions successfully. Failures/Skips: ${fail}`);
+    success.length && console.log(`   # [Info] Instrument.Position.Publish: ${success.length} positions added`);
+    fail && console.log(`   # [Warning] Instrument.Position.Publish: Errors/Skips: ${fail} positions processed`);
   }
 };
 
@@ -144,36 +142,54 @@ const publish = async (props: Array<TInstrumentLeverage>) => {
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrumentPosition>) => {
-  const instrument_position = await Select<IInstrumentPosition>(
-    props.instrument_position
-      ? { instrument_position: props.instrument_position }
-      : { account: props.account || Session().account, instrument: props.instrument, symbol: props.symbol, position: props.position },
-    { table: `instrument_position` }
-  );
-
-  if (instrument_position.length) {
-    const [current] = instrument_position;
-    const state = props.state || (await State.Key({ status: props.status }));
-    const revised: Partial<IInstrumentPosition> = {
-      instrument_position: current.instrument_position,
-      state: isEqual(state!, current.state!) ? undefined : state,
-      strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
-      strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
-      update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
-      close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
-    };
-    const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
-
-    return result ? result : undefined;
+export const Publish = async (props: Array<Partial<IInstrumentPosition>>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
+  if (!(props && props.length)) {
+    return undefined;
   }
+  const promises = props.map(async (prop) => {
+    const promise = Select<IInstrumentPosition>(
+      prop.instrument_position
+        ? { instrument_position: prop.instrument_position }
+        : { account: prop.account || Session().account, instrument: prop.instrument, symbol: prop.symbol, position: prop.position },
+      { table: `instrument_position` }
+    );
+    const state = prop.state || (await State.Key({ status: prop.status }));
+    const instrument_position = await promise;
+
+    if (instrument_position.length) {
+      const [current] = instrument_position;
+      const revised: Partial<IInstrumentPosition> = {
+        instrument_position: current.instrument_position,
+        state: isEqual(state!, current.state!) ? undefined : state,
+        margin_mode: isEqual(prop.margin_mode!, current.margin_mode!) ? undefined : prop.margin_mode,
+        leverage: isEqual(prop.leverage!, current.leverage!) ? undefined : prop.leverage,
+        lot_scale: isEqual(prop.lot_scale!, current.lot_scale!) ? undefined : prop.lot_scale,
+        martingale: isEqual(prop.martingale!, current.martingale!) ? undefined : prop.martingale,
+        period: isEqual(prop.period!, current.period!) ? undefined : prop.period,
+        strict_stops: !!prop.strict_stops === !!current.strict_stops! ? undefined : prop.strict_stops,
+        strict_targets: !!prop.strict_targets === !!current.strict_targets! ? undefined : prop.strict_targets,
+        update_time: isEqual(prop.update_time!, current.update_time!) ? undefined : prop.update_time,
+        close_time: isEqual(prop.close_time!, current.close_time!) ? undefined : prop.close_time,
+      };
+      const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+
+      return result ? result : undefined;
+    }
+
+    const results = await Promise.all(promises);
+    const success = results.filter((result) => result !== null && result !== undefined);
+    const fail = props.length - success.length;
+
+    success.length && console.log(`   # [Info] Instrument.Position.Publish: ${success.length} new positions successfully processed`);
+    fail && console.log(`   # [Warning] Instrument.Position.Publish: Errors/Skips: ${fail} positions processed`);
+  });
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches instrument position data from local db meeting props criteria;               |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IInstrumentPosition>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
-  const result = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
+export const Fetch = async (props: Partial<IInstrumentPosition>, options?: TOptions): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
+  const result = await Select<IInstrumentPosition>(props, { ...options, table: `vw_instrument_positions` });
   return result.length ? result : undefined;
 };
 
@@ -206,6 +222,37 @@ export const Import = async () => {
     });
 
     const results = await Promise.all(promises);
-    await publish(results.flat() as Array<TInstrumentLeverage>);
+    await merge(results.flat() as Array<TInstrumentLeverage>);
+  }
+
+  const missing = await Fetch({ account: Session().account }, { suffix: `AND instrument_position IS NULL` });
+  if (missing && missing.length) {
+    console.log("-> Instrument.Position.Import: Creating missing instrument positions");
+    const promises = missing.map(async (prop) => {
+      const position: Partial<IInstrumentPosition> = {
+        instrument_position: hashKey(12),
+        account: prop.account,
+        instrument: prop.instrument,
+        position: prop.position,
+        leverage: prop.leverage,
+        state: prop.state,
+        period: prop.period,
+        lot_scale: prop.lot_scale,
+        martingale: prop.martingale,
+        strict_stops: prop.strict_stops,
+        strict_targets: prop.strict_targets,
+        update_time: new Date(),
+      };
+      const result = await Insert(position, { table: `instrument_position`, keys: [{ key: `account` }, { key: `instrument` }, { key: `position` }] });
+
+      return result;
+    });
+    
+    const results = await Promise.all(promises);
+    const success = results.filter((result) => result !== null && result !== undefined);
+    const fail = missing.length - success.length;
+
+    success.length && console.log(`   # [Info] Instrument.Position.Publish: ${success.length} positions added`);
+    fail && console.log(`   # [Warning] Instrument.Position.Publish: Errors/Skips: ${fail} positions processed`);
   }
 };

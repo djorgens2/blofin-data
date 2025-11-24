@@ -39,6 +39,7 @@ export const Import = async () => {
     cancelSource: 0,
     priceType: 0,
     marginMode: 0,
+    hedging: 0,
     stopType: 0,
     position: 0,
     orderCategory: 0,
@@ -75,6 +76,12 @@ export const Import = async () => {
   });
   ["last", "index", "mark"].forEach((price_type) => {
     Add("price_type", { price_type }), counts.priceType++;
+  });
+  [
+    { hedging: true, source_ref: "long_short_mode", description: "Hedged" },
+    { hedging: false, source_ref: "net_mode", description: "Unhedged" },
+  ].forEach((mode) => {
+    Add("hedging", mode), counts.hedging++;
   });
   ["cross", "isolated"].forEach((margin_mode) => {
     Add("margin_mode", { margin_mode }), counts.marginMode++;

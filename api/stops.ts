@@ -96,6 +96,7 @@ const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
         order_category,
         price_type: order.priceType,
         action: order.side,
+        margin_mode: order.marginMode,
         size: format(order.size!),
         actual_size: format(order.actualSize!),
         reduce_only: order.reduceOnly === "true",

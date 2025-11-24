@@ -46,6 +46,8 @@ export interface IInstrument {
   status: TSymbol;
   list_time: Date;
   expiry_time: Date;
+  create_time: Date;
+  update_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -57,31 +59,16 @@ export const Publish = async (props: Partial<IInstrument>) => {
   if (instrument) {
     const results = await Fetch({ instrument });
 
-    if (results === undefined) throw new Error(`Unathorized instrument publication; instrument not found`);
-    else {
-      const [current] = results;
-      const revised: Partial<IInstrument> = {
-        instrument: current.instrument,
-        trade_period: isEqual(props.trade_period!, current.trade_period!) ? undefined : props.trade_period,
-        margin_mode: props.margin_mode === current.margin_mode ? undefined : props.margin_mode,
-        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-        lot_scale_factor: isEqual(props.lot_scale_factor!, current.lot_scale_factor!) ? undefined : props.lot_scale_factor,
-        martingale_factor: isEqual(props.martingale_factor!, current.martingale_factor!) ? undefined : props.martingale_factor,
-      };
-      const [result, updates] = await Update(revised, { table: `instrument`, keys: [{ key: `instrument` }] });
-      return result ? result.instrument : undefined;
-    }
+    if (results) return instrument;
+    else throw new Error(`Unathorized instrument publication; instrument not found`);
   } else {
     const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
     const instrument: Partial<IInstrument> = {
       instrument: hashKey(6),
-      trade_period: props.trade_period || (await Periods.Key({ timeframe: `15m` })),
       base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })),
       quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })),
-      margin_mode: props.margin_mode || "cross",
-      leverage: props.leverage || 10,
-      lot_scale_factor: props.lot_scale_factor || 1,
-      martingale_factor: props.martingale_factor || 1,
+      create_time: new Date(),
+      update_time: new Date(),
     };
     const result = await Insert<IInstrument>(instrument, { table: `instrument` });
     return result ? result.instrument : undefined;

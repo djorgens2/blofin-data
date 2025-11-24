@@ -48,11 +48,14 @@ export const Publish = async (props: Partial<IInstrument>) => {
           max_limit_size: isEqual(props.max_limit_size!, current.max_limit_size!) ? undefined : props.max_limit_size,
           max_market_size: isEqual(props.max_market_size!, current.max_market_size!) ? undefined : props.max_market_size,
           list_time: isEqual(props.list_time!, current.list_time) ? undefined : props.list_time,
-          expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
+          expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time
         };
         const [result, updates] = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
-        updates && console.log(`[Info] Instrument Details updated:`, { symbol: current.symbol, updates });
-        return updates ? result!.instrument : undefined;
+        if (result && updates) {
+          const [result, updates] = await Update({ ...revised, update_time: props.update_time || new Date() }, { table: `instrument`, keys: [{ key: `instrument` }] });
+          console.log(`[Info] Instrument Details updated:`, { symbol: current.symbol, updates });
+          return updates ? result!.instrument : undefined;
+        }
       } else {
         const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail` });
         return result ? result.instrument : undefined;
