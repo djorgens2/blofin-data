@@ -19,7 +19,7 @@ if (args.length) {
   const submit = async (request: Partial<IRequest>) => {
     const instrument_position = await IPos.Key({account: Session().account, symbol: req_fcrt_2a.symbol, position: req_fcrt_2a.position});
     const request_type = await References.Key<TRefKey>({ source_ref: req_fcrt_2a.order_type }, { table: `request_type` });
-    const submitted = await Requests.Submit({ ...request, instrument_position, request_type, memo: "Test 2: request w/o expiry; w/o tpsl" });
+    const submitted = await Requests.Submit({ ...request, instrument_position, request_type, memo: "Test 2a: request w/o expiry; w/o tpsl" });
     console.log({ submitted, request });
     return [submitted, request];
   };

@@ -1,3 +1,15 @@
+-> Test 1a: Using Account: {
+  api: '6e03ab69bdd646c1afbc92bc3725edaa',
+  secret: '66b55bde5057499bb8dd078f60d79cce',
+  phrase: 'development_api_key',
+  rest_api_url: 'https://demo-trading-openapi.blofin.com',
+  private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
+  public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
+  account: <Buffer 24 59 7a>,
+  state: 'disconnected',
+  audit_order: '0',
+  audit_stops: '0'
+}
 -> [Info] request inserted {
   fields: [
     'request',
@@ -15,8 +27,8 @@
     'update_time'
   ],
   args: [
-    <Buffer 17 63 d6 ea 3b 75>,
-    <Buffer 62 45 1c 33 17 21>,
+    <Buffer f4 c2 7e 42 5d 3f>,
+    <Buffer 11 9b b0 95 07 bd>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
@@ -25,23 +37,21 @@
     <Buffer b8 32 96>,
     'cross',
     'Test 1a: request w/ expiry; w/o tpsl',
-    2025-11-12T22:41:06.378Z,
-    2025-11-12T22:49:06.348Z,
-    2025-11-12T22:41:06.378Z
+    2025-11-26T02:20:21.932Z,
+    2025-11-26T02:28:21.900Z,
+    2025-11-26T02:20:21.932Z
   ]
 }
 {
-  submitted: <Buffer 17 63 d6 ea 3b 75>,
+  submitted: <Buffer f4 c2 7e 42 5d 3f>,
   request: {
     symbol: 'XRP-USDT',
-    margin_mode: 'cross',
     position: 'short',
     action: 'sell',
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    leverage: 50,
-    expiry_time: 2025-11-12T22:49:06.348Z,
+    expiry_time: 2025-11-26T02:28:21.900Z,
     memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }

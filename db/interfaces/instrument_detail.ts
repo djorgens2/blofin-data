@@ -52,8 +52,7 @@ export const Publish = async (props: Partial<IInstrument>) => {
         };
         const [result, updates] = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
         if (result && updates) {
-          const [result, updates] = await Update({ ...revised, update_time: props.update_time || new Date() }, { table: `instrument`, keys: [{ key: `instrument` }] });
-          console.log(`[Info] Instrument Details updated:`, { symbol: current.symbol, updates });
+          const [result, updates] = await Update({ instrument: current.instrument, update_time: props.update_time || new Date() }, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
           return updates ? result!.instrument : undefined;
         }
       } else {

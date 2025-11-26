@@ -33,8 +33,6 @@ export interface IOrder extends IRequest {
   fee: number;
   pnl: number;
   trade_period: Uint8Array;
-  trade_state: Uint8Array;
-  trade_status: string;
   trade_timeframe: string;
   suspense: boolean;
 }

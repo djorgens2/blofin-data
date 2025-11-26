@@ -28,12 +28,13 @@ import * as path from "path";
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 
 const account = process.env.SEED_ACCOUNT || '24597a';
-config({ account: hexify(account) });
 
 console.log(">> [Info] Application.Initialization start:", new Date().toLocaleString());
-console.log(`-> Seed Account:`, Session());
 
 const initialize = async () => {
+  await config({ account: hexify(account) });
+  console.log(`-> Seed Account:`, Session());
+
   await SubjectAreas.Import();
   await Activity.Import();
   await Authority.Import();

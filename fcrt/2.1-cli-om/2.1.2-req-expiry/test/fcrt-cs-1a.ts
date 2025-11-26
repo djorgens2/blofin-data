@@ -1,7 +1,7 @@
 //----------------------------- order test  -------------------------------------------------------//
 import type { IRequest } from "db/interfaces/request";
 
-import { setSession } from "module/session";
+import { config, Session } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { req_fcrt_1a } from "./request";
 
@@ -12,9 +12,11 @@ import * as Orders from "db/interfaces/order";
 const [cli_account, cli_test] = process.argv.slice(2);
 
 if (cli_account && cli_test) {
-  setSession({ account: hexify(cli_account) });
   
   const submit = async (request: Partial<IRequest>) => {
+    await config({ account: hexify(cli_account) });
+    console.log(`-> Test ${cli_test}: Using Account:`, Session());
+
     const submitted = await Requests.Submit(request);
     console.log({ submitted, request });
     return [submitted, request];
