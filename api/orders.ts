@@ -92,7 +92,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             request_type: request_type ? request_type : undefined,
             margin_mode: order.marginMode,
             reduce_only: order.reduceOnly ? (order.reduceOnly === "true" ? true : false) : undefined,
-            memo: "[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed",
+            memo: source === `History` ? "[Info] Orders.Publish: History updated; order imported" : "[Info] Orders.Publish: New Order received; submitted and processed",
             broker_id: order.brokerId ? order.brokerId : undefined,
             create_time: new Date(parseInt(order.createTime!)),
             update_time: new Date(parseInt(order.updateTime!)),

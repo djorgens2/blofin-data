@@ -186,7 +186,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
           if (props.status === "Hold") {
             const result = await publish(current, {
               ...props,
-              memo: props.memo || `[Info] Request.Submit: Request exists; was put on hold; awaiting cancel for resubmit`,
+              memo: props.memo || `[Info] Request.Submit: Request updated; was put on hold; awaiting cancel for resubmit`,
             });
             return result ? result : undefined;
           } else {

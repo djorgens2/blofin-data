@@ -40,7 +40,12 @@ const processOrders = async () => {
       const rejected = [];
 
       for (const request of expired) {
-        const result = await Request.Submit({ ...request, status: "Expired", update_time: new Date(), memo: request.memo });
+        const result = await Request.Submit({
+          ...request,
+          status: "Expired",
+          update_time: new Date(),
+          memo: request.memo || `[Expired]: Request expired beyond set expiry time`,
+        });
         result ? accepted.push(result) : rejected.push(result);
       }
 

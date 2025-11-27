@@ -13,7 +13,6 @@ import { hashKey } from "lib/crypto.util";
 import { hasValues, isEqual } from "lib/std.util";
 
 import * as Currency from "db/interfaces/currency";
-import * as Periods from "db/interfaces/period";
 
 export interface IInstrument {
   instrument: Uint8Array;
@@ -67,8 +66,7 @@ export const Publish = async (props: Partial<IInstrument>) => {
       instrument: hashKey(6),
       base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })),
       quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })),
-      create_time: new Date(),
-      update_time: new Date(),
+      create_time: new Date()
     };
     const result = await Insert<IInstrument>(instrument, { table: `instrument` });
     return result ? result.instrument : undefined;
