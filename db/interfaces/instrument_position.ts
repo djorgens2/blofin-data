@@ -142,6 +142,43 @@ const merge = async (props: Array<TInstrumentLeverage>) => {
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
+export const Leverage = async (props: Partial<IInstrumentPosition>) => {
+  if (!hasValues(props) || !props.symbol || !props.position || !props.leverage) {
+    return undefined;
+  }
+
+  const promise = Fetch({
+    account: Session().account,
+    symbol: props.symbol,
+    position: props.position,
+    status: "Closed",
+  });
+
+  const instrument_position = await promise;
+
+  if (instrument_position && instrument_position.length > 0) {
+    const [current] = instrument_position;
+    const leverage = isEqual(props.leverage, current.leverage!) ? undefined : props.leverage;
+
+    if (leverage) {
+      const result = (await LeverageAPI.Publish({
+        instId: props.symbol,
+        leverage: leverage.toString(),
+        marginMode: props.margin_mode || current.margin_mode!,
+        positionSide: props.position,
+      })) as IInstrumentPosition;
+      return result ? result.leverage : current.leverage;
+    } else {
+      return undefined;
+    }
+  } else {
+    return undefined;
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Sets the Status for the Instrument Position once updated via API/WSS ;               |
+//+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Array<Partial<IInstrumentPosition>>): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
   if (!(props && props.length)) {
     return undefined;
@@ -216,7 +253,7 @@ export const Import = async () => {
     const batches = createBatches(instruments, 20);
     const promises = batches.map(async (batch) => {
       const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
-      const api = (await LeverageAPI.Fetch([{ symbol: symbols, margin_mode: account.margin_mode! }])) ?? [];
+      const api = ((await LeverageAPI.Fetch([{ symbol: symbols, margin_mode: account.margin_mode! }])) as Array<ILeverageAPI>) ?? [];
       const positions = mergeLeverage(batch, api);
       return positions;
     });
@@ -247,7 +284,7 @@ export const Import = async () => {
 
       return result;
     });
-    
+
     const results = await Promise.all(promises);
     const success = results.filter((result) => result !== null && result !== undefined);
     const fail = missing.length - success.length;

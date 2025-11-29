@@ -9,5 +9,5 @@ export const req_fcrt_1a: Partial<IRequest> = {
   order_type: "limit",
   price: 2.85,
   size: 100,
-  expiry_time: setExpiry("8m"),
+  expiry_time: setExpiry("5m"),
 };

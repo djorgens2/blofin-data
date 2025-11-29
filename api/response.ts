@@ -128,19 +128,24 @@ export const Leverage = async (response: TResponse) => {
       return response.data as Array<ILeverageAPI>;
     }
 
-    const { instId, positionSide, leverage } = response.data;
+    const { instId, positionSide, leverage, marginMode } = response.data;
+    const margin_mode = marginMode || Session().margin_mode;
     const props = {
       account: Session().account,
       instrument: await Instrument.Key({ symbol: instId }),
-      position: positionSide,
+      position: margin_mode === "isolated" ? positionSide : positionSide || undefined,
       leverage: parseInt(leverage),
     };
+    const keys =
+      margin_mode === "isolated" || props.position
+        ? [{ key: `account` }, { key: `instrument` }, { key: `position` }]
+        : [{ key: `account` }, { key: `instrument` }];
     const [result, updates] = await Update<IInstrumentPosition>(props, {
       table: `instrument_position`,
-      keys: [{ key: `account` }, { key: `instrument` }, { key: `position` }],
+      keys,
     });
-    result && updates && console.log("-> Leverage updated:", props);
-    return result ? [response.data] : undefined;
+
+    return result ? (result as IInstrumentPosition) : undefined;
   }
 
   console.log(

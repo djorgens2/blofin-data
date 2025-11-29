@@ -1,4 +1,4 @@
->> [Info] Application.Initialization start: 11/25/2025, 6:00:01 PM
+>> [Info] Application.Initialization start: 11/28/2025, 1:48:05 PM
 -> Seed Account: {
   api: '6e03ab69bdd646c1afbc92bc3725edaa',
   secret: '66b55bde5057499bb8dd078f60d79cce',
@@ -11,23 +11,23 @@
   audit_order: '0',
   audit_stops: '0'
 }
-In Subject.Area.Import: 11/25/2025, 6:00:01 PM
+In Subject.Area.Import: 11/28/2025, 1:48:05 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 11/25/2025, 6:00:01 PM
+In Activity.Import: 11/28/2025, 1:48:05 PM
    # Activity imports:  8 verified
-In Authority.Import: 11/25/2025, 6:00:01 PM
+In Authority.Import: 11/28/2025, 1:48:06 PM
    # Authority imports:  6 verified
-In Broker.Import: 11/25/2025, 6:00:02 PM
+In Broker.Import: 11/28/2025, 1:48:06 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 11/25/2025, 6:00:02 PM
+In Contract.Type.Import: 11/28/2025, 1:48:06 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 11/25/2025, 6:00:02 PM
+In Environment.Import: 11/28/2025, 1:48:06 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 11/25/2025, 6:00:02 PM
+In Instrument.Type.Import: 11/28/2025, 1:48:06 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 11/25/2025, 6:00:02 PM
+In Period.Import: 11/28/2025, 1:48:06 PM
    # Period imports:  15 verified
-In Reference.Import: 11/25/2025, 6:00:03 PM
+In Reference.Import: 11/28/2025, 1:48:07 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -37,57 +37,26 @@ In Reference.Import: 11/25/2025, 6:00:03 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 11/25/2025, 6:00:03 PM
+In Role.Import: 11/28/2025, 1:48:07 PM
    # Role imports:  4 verified
-In State.Import: 11/25/2025, 6:00:03 PM
+In State.Import: 11/28/2025, 1:48:07 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 11/25/2025, 6:00:04 PM
+In Instruments.Import [API]: 11/28/2025, 1:48:08 PM
 -> Instrument:Publish [API]
-In Instruments.Fetch [API]: 11/25/2025, 6:00:06 PM
+In Instruments.Fetch [API]: 11/28/2025, 1:48:10 PM
 -> Instrument.Position.Import [API]
 -> Leverage.Fetch [API]
 -> Leverage.Fetch [API]
-   # [Warning] Instrument.Position.Publish: Errors/Skips: 66 positions processed
->> [Info] Application.Initialization finished: 11/25/2025, 6:00:08 PM
-Connected to websocket: [797516:wss://demo-trading-openapi.blofin.com/ws/private]
+   # [Warning] Instrument.Position.Publish: Errors/Skips: 64 positions processed
+>> [Info] Application.Initialization finished: 11/28/2025, 1:48:12 PM
+Connected to websocket: [1119689:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:00:09.192Z }
-}
--> Candle:Publish [API]: BTC-USDT / 8
--> Candle:Publish [API]: PONKE-USDT / 8
--> Candle:Publish [API]: XRP-USDT / 8
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:45:00.000Z,
-    88053,
-    87862.7,
-    87811,
-    87862.7,
-    30.6606,
-    30.6606,
-    2696443.37783,
-    true
-  ]
+  columns: { total_equity: 55162.851, update_time: 2025-11-28T21:48:13.470Z }
 }
 -> [Info] candle inserted {
   fields: [
@@ -104,46 +73,37 @@ Subscriptions: { channel: 'orders' }
     'completed'
   ],
   args: [
-    <Buffer 03 8d 38>,
+    <Buffer 54 e7 5e>,
     <Buffer 03 e8 0e>,
-    2025-11-26T01:45:00.000Z,
-    0.03854,
-    0.03818,
-    0.03818,
-    0.03818,
-    300,
-    300,
-    11.4568,
+    2025-11-28T21:45:00.000Z,
+    2.1887,
+    2.1856,
+    2.1851,
+    2.1856,
+    29516,
+    29516,
+    64546.0127,
     false
   ]
 }
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:45:00.000Z,
-    2.2073,
-    2.2019,
-    2.2004,
-    2.2019,
-    134904,
-    134904,
-    297143.0401,
-    true
-  ]
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55162.851, coin_usd_price: 1.000195 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 54 e7 5e>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-11-28T21:30:00.000Z
+  },
+  columns: {
+    high: 2.1907,
+    close: 2.1887,
+    volume: 1537,
+    vol_currency: 153744,
+    vol_currency_quote: 335955.6955,
+    completed: true
+  }
 }
 -> [Info] candle inserted {
   fields: [
@@ -162,483 +122,33 @@ Subscriptions: { channel: 'orders' }
   args: [
     <Buffer 5e 05 55>,
     <Buffer 03 e8 0e>,
-    2025-11-26T01:30:00.000Z,
-    87530.7,
-    88020.8,
-    87504.9,
-    88020.8,
-    66.3253,
-    66.3253,
-    5835067.38938,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:30:00.000Z,
-    0.03807,
-    0.03854,
-    0.03806,
-    0.03854,
-    1120,
-    1120,
-    42.8361,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:30:00.000Z,
-    2.199,
-    2.207,
-    2.1976,
-    2.207,
-    247819,
-    247819,
-    546445.1241,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:15:00.000Z,
-    87476.3,
-    87510.9,
-    87363.9,
-    87510.9,
-    22.1494,
-    22.1494,
-    1939096.70115,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:15:00.000Z,
-    0.03798,
-    0.03807,
-    0.03787,
-    0.03807,
-    970,
-    970,
-    36.8149,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:15:00.000Z,
-    2.1917,
-    2.199,
-    2.1896,
-    2.199,
-    192876,
-    192876,
-    423038.0419,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:00:00.000Z,
-    87529.3,
-    87485.5,
-    87275,
-    87485.5,
-    21.3677,
-    21.3677,
-    1867427.05754,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:45:00.000Z,
-    87488.4,
-    87518.3,
-    87425.7,
-    87518.3,
-    9.9972,
-    9.9972,
-    875351.24476,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:00:00.000Z,
-    2.1939,
-    2.1922,
-    2.1863,
-    2.1922,
-    185415,
-    185415,
-    406298.3099,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T01:00:00.000Z,
-    0.03802,
-    0.03798,
-    0.0379,
-    0.03798,
-    800,
-    800,
-    30.3427,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:30:00.000Z,
-    87594.7,
-    87475.3,
-    87334.8,
-    87475.3,
-    14.7593,
-    14.7593,
-    1292210.14178,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:45:00.000Z,
-    0.03797,
-    0.03802,
-    0.03797,
-    0.03802,
-    1210,
-    1210,
-    46.0343,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:45:00.000Z,
-    2.1941,
-    2.1939,
-    2.1904,
-    2.1939,
-    127102,
-    127102,
-    278956.8132,
-    true
+    2025-11-28T21:45:00.000Z,
+    91186,
+    91112.7,
+    91086.8,
+    91112.7,
+    11.9056,
+    11.9056,
+    1084661.60609,
+    false
   ]
 }
 -> [Info] candle updated {
   filters: {
     instrument: <Buffer 5e 05 55>,
     period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:15:00.000Z
+    bar_time: 2025-11-28T21:30:00.000Z
   },
   columns: {
-    high: 87759.2,
-    close: 87594.6,
-    volume: 18634,
-    vol_currency: 18.6348,
-    vol_currency_quote: 1631670.93694,
+    high: 91205.9,
+    close: 91187.8,
+    volume: 21072,
+    vol_currency: 21.0729,
+    vol_currency_quote: 1920184.61597,
     completed: true
   }
 }
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:30:00.000Z,
-    0.0379,
-    0.03797,
-    0.03789,
-    0.03797,
-    760,
-    760,
-    28.8417,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T00:30:00.000Z,
-    2.1991,
-    2.1943,
-    2.1908,
-    2.1943,
-    164488,
-    164488,
-    361192.4841,
-    true
-  ]
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:00:00.000Z
-  },
-  columns: { high: 87589.1, volume: 10601 }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 54 e7 5e>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:15:00.000Z
-  },
-  columns: {
-    high: 2.2078,
-    low: 2.1953,
-    close: 2.199,
-    volume: 2031,
-    vol_currency: 203140,
-    vol_currency_quote: 447123.4199,
-    completed: true
-  }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 03 8d 38>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:15:00.000Z
-  },
-  columns: {
-    high: 0.03807,
-    low: 0.03786,
-    close: 0.0379,
-    volume: 115,
-    vol_currency: 1150,
-    vol_currency_quote: 43.6345,
-    completed: true
-  }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 54 e7 5e>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:00:00.000Z
-  },
-  columns: { high: 2.2059, volume: 2208 }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 03 8d 38>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T00:00:00.000Z
-  },
-  columns: { high: 0.03813, volume: 134 }
-}
-Array successfully written to ./log/BTC-USDT.process.log
-Array successfully written to ./log/XRP-USDT.process.log
-In Execute.Trades: 11/25/2025, 6:00:37 PM
+In Execute.Trades: 11/28/2025, 1:48:42 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -694,7 +204,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T08:54:47.611Z,
     2025-01-28T16:54:47.611Z,
     2025-01-28T08:54:47.694Z
@@ -752,7 +262,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T12:46:57.164Z,
     2025-01-23T20:46:57.164Z,
     2025-01-23T12:46:57.246Z
@@ -810,7 +320,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T10:16:53.437Z,
     2025-01-23T18:16:53.437Z,
     2025-01-23T10:16:53.527Z
@@ -866,7 +376,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T07:41:23.553Z,
     2025-01-23T15:41:23.553Z,
     2025-01-29T03:32:10.122Z
@@ -922,7 +432,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T07:40:15.630Z,
     2025-01-23T15:40:15.630Z,
     2025-01-23T07:40:15.740Z
@@ -978,7 +488,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T07:34:06.266Z,
     2025-01-23T15:34:06.266Z,
     2025-01-23T14:36:55.994Z
@@ -1034,7 +544,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-23T07:32:57.201Z,
     2025-01-23T15:32:57.201Z,
     2025-01-23T07:32:57.303Z
@@ -1092,7 +602,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-21T11:42:03.996Z,
     2025-01-21T19:42:03.996Z,
     2025-01-21T11:42:04.104Z
@@ -1148,7 +658,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-21T11:34:51.579Z,
     2025-01-21T19:34:51.579Z,
     2025-01-21T11:34:51.702Z
@@ -1204,7 +714,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-21T11:34:14.141Z,
     2025-01-21T19:34:14.141Z,
     2025-01-21T11:34:14.229Z
@@ -1262,7 +772,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-20T19:49:20.725Z,
     2025-01-21T03:49:20.725Z,
     2025-01-20T19:49:20.822Z
@@ -1318,7 +828,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-20T09:09:55.544Z,
     2025-01-20T17:09:55.544Z,
     2025-01-20T09:09:55.624Z
@@ -1374,7 +884,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-20T03:32:54.623Z,
     2025-01-20T11:32:54.623Z,
     2025-01-20T06:02:59.760Z
@@ -1430,7 +940,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-20T03:28:13.265Z,
     2025-01-20T11:28:13.265Z,
     2025-01-20T03:28:13.354Z
@@ -1488,7 +998,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-20T02:03:15.636Z,
     2025-01-20T10:03:15.636Z,
     2025-01-20T02:03:15.743Z
@@ -1546,7 +1056,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-19T22:07:43.782Z,
     2025-01-20T06:07:43.782Z,
     2025-01-19T22:07:43.882Z
@@ -1602,7 +1112,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-19T15:48:34.427Z,
     2025-01-19T23:48:34.427Z,
     2025-01-19T17:52:54.062Z
@@ -1658,7 +1168,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-19T15:46:30.421Z,
     2025-01-19T23:46:30.421Z,
     2025-01-19T15:46:30.573Z
@@ -1714,7 +1224,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-14T01:57:03.470Z,
     2025-01-14T09:57:03.470Z,
     2025-01-14T01:57:03.552Z
@@ -1770,7 +1280,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-14T01:56:07.462Z,
     2025-01-14T09:56:07.462Z,
     2025-01-14T01:56:07.555Z
@@ -1782,7 +1292,16 @@ In Stop.Orders.Import [API]
 -> Fetch:Pending [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [40]:  35 published
-In Execute.Trades: 11/25/2025, 6:01:06 PM
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-28T21:48:48.681Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-11-28T21:48:48.688Z }
+}
+In Execute.Trades: 11/28/2025, 1:49:11 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -1838,7 +1357,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:45:22.571Z,
     2025-01-28T19:45:22.571Z,
     2025-01-28T11:45:22.657Z
@@ -1894,7 +1413,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:39:13.954Z,
     2025-01-28T19:39:13.954Z,
     2025-01-28T11:39:14.047Z
@@ -1950,7 +1469,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:38:40.444Z,
     2025-01-28T19:38:40.444Z,
     2025-01-28T11:38:40.529Z
@@ -2006,7 +1525,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:37:43.305Z,
     2025-01-28T19:37:43.305Z,
     2025-01-28T11:37:43.387Z
@@ -2064,7 +1583,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:37:43.185Z,
     2025-01-28T19:37:43.185Z,
     2025-01-28T11:37:43.279Z
@@ -2122,7 +1641,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:36:16.336Z,
     2025-01-28T19:36:16.336Z,
     2025-01-28T11:36:16.417Z
@@ -2178,7 +1697,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:30:40.181Z,
     2025-01-28T19:30:40.181Z,
     2025-01-28T11:30:40.263Z
@@ -2236,7 +1755,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:29:39.076Z,
     2025-01-28T19:29:39.076Z,
     2025-01-28T11:29:39.167Z
@@ -2294,7 +1813,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:23:12.659Z,
     2025-01-28T19:23:12.659Z,
     2025-01-28T11:23:12.741Z
@@ -2352,7 +1871,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:22:04.343Z,
     2025-01-28T19:22:04.343Z,
     2025-01-28T11:22:04.428Z
@@ -2410,7 +1929,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:21:53.941Z,
     2025-01-28T19:21:53.941Z,
     2025-01-28T11:21:54.036Z
@@ -2468,7 +1987,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:20:57.808Z,
     2025-01-28T19:20:57.808Z,
     2025-01-28T11:20:57.890Z
@@ -2524,7 +2043,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:14:14.194Z,
     2025-01-28T19:14:14.194Z,
     2025-01-28T11:14:14.297Z
@@ -2580,7 +2099,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:12:56.732Z,
     2025-01-28T19:12:56.732Z,
     2025-01-28T11:12:56.836Z
@@ -2636,7 +2155,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:11:45.654Z,
     2025-01-28T19:11:45.654Z,
     2025-01-28T11:11:45.751Z
@@ -2692,7 +2211,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:11:04.574Z,
     2025-01-28T19:11:04.574Z,
     2025-01-28T11:11:04.671Z
@@ -2748,7 +2267,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:10:25.593Z,
     2025-01-28T19:10:25.593Z,
     2025-01-28T11:10:25.682Z
@@ -2804,7 +2323,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T09:21:24.515Z,
     2025-01-28T17:21:24.515Z,
     2025-01-28T09:21:24.607Z
@@ -2860,7 +2379,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T09:01:10.240Z,
     2025-01-28T17:01:10.240Z,
     2025-01-28T09:01:10.320Z
@@ -2916,7 +2435,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T09:00:01.034Z,
     2025-01-28T17:00:01.034Z,
     2025-01-28T09:00:02.396Z
@@ -2928,7 +2447,7 @@ In Stop.Orders.Import [API]
 -> Fetch:Pending [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [40]:  31 published
-In Execute.Trades: 11/25/2025, 6:01:35 PM
+In Execute.Trades: 11/28/2025, 1:49:40 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -2986,7 +2505,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T20:31:27.132Z,
     2025-01-29T04:31:27.132Z,
     2025-01-28T20:31:27.257Z
@@ -3044,7 +2563,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:35:28.702Z,
     2025-01-28T20:35:28.702Z,
     2025-01-28T12:35:28.787Z
@@ -3100,7 +2619,7 @@ In Orders.Import [API]
     20,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:30:38.076Z,
     2025-01-28T20:30:38.076Z,
     2025-01-28T12:30:38.189Z
@@ -3156,7 +2675,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:24:34.183Z,
     2025-01-28T20:24:34.183Z,
     2025-01-28T12:24:34.264Z
@@ -3212,7 +2731,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:23:40.431Z,
     2025-01-28T20:23:40.431Z,
     2025-01-28T12:23:40.512Z
@@ -3268,7 +2787,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:20:23.796Z,
     2025-01-28T20:20:23.796Z,
     2025-01-28T12:20:23.885Z
@@ -3324,7 +2843,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:19:35.058Z,
     2025-01-28T20:19:35.058Z,
     2025-01-28T12:19:35.141Z
@@ -3380,7 +2899,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:16:05.069Z,
     2025-01-28T20:16:05.069Z,
     2025-01-28T12:16:05.163Z
@@ -3438,7 +2957,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:15:46.625Z,
     2025-01-28T20:15:46.625Z,
     2025-01-28T12:15:46.703Z
@@ -3494,7 +3013,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:08:23.487Z,
     2025-01-28T20:08:23.487Z,
     2025-01-28T12:08:23.570Z
@@ -3550,7 +3069,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:07:47.018Z,
     2025-01-28T20:07:47.018Z,
     2025-01-28T12:07:47.098Z
@@ -3606,7 +3125,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:05:09.033Z,
     2025-01-28T20:05:09.033Z,
     2025-01-28T12:05:09.121Z
@@ -3662,7 +3181,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:04:48.400Z,
     2025-01-28T20:04:48.400Z,
     2025-01-28T12:04:48.484Z
@@ -3720,7 +3239,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T12:04:16.355Z,
     2025-01-28T20:04:16.355Z,
     2025-01-28T12:04:16.472Z
@@ -3776,7 +3295,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:54:54.729Z,
     2025-01-28T19:54:54.729Z,
     2025-01-28T11:54:54.816Z
@@ -3834,7 +3353,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:54:54.602Z,
     2025-01-28T19:54:54.602Z,
     2025-01-28T11:54:54.685Z
@@ -3890,7 +3409,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:54:48.126Z,
     2025-01-28T19:54:48.126Z,
     2025-01-28T11:54:48.211Z
@@ -3948,7 +3467,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:54:48.005Z,
     2025-01-28T19:54:48.005Z,
     2025-01-28T11:54:48.095Z
@@ -4004,7 +3523,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:46:51.165Z,
     2025-01-28T19:46:51.165Z,
     2025-01-28T11:46:51.239Z
@@ -4060,7 +3579,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-28T11:45:57.617Z,
     2025-01-28T19:45:57.617Z,
     2025-01-28T11:45:57.697Z
@@ -4072,7 +3591,7 @@ In Stop.Orders.Import [API]
 -> Fetch:Pending [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [40]:  20 published
-In Execute.Trades: 11/25/2025, 6:02:04 PM
+In Execute.Trades: 11/28/2025, 1:50:09 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -4128,7 +3647,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T23:39:55.053Z,
     2025-01-31T07:39:55.053Z,
     2025-01-31T12:19:46.455Z
@@ -4184,7 +3703,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T23:38:04.548Z,
     2025-01-31T07:38:04.548Z,
     2025-01-31T00:09:47.206Z
@@ -4240,7 +3759,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T23:33:24.069Z,
     2025-01-31T07:33:24.069Z,
     2025-01-30T23:33:24.163Z
@@ -4298,7 +3817,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T14:51:39.972Z,
     2025-01-30T22:51:39.972Z,
     2025-01-30T14:51:40.105Z
@@ -4354,7 +3873,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T09:48:56.694Z,
     2025-01-30T17:48:56.694Z,
     2025-01-30T09:48:56.791Z
@@ -4410,7 +3929,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T08:14:39.789Z,
     2025-01-30T16:14:39.789Z,
     2025-01-30T08:14:39.874Z
@@ -4466,7 +3985,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-30T07:38:39.930Z,
     2025-01-30T15:38:39.930Z,
     2025-01-30T07:38:40.014Z
@@ -4524,7 +4043,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T23:15:15.162Z,
     2025-01-30T07:15:15.162Z,
     2025-01-29T23:15:15.245Z
@@ -4580,7 +4099,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T23:01:09.200Z,
     2025-01-30T07:01:09.200Z,
     2025-01-29T23:01:09.293Z
@@ -4638,7 +4157,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T22:31:17.100Z,
     2025-01-30T06:31:17.100Z,
     2025-01-29T22:31:17.189Z
@@ -4694,7 +4213,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T22:05:49.195Z,
     2025-01-30T06:05:49.195Z,
     2025-01-29T22:05:49.274Z
@@ -4750,7 +4269,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T20:37:08.815Z,
     2025-01-30T04:37:08.815Z,
     2025-01-29T20:37:08.896Z
@@ -4806,7 +4325,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T20:02:27.341Z,
     2025-01-30T04:02:27.341Z,
     2025-01-29T20:02:27.425Z
@@ -4862,7 +4381,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T20:01:20.816Z,
     2025-01-30T04:01:20.816Z,
     2025-01-29T20:01:20.912Z
@@ -4918,7 +4437,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T20:01:02.172Z,
     2025-01-30T04:01:02.172Z,
     2025-01-29T20:01:02.314Z
@@ -4974,7 +4493,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T19:03:08.072Z,
     2025-01-30T03:03:08.072Z,
     2025-01-29T19:03:08.159Z
@@ -5032,7 +4551,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T18:43:56.925Z,
     2025-01-30T02:43:56.925Z,
     2025-01-29T18:43:57.010Z
@@ -5088,7 +4607,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T06:09:54.295Z,
     2025-01-29T14:09:54.295Z,
     2025-01-29T06:09:54.412Z
@@ -5144,7 +4663,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T04:05:51.054Z,
     2025-01-29T12:05:51.054Z,
     2025-01-29T04:05:51.151Z
@@ -5200,7 +4719,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-29T03:36:24.899Z,
     2025-01-29T11:36:24.899Z,
     2025-01-29T04:05:05.108Z
@@ -5212,7 +4731,7 @@ In Stop.Orders.Import [API]
 -> Fetch:Pending [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [38]:  19 published
-In Execute.Trades: 11/25/2025, 6:02:33 PM
+In Execute.Trades: 11/28/2025, 1:50:38 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -5270,7 +4789,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-07T23:12:47.507Z,
     2025-06-08T07:12:47.507Z,
     2025-06-07T23:12:47.635Z
@@ -5328,7 +4847,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-02-01T18:26:14.279Z,
     2025-02-02T02:26:14.279Z,
     2025-02-01T18:26:14.361Z
@@ -5386,7 +4905,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-02-01T09:36:56.232Z,
     2025-02-01T17:36:56.232Z,
     2025-02-01T09:36:56.344Z
@@ -5444,7 +4963,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T10:12:32.708Z,
     2025-01-31T18:12:32.708Z,
     2025-01-31T10:12:32.799Z
@@ -5500,7 +5019,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:38:19.290Z,
     2025-01-31T17:38:19.290Z,
     2025-01-31T10:14:35.338Z
@@ -5556,7 +5075,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:36:04.833Z,
     2025-01-31T17:36:04.833Z,
     2025-01-31T09:43:08.886Z
@@ -5612,7 +5131,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:18:03.677Z,
     2025-01-31T17:18:03.677Z,
     2025-01-31T09:27:47.766Z
@@ -5668,7 +5187,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:17:05.531Z,
     2025-01-31T17:17:05.531Z,
     2025-01-31T09:33:48.070Z
@@ -5724,7 +5243,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:16:28.687Z,
     2025-01-31T17:16:28.687Z,
     2025-01-31T09:16:28.771Z
@@ -5780,7 +5299,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T09:15:32.482Z,
     2025-01-31T17:15:32.482Z,
     2025-01-31T09:31:34.797Z
@@ -5838,7 +5357,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T06:16:22.676Z,
     2025-01-31T14:16:22.676Z,
     2025-01-31T06:16:22.761Z
@@ -5896,7 +5415,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T04:57:28.732Z,
     2025-01-31T12:57:28.732Z,
     2025-01-31T04:57:28.811Z
@@ -5952,7 +5471,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T03:20:11.995Z,
     2025-01-31T11:20:11.995Z,
     2025-01-31T09:33:52.272Z
@@ -6008,7 +5527,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T02:57:00.972Z,
     2025-01-31T10:57:00.972Z,
     2025-01-31T03:05:34.849Z
@@ -6064,7 +5583,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T02:55:08.413Z,
     2025-01-31T10:55:08.413Z,
     2025-01-31T03:06:17.939Z
@@ -6120,7 +5639,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T02:13:55.996Z,
     2025-01-31T10:13:55.996Z,
     2025-01-31T02:16:13.806Z
@@ -6176,7 +5695,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T01:17:09.743Z,
     2025-01-31T09:17:09.743Z,
     2025-01-31T01:53:33.785Z
@@ -6232,7 +5751,7 @@ In Orders.Import [API]
     25,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T01:14:14.043Z,
     2025-01-31T09:14:14.043Z,
     2025-01-31T07:07:53.251Z
@@ -6288,7 +5807,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T00:33:14.625Z,
     2025-01-31T08:33:14.625Z,
     2025-01-31T01:19:34.694Z
@@ -6344,7 +5863,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-01-31T00:21:37.322Z,
     2025-01-31T08:21:37.322Z,
     2025-01-31T00:25:16.941Z
@@ -6354,7 +5873,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:03:02 PM
+In Execute.Trades: 11/28/2025, 1:51:07 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -6410,7 +5929,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-12T10:47:30.914Z,
     2025-06-12T18:47:30.914Z,
     2025-06-12T11:28:11.248Z
@@ -6466,7 +5985,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-12T10:42:46.592Z,
     2025-06-12T18:42:46.592Z,
     2025-06-12T10:45:16.220Z
@@ -6524,7 +6043,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-12T04:20:14.112Z,
     2025-06-12T12:20:14.112Z,
     2025-06-12T04:20:14.231Z
@@ -6580,7 +6099,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-10T21:56:13.915Z,
     2025-06-11T05:56:13.915Z,
     2025-06-10T21:56:14.003Z
@@ -6638,7 +6157,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-10T20:10:28.275Z,
     2025-06-11T04:10:28.275Z,
     2025-06-10T20:10:28.357Z
@@ -6694,7 +6213,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-10T06:21:06.349Z,
     2025-06-10T14:21:06.349Z,
     2025-06-10T07:34:30.455Z
@@ -6752,7 +6271,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'isolated',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-09T17:48:01.109Z,
     2025-06-10T01:48:01.109Z,
     2025-06-09T17:48:01.694Z
@@ -6810,7 +6329,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-09T17:48:01.109Z,
     2025-06-10T01:48:01.109Z,
     2025-06-09T17:48:01.466Z
@@ -6866,7 +6385,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'isolated',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T12:27:49.945Z,
     2025-06-08T20:27:49.945Z,
     2025-06-08T12:35:56.823Z
@@ -6922,7 +6441,7 @@ In Orders.Import [API]
     3,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T11:46:52.019Z,
     2025-06-08T19:46:52.019Z,
     2025-06-08T11:46:52.099Z
@@ -6980,7 +6499,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T11:44:45.154Z,
     2025-06-08T19:44:45.154Z,
     2025-06-08T11:44:45.233Z
@@ -7036,7 +6555,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T11:39:52.877Z,
     2025-06-08T19:39:52.877Z,
     2025-06-08T11:39:52.962Z
@@ -7092,7 +6611,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T10:45:22.969Z,
     2025-06-08T18:45:22.969Z,
     2025-06-08T11:03:31.755Z
@@ -7148,7 +6667,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T09:14:17.266Z,
     2025-06-08T17:14:17.266Z,
     2025-06-08T09:14:22.434Z
@@ -7204,7 +6723,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T07:50:42.245Z,
     2025-06-08T15:50:42.245Z,
     2025-06-08T11:44:54.366Z
@@ -7260,7 +6779,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T07:26:08.315Z,
     2025-06-08T15:26:08.315Z,
     2025-06-08T10:13:13.653Z
@@ -7316,7 +6835,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-08T07:00:04.959Z,
     2025-06-08T15:00:04.959Z,
     2025-06-08T10:13:16.017Z
@@ -7372,7 +6891,7 @@ In Orders.Import [API]
     5,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-07T23:36:33.844Z,
     2025-06-08T07:36:33.844Z,
     2025-06-07T23:36:33.947Z
@@ -7430,7 +6949,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-07T23:12:58.058Z,
     2025-06-08T07:12:58.058Z,
     2025-06-07T23:12:58.349Z
@@ -7488,7 +7007,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-07T23:12:51.063Z,
     2025-06-08T07:12:51.063Z,
     2025-06-07T23:12:51.178Z
@@ -7498,7 +7017,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:03:31 PM
+In Execute.Trades: 11/28/2025, 1:51:36 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -7556,7 +7075,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-20T16:56:03.812Z,
     2025-06-21T00:56:03.812Z,
     2025-06-20T16:56:03.895Z
@@ -7614,7 +7133,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-18T21:38:39.444Z,
     2025-06-19T05:38:39.444Z,
     2025-06-21T21:24:45.391Z
@@ -7670,7 +7189,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-18T09:45:37.016Z,
     2025-06-18T17:45:37.016Z,
     2025-06-18T14:20:35.680Z
@@ -7728,7 +7247,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-16T19:01:11.117Z,
     2025-06-17T03:01:11.117Z,
     2025-06-16T19:07:05.418Z
@@ -7786,7 +7305,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-15T21:19:43.822Z,
     2025-06-16T05:19:43.822Z,
     2025-06-20T17:40:13.582Z
@@ -8108,7 +7627,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-15T19:24:54.935Z,
     2025-06-16T03:24:54.935Z,
     2025-06-15T19:37:45.993Z
@@ -8166,7 +7685,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-14T20:39:08.392Z,
     2025-06-15T04:39:08.392Z,
     2025-06-15T19:37:47.756Z
@@ -8246,7 +7765,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-13T20:13:25.423Z,
     2025-06-14T04:13:25.423Z,
     2025-06-13T20:23:47.738Z
@@ -8256,21 +7775,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 55135.964, update_time: 2025-11-26T02:03:48.690Z }
-}
--> WSS.Publish [API]
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 55135.964, coin_usd_price: 0.999707 }
-}
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:03:49.504Z }
-}
-In Execute.Trades: 11/25/2025, 6:04:00 PM
+In Execute.Trades: 11/28/2025, 1:52:05 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -8326,7 +7831,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T06:19:52.906Z,
     2025-06-23T14:19:52.906Z,
     2025-06-23T06:20:54.221Z
@@ -8384,7 +7889,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T07:39:51.535Z,
     2025-06-22T15:39:51.535Z,
     2025-06-22T13:28:32.168Z
@@ -8442,7 +7947,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T07:39:51.534Z,
     2025-06-22T15:39:51.534Z,
     2025-06-22T13:28:32.135Z
@@ -8498,7 +8003,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T07:39:49.378Z,
     2025-06-22T15:39:49.378Z,
     2025-06-22T07:39:49.853Z
@@ -8556,7 +8061,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T00:28:35.877Z,
     2025-06-22T08:28:35.877Z,
     2025-06-22T00:47:56.117Z
@@ -8614,7 +8119,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T00:28:06.937Z,
     2025-06-22T08:28:06.937Z,
     2025-06-22T00:47:56.114Z
@@ -8670,7 +8175,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-22T00:27:58.641Z,
     2025-06-22T08:27:58.641Z,
     2025-06-22T00:47:56.117Z
@@ -8726,7 +8231,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T23:42:05.095Z,
     2025-06-22T07:42:05.095Z,
     2025-06-21T23:42:05.482Z
@@ -8782,7 +8287,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T22:04:46.104Z,
     2025-06-22T06:04:46.104Z,
     2025-06-21T22:04:46.455Z
@@ -8838,7 +8343,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T22:02:37.104Z,
     2025-06-22T06:02:37.104Z,
     2025-06-21T22:02:37.455Z
@@ -8894,7 +8399,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T22:00:12.554Z,
     2025-06-22T06:00:12.554Z,
     2025-06-21T22:00:12.902Z
@@ -8950,7 +8455,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:49:04.440Z,
     2025-06-22T05:49:04.440Z,
     2025-06-21T21:49:04.692Z
@@ -9006,7 +8511,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:46:12.422Z,
     2025-06-22T05:46:12.422Z,
     2025-06-21T21:46:12.763Z
@@ -9062,7 +8567,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:45:04.293Z,
     2025-06-22T05:45:04.293Z,
     2025-06-21T21:45:04.682Z
@@ -9118,7 +8623,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:44:02.476Z,
     2025-06-22T05:44:02.476Z,
     2025-06-21T21:44:02.839Z
@@ -9174,7 +8679,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:35:49.304Z,
     2025-06-22T05:35:49.304Z,
     2025-06-21T21:35:49.654Z
@@ -9230,7 +8735,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:07:35.213Z,
     2025-06-22T05:07:35.213Z,
     2025-06-21T21:07:35.572Z
@@ -9286,7 +8791,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T21:01:50.223Z,
     2025-06-22T05:01:50.223Z,
     2025-06-21T21:01:50.755Z
@@ -9342,7 +8847,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-21T20:33:03.635Z,
     2025-06-22T04:33:03.635Z,
     2025-06-21T20:33:04.300Z
@@ -9398,7 +8903,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-20T16:56:03.928Z,
     2025-06-21T00:56:03.928Z,
     2025-06-20T16:56:04.001Z
@@ -9408,7 +8913,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:04:29 PM
+In Execute.Trades: 11/28/2025, 1:52:34 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -9464,7 +8969,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T07:49:22.053Z,
     2025-06-24T15:49:22.053Z,
     2025-06-24T07:49:22.611Z
@@ -9520,7 +9025,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T07:47:58.962Z,
     2025-06-24T15:47:58.962Z,
     2025-06-24T07:47:59.640Z
@@ -9576,7 +9081,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T06:11:57.418Z,
     2025-06-24T14:11:57.418Z,
     2025-06-24T06:11:58.214Z
@@ -9632,7 +9137,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T06:10:32.769Z,
     2025-06-24T14:10:32.769Z,
     2025-06-24T06:10:33.468Z
@@ -9688,7 +9193,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T05:53:49.810Z,
     2025-06-24T13:53:49.810Z,
     2025-06-24T05:53:50.460Z
@@ -9746,7 +9251,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T00:08:43.746Z,
     2025-06-24T08:08:43.746Z,
     2025-06-24T00:08:43.802Z
@@ -9802,7 +9307,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T14:34:30.783Z,
     2025-06-23T22:34:30.783Z,
     2025-06-23T14:36:01.574Z
@@ -9860,7 +9365,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T13:36:15.214Z,
     2025-06-23T21:36:15.214Z,
     2025-06-23T13:36:15.267Z
@@ -9916,7 +9421,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T13:10:37.565Z,
     2025-06-23T21:10:37.565Z,
     2025-06-23T13:10:38.241Z
@@ -9972,7 +9477,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:54:25.872Z,
     2025-06-23T15:54:25.872Z,
     2025-06-23T07:54:32.544Z
@@ -10028,7 +9533,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:53:52.183Z,
     2025-06-23T15:53:52.183Z,
     2025-06-23T07:53:52.968Z
@@ -10084,7 +9589,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:49:12.667Z,
     2025-06-23T15:49:12.667Z,
     2025-06-23T07:50:41.912Z
@@ -10140,7 +9645,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:47:28.002Z,
     2025-06-23T15:47:28.002Z,
     2025-06-23T07:47:28.222Z
@@ -10196,7 +9701,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:46:18.038Z,
     2025-06-23T15:46:18.038Z,
     2025-06-23T07:46:18.389Z
@@ -10252,7 +9757,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:45:01.544Z,
     2025-06-23T15:45:01.544Z,
     2025-06-23T07:45:01.793Z
@@ -10308,7 +9813,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:17:26.670Z,
     2025-06-23T15:17:26.670Z,
     2025-06-23T07:17:27.020Z
@@ -10364,7 +9869,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:14:20.863Z,
     2025-06-23T15:14:20.863Z,
     2025-06-23T07:14:37.227Z
@@ -10420,7 +9925,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:14:00.329Z,
     2025-06-23T15:14:00.329Z,
     2025-06-23T07:14:37.227Z
@@ -10476,7 +9981,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:13:19.158Z,
     2025-06-23T15:13:19.158Z,
     2025-06-23T07:14:37.226Z
@@ -10532,7 +10037,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-23T07:02:12.266Z,
     2025-06-23T15:02:12.266Z,
     2025-06-23T07:11:38.442Z
@@ -10542,7 +10047,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:04:59 PM
+In Execute.Trades: 11/28/2025, 1:53:03 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -10598,7 +10103,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-11T06:48:04.174Z,
     2025-07-11T14:48:04.174Z,
     2025-07-11T07:28:48.950Z
@@ -10654,7 +10159,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-10T21:46:23.997Z,
     2025-07-11T05:46:23.997Z,
     2025-07-10T21:48:53.145Z
@@ -10710,7 +10215,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-10T18:37:54.510Z,
     2025-07-11T02:37:54.510Z,
     2025-07-10T18:54:02.495Z
@@ -10766,7 +10271,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-09T08:30:19.055Z,
     2025-07-09T16:30:19.055Z,
     2025-07-09T09:30:45.567Z
@@ -10824,7 +10329,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-08T00:23:36.660Z,
     2025-07-08T08:23:36.660Z,
     2025-07-08T13:45:03.808Z
@@ -10880,7 +10385,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-07T10:20:22.767Z,
     2025-07-07T18:20:22.767Z,
     2025-07-07T10:22:00.706Z
@@ -10936,7 +10441,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-07T10:19:29.843Z,
     2025-07-07T18:19:29.843Z,
     2025-07-08T00:29:56.923Z
@@ -10994,7 +10499,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-06T15:26:50.487Z,
     2025-07-06T23:26:50.487Z,
     2025-07-06T15:30:50.307Z
@@ -11052,7 +10557,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-06T14:28:48.518Z,
     2025-07-06T22:28:48.518Z,
     2025-07-06T15:24:58.760Z
@@ -11108,7 +10613,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-03T07:18:35.924Z,
     2025-07-03T15:18:35.924Z,
     2025-07-03T07:18:48.522Z
@@ -11164,7 +10669,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-02T09:34:38.754Z,
     2025-07-02T17:34:38.754Z,
     2025-07-02T09:34:38.810Z
@@ -11222,7 +10727,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-02T00:00:02.690Z,
     2025-07-02T08:00:02.690Z,
     2025-07-06T02:28:09.259Z
@@ -11280,7 +10785,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-01T23:36:48.965Z,
     2025-07-02T07:36:48.965Z,
     2025-07-02T03:22:54.433Z
@@ -11336,7 +10841,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-01T23:36:47.897Z,
     2025-07-02T07:36:47.897Z,
     2025-07-01T23:36:48.396Z
@@ -11394,7 +10899,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T22:38:10.084Z,
     2025-06-25T06:38:10.084Z,
     2025-07-06T02:28:09.258Z
@@ -11450,7 +10955,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T22:37:23.757Z,
     2025-06-25T06:37:23.757Z,
     2025-06-24T22:37:41.365Z
@@ -11508,7 +11013,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T08:52:26.933Z,
     2025-06-24T16:52:26.933Z,
     2025-06-24T08:53:57.574Z
@@ -11564,7 +11069,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T08:52:12.335Z,
     2025-06-24T16:52:12.335Z,
     2025-06-24T08:52:12.885Z
@@ -11620,7 +11125,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T08:46:25.486Z,
     2025-06-24T16:46:25.486Z,
     2025-06-24T08:46:26.179Z
@@ -11676,7 +11181,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-06-24T07:50:51.088Z,
     2025-06-24T15:50:51.088Z,
     2025-06-24T07:50:51.781Z
@@ -11686,7 +11191,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:05:27 PM
+In Execute.Trades: 11/28/2025, 1:53:32 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -11744,7 +11249,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-10T20:37:01.420Z,
     2025-08-11T04:37:01.420Z,
     2025-08-11T00:51:38.686Z
@@ -11802,7 +11307,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-07T23:23:57.377Z,
     2025-08-08T07:23:57.377Z,
     2025-08-07T23:26:22.240Z
@@ -11860,7 +11365,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-07T23:06:32.684Z,
     2025-08-08T07:06:32.684Z,
     2025-08-07T23:12:26.328Z
@@ -11918,7 +11423,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-07T21:33:21.957Z,
     2025-08-08T05:33:21.957Z,
     2025-08-07T21:33:22.012Z
@@ -11976,7 +11481,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-06T20:39:20.573Z,
     2025-08-07T04:39:20.573Z,
     2025-08-06T20:39:20.629Z
@@ -12034,7 +11539,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-05T23:04:38.935Z,
     2025-08-06T07:04:38.935Z,
     2025-08-06T15:58:05.020Z
@@ -12092,7 +11597,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-05T22:35:46.764Z,
     2025-08-06T06:35:46.764Z,
     2025-08-05T22:46:23.816Z
@@ -12150,7 +11655,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-05T22:30:27.085Z,
     2025-08-06T06:30:27.085Z,
     2025-08-05T22:33:42.017Z
@@ -12206,7 +11711,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-04T15:46:34.085Z,
     2025-08-04T23:46:34.085Z,
     2025-08-04T15:46:34.165Z
@@ -12262,7 +11767,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-02T19:32:06.375Z,
     2025-08-03T03:32:06.375Z,
     2025-08-03T02:56:34.014Z
@@ -12318,7 +11823,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-01T23:16:43.480Z,
     2025-08-02T07:16:43.480Z,
     2025-08-02T18:26:40.285Z
@@ -12374,7 +11879,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-25T16:33:15.636Z,
     2025-07-26T00:33:15.636Z,
     2025-07-25T16:33:15.701Z
@@ -12430,7 +11935,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-25T16:32:39.417Z,
     2025-07-26T00:32:39.417Z,
     2025-07-25T16:32:39.473Z
@@ -12486,7 +11991,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-25T08:34:45.629Z,
     2025-07-25T16:34:45.629Z,
     2025-07-25T08:34:45.688Z
@@ -12542,7 +12047,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-24T19:00:37.567Z,
     2025-07-25T03:00:37.567Z,
     2025-07-24T19:03:20.062Z
@@ -12598,7 +12103,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-24T08:29:37.253Z,
     2025-07-24T16:29:37.253Z,
     2025-07-24T08:31:01.523Z
@@ -12656,7 +12161,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-19T03:37:54.027Z,
     2025-07-19T11:37:54.027Z,
     2025-07-19T03:37:54.085Z
@@ -12712,7 +12217,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-13T11:56:41.073Z,
     2025-07-13T19:56:41.073Z,
     2025-07-13T11:58:09.429Z
@@ -12768,7 +12273,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-13T11:56:00.060Z,
     2025-07-13T19:56:00.060Z,
     2025-07-13T11:56:17.877Z
@@ -12824,7 +12329,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-07-13T11:23:10.393Z,
     2025-07-13T19:23:10.393Z,
     2025-07-13T11:41:01.807Z
@@ -12834,7 +12339,24 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:05:56 PM
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55162.023, update_time: 2025-11-28T21:53:48.712Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55162.023, update_time: 2025-11-28T21:53:48.711Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55162.023, coin_usd_price: 1.00018 }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55162.023, coin_usd_price: 1.00018 }
+}
+In Execute.Trades: 11/28/2025, 1:54:01 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -12892,7 +12414,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-29T08:00:20.918Z,
     2025-08-29T16:00:20.918Z,
     2025-08-29T16:35:11.196Z
@@ -12950,7 +12472,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-28T20:01:05.501Z,
     2025-08-29T04:01:05.501Z,
     2025-08-29T00:51:25.673Z
@@ -13008,7 +12530,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-27T00:47:32.187Z,
     2025-08-27T08:47:32.187Z,
     2025-08-27T00:51:53.391Z
@@ -13066,7 +12588,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-26T13:34:24.691Z,
     2025-08-26T21:34:24.691Z,
     2025-08-26T13:38:16.744Z
@@ -13124,7 +12646,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-25T18:54:15.743Z,
     2025-08-26T02:54:15.743Z,
     2025-08-25T19:18:41.877Z
@@ -13182,7 +12704,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-25T17:35:46.516Z,
     2025-08-26T01:35:46.516Z,
     2025-08-25T17:51:55.718Z
@@ -13240,7 +12762,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-25T02:26:46.353Z,
     2025-08-25T10:26:46.353Z,
     2025-08-25T05:42:44.686Z
@@ -13298,7 +12820,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-24T18:55:29.684Z,
     2025-08-25T02:55:29.684Z,
     2025-08-24T21:05:51.370Z
@@ -13356,7 +12878,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-23T17:07:01.639Z,
     2025-08-24T01:07:01.639Z,
     2025-08-23T18:48:40.489Z
@@ -13414,7 +12936,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-23T07:12:25.744Z,
     2025-08-23T15:12:25.744Z,
     2025-08-23T07:55:51.057Z
@@ -13472,7 +12994,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-22T07:21:31.530Z,
     2025-08-22T15:21:31.530Z,
     2025-08-22T20:15:58.739Z
@@ -13530,7 +13052,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-22T03:11:04.709Z,
     2025-08-22T11:11:04.709Z,
     2025-08-22T03:28:13.161Z
@@ -13588,7 +13110,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-20T19:53:52.709Z,
     2025-08-21T03:53:52.709Z,
     2025-08-21T15:23:22.143Z
@@ -13646,7 +13168,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-20T01:54:56.426Z,
     2025-08-20T09:54:56.426Z,
     2025-08-20T17:59:58.262Z
@@ -13702,7 +13224,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-19T17:52:38.584Z,
     2025-08-20T01:52:38.584Z,
     2025-08-20T00:39:09.638Z
@@ -13760,7 +13282,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-16T19:54:11.711Z,
     2025-08-17T03:54:11.711Z,
     2025-08-18T07:20:41.009Z
@@ -13818,7 +13340,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-16T10:09:59.945Z,
     2025-08-16T18:09:59.945Z,
     2025-08-16T17:24:57.540Z
@@ -13876,7 +13398,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-13T09:49:44.497Z,
     2025-08-13T17:49:44.497Z,
     2025-08-13T09:50:13.485Z
@@ -13934,7 +13456,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-12T12:33:25.098Z,
     2025-08-12T20:33:25.098Z,
     2025-08-13T05:21:43.937Z
@@ -13992,7 +13514,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-11T01:08:34.118Z,
     2025-08-11T09:08:34.118Z,
     2025-08-11T14:53:48.270Z
@@ -14002,7 +13524,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:06:25 PM
+In Execute.Trades: 11/28/2025, 1:54:30 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -14060,7 +13582,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T06:06:29.820Z,
     2025-09-04T14:06:29.820Z,
     2025-09-04T06:07:46.383Z
@@ -14118,7 +13640,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T05:58:50.535Z,
     2025-09-04T13:58:50.535Z,
     2025-09-04T06:00:15.317Z
@@ -14176,7 +13698,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T05:52:38.874Z,
     2025-09-04T13:52:38.874Z,
     2025-09-04T05:54:26.296Z
@@ -14234,7 +13756,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T05:47:33.013Z,
     2025-09-04T13:47:33.013Z,
     2025-09-04T05:49:13.063Z
@@ -14292,7 +13814,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T05:32:25.909Z,
     2025-09-04T13:32:25.909Z,
     2025-09-04T05:49:13.065Z
@@ -14350,7 +13872,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T04:10:43.056Z,
     2025-09-04T12:10:43.056Z,
     2025-09-04T04:12:29.723Z
@@ -14408,7 +13930,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T04:06:56.179Z,
     2025-09-04T12:06:56.179Z,
     2025-09-04T04:09:52.666Z
@@ -14466,7 +13988,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T03:48:45.609Z,
     2025-09-04T11:48:45.609Z,
     2025-09-04T03:53:00.483Z
@@ -14524,7 +14046,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T03:25:06.247Z,
     2025-09-04T11:25:06.247Z,
     2025-09-04T03:28:21.512Z
@@ -14582,7 +14104,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T03:25:06.247Z,
     2025-09-04T11:25:06.247Z,
     2025-09-04T03:28:20.541Z
@@ -14640,7 +14162,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-03T20:19:06.007Z,
     2025-09-04T04:19:06.007Z,
     2025-09-03T22:40:28.597Z
@@ -14698,7 +14220,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-03T20:07:40.890Z,
     2025-09-04T04:07:40.890Z,
     2025-09-03T20:11:24.821Z
@@ -14756,7 +14278,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-03T19:42:38.301Z,
     2025-09-04T03:42:38.301Z,
     2025-09-03T19:49:05.317Z
@@ -14814,7 +14336,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-03T15:50:07.142Z,
     2025-09-03T23:50:07.142Z,
     2025-09-03T16:07:29.582Z
@@ -14872,7 +14394,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-03T05:59:31.580Z,
     2025-09-03T13:59:31.580Z,
     2025-09-03T06:02:21.676Z
@@ -14930,7 +14452,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-02T03:56:57.391Z,
     2025-09-02T11:56:57.391Z,
     2025-09-02T04:06:07.192Z
@@ -14988,7 +14510,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-30T23:52:09.432Z,
     2025-08-31T07:52:09.432Z,
     2025-09-02T03:27:50.259Z
@@ -15046,7 +14568,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-30T22:53:58.296Z,
     2025-08-31T06:53:58.296Z,
     2025-08-30T23:05:18.963Z
@@ -15104,7 +14626,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-30T00:13:06.198Z,
     2025-08-30T08:13:06.198Z,
     2025-08-30T00:28:23.625Z
@@ -15162,7 +14684,7 @@ In Orders.Import [API]
     10,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-08-29T17:15:58.975Z,
     2025-08-30T01:15:58.975Z,
     2025-08-29T17:34:59.282Z
@@ -15172,7 +14694,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:06:54 PM
+In Execute.Trades: 11/28/2025, 1:54:59 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -15230,7 +14752,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T18:46:14.827Z,
     2025-10-19T02:46:14.827Z,
     2025-10-18T18:46:44.040Z
@@ -15288,7 +14810,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T18:31:12.497Z,
     2025-10-19T02:31:12.497Z,
     2025-10-18T18:43:51.053Z
@@ -15346,7 +14868,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T18:08:53.086Z,
     2025-10-19T02:08:53.086Z,
     2025-10-18T18:28:59.938Z
@@ -15404,7 +14926,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T16:19:12.219Z,
     2025-10-19T00:19:12.219Z,
     2025-10-18T18:06:18.829Z
@@ -15462,7 +14984,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T14:17:07.712Z,
     2025-10-18T22:17:07.712Z,
     2025-10-18T14:28:55.088Z
@@ -15544,7 +15066,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-17T20:52:50.040Z,
     2025-10-18T04:52:50.040Z,
     2025-10-17T20:55:14.738Z
@@ -15602,7 +15124,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-16T19:54:06.409Z,
     2025-10-17T03:54:06.409Z,
     2025-10-16T22:08:20.267Z
@@ -15660,7 +15182,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-16T19:51:40.931Z,
     2025-10-17T03:51:40.931Z,
     2025-10-16T22:08:20.261Z
@@ -15718,7 +15240,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-16T12:29:12.701Z,
     2025-10-16T20:29:12.701Z,
     2025-10-16T12:38:12.780Z
@@ -15776,7 +15298,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-15T22:48:03.925Z,
     2025-10-16T06:48:03.925Z,
     2025-10-15T22:48:32.737Z
@@ -15834,7 +15356,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-15T05:37:04.282Z,
     2025-10-15T13:37:04.282Z,
     2025-10-15T17:24:13.733Z
@@ -15892,7 +15414,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-15T02:59:58.703Z,
     2025-10-15T10:59:58.703Z,
     2025-10-15T05:37:03.919Z
@@ -15950,7 +15472,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-14T18:03:09.645Z,
     2025-10-15T02:03:09.645Z,
     2025-10-15T00:17:01.155Z
@@ -16008,7 +15530,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-13T19:35:07.643Z,
     2025-10-14T03:35:07.643Z,
     2025-10-13T19:41:53.902Z
@@ -16066,7 +15588,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-13T11:53:46.390Z,
     2025-10-13T19:53:46.390Z,
     2025-10-13T12:00:32.429Z
@@ -16124,7 +15646,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-13T02:35:53.665Z,
     2025-10-13T10:35:53.665Z,
     2025-10-13T02:43:08.699Z
@@ -16182,7 +15704,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-10T15:13:25.008Z,
     2025-10-10T23:13:25.008Z,
     2025-10-10T19:12:05.813Z
@@ -16240,7 +15762,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-09T20:35:30.992Z,
     2025-10-10T04:35:30.992Z,
     2025-10-10T12:49:06.790Z
@@ -16298,7 +15820,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-09-04T07:35:52.642Z,
     2025-09-04T15:35:52.642Z,
     2025-09-04T07:48:13.237Z
@@ -16308,7 +15830,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:07:24 PM
+In Execute.Trades: 11/28/2025, 1:55:28 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -16366,7 +15888,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-22T05:49:00.134Z,
     2025-10-22T13:49:00.134Z,
     2025-10-22T05:59:20.826Z
@@ -16424,7 +15946,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-22T05:45:36.695Z,
     2025-10-22T13:45:36.695Z,
     2025-10-22T05:47:03.558Z
@@ -16482,7 +16004,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-22T05:34:58.383Z,
     2025-10-22T13:34:58.383Z,
     2025-10-22T05:42:42.409Z
@@ -16540,7 +16062,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-22T03:30:16.344Z,
     2025-10-22T11:30:16.344Z,
     2025-10-22T05:34:00.580Z
@@ -16598,7 +16120,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-21T22:54:33.925Z,
     2025-10-22T06:54:33.925Z,
     2025-10-22T03:28:49.124Z
@@ -16656,7 +16178,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-21T15:25:08.886Z,
     2025-10-21T23:25:08.886Z,
     2025-10-21T20:53:11.170Z
@@ -16714,7 +16236,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-21T12:08:10.699Z,
     2025-10-21T20:08:10.699Z,
     2025-10-21T12:53:01.158Z
@@ -16772,7 +16294,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-20T21:17:40.809Z,
     2025-10-21T05:17:40.809Z,
     2025-10-20T21:49:51.803Z
@@ -16830,7 +16352,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-19T12:40:57.785Z,
     2025-10-19T20:40:57.785Z,
     2025-10-19T12:48:41.280Z
@@ -16912,7 +16434,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-19T02:13:15.103Z,
     2025-10-19T10:13:15.103Z,
     2025-10-19T02:15:47.171Z
@@ -16994,7 +16516,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-19T02:03:56.751Z,
     2025-10-19T10:03:56.751Z,
     2025-10-19T02:06:42.455Z
@@ -17052,7 +16574,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-19T01:16:39.318Z,
     2025-10-19T09:16:39.318Z,
     2025-10-19T01:41:59.999Z
@@ -17110,7 +16632,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T20:48:16.103Z,
     2025-10-19T04:48:16.103Z,
     2025-10-19T00:59:08.628Z
@@ -17168,7 +16690,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T20:14:49.760Z,
     2025-10-19T04:14:49.760Z,
     2025-10-18T20:22:33.534Z
@@ -17250,7 +16772,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-18T19:10:30.008Z,
     2025-10-19T03:10:30.008Z,
     2025-10-18T19:18:13.511Z
@@ -17316,7 +16838,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:07:53 PM
+In Execute.Trades: 11/28/2025, 1:55:57 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -17374,7 +16896,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-06T00:27:07.044Z,
     2025-11-06T08:27:07.044Z,
     2025-11-06T00:34:51.265Z
@@ -17456,7 +16978,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-05T21:12:41.145Z,
     2025-11-06T05:12:41.145Z,
     2025-11-05T21:18:00.435Z
@@ -17514,7 +17036,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-05T06:09:26.788Z,
     2025-11-05T14:09:26.788Z,
     2025-11-05T06:30:08.017Z
@@ -17572,7 +17094,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-03T00:05:02.834Z,
     2025-11-03T08:05:02.834Z,
     2025-11-05T00:02:35.880Z
@@ -17630,7 +17152,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-29T21:09:05.775Z,
     2025-10-30T05:09:05.775Z,
     2025-10-29T21:09:05.835Z
@@ -17686,7 +17208,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-29T18:39:30.718Z,
     2025-10-30T02:39:30.718Z,
     2025-10-29T18:39:30.999Z
@@ -17742,7 +17264,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-29T18:36:38.026Z,
     2025-10-30T02:36:38.026Z,
     2025-10-29T18:36:38.146Z
@@ -17798,7 +17320,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-29T18:23:52.201Z,
     2025-10-30T02:23:52.201Z,
     2025-10-29T18:23:52.306Z
@@ -17856,7 +17378,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-28T20:19:26.730Z,
     2025-10-29T04:19:26.730Z,
     2025-10-28T20:19:26.977Z
@@ -17912,7 +17434,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-27T16:51:46.202Z,
     2025-10-28T00:51:46.202Z,
     2025-10-27T16:51:46.247Z
@@ -17970,7 +17492,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-27T16:08:09.913Z,
     2025-10-28T00:08:09.913Z,
     2025-10-27T16:08:10.196Z
@@ -18026,7 +17548,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-27T12:54:42.383Z,
     2025-10-27T20:54:42.383Z,
     2025-10-27T12:54:42.430Z
@@ -18082,7 +17604,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-27T12:42:55.141Z,
     2025-10-27T20:42:55.141Z,
     2025-10-27T12:42:55.270Z
@@ -18140,7 +17662,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-24T23:54:43.999Z,
     2025-10-25T07:54:43.999Z,
     2025-10-24T23:58:06.534Z
@@ -18222,7 +17744,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-24T05:25:16.631Z,
     2025-10-24T13:25:16.631Z,
     2025-10-24T05:32:31.864Z
@@ -18280,7 +17802,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-23T23:59:32.531Z,
     2025-10-24T07:59:32.531Z,
     2025-10-24T00:38:39.344Z
@@ -18338,7 +17860,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-23T15:11:06.407Z,
     2025-10-23T23:11:06.407Z,
     2025-10-23T17:56:29.969Z
@@ -18396,7 +17918,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-10-22T06:01:17.079Z,
     2025-10-22T14:01:17.079Z,
     2025-10-22T06:06:37.550Z
@@ -18406,7 +17928,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:08:22 PM
+In Execute.Trades: 11/28/2025, 1:56:26 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -18464,7 +17986,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-12T18:59:10.405Z,
     2025-11-13T02:59:10.405Z,
     2025-11-12T19:41:30.605Z
@@ -18522,7 +18044,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-12T05:48:48.658Z,
     2025-11-12T13:48:48.658Z,
     2025-11-12T06:08:34.698Z
@@ -18580,7 +18102,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-12T01:00:26.239Z,
     2025-11-12T09:00:26.239Z,
     2025-11-12T01:00:26.288Z
@@ -18638,7 +18160,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-11T18:55:27.565Z,
     2025-11-12T02:55:27.565Z,
     2025-11-11T19:00:33.495Z
@@ -18696,7 +18218,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-11T18:40:14.751Z,
     2025-11-12T02:40:14.751Z,
     2025-11-11T18:40:14.848Z
@@ -18754,7 +18276,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-11T18:40:14.751Z,
     2025-11-12T02:40:14.751Z,
     2025-11-11T18:40:14.789Z
@@ -18810,7 +18332,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-11T06:54:33.430Z,
     2025-11-11T14:54:33.430Z,
     2025-11-11T15:31:25.112Z
@@ -18866,7 +18388,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-10T21:28:37.605Z,
     2025-11-11T05:28:37.605Z,
     2025-11-10T21:31:44.485Z
@@ -18922,7 +18444,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-10T21:27:59.441Z,
     2025-11-11T05:27:59.441Z,
     2025-11-10T21:28:18.149Z
@@ -18980,7 +18502,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-10T09:53:14.881Z,
     2025-11-10T17:53:14.881Z,
     2025-11-10T13:26:54.927Z
@@ -19038,7 +18560,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-09T23:48:25.360Z,
     2025-11-10T07:48:25.360Z,
     2025-11-10T00:20:17.406Z
@@ -19096,7 +18618,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-09T18:04:42.797Z,
     2025-11-10T02:04:42.797Z,
     2025-11-09T18:04:42.836Z
@@ -19154,7 +18676,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-09T15:40:44.515Z,
     2025-11-09T23:40:44.515Z,
     2025-11-09T15:52:54.310Z
@@ -19212,7 +18734,7 @@ In Orders.Import [API]
     <Buffer b8 32 96>,
     'cross',
     true,
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-09T14:49:55.632Z,
     2025-11-09T22:49:55.632Z,
     2025-11-09T14:49:55.669Z
@@ -19270,7 +18792,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-08T13:35:16.316Z,
     2025-11-08T21:35:16.316Z,
     2025-11-08T14:19:36.779Z
@@ -19328,7 +18850,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-08T03:41:26.245Z,
     2025-11-08T11:41:26.245Z,
     2025-11-08T03:46:44.763Z
@@ -19410,7 +18932,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-08T00:55:05.079Z,
     2025-11-08T08:55:05.079Z,
     2025-11-08T00:59:54.945Z
@@ -19492,7 +19014,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-07T05:41:26.095Z,
     2025-11-07T13:41:26.095Z,
     2025-11-07T09:55:22.174Z
@@ -19502,22 +19024,176 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:08:48.694Z }
-}
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:08:49.489Z }
-}
-In Execute.Trades: 11/25/2025, 6:08:51 PM
+In Execute.Trades: 11/28/2025, 1:56:55 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d a6 d8>,
+    <Buffer f6 37 b5 cd 32 c0>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer f6 37 b5 cd 32 c0>,
+    <Buffer 00 e8 db 9d a6 d8>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-26T18:58:52.705Z,
+    2025-11-27T02:58:52.705Z,
+    2025-11-26T18:59:50.697Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d a6 51>,
+    <Buffer f6 37 b5 cd 32 c0>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d a5 8a>,
+    <Buffer f6 37 b5 cd 32 c0>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d 3d 29>,
+    <Buffer 42 c8 78 31 8a 61>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer 42 c8 78 31 8a 61>,
+    <Buffer 00 e8 db 9d 3d 29>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.85,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-26T02:38:43.576Z,
+    2025-11-26T10:38:43.576Z,
+    2025-11-26T02:44:31.815Z
+  ]
+}
 -> [Info] orders inserted {
   fields: [
     'order_id',
@@ -19570,7 +19246,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-26T00:27:09.765Z,
     2025-11-26T08:27:09.765Z,
     2025-11-26T00:33:27.068Z
@@ -19628,7 +19304,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-25T13:50:26.383Z,
     2025-11-25T21:50:26.383Z,
     2025-11-25T14:05:14.902Z
@@ -19686,7 +19362,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-25T03:38:20.000Z,
     2025-11-25T11:38:20.000Z,
     2025-11-25T11:32:21.618Z
@@ -19744,7 +19420,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-24T20:56:08.169Z,
     2025-11-25T04:56:08.169Z,
     2025-11-24T20:58:51.576Z
@@ -19802,7 +19478,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-18T01:42:33.024Z,
     2025-11-18T09:42:33.024Z,
     2025-11-18T03:37:09.083Z
@@ -19860,7 +19536,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-17T03:23:43.857Z,
     2025-11-17T11:23:43.857Z,
     2025-11-17T05:50:17.059Z
@@ -19918,7 +19594,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-15T02:50:58.462Z,
     2025-11-15T10:50:58.462Z,
     2025-11-15T03:11:45.896Z
@@ -19976,7 +19652,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-15T00:31:43.930Z,
     2025-11-15T08:31:43.930Z,
     2025-11-15T02:50:58.247Z
@@ -20034,7 +19710,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-13T17:49:02.351Z,
     2025-11-14T01:49:02.351Z,
     2025-11-13T17:57:15.100Z
@@ -20116,7 +19792,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-13T03:51:45.137Z,
     2025-11-13T11:51:45.137Z,
     2025-11-13T04:16:54.231Z
@@ -20246,7 +19922,7 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-12T23:40:51.713Z,
     2025-11-13T07:40:51.713Z,
     2025-11-12T23:48:35.854Z
@@ -20304,107 +19980,413 @@ In Orders.Import [API]
     50,
     <Buffer b8 32 96>,
     'cross',
-    '[Info] Orders.Publish: Order missing; was recieved from Blofin; submitted and processed',
+    '[Info] Orders.Publish: History updated; order imported',
     2025-11-12T23:02:46.510Z,
     2025-11-13T07:02:46.510Z,
     2025-11-12T23:09:03.717Z
   ]
 }
-   # History Orders Processed [16]:  16 published
+   # History Orders Processed [20]:  20 published
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:09:20 PM
+In Execute.Trades: 11/28/2025, 1:57:24 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:09:49 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:10:18 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:10:47 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:11:16 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:11:45 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:12:14 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:12:43 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:13:12 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:13:41 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:13:48.672Z }
+-> History.Publish [API]
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9e c3 96>,
+    <Buffer ea c7 f8 75 6f 1b>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
 }
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-11-26T02:13:49.596Z }
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer ea c7 f8 75 6f 1b>,
+    <Buffer 00 e8 db 9e c3 96>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.95,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-28T21:34:59.460Z,
+    2025-11-29T05:34:59.460Z,
+    2025-11-28T21:42:10.294Z
+  ]
 }
-In Execute.Trades: 11/25/2025, 6:14:10 PM
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9e 5b cf>,
+    <Buffer bf 1c e6 31 0c b1>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer bf 1c e6 31 0c b1>,
+    <Buffer 00 e8 db 9e 5b cf>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.5,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-28T07:35:25.996Z,
+    2025-11-28T15:35:25.996Z,
+    2025-11-28T21:04:26.392Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9e 35 27>,
+    <Buffer a2 d3 33 09 65 79>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer a2 d3 33 09 65 79>,
+    <Buffer 00 e8 db 9e 35 27>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.5,
+    500,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-28T00:19:41.526Z,
+    2025-11-28T08:19:41.526Z,
+    2025-11-28T00:30:23.522Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d ec 48>,
+    <Buffer e3 a2 a1 15 91 b7>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer e3 a2 a1 15 91 b7>,
+    <Buffer 00 e8 db 9d ec 48>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-27T09:00:03.600Z,
+    2025-11-27T17:00:03.600Z,
+    2025-11-27T09:01:02.151Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d eb ca>,
+    <Buffer e3 a2 a1 15 91 b7>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d eb 97>,
+    <Buffer e3 a2 a1 15 91 b7>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d c8 eb>,
+    <Buffer dd 03 12 8f 8c d1>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'order_id',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer dd 03 12 8f 8c d1>,
+    <Buffer 00 e8 db 9d c8 eb>,
+    <Buffer 11 9b b0 95 07 bd>,
+    'sell',
+    <Buffer e8 fc f7>,
+    2.55,
+    100,
+    50,
+    <Buffer b8 32 96>,
+    'cross',
+    '[Info] Orders.Publish: History updated; order imported',
+    2025-11-27T01:39:45.370Z,
+    2025-11-27T09:39:45.370Z,
+    2025-11-27T01:40:42.592Z
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d c8 c7>,
+    <Buffer dd 03 12 8f 8c d1>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db 9d c8 83>,
+    <Buffer dd 03 12 8f 8c d1>,
+    <Buffer 4f ae 94>,
+    <Buffer 97 e7 4e>,
+    <Buffer ba 05 f1>,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+   # History Orders Processed [9]:  9 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 11/28/2025, 1:57:53 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -20412,63 +20394,7 @@ In Orders.Import [API]
 In Stop.Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:14:39 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:15:08 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:15:37 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:16:06 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:16:35 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:17:04 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:17:33 PM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
-In Execute.Trades: 11/25/2025, 6:18:02 PM
+In Execute.Trades: 11/28/2025, 1:58:22 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]

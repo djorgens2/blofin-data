@@ -1,4 +1,4 @@
->> [Info] Application.Initialization start: 11/25/2025, 6:34:08 PM
+>> [Info] Application.Initialization start: 11/28/2025, 2:16:46 PM
 -> Seed Account: {
   api: '6e03ab69bdd646c1afbc92bc3725edaa',
   secret: '66b55bde5057499bb8dd078f60d79cce',
@@ -11,23 +11,23 @@
   audit_order: '0',
   audit_stops: '0'
 }
-In Subject.Area.Import: 11/25/2025, 6:34:08 PM
+In Subject.Area.Import: 11/28/2025, 2:16:46 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 11/25/2025, 6:34:08 PM
+In Activity.Import: 11/28/2025, 2:16:47 PM
    # Activity imports:  8 verified
-In Authority.Import: 11/25/2025, 6:34:08 PM
+In Authority.Import: 11/28/2025, 2:16:47 PM
    # Authority imports:  6 verified
-In Broker.Import: 11/25/2025, 6:34:09 PM
+In Broker.Import: 11/28/2025, 2:16:47 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 11/25/2025, 6:34:09 PM
+In Contract.Type.Import: 11/28/2025, 2:16:47 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 11/25/2025, 6:34:09 PM
+In Environment.Import: 11/28/2025, 2:16:47 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 11/25/2025, 6:34:09 PM
+In Instrument.Type.Import: 11/28/2025, 2:16:47 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 11/25/2025, 6:34:09 PM
+In Period.Import: 11/28/2025, 2:16:47 PM
    # Period imports:  15 verified
-In Reference.Import: 11/25/2025, 6:34:09 PM
+In Reference.Import: 11/28/2025, 2:16:49 PM
    # Order State imports:  8 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -37,58 +37,26 @@ In Reference.Import: 11/25/2025, 6:34:09 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 11/25/2025, 6:34:09 PM
+In Role.Import: 11/28/2025, 2:16:49 PM
    # Role imports:  4 verified
-In State.Import: 11/25/2025, 6:34:10 PM
+In State.Import: 11/28/2025, 2:16:49 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 11/25/2025, 6:34:11 PM
+In Instruments.Import [API]: 11/28/2025, 2:16:50 PM
 -> Instrument:Publish [API]
-In Instruments.Fetch [API]: 11/25/2025, 6:34:12 PM
+In Instruments.Fetch [API]: 11/28/2025, 2:16:52 PM
 -> Instrument.Position.Import [API]
 -> Leverage.Fetch [API]
 -> Leverage.Fetch [API]
-   # [Warning] Instrument.Position.Publish: Errors/Skips: 66 positions processed
->> [Info] Application.Initialization finished: 11/25/2025, 6:34:14 PM
-Connected to websocket: [802141:wss://demo-trading-openapi.blofin.com/ws/private]
+   # [Warning] Instrument.Position.Publish: Errors/Skips: 64 positions processed
+>> [Info] Application.Initialization finished: 11/28/2025, 2:16:54 PM
+Connected to websocket: [1124436:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 55136.874, update_time: 2025-11-26T02:34:15.451Z }
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 03 8d 38>,
-    <Buffer 03 e8 0e>,
-    2025-11-26T02:30:00.000Z,
-    0.03845,
-    0.0385,
-    0.03844,
-    0.0385,
-    290,
-    290,
-    11.1534,
-    false
-  ]
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 55136.874, coin_usd_price: 0.999724 }
+  columns: { update_time: 2025-11-28T22:16:55.107Z }
 }
 -> [Info] candle inserted {
   fields: [
@@ -107,60 +75,16 @@ Subscriptions: { channel: 'orders' }
   args: [
     <Buffer 5e 05 55>,
     <Buffer 03 e8 0e>,
-    2025-11-26T02:30:00.000Z,
-    87756.6,
-    87743.8,
-    87606.9,
-    87743.8,
-    4.5547,
-    4.5547,
-    399570.23325,
+    2025-11-28T22:15:00.000Z,
+    90745.2,
+    90814.4,
+    90628.6,
+    90814.4,
+    16.0657,
+    16.0657,
+    1456330.48025,
     false
   ]
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 03 8d 38>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:15:00.000Z
-  },
-  columns: {
-    high: 0.03865,
-    volume: 67,
-    vol_currency: 670,
-    vol_currency_quote: 25.8066,
-    completed: true
-  }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:15:00.000Z
-  },
-  columns: {
-    high: 88055.9,
-    volume: 26296,
-    vol_currency: 26.296,
-    vol_currency_quote: 2309974.15012,
-    completed: true
-  }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 03 8d 38>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:00:00.000Z
-  },
-  columns: { volume: 142 }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:00:00.000Z
-  },
-  columns: { high: 88000, volume: 21627 }
 }
 -> [Info] candle inserted {
   fields: [
@@ -179,29 +103,29 @@ Subscriptions: { channel: 'orders' }
   args: [
     <Buffer 54 e7 5e>,
     <Buffer 03 e8 0e>,
-    2025-11-26T02:30:00.000Z,
-    2.1931,
-    2.1933,
-    2.1892,
-    2.1933,
-    51151,
-    51151,
-    112114.5399,
+    2025-11-28T22:15:00.000Z,
+    2.178,
+    2.1792,
+    2.1738,
+    2.1792,
+    18042,
+    18042,
+    39250.967,
     false
   ]
 }
 -> [Info] candle updated {
   filters: {
-    instrument: <Buffer 54 e7 5e>,
+    instrument: <Buffer 5e 05 55>,
     period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:15:00.000Z
+    bar_time: 2025-11-28T22:00:00.000Z
   },
   columns: {
-    high: 2.2078,
-    close: 2.1933,
-    volume: 2801,
-    vol_currency: 280165,
-    vol_currency_quote: 615674.5052,
+    high: 90981.6,
+    close: 90746.1,
+    volume: 74589,
+    vol_currency: 74.5898,
+    vol_currency_quote: 6776566.67084,
     completed: true
   }
 }
@@ -209,11 +133,18 @@ Subscriptions: { channel: 'orders' }
   filters: {
     instrument: <Buffer 54 e7 5e>,
     period: <Buffer 03 e8 0e>,
-    bar_time: 2025-11-26T02:00:00.000Z
+    bar_time: 2025-11-28T22:00:00.000Z
   },
-  columns: { high: 2.2064, volume: 2220 }
+  columns: {
+    high: 2.1847,
+    close: 2.1785,
+    volume: 1213,
+    vol_currency: 121370,
+    vol_currency_quote: 264610.4716,
+    completed: true
+  }
 }
-In Execute.Trades: 11/25/2025, 6:34:43 PM
+In Execute.Trades: 11/28/2025, 2:17:23 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -226,19 +157,19 @@ In Stop.Orders.Import [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [40]:  35 published
 -> [Info] request updated {
-  filters: { request: <Buffer f4 c2 7e 42 5d 3f> },
+  filters: { request: <Buffer bd f9 0c d6 c2 1a> },
   columns: { state: <Buffer 19 d3 88> }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer f4 c2 7e 42 5d 3f> },
+  filters: { request: <Buffer bd f9 0c d6 c2 1a> },
   columns: {
     memo: '[Expired]: Queued and Rejected request changed to Expired',
-    update_time: 2025-11-26T02:34:45.196Z
+    update_time: 2025-11-28T22:17:24.757Z
   }
 }
 -> Pending expired requests: 1
    # [Info] Expired requests accepted: 1
-In Execute.Trades: 11/25/2025, 6:35:13 PM
+In Execute.Trades: 11/28/2025, 2:17:52 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -250,3 +181,15 @@ In Stop.Orders.Import [API]
 -> Fetch:Pending [API]
 -> History.Publish.Stops [API]
    # History Stop Orders Processed [40]:  31 published
+In Execute.Trades: 11/28/2025, 2:18:21 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Stop.Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish.Stops [API]
+   # History Stop Orders Processed [40]:  20 published

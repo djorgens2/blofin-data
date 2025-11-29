@@ -1734,18 +1734,18 @@ END]]></string>
 		<entity schema="devel" name="state" color="F4BECD" x="1235" y="570" />
 		<entity schema="devel" name="currency" color="F0ECF7" x="1330" y="950" />
 		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1102" y="817" />
-		<entity schema="devel" name="account" color="994D00" x="2337" y="608" />
-		<entity schema="devel" name="vw_currency" color="4D66CC" x="304" y="1710" />
 		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="1976" y="1501" />
 		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="1995" y="1615" />
 		<entity schema="devel" name="hedging" color="994D00" x="2451" y="1159" />
 		<entity schema="devel" name="stop_request" color="FFFF00" x="779" y="285" />
 		<entity schema="devel" name="instrument" color="F0ECF7" x="1235" y="1254" />
 		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1767" y="1349" />
-		<entity schema="devel" name="position" color="F0ECF7" x="1064" y="1292" />
 		<entity schema="devel" name="audit_request" color="00FFFF" x="2451" y="1862" />
 		<entity schema="devel" name="vw_order_states" color="00FFFF" x="2033" y="1748" />
 		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="532" y="1197" />
+		<entity schema="devel" name="position" color="F0ECF7" x="1064" y="1292" />
+		<entity schema="devel" name="account" color="994D00" x="2337" y="608" />
+		<entity schema="devel" name="vw_currency" color="4D66CC" x="304" y="1729" />
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="user" />
 			<entity schema="devel" name="role" />
@@ -1801,8 +1801,8 @@ END]]></string>
 			<entity schema="devel" name="vw_instrument_periods" />
 			<entity schema="devel" name="vw_candles" />
 			<entity schema="devel" name="vw_instruments" />
-			<entity schema="devel" name="vw_currency" />
 			<entity schema="devel" name="vw_instrument_positions" />
+			<entity schema="devel" name="vw_currency" />
 		</group>
 		<group name="trade management" color="666666" >
 			<entity schema="devel" name="vw_stop_orders" />
@@ -1817,8 +1817,8 @@ END]]></string>
 			<entity schema="devel" name="broker" />
 			<entity schema="devel" name="account_detail" />
 			<entity schema="devel" name="margin_mode" />
-			<entity schema="devel" name="account" />
 			<entity schema="devel" name="hedging" />
+			<entity schema="devel" name="account" />
 		</group>
 		<script name="SQL_Editor" id="25b8aec0-7f4f-4f16-8e29-834a98e001f7" language="SQL" >
 			<string><![CDATA[CREATE SCHEMA devel;

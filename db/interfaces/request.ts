@@ -67,7 +67,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           price: isEqual(props.price!, current.price!) ? undefined : props.price,
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-//          margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode, // immutable after creation
+          //          margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode, // immutable after creation
           reduce_only: props.reduce_only ? (!!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only) : undefined,
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
           expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
@@ -157,7 +157,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
       ? { instrument_position: props.instrument_position }
       : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
     const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
-    const { instrument_position, status, auto_status, leverage, margin_mode } = result;
+    const { instrument_position, auto_status, leverage, margin_mode } = result;
 
     if (instrument_position) {
       const query = props.request ? { request: props.request } : ({ instrument_position, status: "Queued" } as Partial<IRequest>);
@@ -166,21 +166,15 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
       if (current.request) {
         if (props.update_time! > current.update_time!) {
           if (auto_status === "Enabled") {
-            const pending = await Orders.Fetch({ instrument_position, status: "Pending" });
-
-            if (pending)
-              for (const { request } of pending) {
-                Cancel({ request, memo: `[Auto-Cancel]: New request for instrument/position auto-cancels existing open request` });
-                props.status = "Hold";
-              }
-            else if (status === "Closed")
-              if (props.leverage ? (props.leverage === leverage ? undefined : props.leverage) : undefined)
-                await Leverage.Publish({
-                  instId: props.symbol,
-                  leverage: props.leverage?.toString(),
-                  marginMode: props.margin_mode,
-                  positionSide: props.position,
-                });
+            const pending = await Orders.Fetch({ instrument_position, status: "Pending" }, { suffix: `ORDER BY update_time DESC` });
+            if (pending) {
+              const cancels = pending.slice(1);
+              const promises = cancels.map(({ request }) =>
+                Cancel({ request, memo: `[Request.Submit]: New request on open instrument/position auto-cancels` })
+              );
+              await Promise.all(promises);
+              props.status = "Hold";
+            }
           }
 
           if (props.status === "Hold") {

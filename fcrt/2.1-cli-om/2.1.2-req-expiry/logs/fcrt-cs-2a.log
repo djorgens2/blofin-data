@@ -27,23 +27,23 @@
     'update_time'
   ],
   args: [
-    <Buffer 42 c8 78 31 8a 61>,
+    <Buffer 57 ec 1e 69 2e 8d>,
     <Buffer 11 9b b0 95 07 bd>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
     100,
-    50,
+    25,
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/ expiry; w/o tpsl',
-    2025-11-26T02:36:26.194Z,
-    2025-11-26T02:44:26.161Z,
-    2025-11-26T02:36:26.194Z
+    2025-11-28T22:21:41.476Z,
+    2025-11-28T22:26:41.445Z,
+    2025-11-28T22:21:41.476Z
   ]
 }
 {
-  submitted: <Buffer 42 c8 78 31 8a 61>,
+  submitted: <Buffer 57 ec 1e 69 2e 8d>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -51,7 +51,57 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2025-11-26T02:44:26.161Z,
+    expiry_time: 2025-11-28T22:26:41.445Z,
     memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
+Test 2a: Request submitted, check db for results. <Buffer 57 ec 1e 69 2e 8d>
+Fetched order from DB: [
+  {
+    request: <Buffer 57 ec 1e 69 2e 8d>,
+    order_id: null,
+    account: <Buffer 24 59 7a>,
+    instrument: <Buffer 54 e7 5e>,
+    instrument_position: <Buffer 11 9b b0 95 07 bd>,
+    symbol: 'XRP-USDT',
+    base_currency: <Buffer c2 35 f3>,
+    base_symbol: 'XRP',
+    quote_currency: <Buffer cb 69 43>,
+    quote_symbol: 'USDT',
+    state: <Buffer 62 57 cb>,
+    status: 'Queued',
+    request_state: <Buffer 62 57 cb>,
+    request_status: 'Queued',
+    order_state: null,
+    order_status: null,
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer b8 32 96>,
+    order_type: 'limit',
+    margin_mode: 'cross',
+    price: 2.85,
+    size: 100,
+    leverage: 25,
+    filled_size: null,
+    filled_amount: null,
+    average_price: null,
+    fee: null,
+    pnl: null,
+    digits: 4,
+    order_category: null,
+    category: null,
+    cancel_source: null,
+    canceled_by: null,
+    contract_type: <Buffer 9b 1a cc>,
+    instrument_type: <Buffer e1 a1 fa>,
+    reduce_only: 1,
+    broker_id: null,
+    trade_period: <Buffer 03 e8 0e>,
+    trade_timeframe: '15m',
+    timeframe_units: 15,
+    memo: 'Test 2a: request w/ expiry; w/o tpsl',
+    create_time: 2025-11-28T22:21:41.476Z,
+    expiry_time: 2025-11-28T22:26:41.445Z,
+    update_time: 2025-11-28T22:21:41.476Z
+  }
+]

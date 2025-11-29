@@ -4,7 +4,6 @@ import { setExpiry } from "lib/std.util";
 //-- Test 2a: submit request with '1d' expiry; with new leverage
 export const req_fcrt_2a: Partial<IRequest> = {
   symbol: "XRP-USDT",
-  margin_mode: "cross",
   position: "short",
   action: "sell",
   order_type: "limit",
@@ -25,7 +24,7 @@ export const req_fcrt_2b: Partial<IRequest> = {
 };
 
 //-- Test 3a: merge live request with revised leverage
-export const req_fcrt_3a: Partial<IRequest> = {
+export const req_fcrt_2c: Partial<IRequest> = {
   symbol: "XRP-USDT",
   margin_mode: "cross",
   position: "short",

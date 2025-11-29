@@ -27,23 +27,23 @@
     'update_time'
   ],
   args: [
-    <Buffer f4 c2 7e 42 5d 3f>,
+    <Buffer bd f9 0c d6 c2 1a>,
     <Buffer 11 9b b0 95 07 bd>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
     100,
-    50,
+    25,
     <Buffer b8 32 96>,
     'cross',
     'Test 1a: request w/ expiry; w/o tpsl',
-    2025-11-26T02:20:21.932Z,
-    2025-11-26T02:28:21.900Z,
-    2025-11-26T02:20:21.932Z
+    2025-11-28T22:03:05.733Z,
+    2025-11-28T22:04:05.700Z,
+    2025-11-28T22:03:05.733Z
   ]
 }
 {
-  submitted: <Buffer f4 c2 7e 42 5d 3f>,
+  submitted: <Buffer bd f9 0c d6 c2 1a>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -51,7 +51,7 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2025-11-26T02:28:21.900Z,
+    expiry_time: 2025-11-28T22:04:05.700Z,
     memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }

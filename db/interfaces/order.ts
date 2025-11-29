@@ -7,7 +7,7 @@
 import type { IRequest } from "db/interfaces/request";
 import type { TRefKey } from "db/interfaces/reference";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
@@ -86,9 +86,9 @@ export const Publish = async (props: Partial<IOrder>) => {
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
+export const Fetch = async (props: Partial<IOrder>, options?: TOptions): Promise<Array<Partial<IOrder>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
-  const result = await Select<IOrder>(props, { table: `vw_orders` });
+  const result = await Select<IOrder>(props, { ...options, table: `vw_orders` });
   return result.length ? result : undefined;
 };
 

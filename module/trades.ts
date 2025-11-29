@@ -4,6 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IResponse } from "api/response";
 import type { IRequestAPI } from "api/requests";
 import type { IStopsAPI } from "api/stops";
 import type { IRequestState } from "db/interfaces/state";
@@ -25,7 +26,6 @@ import * as Orders from "db/interfaces/order";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
-import { IResponse } from "api/response";
 
 //------------------ Private functions ---------------------//
 
@@ -90,51 +90,55 @@ const processOrders = async () => {
 
   //-- [Process.Orders] Closes pending orders beyond expiry
   const Pending = async () => {
-    const pending: Array<Partial<IRequest>> = [];
+    const verify: Array<Partial<IRequest>> = [];
     const expired: Array<Partial<IRequest>> = [];
 
     const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
     const expiry = new Date();
 
-    if (requests)
-      for (const request of requests)
-        expiry < request.expiry_time!
-          ? pending.push({ status: "Pending" })
-          : expired.push({ request: request.request, memo: `[Expired]: Pending order state changed to Canceled` });
+    if (requests) for (const pending of requests) expiry < pending.expiry_time! ? verify.push(pending) : expired.push({ request: pending.request });
+
+    if (verify.length) {
+      const promises = expired.map((request) => Request.Submit(request));
+      await Promise.all(promises);
+      console.log(">> [Info] Trades.Pending: Requests pending:", verify.length);
+    }
 
     if (expired.length) {
-      for (const request of expired) await Request.Cancel({ request: request.request!, memo: request.memo! });
-
-      pending.length && console.log(">> [Info] Trades.Pending: Requests pending:", pending.length);
-      expired.length && console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length, expired);
+      const promises = expired.map(({ request }) => Request.Cancel({ request, memo: `[Expired]: Pending order state changed to Canceled` }));
+      await Promise.all(promises);
+      console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length);
     }
   };
 
   //-- [Process.Orders] Submit local requests to the API
   const Queued = async () => {
-    const queued: Array<Partial<IRequestAPI>> = [];
-    const expired: Array<Partial<IRequest>> = [];
+    type Accumulator = { queued: Partial<IRequestAPI>[]; expired: Partial<IRequestAPI>[] };
 
     const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
-    const expiry = new Date();
 
     if (requests.length) {
-      for (const request of requests) {
-        const { status, account, expiry_time, ...api } = request;
+      const expiry = new Date();
+      const { queued, expired } = requests.reduce(
+        (acc: Accumulator, request) => {
+          expiry < request.expiry_time! ? acc.queued.push(request) : acc.expired.push({ ...request, memo: `[Expired]: Queued request changed to Expired` });
+          return acc;
+        },
+        { queued: [], expired: [] }
+      );
 
-        if (expiry < expiry_time!) {
-          queued.push(api);
-        } else expired.push({ request: hexify(request.clientOrderId!, 6), memo: `[Expired]: Queued request changed to Expired` });
-      }
-
+      const promises = queued.map(async (r) => InstrumentPosition.Leverage({ symbol: r.instId, position: r.positionSide, leverage: parseInt(r.leverage!) }));
+      const results = await Promise.all(promises);
+      const success = results.filter((result) => result !== null && result !== undefined);
       const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
 
       console.log(">> Trades.Queued: Requests in queue:", requests.length);
       requests.length && console.log("-> Queued requests submitted:", queued.length);
       accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
+      success.length && console.log("   # [Info] Leverages modified:", success.length);
       rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
 
-      expired.length && Expired(expired);
+      expired.length && (await Expired(expired.map((r) => ({ request: hexify(r.clientOrderId!, 6), memo: r.memo }))));
     }
   };
 

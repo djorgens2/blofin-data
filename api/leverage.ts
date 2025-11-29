@@ -13,7 +13,7 @@ import * as Response from "api/response";
 
 export interface ILeverageAPI {
   instId: string;
-  marginMode: 'cross' | 'isolated';
+  marginMode: "cross" | "isolated";
   positionSide: TPosition;
   leverage: string;
 }
@@ -62,7 +62,7 @@ export const Fetch = async (props: Array<Partial<IInstrumentPosition>>) => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Sets Leverage for a trading instrument; ** Non-op pending relo to instrument API;    |
+//| Sets Leverage for a trading instrument;                                              |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ILeverageAPI>) => {
   console.log("-> Leverage.Publish [API]");
@@ -90,7 +90,6 @@ export const Publish = async (props: Partial<ILeverageAPI>) => {
     });
     if (response.ok) {
       const json = await response.json();
-      console.log("-> [Info] Leverage.Publish: Leverage set:", json);
       return await Response.Leverage(json);
     } else throw new Error(`[Error] Leverage.Publish: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {

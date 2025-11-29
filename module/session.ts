@@ -32,6 +32,8 @@ export type IResponseProps = {
 export interface ISession {
   account: Uint8Array;
   alias: string;
+  margin_mode: "cross" | "isolated";
+  hedging: boolean
   state: "disconnected" | "connected" | "connecting" | "error" | "closed";
   audit_order: string;
   audit_stops: string;
@@ -66,6 +68,8 @@ export const config = async (props: Partial<IAccount>) => {
       setSession({
         ...config,
         account: search.account,
+        margin_mode: search.margin_mode,
+        hedging: search.hedging,
         state: "disconnected",
         audit_order: "0",
         audit_stops: "0",
