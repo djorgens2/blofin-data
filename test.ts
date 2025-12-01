@@ -1897,7 +1897,7 @@ import { parse } from "path";
 //       acc[api.instrument ? "exists" : "missing"].push(api);
 //       return acc;
 //     }, {});
-    
+
 //     console.log(instruments['exists']);
 //   }
 // })();
@@ -1998,14 +1998,80 @@ import { parse } from "path";
 // })();
 
 //---------------------------------- instrument position import test ----------------------------------------//
+// import { config } from "module/session";
+// import * as InstrumentPosition from "db/interfaces/instrument_position";
+
+// const args = process.argv.slice(2); // get account id
+
+// (async () => {
+//   await config({ account: hexify(args[0]) });
+//   await InstrumentPosition.Import();
+
+// })();
+
+//---------------------------------- Session config get multiple leverage test ----------------------------------------//
+// import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+
+// import { config, Session, signRequest } from "module/session";
+// import * as db from "db/query.utils";
+
+// const args = process.argv.slice(2); // get account id
+
+// (async () => {
+//   const symbols: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+//     { account: Session().account, auto_status: "Enabled", symbol: undefined },
+//     { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+//   );
+
+//   if (symbols.length) {
+//     await config({ account: hexify(args[0]) });
+
+//     const method = "GET";
+//     const path = `/api/v1/account/batch-leverage-info?instId=${symbols.map((symbols) => symbols.symbol).join()}&marginMode=isolated`;
+//     const { api, phrase, rest_api_url } = Session();
+//     const { sign, timestamp, nonce } = await signRequest(method, path);
+//     const headers = {
+//       "ACCESS-KEY": api!,
+//       "ACCESS-SIGN": sign!,
+//       "ACCESS-TIMESTAMP": timestamp!,
+//       "ACCESS-NONCE": nonce!,
+//       "ACCESS-PASSPHRASE": phrase!,
+//       "Content-Type": "application/json",
+//     };
+
+//     try {
+//       const response = await fetch(rest_api_url!.concat(path), {
+//         method,
+//         headers,
+//       });
+//       if (response.ok) {
+//         const json = await response.json();
+//         console.log(json);
+//         return json.data;
+//       } else throw new Error(`Position.Active: Response not ok: ${response.status} ${response.statusText}`);
+//     } catch (error) {
+//       console.log(">> [Error]: Position.Active:", error, method, path, headers);
+//       return [];
+//     }
+//   }
+// })();
+
+// //---------------------------------- request search algo test ----------------------------------------//
+import { Select } from "db/query.utils";
+import { IRequest } from "db/interfaces/request";
+
 import { config } from "module/session";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import* as Request from "db/interfaces/request";
 
 const args = process.argv.slice(2); // get account id
 
-(async () => {
-  await config({ account: hexify(args[0]) });
-  await InstrumentPosition.Import();
+const run = async (symbol: string, position: 'long' | 'short') => {
+  if (symbol && position) {
+    await config({ account: hexify(args[0]) });
 
-})();
+    const request = await Request.Submit({ symbol, position, status: `Pending`}); 
+    console.log(request);
+  }
+};
 
+run("XRP-USDT", "short");

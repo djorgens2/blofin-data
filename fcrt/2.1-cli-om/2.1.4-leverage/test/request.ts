@@ -17,17 +17,15 @@ export const req_fcrt_2a: Partial<IRequest> = {
 //-- Test 2b: merge request with revised leverage
 export const req_fcrt_2b: Partial<IRequest> = {
   symbol: "XRP-USDT",
-  margin_mode: "cross",
   position: "short",
   leverage: 50,
-  memo: "Test 2b: merge request with revised leverage",
+  memo: "Test 2b: update pending order with revised leverage (live app)",
 };
 
-//-- Test 3a: merge live request with revised leverage
+//-- Test 2c: merge request with revised leverage
 export const req_fcrt_2c: Partial<IRequest> = {
   symbol: "XRP-USDT",
-  margin_mode: "cross",
   position: "short",
   leverage: 40,
-  memo: "Test 3a: merge live request with revised leverage",
+  memo: "Test 2c: update pending order with revised leverage (quiesced app)",
 };

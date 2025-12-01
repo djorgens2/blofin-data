@@ -67,7 +67,6 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           price: isEqual(props.price!, current.price!) ? undefined : props.price,
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-          //          margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode, // immutable after creation
           reduce_only: props.reduce_only ? (!!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only) : undefined,
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
           expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
@@ -157,10 +156,12 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
       ? { instrument_position: props.instrument_position }
       : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
     const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
-    const { instrument_position, auto_status, leverage, margin_mode } = result;
+    const { instrument_position, auto_status, leverage, margin_mode, open_request } = result;
 
     if (instrument_position) {
-      const query = props.request ? { request: props.request } : ({ instrument_position, status: "Queued" } as Partial<IRequest>);
+      const query = props.request
+        ? { request: props.request }
+        : ({ instrument_position, status: open_request ? "Pending" : "Queued" } satisfies Partial<IRequest>);
       const [current] = (await Orders.Fetch(query)) ?? [{}];
 
       if (current.request) {

@@ -34,25 +34,25 @@ if (args.length) {
   const testId = args[1] || `2a`;
   const request = testId === `2a` ? Request.req_fcrt_2a : testId === `2b` ? Request.req_fcrt_2b : testId === `2c` ? Request.req_fcrt_2c : undefined;
   request &&
-  submit(request, testId)
-    .then(async ([submitted, request]) => {
-      if (submitted === undefined) {
-        console.error(Session());
-        console.error(`Test ${testId}: Request submission failed.`);
-        console.error("Check if the request was already submitted or if there was an error in the submission process.");
-        console.error("Request details:", request);
-        console.error(`Exiting process with code 1 for test ${testId}.`);
-        process.exit(1);  
-      }
-      await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
-        console.log(`Test ${testId}: Request submitted, check db for results.`, submitted);
-        console.log("Fetched order from DB:", order);
+    submit({ ...request, update_time: new Date() }, testId)
+      .then(async ([submitted, request]) => {
+        if (submitted === undefined) {
+          console.error(Session());
+          console.error(`Test ${testId}: Request submission failed.`);
+          console.error("Check if the request was already submitted or if there was an error in the submission process.");
+          console.error("Request details:", request);
+          console.error(`Exiting process with code 1 for test ${testId}.`);
+          process.exit(1);
+        }
+        await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+          console.log(`Test ${testId}: Request submitted, check db for results.`, submitted);
+          console.log("Fetched order from DB:", order);
+        });
+        process.exit(0);
+      })
+      .catch((error) => {
+        console.error(`Test ${testId}: Error during request submission:`, error);
+        process.exit(1);
       });
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error(`Test ${testId}: Error during request submission:`, error);
-      process.exit(1);
-    });
 } else console.error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

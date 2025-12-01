@@ -6,6 +6,8 @@
   private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
   public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
   account: <Buffer 24 59 7a>,
+  margin_mode: 'cross',
+  hedging: 1,
   state: 'disconnected',
   audit_order: '0',
   audit_stops: '0'
@@ -27,23 +29,23 @@
     'update_time'
   ],
   args: [
-    <Buffer 57 ec 1e 69 2e 8d>,
+    <Buffer 58 ee 27 85 e6 33>,
     <Buffer 11 9b b0 95 07 bd>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
     100,
-    25,
+    40,
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/ expiry; w/o tpsl',
-    2025-11-28T22:21:41.476Z,
-    2025-11-28T22:26:41.445Z,
-    2025-11-28T22:21:41.476Z
+    2025-12-01T14:40:05.780Z,
+    2025-12-01T14:45:05.744Z,
+    2025-12-01T14:40:05.780Z
   ]
 }
 {
-  submitted: <Buffer 57 ec 1e 69 2e 8d>,
+  submitted: <Buffer 58 ee 27 85 e6 33>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -51,14 +53,14 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2025-11-28T22:26:41.445Z,
+    expiry_time: 2025-12-01T14:45:05.744Z,
     memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
-Test 2a: Request submitted, check db for results. <Buffer 57 ec 1e 69 2e 8d>
+Test 2a: Request submitted, check db for results. <Buffer 58 ee 27 85 e6 33>
 Fetched order from DB: [
   {
-    request: <Buffer 57 ec 1e 69 2e 8d>,
+    request: <Buffer 58 ee 27 85 e6 33>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer 54 e7 5e>,
@@ -81,7 +83,7 @@ Fetched order from DB: [
     margin_mode: 'cross',
     price: 2.85,
     size: 100,
-    leverage: 25,
+    leverage: 40,
     filled_size: null,
     filled_amount: null,
     average_price: null,
@@ -100,8 +102,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/ expiry; w/o tpsl',
-    create_time: 2025-11-28T22:21:41.476Z,
-    expiry_time: 2025-11-28T22:26:41.445Z,
-    update_time: 2025-11-28T22:21:41.476Z
+    create_time: 2025-12-01T14:40:05.780Z,
+    expiry_time: 2025-12-01T14:45:05.744Z,
+    update_time: 2025-12-01T14:40:05.780Z
   }
 ]

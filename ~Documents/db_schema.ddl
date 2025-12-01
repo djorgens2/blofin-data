@@ -1048,6 +1048,7 @@ select
 	p.timeframe_units AS timeframe_units,
 	a.margin_mode AS margin_mode,
 	coalesce(ipos.leverage, 0) AS leverage,
+	id.max_leverage AS max_leverage,
 	coalesce(ipos.lot_scale, 0) AS lot_scale,
 	coalesce(ipos.martingale, 0) AS martingale,
 	coalesce(ipos.strict_stops, 0) AS strict_stops,
@@ -1059,7 +1060,7 @@ select
 	ipos.close_time AS close_time,
 	ipos.update_time AS update_time
 from
-	(((((((((((((((
+	((((((((((((((((
 	select
 		distinct ipos.account AS account,
 		ipos.instrument AS instrument,
@@ -1075,6 +1076,8 @@ join devel.environment e on
 	((e.environment = a.environment)))
 join devel.instrument i on
 	((pos.instrument = i.instrument)))
+join devel.instrument_detail id on
+	((id.instrument = i.instrument)))
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
@@ -1149,7 +1152,8 @@ select
 	if((qs.status = 'Suspended'), qs.status, bs.status) AS status,
 	id.list_time AS list_time,
 	id.expiry_time AS expiry_time,
-	id.update_time AS update_time
+	id.update_time AS update_time,
+	i.create_time AS create_time
 from
 	((((((((devel.instrument i
 join devel.account a)
@@ -1572,4 +1576,3 @@ CREATE TRIGGER devel.trig_update_audit_request AFTER UPDATE ON request FOR EACH 
               NEW.update_time
              );
 END;
-
