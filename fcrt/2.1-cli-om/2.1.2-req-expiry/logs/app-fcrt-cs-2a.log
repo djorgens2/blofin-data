@@ -1,4 +1,4 @@
->> [Info] Application.Initialization start: 12/1/2025, 6:41:23 AM
+>> [Info] Application.Initialization start: 12/3/2025, 6:28:42 AM
 -> Seed Account: {
   api: '6e03ab69bdd646c1afbc92bc3725edaa',
   secret: '66b55bde5057499bb8dd078f60d79cce',
@@ -13,24 +13,24 @@
   audit_order: '0',
   audit_stops: '0'
 }
-In Subject.Area.Import: 12/1/2025, 6:41:23 AM
+In Subject.Area.Import: 12/3/2025, 6:28:42 AM
    # Subject Area imports:  5 verified
-In Activity.Import: 12/1/2025, 6:41:23 AM
+In Activity.Import: 12/3/2025, 6:28:42 AM
    # Activity imports:  8 verified
-In Authority.Import: 12/1/2025, 6:41:23 AM
+In Authority.Import: 12/3/2025, 6:28:43 AM
    # Authority imports:  6 verified
-In Broker.Import: 12/1/2025, 6:41:23 AM
+In Broker.Import: 12/3/2025, 6:28:43 AM
    # Broker imports:  1 verified
-In Contract.Type.Import: 12/1/2025, 6:41:24 AM
+In Contract.Type.Import: 12/3/2025, 6:28:43 AM
    # Contract Type imports:  2 verified
-In Environment.Import: 12/1/2025, 6:41:24 AM
+In Environment.Import: 12/3/2025, 6:28:43 AM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 12/1/2025, 6:41:24 AM
+In Instrument.Type.Import: 12/3/2025, 6:28:43 AM
    # Instrument Type imports:  1 verified
-In Period.Import: 12/1/2025, 6:41:24 AM
+In Period.Import: 12/3/2025, 6:28:43 AM
    # Period imports:  15 verified
-In Reference.Import: 12/1/2025, 6:41:25 AM
-   # Order State imports:  8 verified
+In Reference.Import: 12/3/2025, 6:28:44 AM
+   # Order State imports:  7 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
    # Price Type imports:  3 verified
@@ -39,72 +39,67 @@ In Reference.Import: 12/1/2025, 6:41:25 AM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 12/1/2025, 6:41:25 AM
+In Role.Import: 12/3/2025, 6:28:44 AM
    # Role imports:  4 verified
-In State.Import: 12/1/2025, 6:41:25 AM
+In State.Import: 12/3/2025, 6:28:44 AM
    # State imports:  15 verified
-In Instruments.Import [API]: 12/1/2025, 6:41:26 AM
+In Instruments.Import [API]: 12/3/2025, 6:28:45 AM
 -> Instrument:Publish [API]
-In Instruments.Fetch [API]: 12/1/2025, 6:41:28 AM
+In Instruments.Fetch [API]: 12/3/2025, 6:28:47 AM
 -> Instrument.Position.Import [API]
 -> Leverage.Fetch [API]
 -> Leverage.Fetch [API]
    # [Warning] Instrument.Position.Publish: Errors/Skips: 64 positions processed
->> [Info] Application.Initialization finished: 12/1/2025, 6:41:30 AM
-Connected to websocket: [1530114:wss://demo-trading-openapi.blofin.com/ws/private]
+>> [Info] Application.Initialization finished: 12/3/2025, 6:28:49 AM
+Connected to websocket: [1786856:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-01T14:41:31.399Z }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-01T14:30:00.000Z
-  },
-  columns: {
-    high: 86642.2,
-    close: 86137.4,
-    volume: 106455,
-    vol_currency: 106.4551,
-    vol_currency_quote: 9191444.52663
-  }
+  columns: { update_time: 2025-12-03T14:28:49.735Z }
 }
 -> [Info] candle updated {
   filters: {
     instrument: <Buffer 54 e7 5e>,
     period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-01T14:30:00.000Z
+    bar_time: 2025-12-03T14:15:00.000Z
   },
   columns: {
-    high: 2.048,
-    close: 2.0343,
-    volume: 3885,
-    vol_currency: 388519,
-    vol_currency_quote: 791724.0511
+    high: 2.1656,
+    close: 2.163,
+    volume: 4910,
+    vol_currency: 491098,
+    vol_currency_quote: 1061341.0428
   }
 }
-In Execute.Trades: 12/1/2025, 6:41:59 AM
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 5e 05 55>,
+    period: <Buffer 03 e8 0e>,
+    bar_time: 2025-12-03T14:15:00.000Z
+  },
+  columns: {
+    high: 92556.7,
+    close: 92431.6,
+    volume: 66813,
+    vol_currency: 66.8139,
+    vol_currency_quote: 6167838.93224
+  }
+}
+In Execute.Trades: 12/3/2025, 6:29:18 AM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
    # History Orders Processed [20]:  20 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Processed [40]:  35 published
 In Requests.Submit [API]
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-01T14:42:01.376Z }
+  columns: { update_time: 2025-12-03T14:29:19.431Z }
 }
 -> [Info] orders inserted {
   fields: [
@@ -120,8 +115,8 @@ In Requests.Submit [API]
     'pnl'
   ],
   args: [
-    <Buffer 00 e8 db 9f fe 2a>,
-    <Buffer 58 ee 27 85 e6 33>,
+    <Buffer 00 e8 db a1 8b 91>,
+    <Buffer 0e ea cd 64 b6 47>,
     <Buffer 4f ae 94>,
     <Buffer de 78 79>,
     <Buffer 3d 66 8d>,
@@ -132,18 +127,6 @@ In Requests.Submit [API]
     0
   ]
 }
--> [Info] request updated {
-  filters: { request: <Buffer 58 ee 27 85 e6 33> },
-  columns: {
-    order_id: <Buffer 00 e8 db 9f fe 2a>,
-    state: <Buffer 4b c9 9c>,
-    memo: '[Info] Response.Request: Order submitted successfully',
-    update_time: 2025-12-01T14:42:01.430Z
-  }
-}
->> Trades.Queued: Requests in queue: 1
--> Queued requests submitted: 1
-   # [Info] Requests accepted: 1
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
   columns: {
@@ -151,150 +134,137 @@ In Requests.Submit [API]
     available_equity: 54422.496,
     frozen: 729.6,
     order_frozen: 729.6,
-    update_time: 2025-12-01T14:42:01.367Z
+    update_time: 2025-12-03T14:29:19.425Z
   }
 }
-In Execute.Trades: 12/1/2025, 6:42:28 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Processed [40]:  31 published
->> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/1/2025, 6:42:57 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Processed [40]:  20 published
->> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/1/2025, 6:43:26 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish.Stops [API]
-   # History Stop Orders Processed [38]:  19 published
->> [Info] Trades.Pending: Requests pending: 1
--> WSS.Publish [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 55142.72, update_time: 2025-12-01T14:43:49.016Z }
-}
--> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 55142.72, coin_usd_price: 0.99983 }
-}
-In Execute.Trades: 12/1/2025, 6:43:55 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
->> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/1/2025, 6:44:25 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-01T14:44:26.145Z }
-}
->> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/1/2025, 6:44:54 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
->> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/1/2025, 6:45:23 AM
-In Position.Import [API]
-In Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
--> Pending.Publish [API]
-   # Pending Orders Processed [1]:  1 published
-In Stop.Orders.Import [API]
--> Fetch:History [API]
--> Fetch:Pending [API]
 -> [Info] request updated {
-  filters: { request: <Buffer 58 ee 27 85 e6 33> },
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
+  columns: { order_id: <Buffer 00 e8 db a1 8b 91>, state: <Buffer 4b c9 9c> }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
+  columns: {
+    order_id: <Buffer 00 e8 db a1 8b 91>,
+    state: <Buffer 4b c9 9c>,
+    memo: '[Info] Response.Request: Order submitted successfully',
+    update_time: 2025-12-03T14:29:19.625Z
+  }
+}
+>> Trades.Queued: Requests in queue: 1
+-> Queued requests submitted: 1
+   # [Info] Requests accepted: 1
+-> [Info] request updated {
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
+  columns: {
+    memo: '[Info] Orders.Publish: New Order received; submitted and processed',
+    update_time: 2025-12-03T14:29:19.422Z
+  }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:29:26.141Z }
+}
+In Execute.Trades: 12/3/2025, 6:29:47 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:30:16 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:30:45 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:31:14 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:31:43 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:32:12 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/3/2025, 6:32:41 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> [Info] request updated {
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
   columns: { state: <Buffer 1b 0c b1> }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer 58 ee 27 85 e6 33> },
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
   columns: {
     memo: '[Expired]: Pending order state changed to Canceled',
-    update_time: 2025-12-01T14:45:24.365Z
+    update_time: 2025-12-03T14:32:43.618Z
   }
 }
 >> [Warning] Trades.Pending: Requests canceled: 1
 -> Cancel [API]
 -> WSS.Publish [API]
 -> [Info] request updated {
-  filters: { request: <Buffer 58 ee 27 85 e6 33> },
+  filters: { request: <Buffer 0e ea cd 64 b6 47> },
   columns: {
-    order_id: <Buffer 00 e8 db 9f fe 2a>,
+    order_id: <Buffer 00 e8 db a1 8b 91>,
     state: <Buffer e8 fc f7>,
     memo: '[Info] Response.Request: Order canceled successfully',
-    update_time: 2025-12-01T14:45:24.718Z
+    update_time: 2025-12-03T14:32:43.963Z
   }
 }
 >> Trades.Canceled: Cancel requests submitted: 1
    # [Info] Canceled requests accepted: 1
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db a1 8b 91> },
+  columns: { order_state: <Buffer 97 e7 4e> }
+}
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-01T14:45:24.685Z }
-}
--> [Info] orders updated {
-  filters: { order_id: <Buffer 00 e8 db 9f fe 2a> },
-  columns: { order_state: <Buffer 97 e7 4e> }
+  columns: { update_time: 2025-12-03T14:32:43.921Z }
 }
 -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
@@ -303,6 +273,392 @@ In Stop.Orders.Import [API]
     available_equity: 55152.096,
     frozen: 0,
     order_frozen: 0,
-    update_time: 2025-12-01T14:45:24.678Z
+    update_time: 2025-12-03T14:32:43.914Z
   }
 }
+In Execute.Trades: 12/3/2025, 6:33:10 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:33:39 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:33:48.724Z }
+}
+In Execute.Trades: 12/3/2025, 6:34:08 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:34:26.141Z }
+}
+In Execute.Trades: 12/3/2025, 6:34:37 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:35:06 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:35:35 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:36:04 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:36:33 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:37:02 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:37:31 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:38:00 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+In Execute.Trades: 12/3/2025, 6:38:29 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db a1 8b 91> },
+  columns: { cancel_source: <Buffer ba 05 f1> }
+}
+   # History Orders Processed [19]:  19 published
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55156.508, update_time: 2025-12-03T14:38:48.680Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55156.508, coin_usd_price: 1.00008 }
+}
+In Execute.Trades: 12/3/2025, 6:38:58 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:39:26.141Z }
+}
+In Execute.Trades: 12/3/2025, 6:39:27 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:39:56 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:40:25 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:40:54 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:41:23 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:41:52 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:42:21 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:42:50 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:43:19 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:43:48.693Z }
+}
+In Execute.Trades: 12/3/2025, 6:43:48 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:44:17 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:44:26.133Z }
+}
+In Execute.Trades: 12/3/2025, 6:44:46 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:45:15 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:45:45 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:46:14 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:46:43 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:47:12 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:47:41 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:48:10 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:48:39 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55157.06, update_time: 2025-12-03T14:48:48.690Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55157.06, coin_usd_price: 1.00009 }
+}
+In Execute.Trades: 12/3/2025, 6:49:08 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:49:26.133Z }
+}
+In Execute.Trades: 12/3/2025, 6:49:37 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:50:06 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:50:35 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:51:04 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:51:33 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:52:02 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:52:31 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:53:00 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:53:29 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:53:48.711Z }
+}
+-> WSS.Publish [API]
+In Execute.Trades: 12/3/2025, 6:53:58 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:54:26.137Z }
+}
+In Execute.Trades: 12/3/2025, 6:54:27 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:54:56 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:55:25 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:55:54 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:56:23 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:56:52 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:57:21 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:57:50 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:58:19 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:58:48 AM
+In Position.Import [API]
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55158.163, update_time: 2025-12-03T14:58:48.724Z }
+}
+In Orders.Import [API]
+-> Fetch:History [API]
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
+  columns: { equity_usd: 55158.163, coin_usd_price: 1.00011 }
+}
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 6:59:17 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-03T14:59:26.135Z }
+}
+In Execute.Trades: 12/3/2025, 6:59:46 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 7:00:15 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 7:00:44 AM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+In Execute.Trades: 12/3/2025, 7:01:13 AM
+In Position.Import [API]

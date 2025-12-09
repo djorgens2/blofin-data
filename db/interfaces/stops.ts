@@ -206,46 +206,64 @@ export const Cancel = async (props: Partial<IStops>): Promise<Array<IStops["stop
 //| Submits application (auto) stop requests locally on Open positions;                  |
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop_request"] | undefined> => {
-  if (props) {
-    if (props.stop_request) {
-      const request = await Fetch({ stop_request: props.stop_request });
+  if (hasValues(props)) {
+    const query = props.instrument_position
+      ? { instrument_position: props.instrument_position }
+      : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
+    const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
+    const { instrument_position, auto_status, margin_mode, open_take_profit, open_stop_loss } = result;
 
-      if (request) {
-        const [current] = request;
+    if (instrument_position) {
+      const query = props.stop_request
+        ? { request: props.stop_request }
+        : ({
+            instrument_position,
+            status: props.stop_type === "tp" && open_take_profit ? "Pending" : props.stop_type === "sl" && open_stop_loss ? "Pending" : "Queued",
+          } satisfies Partial<IStops>);
+      const [current] = (await Fetch(query, { suffix: `ORDER BY update_time DESC LIMIT 1` })) ?? [{ stop_request: undefined }];
 
+      // Handle existing request update
+      if (current.stop_request) {
         if (props.update_time! > current.update_time!) {
+         if (auto_status === "Enabled") {
+            const promise = Fetch({ instrument_position, stop_type: current.stop_type }, { suffix: `AND status IN ("Pending", "Queued")` }) ?? [{}];
+            const queue = await promise;
+            if (queue) {
+              const cancels = queue.filter(({ stop_request }) => !isEqual(stop_request!, current.stop_request!));
+              const promises = cancels.map(({ stop_request }) =>
+                Cancel({ stop_request, memo: `[Warning] Stop.Request.Submit: New TPSL request on open instrument/position auto-cancels` })
+              );
+              await Promise.all(promises);
+              props.status = props.status === "Pending" ? "Hold" : props.status;
+            }
+          }
+
           if (props.status === "Hold") {
             const result = await publish(current, {
               ...props,
               memo: props.memo || `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit`,
             });
-
             return result ? result : undefined;
           } else {
             await publish(current, { ...props, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
             return current.stop_request;
           }
-        } else return undefined;
-      } else {
-        const result = await publish(
-          {},
-          {
-            ...props,
-            memo: props.memo || `[Warning] Stops.Submit: Request missing; was added locally; updated and settled`,
-          }
-        );
-        return result ? result : undefined;
+        } else {
+          const result = await publish(
+            {},
+            {
+              ...props,
+              memo: props.memo || `[Warning] Stops.Submit: Request missing; was added locally; updated and settled`,
+            }
+          );
+          return result ? result : undefined;
+        }
       }
-    }
 
-    // Handle new request submission
-    const result = await InstrumentPosition.Fetch({ account: props.account || Session().account, symbol: props.symbol, position: props.position });
+      // Handle new request submission
 
-    if (result) {
-      const [current] = result;
-
-      if (current.auto_status === "Enabled") {
-        if (props.stop_type && ((props.stop_type === "tp" && current.open_take_profit) || (props.stop_type === "sl" && current.open_stop_loss))) {
+      if (auto_status === "Enabled") {
+        if (props.stop_type && ((props.stop_type === "tp" && open_take_profit) || (props.stop_type === "sl" && open_stop_loss))) {
           await Cancel({
             instrument_position: current.instrument_position,
             memo: `[Info] Stops.Submit: New stop request submitted; canceling existing pending stop(s)`,
@@ -256,8 +274,8 @@ export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop
         {},
         {
           ...props,
-          stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`),
           instrument_position: current.instrument_position,
+          stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`),
           status: "Queued",
         }
       );

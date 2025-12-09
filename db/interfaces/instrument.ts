@@ -24,29 +24,19 @@ export interface IInstrument {
   instrument_type: Uint8Array | string;
   contract_type: Uint8Array | string;
   contract_value: number;
-  margin_mode: string;
-  leverage: number;
   max_leverage: number;
   min_size: number;
   max_limit_size: number;
   max_market_size: number;
   lot_size: number;
-  lot_scale_factor: number;
   tick_size: number;
   digits: number;
-  martingale_factor: number;
-  bulk_collection_rate: number;
-  interval_collection_rate: number;
-  sma_factor: number;
-  trade_period: Uint8Array;
-  trade_timeframe: string;
-  timeframe_units: number;
   state: Uint8Array;
   status: TSymbol;
   list_time: Date;
   expiry_time: Date;
-  create_time: Date;
   update_time: Date;
+  create_time: Date;
 }
 
 //+--------------------------------------------------------------------------------------+

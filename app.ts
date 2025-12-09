@@ -16,11 +16,14 @@ import * as Environment from "db/interfaces/environment";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Period from "db/interfaces/period";
 import * as InstrumentType from "db/interfaces/instrument_type";
+import * as InstrumentPeriods from "db/interfaces/instrument_period";
 import * as References from "db/interfaces/reference";
 import * as State from "db/interfaces/state";
 import * as Roles from "db/interfaces/role";
 import * as RoleAuthority from "db/interfaces/role_authority";
+
 import * as Instruments from "api/instruments";
+import * as InstrumentPositions from "api/instrumentPositions";
 
 import * as dotenv from "dotenv";
 import * as path from "path";
@@ -48,6 +51,8 @@ const initialize = async () => {
   await State.Import();
   await RoleAuthority.Import({ status: `Enabled` });
   await Instruments.Import();
+  await InstrumentPeriods.Import();
+  await InstrumentPositions.Import();
 
   setTimeout(async () => {
     console.log(">> [Info] Application.Initialization finished:", new Date().toLocaleString());

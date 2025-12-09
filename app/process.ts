@@ -4,34 +4,35 @@
 //+--------------------------------------------------------------------------------------+
 "use strict"
 
-import type { IInstrument } from "db/interfaces/instrument";
-import type { IMessage } from "lib/app.util";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import { clear, type IMessage } from "lib/app.util";
 
 import { CFractal } from "module/fractal";
+import { Session } from "module/session";
 import { parseJSON } from "lib/std.util";
 
-import * as Candles from "api/candles";
+import * as CandleAPI from "api/candles";
 import * as Candle from "db/interfaces/candle";
-import * as Instrument from "db/interfaces/instrument";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 //+--------------------------------------------------------------------------------------+
 //| Process - Main processing loop for updating/monitoring enabled instruments;          |
 //+--------------------------------------------------------------------------------------+
 export const Process = async () => {
   const [cli_message] = process.argv.slice(2);
-  const message: IMessage | undefined = parseJSON<IMessage>(cli_message);
-  const [instrument]: Array<Partial<IInstrument>> = (await Instrument.Fetch({ symbol: message!.symbol })) ?? [];
+  const message = parseJSON<IMessage>(cli_message) ?? clear({ state: "init", symbol: `error` });
+  const [instrument_position]: Array<Partial<IInstrumentPosition>> = (await InstrumentPosition.Fetch({ account: Session().account, symbol: message!.symbol })) ?? [];
   const props: Partial<Candle.ICandle> = {
-    instrument: instrument.instrument!,
-    symbol: instrument.symbol!,
-    period: instrument.trade_period!,
-    timeframe: instrument.trade_timeframe!,
+    instrument: instrument_position.instrument!,
+    symbol: instrument_position.symbol!,
+    period: instrument_position.period!,
+    timeframe: instrument_position.timeframe!,
   };
-  const Fractal = await CFractal(message!, instrument);
+  const Fractal = await CFractal(message!, instrument_position);
 
   process.on("message", (message: IMessage) => {
-    message.state === `init` && Candles.Import(message, { ...props, limit: instrument.bulk_collection_rate });
-    message.state === `api` && Candles.Import(message, { ...props, limit: instrument.interval_collection_rate });
+    message.state === `init` && CandleAPI.Import( message, {symbol: props.symbol!, timeframe: props.timeframe!, startTime: 0});
+    message.state === `api` && CandleAPI.Publish(message);
     message.state === `update` && Fractal.Update(message);
   });
 

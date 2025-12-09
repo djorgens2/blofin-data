@@ -15,6 +15,7 @@ import { isBetween, isHigher, isLower, format } from "lib/std.util";
 import { UpdateReport, PublishReport, report } from "module/report";
 
 import * as Candle from "db/interfaces/candle";
+import { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 enum State {
   //----- Fractal States ----------------------------//
@@ -138,7 +139,7 @@ const fibonacciPrice = (root: number, expansion: number, percent: number, digits
 //+--------------------------------------------------------------------------------------+
 //| Module CFractal                                                                      |
 //+--------------------------------------------------------------------------------------+
-export const CFractal = async (message: IMessage, instrument: Partial<IInstrument>) => {
+export const CFractal = async (message: IMessage, instrument: Partial<IInstrumentPosition>) => {
   const event = CEvent();
   const Bar: Partial<IBar> = {};
   const SMA: Partial<IBar> = {};
@@ -146,8 +147,8 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
   const props: Partial<Candle.ICandle> = {
     instrument: instrument.instrument!,
     symbol: instrument.symbol!,
-    period: instrument.trade_period!,
-    timeframe: instrument.trade_timeframe!,
+    period: instrument.period!,
+    timeframe: instrument.timeframe!,
   };
   const candles = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
   console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0 });
@@ -161,7 +162,7 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
   const price: Array<IPrice> = [];
 
   //-- Properties -------------------------------------------------------------------------------//
-  const periods: number = instrument.sma_factor!;
+  const periods: number = instrument.sma!;
   const digits: number = instrument.digits!;
 
   //-- Utility functions ------------------------------------------------------------------------//

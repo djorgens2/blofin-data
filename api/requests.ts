@@ -13,7 +13,7 @@ import * as Response from "api/response";
 export interface IRequestAPI {
   account: Uint8Array;
   status?: TRequest;
-  orderId?: number | string | undefined | null;
+  orderId?: string;
   instId: string;
   marginMode: "cross" | "isolated";
   positionSide: "short" | "long" | "net";

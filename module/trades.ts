@@ -16,6 +16,7 @@ import { hexify } from "lib/crypto.util";
 import { Session } from "module/session";
 import { Select, Update } from "db/query.utils";
 
+import * as LeverageAPI from "api/leverage";
 import * as PositionsAPI from "api/positions";
 import * as RequestAPI from "api/requests";
 import * as OrderAPI from "api/orders";
@@ -99,7 +100,8 @@ const processOrders = async () => {
     if (requests) for (const pending of requests) expiry < pending.expiry_time! ? verify.push(pending) : expired.push({ request: pending.request });
 
     if (verify.length) {
-      const promises = expired.map((request) => Request.Submit(request));
+      const update_time = new Date()
+      const promises = verify.map((request) => Request.Submit({ ...request, update_time }));
       await Promise.all(promises);
       console.log(">> [Info] Trades.Pending: Requests pending:", verify.length);
     }
@@ -127,15 +129,16 @@ const processOrders = async () => {
         { queued: [], expired: [] }
       );
 
-      const promises = queued.map(async (r) => InstrumentPosition.Leverage({ symbol: r.instId, position: r.positionSide, leverage: parseInt(r.leverage!) }));
+      const promises = queued.map(async (r) => LeverageAPI.Leverage({ instId: r.instId, positionSide: r.positionSide, leverage: r.leverage }));
       const results = await Promise.all(promises);
-      const success = results.filter((result) => result !== null && result !== undefined);
+      const updates = results.filter((result) => result);
+      
       const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
 
       console.log(">> Trades.Queued: Requests in queue:", requests.length);
       requests.length && console.log("-> Queued requests submitted:", queued.length);
       accepted.length && console.log("   # [Info] Requests accepted:", accepted.length);
-      success.length && console.log("   # [Info] Leverages modified:", success.length);
+      updates.length && console.log("   # [Info] Leverages modified:", updates.length);
       rejected.length && console.log("   # [Error] Requests rejected:", rejected.length);
 
       expired.length && (await Expired(expired.map((r) => ({ request: hexify(r.clientOrderId!, 6), memo: r.memo }))));
@@ -441,8 +444,8 @@ export const Trades = async () => {
 
   await PositionsAPI.Import();
   await OrderAPI.Import();
-  await StopsAPI.Import();
+//  await StopsAPI.Import();
 
   await processOrders();
-  await processStops();
+//  await processStops();
 };

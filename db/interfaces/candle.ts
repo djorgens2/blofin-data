@@ -33,8 +33,8 @@ export interface ICandle {
 //| Inserts new candles retrieved from the blofin rest api;                              |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ICandle>) => {
-  const { instrument, period, bar_time } = props;
-  const candles = await Fetch({ instrument, period, bar_time });
+  const { instrument, period, timestamp } = props;
+  const candles = await Fetch({ instrument, period, timestamp });
 
   if (candles) {
     const [candle] = candles;
@@ -42,7 +42,7 @@ export const Publish = async (props: Partial<ICandle>) => {
       {
         instrument,
         period,
-        bar_time,
+        timestamp,
         open: props.open ? (isEqual(props.open, candle.open!) ? undefined : props.open) : undefined,
         high: props.high ? (isEqual(props.high, candle.high!) ? undefined : props.high) : undefined,
         low: props.low ? (isEqual(props.low, candle.low!) ? undefined : props.low) : undefined,
@@ -56,19 +56,19 @@ export const Publish = async (props: Partial<ICandle>) => {
           : undefined,
         completed: props.completed ? (!!props.completed === !!candle.completed! ? undefined : props.completed) : undefined,
       },
-      { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `bar_time` }] }
+      { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }] }
     );
   } else {
     await Insert<ICandle>(
       {
         instrument,
         period,
-        bar_time,
+        timestamp,
         open: props.open,
-        high: props.close,
+        high: props.high,
         low: props.low,
         close: props.close,
-        volume: props.vol_currency,
+        volume: props.volume,
         vol_currency: props.vol_currency,
         vol_currency_quote: props.vol_currency_quote,
         completed: props.completed,
@@ -82,15 +82,22 @@ export const Publish = async (props: Partial<ICandle>) => {
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
-  const { limit, timestamp, ...columns } = props;
-  const suffix = `ORDER BY bar_time DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
-  const keys = [];
-
-  if (timestamp) {
-    keys.push({ key: `bar_time`, sign: `>=` });
-    Object.assign(columns, { bar_time: new Date(timestamp) });
-  }
-
+  const { limit, ...columns } = props;
+  const suffix = `ORDER BY timestamp DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
+  const keys = props.timestamp ? [{ key: `timestamp`, sign: `>=` }] : [];
   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
+
+  return result.length ? result : undefined;
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Returns a specified limit-set of candles from the high (top) timestamp supplied;     |
+//+--------------------------------------------------------------------------------------+
+export const Batch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
+  const { limit, ...columns } = props;
+  const suffix = `ORDER BY timestamp DESC LIMIT ${limit || 1}`;
+  const keys = props.timestamp ? [{ key: `timestamp`, sign: `<=` }] : [];
+  const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
+  
   return result.length ? result : undefined;
 };

@@ -10,6 +10,16 @@ CREATE  TABLE devel.api_error (
 	error_message        VARCHAR(200)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.app_config ( 
+	candle_max_fetch     SMALLINT UNSIGNED DEFAULT (1440)  NOT NULL   ,
+	leverage_max_fetch   SMALLINT UNSIGNED DEFAULT (20)  NOT NULL   ,
+	orders_max_fetch     SMALLINT UNSIGNED DEFAULT (20)  NOT NULL   ,
+	default_sma          SMALLINT UNSIGNED DEFAULT (60)  NOT NULL   ,
+	default_leverage     SMALLINT UNSIGNED DEFAULT (0)  NOT NULL   
+ ) engine=InnoDB;
+
+ALTER TABLE devel.app_config COMMENT 'General configuration parameters';
+
 CREATE  TABLE devel.audit_request ( 
 	request              BINARY(6)       ,
 	old_state            BINARY(3)       ,
@@ -354,10 +364,6 @@ CREATE INDEX fk_id_contract_type ON devel.instrument_detail ( contract_type );
 CREATE  TABLE devel.instrument_period ( 
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
-	sma_factor           SMALLINT  DEFAULT (_utf8mb4'0')  NOT NULL   ,
-	bulk_collection_rate SMALLINT  DEFAULT (_utf8mb4'0')  NOT NULL   ,
-	interval_collection_rate SMALLINT  DEFAULT (0)  NOT NULL   ,
-	active_collection    BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	CONSTRAINT pk_instrument_period PRIMARY KEY ( instrument, period ),
 	CONSTRAINT fk_ip_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ip_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -371,8 +377,9 @@ CREATE  TABLE devel.instrument_position (
 	instrument           BINARY(3)    NOT NULL   ,
 	position             CHAR(5)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
-	leverage             INT  DEFAULT (3)  NOT NULL   ,
+	leverage             SMALLINT UNSIGNED DEFAULT (0)  NOT NULL   ,
 	period               BINARY(3)       ,
+	sma                  SMALLINT UNSIGNED DEFAULT (0)  NOT NULL   ,
 	lot_scale            DECIMAL(5,2)  DEFAULT (0)  NOT NULL   ,
 	martingale           DECIMAL(5,2)  DEFAULT (_utf8mb4'0.00')  NOT NULL   ,
 	strict_stops         BOOLEAN  DEFAULT (false)  NOT NULL   ,
@@ -510,9 +517,9 @@ CREATE  TABLE devel.stop_request (
 	instrument_position  BINARY(6)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	stop_type            CHAR(2)    NOT NULL   ,
+	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	action               CHAR(4)    NOT NULL   ,
 	size                 DOUBLE       ,
-	margin_mode          VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	trigger_price        DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	order_price          DOUBLE  DEFAULT ('0')  NOT NULL   ,
 	reduce_only          BOOLEAN  DEFAULT ('1')  NOT NULL   ,
@@ -577,7 +584,7 @@ CREATE INDEX fk_ad_currency ON devel.account_detail ( currency );
 CREATE  TABLE devel.candle ( 
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
-	bar_time             DATETIME    NOT NULL   ,
+	timestamp            BIGINT    NOT NULL   ,
 	open                 DOUBLE    NOT NULL   ,
 	high                 DOUBLE    NOT NULL   ,
 	low                  DOUBLE    NOT NULL   ,
@@ -586,7 +593,7 @@ CREATE  TABLE devel.candle (
 	vol_currency         DECIMAL(15,6)    NOT NULL   ,
 	vol_currency_quote   DECIMAL(15,6)    NOT NULL   ,
 	completed            BOOLEAN    NOT NULL   ,
-	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, bar_time ),
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, timestamp ),
 	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
@@ -978,6 +985,42 @@ join devel.state os on
 join devel.state ns on
 	((ns.state = ar.new_state)));
 
+CREATE VIEW devel.vw_candles AS
+select
+	i.instrument AS instrument,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	b.currency AS base_currency,
+	b.symbol AS base_symbol,
+	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
+	p.period AS period,
+	p.timeframe AS timeframe,
+	c.timestamp AS timestamp,
+	from_unixtime((c.timestamp / 1000)) AS bar_time,
+	c.open AS open,
+	c.high AS high,
+	c.low AS low,
+	c.close AS close,
+	c.volume AS volume,
+	c.vol_currency AS vol_currency,
+	c.vol_currency_quote AS vol_currency_quote,
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
+	c.completed AS completed
+from
+	((((((devel.candle c
+join devel.instrument i on
+	((i.instrument = c.instrument)))
+join devel.instrument_detail id on
+	((id.instrument = i.instrument)))
+join devel.period p on
+	((p.period = c.period)))
+join devel.instrument_period ip on
+	(((ip.instrument = i.instrument) and (ip.period = p.period))))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)));
+
 CREATE VIEW devel.vw_currency AS
 select
 	c.currency AS currency,
@@ -990,52 +1033,79 @@ from
 join devel.state s on
 	((c.state = s.state)));
 
+CREATE VIEW devel.vw_instrument_candles AS
+select
+	ipos.account AS account,
+	ipos.instrument_position AS instrument_position,
+	ipos.instrument AS instrument,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	p.period AS period,
+	p.timeframe AS timeframe,
+	p.timeframe_units AS timeframe_units,
+	c.timestamp AS timestamp,
+	cfg.candle_max_fetch AS candle_max_fetch
+from
+	((((((devel.instrument_position ipos
+join (
+	select
+		devel.app_config.candle_max_fetch AS candle_max_fetch
+	from
+		devel.app_config
+	limit 1) cfg)
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)))
+join (
+	select
+		c.instrument AS instrument,
+		c.period AS period,
+		max(c.timestamp) AS timestamp
+	from
+		devel.candle c
+	group by
+		c.instrument,
+		c.period) c on
+	(((c.instrument = ipos.instrument) and (c.period = ipos.period))))
+join devel.period p on
+	((p.period = ipos.period)));
+
 CREATE VIEW devel.vw_instrument_periods AS
 select
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
-	b.symbol AS base_symbol,
 	b.currency AS base_currency,
-	q.symbol AS quote_symbol,
+	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
+	q.symbol AS quote_symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	p.timeframe_units AS timeframe_units,
-	ip.bulk_collection_rate AS bulk_collection_rate,
-	if((ip.bulk_collection_rate = 0), 0, if((ip.interval_collection_rate > 4), ip.interval_collection_rate, 4)) AS interval_collection_rate,
-	ip.sma_factor AS sma_factor,
-	ip.active_collection AS active_collection,
-	if((qs.status = 'Suspended'), qs.state, bs.state) AS state,
-	if((qs.status = 'Suspended'), qs.status, bs.status) AS status
+	p.timeframe_units AS timeframe_units
 from
-	(((((((devel.instrument i
+	((((devel.instrument i
 join devel.instrument_period ip on
 	((ip.instrument = i.instrument)))
 join devel.period p on
-	((ip.period = p.period)))
-join devel.instrument_detail id on
-	((i.instrument = id.instrument)))
+	((p.period = ip.period)))
 join devel.currency b on
-	((i.base_currency = b.currency)))
-join devel.state bs on
-	((b.state = bs.state)))
+	((b.currency = i.base_currency)))
 join devel.currency q on
-	((i.quote_currency = q.currency)))
-join devel.state qs on
-	((q.state = qs.state)));
+	((q.currency = i.quote_currency)));
 
 CREATE VIEW devel.vw_instrument_positions AS
 select
-	pos.account AS account,
+	a.account AS account,
 	a.alias AS alias,
 	ipos.instrument_position AS instrument_position,
-	pos.instrument AS instrument,
+	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
 	b.symbol AS base_symbol,
 	q.currency AS quote_currency,
 	q.symbol AS quote_symbol,
-	pos.position AS position,
+	ipos.position AS position,
 	e.environment AS environment,
 	e.environ AS environ,
 	a.hedging AS hedging,
@@ -1047,12 +1117,14 @@ select
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	a.margin_mode AS margin_mode,
-	coalesce(ipos.leverage, 0) AS leverage,
+	if((ipos.leverage = 0), cfg.default_leverage, ipos.leverage) AS leverage,
 	id.max_leverage AS max_leverage,
 	coalesce(ipos.lot_scale, 0) AS lot_scale,
 	coalesce(ipos.martingale, 0) AS martingale,
+	if((ipos.sma = 0), cfg.default_sma, ipos.sma) AS sma,
 	coalesce(ipos.strict_stops, 0) AS strict_stops,
 	coalesce(ipos.strict_targets, 0) AS strict_targets,
+	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
 	coalesce(r.open_request, 0) AS open_request,
 	coalesce(tp.open_take_profit, 0) AS open_take_profit,
 	coalesce(sl.open_stop_loss, 0) AS open_stop_loss,
@@ -1060,22 +1132,14 @@ select
 	ipos.close_time AS close_time,
 	ipos.update_time AS update_time
 from
-	((((((((((((((((
-	select
-		distinct ipos.account AS account,
-		ipos.instrument AS instrument,
-		pos.position AS position
-	from
-		(devel.instrument_position ipos
-	join devel.position pos)) pos
-left join devel.instrument_position ipos on
-	(((ipos.account = pos.account) and (ipos.instrument = pos.instrument) and (ipos.position = pos.position))))
-join devel.account a on
-	((a.account = pos.account)))
+	(((((((((((((((devel.account a
+join devel.app_config cfg)
+join devel.instrument_position ipos on
+	((ipos.account = a.account)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument)))
 join devel.environment e on
 	((e.environment = a.environment)))
-join devel.instrument i on
-	((pos.instrument = i.instrument)))
 join devel.instrument_detail id on
 	((id.instrument = i.instrument)))
 join devel.currency b on
@@ -1129,7 +1193,6 @@ left join (
 
 CREATE VIEW devel.vw_instruments AS
 select
-	a.account AS account,
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
@@ -1139,8 +1202,6 @@ select
 	it.source_ref AS instrument_type,
 	ct.source_ref AS contract_type,
 	id.contract_value AS contract_value,
-	a.hedging AS hedging,
-	a.margin_mode AS margin_mode,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
 	id.max_limit_size AS max_limit_size,
@@ -1155,8 +1216,7 @@ select
 	id.update_time AS update_time,
 	i.create_time AS create_time
 from
-	((((((((devel.instrument i
-join devel.account a)
+	(((((((devel.instrument i
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
@@ -1452,40 +1512,6 @@ join (
 join devel.state s on
 	((s.state = u.state)));
 
-CREATE VIEW devel.vw_candles AS
-select
-	devel.vi.instrument AS instrument,
-	concat(b.symbol, '-', q.symbol) AS symbol,
-	b.currency AS base_currency,
-	b.symbol AS base_symbol,
-	q.currency AS quote_currency,
-	q.symbol AS quote_symbol,
-	pt.period AS period,
-	pt.timeframe AS timeframe,
-	c.bar_time AS bar_time,
-	(unix_timestamp(c.bar_time) * 1000) AS timestamp,
-	c.open AS open,
-	c.high AS high,
-	c.low AS low,
-	c.close AS close,
-	c.volume AS volume,
-	c.vol_currency AS vol_currency,
-	c.vol_currency_quote AS vol_currency_quote,
-	devel.vi.digits AS digits,
-	c.completed AS completed
-from
-	(((((devel.candle c
-join devel.vw_instruments vi on
-	((c.instrument = devel.vi.instrument)))
-join devel.period pt on
-	((c.period = pt.period)))
-join devel.instrument_period ip on
-	(((devel.vi.instrument = ip.instrument) and (ip.period = pt.period))))
-join devel.currency b on
-	((devel.vi.base_currency = b.currency)))
-join devel.currency q on
-	((devel.vi.quote_currency = q.currency)));
-
 CREATE VIEW devel.vw_audit_candles AS
 select
 	audit.instrument AS instrument,
@@ -1501,7 +1527,7 @@ from
 		devel.vc.symbol AS symbol,
 		devel.vc.period AS period,
 		devel.vc.timeframe AS timeframe,
-		cast(date_format(devel.vc.bar_time, '%Y-%m-%d %k:00:00') as datetime) AS hour,
+		cast(date_format(from_unixtime((devel.vc.timestamp / 1000)), '%Y-%m-%d %k:00:00') as datetime) AS hour,
 		count(0) AS entries
 	from
 		devel.vw_candles vc
@@ -1510,14 +1536,14 @@ from
 		devel.vc.symbol,
 		devel.vc.period,
 		devel.vc.timeframe,
-		cast(date_format(devel.vc.bar_time, '%Y-%m-%d %k:00:00') as datetime)
+		cast(date_format(from_unixtime((devel.vc.timestamp / 1000)), '%Y-%m-%d %k:00:00') as datetime)
 	having
 		(entries < 4)) audit
 join (
 	select
 		c.instrument AS instrument,
 		c.period AS period,
-		min(cast(date_format(c.bar_time, '%Y-%m-%d %k:00:00') as datetime)) AS hour
+		min(cast(date_format(from_unixtime((c.timestamp / 1000)), '%Y-%m-%d %k:00:00') as datetime)) AS hour
 	from
 		devel.candle c
 	group by
@@ -1576,3 +1602,4 @@ CREATE TRIGGER devel.trig_update_audit_request AFTER UPDATE ON request FOR EACH 
               NEW.update_time
              );
 END;
+

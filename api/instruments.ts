@@ -4,13 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Session, signRequest } from "module/session";
+import { Session } from "module/session";
+
+import type { IInstrument } from "db/interfaces/instrument";
 
 import * as Response from "api/response";
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentDetail from "db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "db/interfaces/instrument_period";
-import * as InstrumentPosition from "db/interfaces/instrument_position"
 
 export interface IInstrumentAPI {
   instId: string;
@@ -42,8 +43,8 @@ export interface IResult {
 const publish = async (props: Array<IInstrumentAPI>) => {
   console.log("-> Instrument:Publish [API]");
 
-  const published: Array<Instrument.IInstrument["instrument"]> = [];
-  const modified: Array<Instrument.IInstrument["instrument"]> = [];
+  const published: Array<IInstrument["instrument"]> = [];
+  const modified: Array<IInstrument["instrument"]> = [];
 
   for (const api of props) {
     const instrument = await Instrument.Publish({ symbol: api.instId });
@@ -72,7 +73,6 @@ const publish = async (props: Array<IInstrumentAPI>) => {
   const suspense = await Instrument.Suspense(published);
   
   await InstrumentPeriod.Import();
-  await InstrumentPosition.Import();
   
   suspense && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
   modified.length && console.log("   # Instruments Updated: ", modified.length, "modified");

@@ -7,9 +7,10 @@
 import type { IInstrumentPosition, TPosition } from "db/interfaces/instrument_position";
 
 import { Session, signRequest } from "module/session";
-import { hasValues } from "lib/std.util";
+import { hasValues, isEqual } from "lib/std.util";
 
 import * as Response from "api/response";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 export interface ILeverageAPI {
   instId: string;
@@ -25,12 +26,42 @@ export interface IResult {
 }
 
 //+--------------------------------------------------------------------------------------+
+//| Sets the Status for the Instrument Position once updated via API/WSS ;               |
+//+--------------------------------------------------------------------------------------+
+export const Leverage = async (props: Partial<ILeverageAPI>) => {
+  if (!hasValues(props) || !props.instId || !props.positionSide || !props.leverage) {
+    return undefined;
+  }
+
+  const promise = InstrumentPosition.Fetch({
+    account: Session().account,
+    symbol: props.instId,
+    position: props.positionSide,
+    status: "Closed",
+  });
+
+  const instrument_position = await promise;
+
+  if (instrument_position) {
+    const [current] = instrument_position;
+    const leverage = isEqual(props.leverage, current.leverage!) ? undefined : props.leverage;
+
+    if (leverage) {
+      const result = await Publish(props);
+      return result ? result.leverage : current.leverage;
+    } else {
+      return undefined;
+    }
+  } else {
+    return undefined;
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
 //| Retrieves leverages by symbol (max:20) from broker api for currently logged account; |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Array<Partial<IInstrumentPosition>>) => {
   if (hasValues(props)) {
-    console.log("-> Leverage.Fetch [API]");
-
     const { margin_mode } = props[0];
     const method = "GET";
     const path = `/api/v1/account/batch-leverage-info?instId=${props.map((i) => i.symbol).join(",")}&marginMode=${margin_mode}`;
@@ -90,7 +121,7 @@ export const Publish = async (props: Partial<ILeverageAPI>) => {
     });
     if (response.ok) {
       const json = await response.json();
-      return await Response.Leverage(json);
+      return await Response.Leverage(json) as Partial<IInstrumentPosition>;
     } else throw new Error(`[Error] Leverage.Publish: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log("-> [Error] Leverage.Publish:", error, method, headers, body);

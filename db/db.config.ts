@@ -19,6 +19,7 @@ const pool = mysql.createPool({
   connectionLimit: parseInt(process.env.DB_CONNECTIONLIMIT!),
   maxIdle: parseInt(process.env.DB_MAXIDLE!),
   connectTimeout: parseInt(process.env.DB_CONNECTTIMEOUT!),
+  decimalNumbers: true,
 });
 
 // port: process.env.DB_PORT,

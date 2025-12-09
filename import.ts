@@ -4,7 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICandle } from "db/interfaces/candle";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+
+import { clear, IMessage } from "lib/app.util";
+import { hexify } from "lib/crypto.util";
+import { config } from "module/session";
 
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
@@ -20,10 +24,10 @@ import * as State from "db/interfaces/state";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Roles from "db/interfaces/role";
 
-import * as Candles from "api/candles";
-import * as Instruments from "api/instruments";
-
-import { clear } from "lib/app.util";
+import * as CandleAPI from "api/candles";
+import * as InstrumentAPI from "api/instruments";
+import * as InstrumentPositionAPI from "api/instrumentPositions";
+import * as db from "db/query.utils";
 
 //+--------------------------------------------------------------------------------------+
 //| Installs seed data during initialization of a new database;                          |
@@ -41,22 +45,62 @@ export const Import = async () => {
   await Roles.Import();
   await State.Import();
   await RoleAuthority.Import({ status: `Enabled` });
-  await Instruments.Import();
+  await InstrumentAPI.Import();
+  await InstrumentPositionAPI.Import();
+  await InstrumentPeriod.Import();
+
+  const account = hexify(process.env.account || "???");
+  const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+    { account, auto_status: "Enabled", symbol: undefined },
+    { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+  );
+
+  config({ account });
+
+  const promises = authorized.map((instrument) => {
+    const { symbol, timeframe } = instrument;
+
+    if (symbol && timeframe) {
+      const startTime = 0;
+      const message: IMessage = clear({ state: "init", symbol });
+
+      console.log("In App.Loader for ", { symbol, timeframe, startTime }, "start: ", new Date().toLocaleString());
+
+      return CandleAPI.Import(message, { symbol, timeframe, startTime });
+    }
+  });
+  const published = await Promise.all(promises);
+
+  published.forEach((message) => {
+    if (message?.db) {
+      console.log(`-> Import for ${message.symbol} complete:`, new Date().toLocaleString());
+      message.db.insert && console.log(`  # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
+      message.db.update && console.log(`  # [Info] ${message.symbol}: ${message.db.update} candles updated`);
+    }
+  });
 
   //-------------------------------- candles Import ---------------------------------------//
   const importCandles = async () => {
-    const instruments = await InstrumentPeriod.Fetch({ active_collection: true });
+    const promises = authorized.map((instrument) => {
+      return CandleAPI.Publish(clear({ state: `init`, symbol: instrument.symbol! }));
+    });
+    const published = await Promise.all(promises);
 
-    if (instruments) {
-      console.log("In Candles.Import [API]:", new Date().toLocaleString());
-      console.log("-> [Info] Importing:", instruments.map((i) => i.symbol).join(", "));
-      for (const local of instruments) await Candles.Import(clear({ state: `init`, symbol: local.symbol! }), { symbol: local.symbol! });
-      console.log("-> [info] Candles.Import complete:", new Date().toLocaleString());
+    if (published) {
+      console.log("In Candles.Publish [API]:", new Date().toLocaleString());
+      console.log("-> [Info] Publishing:", published.map((i) => i?.symbol || `???`).join(", "));
+
+      published.forEach((message) => {
+        if (message?.db) {
+          message.db.insert && console.log(`  # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
+          message.db.update && console.log(`  # [Info] ${message.symbol}: ${message.db.update} candles updated`);
+        }
+      });
     }
   };
 
   setInterval(async () => {
-    await importCandles();
+    importCandles();
   }, 5000);
 };
 

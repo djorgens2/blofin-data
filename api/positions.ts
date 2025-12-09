@@ -73,7 +73,7 @@ export const Publish = async (props: Array<IPositionsAPI>): Promise<[Array<Parti
     const result = await Positions.Publish(formatted);
 
     if (result) {
-      const [ipos] = await InstrumentPositions.Publish([{ instrument_position, status: "Open" }]) ?? [];
+      const ipos = await InstrumentPositions.Publish({ instrument_position, status: "Open" });
 
       if (ipos) {
         return { type: "success", data: ipos} as const;
@@ -143,7 +143,7 @@ export const Import = async () => {
     const lookup = new Set(accepted.map((p) => p.instrument_position));
     const promises = history.map(async (local) => {
       if (!lookup.has(local.instrument_position!)) {
-        const [result] = await InstrumentPositions.Publish([{ instrument_position: local.instrument_position, status: "Closed" }]) ?? [];
+        const result = await InstrumentPositions.Publish({ instrument_position: local.instrument_position, status: "Closed" });
         result ? success.push(result) : failed.push(local);
       }
     });

@@ -157,7 +157,7 @@ export const Update = async <T>(props: Partial<T>, options: TOptions) => {
 //+--------------------------------------------------------------------------------------+
 //| Parses, prepares, and executes Update statements;                                    |
 //+--------------------------------------------------------------------------------------+
-export const Distinct = async <T>(props: Partial<T>, options: TOptions) => {
+export const Distinct = async <T>(props: Partial<T>, options: TOptions): Promise<Array<Partial<T>>> => {
   const [columns, filters] = splitKeys<T>(props, options.keys ? options.keys.map((k) => k.key) : []);
   const { table } = options;
   const fields = Object.keys(props).join(", ");

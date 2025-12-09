@@ -9,17 +9,20 @@
 "use strict";
 
 import * as Candles from "api/candles";
+import { IMessage, clear } from "lib/app.util";
 
 //+---------------------------------------------------------------------------------------------+
 //| Loads candle data locally for supplied symbol/timeframe from start_time and earlier;        |
 //+---------------------------------------------------------------------------------------------+
-const symbol = process.argv[2] || "BTC-USDT";
+const symbol = process.argv[2] || "ERROR";
 const timeframe = process.argv[3] || "15m";
 const start_time = process.argv[4] ? parseInt(process.argv[4]) : new Date().getTime();
+const message: IMessage = clear({ state: 'init', symbol});
 
-console.log('Loader for ',{symbol, timeframe, start_time}, 'start: ', new Date().toLocaleString());
+console.log("In App.Loader for ", { symbol, timeframe, start_time }, "start: ", new Date().toLocaleString());
 
-Candles.Loader({ symbol, timeframe, start_time }).then((res) => {
-  console.log(res, 'complete:', new Date().toLocaleString());
-  process.exit(0);
+Candles.Import(message, { symbol, timeframe, startTime: start_time }).then((res) => {
+  console.log(`-> Import for ${res?.symbol} complete:`, new Date().toLocaleString());
+  res?.db && res.db.insert && console.log(`  # [Info] ${message.symbol}: ${res.db.insert} candles imported`);
+  res?.db && res.db.update && console.log(`  # [Info] ${message.symbol}: ${res.db.update} candles updated`);
 });

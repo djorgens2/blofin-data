@@ -5,16 +5,19 @@
 "use strict";
 
 import type { ICandle } from "db/interfaces/candle";
-import type { IMessage } from "lib/app.util";
 
-import { isEqual } from "lib/std.util";
-import { clear } from "lib/app.util";
+import { hasValues } from "lib/std.util";
+import { Session } from "module/session";
+import { Select, Load } from "db/query.utils";
+import { AppConfig } from "db/app.config";
 
 import * as Candle from "db/interfaces/candle";
 import * as Period from "db/interfaces/period";
 import * as Instrument from "db/interfaces/instrument";
+import { clear, IMessage } from "lib/app.util";
 
 export interface ICandleAPI {
+  symbol?: string;
   ts: string;
   open: string;
   high: string;
@@ -32,134 +35,205 @@ export interface IResult {
   data: string[][];
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Applies inserts/updates from rest api data to local db;                              |
-//+--------------------------------------------------------------------------------------+
-const publish = async (message: IMessage, props: Partial<ICandle>, api: Array<ICandleAPI>) => {
-  (api.length > 5) && (console.log(`-> Candle:Publish [API]: ${props.symbol} / ${api.length}`));
+interface IInstrumentCandle {
+  account: Uint8Array;
+  instrument_position: Uint8Array;
+  instrument: Uint8Array;
+  symbol: string;
+  period: Uint8Array;
+  timeframe: string;
+  timeframe_units: number;
+  timestamp: number;
+  candle_max_fetch: number;
+}
 
-  const modified = [];
-  const missing = [];
+interface ILoaderProps {
+  symbol: string;
+  timeframe: string;
+  startTime: number;
+}
 
-  if (api.length) {
+
+// +--------------------------------------------------------------------------------------+
+// | Test for changed candle;                                                             |
+// +--------------------------------------------------------------------------------------+
+const isChanged = (apiCandle: Partial<ICandle>, dbCandle: Partial<ICandle>): boolean => {
+  return (
+    apiCandle.open !== dbCandle.open ||
+    apiCandle.high !== dbCandle.high ||
+    apiCandle.low !== dbCandle.low ||
+    apiCandle.close !== dbCandle.close ||
+    apiCandle.volume !== dbCandle.volume ||
+    apiCandle.vol_currency !== dbCandle.vol_currency ||
+    apiCandle.vol_currency_quote !== dbCandle.vol_currency_quote ||
+    !!apiCandle.completed !== !!dbCandle.completed
+  );
+};
+
+// +--------------------------------------------------------------------------------------+
+// | Aggregate and format data for bulk loading;                                          |
+// +--------------------------------------------------------------------------------------+
+const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
+  api.length > 5 && console.log(`-> Candle:Publish [API]: ${api[0].symbol} / ${api.length}`);
+
+  if (hasValues(api)) {
     const { instrument, period } = props;
-
-    for (const candle of api) {
-      await Candle.Publish({
+    const candles: Array<Partial<ICandle>> = api.map((c: ICandleAPI) => {
+      return {
         instrument,
         period,
-        bar_time: new Date(parseInt(candle.ts)),
-        open: parseFloat(candle.open),
-        high: parseFloat(candle.high),
-        low: parseFloat(candle.low),
-        close: parseFloat(candle.close),
-        volume: parseInt(candle.vol),
-        vol_currency: parseFloat(candle.volCurrency),
-        vol_currency_quote: parseFloat(candle.volCurrencyQuote),
-        completed: !!parseInt(candle.confirm),
-      });
-    }
-  }
+        timestamp: parseInt(c.ts),
+        open: parseFloat(c.open),
+        high: parseFloat(c.high),
+        low: parseFloat(c.low),
+        close: parseFloat(c.close),
+        volume: parseInt(c.vol),
+        vol_currency: parseFloat(c.volCurrency),
+        vol_currency_quote: parseFloat(c.volCurrencyQuote),
+        completed: !!parseInt(c.confirm),
+      };
+    });
 
-  // missing.length && console.log(`   # Candles:Imported [${props.symbol}, ${props.timeframe}]: `, missing.length, "inserted");
-  // modified.length && console.log(`   # Candles Merged: [${props.symbol}, ${props.timeframe}]:`, modified.length, "updated");
+    const dbBatch = (await Candle.Batch({ ...props, timestamp: candles[0].timestamp, limit: AppConfig().candle_max_fetch })) ?? [];
+    const dbCandleMap = new Map<number, Partial<ICandle>>();
+    dbBatch.forEach((c) => dbCandleMap.set(c.timestamp!, c));
 
-  process.send && process.send({ ...message, db: { insert: missing.length, update: modified.length } });
+    const categorized = candles.reduce(
+      (acc, apiCandle) => {
+        const existingDbCandle = dbCandleMap.get(apiCandle.timestamp!);
+
+        if (existingDbCandle) {
+          if (isChanged(apiCandle, existingDbCandle)) {
+            acc.updates.push(apiCandle);
+          }
+        } else {
+          acc.inserts.push(apiCandle);
+        }
+        return acc;
+      },
+      { inserts: [] as Array<Partial<ICandle>>, updates: [] as Array<Partial<ICandle>> }
+    );
+
+    return {
+      size: candles.length,
+      inserts: categorized.inserts,
+      updates: categorized.updates,
+    };
+  } else return { size: 0, inserts: [], updates: [] };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
-export const Import = async (message: IMessage, props: Partial<ICandle>) => {
-  try {
-    const local = await Instrument.Fetch({ instrument: props.instrument, symbol: props.symbol });
+export const Publish = async (message: IMessage) => {
+  const instrument = await Select<IInstrumentCandle>({ account: Session().account, symbol: message.symbol }, { table: "vw_instrument_candles" });
 
-    if (local === undefined) throw new Error(`Unathorized fetch request; instrument/symbol not found`);
-    else {
-      const [{ instrument, interval_collection_rate, symbol, trade_period, trade_timeframe }] = local;
-      const periods = await Period.Fetch({ period: props.period || trade_period, timeframe: props.timeframe || trade_timeframe || "15m" });
+  if (instrument.length) {
+    const [current] = instrument;
 
-      if (periods) {
-        const [{ period, timeframe, timeframe_units }] = periods;
-        const candle = await Candle.Fetch({ instrument, period, completed: true, limit: 1 });
-        const start = candle ? `&before=${candle[0].bar_time!.getTime() - (interval_collection_rate || 1) * (timeframe_units || 1) * 60 * 1000}` : ``;
-        const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=1440&bar=${timeframe}${start}`);
+    try {
+      const { instrument, symbol, period, timeframe, timeframe_units, timestamp, candle_max_fetch } = current;
+      const keys = { instrument, period };
+      const start = `&before=${timestamp! - 3 * timeframe_units! * 60 * 1000}`;
+      const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=${candle_max_fetch}&bar=${timeframe}${start}`);
 
-        if (response.ok) {
-          const json = await response.json();
-          const result: IResult = json;
-          const api = result.data.map((field: string[]) => ({
-            ts: field[0],
-            open: field[1],
-            high: field[2],
-            low: field[3],
-            close: field[4],
-            vol: field[5],
-            volCurrency: field[6],
-            volCurrencyQuote: field[7],
-            confirm: field[8],
+      if (response.ok) {
+        const json = await response.json();
+        const result: IResult = json;
+        if (result.data.length > 0) {
+          const api: ICandleAPI[] = result.data.map((c: string[]) => ({
+            symbol,
+            ts: c[0],
+            open: c[1],
+            high: c[2],
+            low: c[3],
+            close: c[4],
+            vol: c[5],
+            volCurrency: c[6],
+            volCurrencyQuote: c[7],
+            confirm: c[8],
           }));
 
-          await publish(message, { instrument, period, symbol }, api);
-        } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
-      }
+          const published = await publish(keys, api);
+          published.inserts.length && (await Load<ICandle>(published.inserts, { table: `candle` }));
+          const promises = published.updates.map((update) => Candle.Publish(update));
+          await Promise.all(promises);
+
+          const receipt = { ...message, db: { insert: published.inserts.length, update: published.updates.length } };
+          process.send && process.send(receipt);
+          return receipt;
+        }
+      } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
+    } catch (error) {
+      console.log("Bad request in Candles.Import", { response: error });
     }
-  } catch (error) {
-    console.log("Bad request in Candles.Import", { props, response: error });
-  }
+  } else throw new Error(`Unathorized fetch request; no instruments found for account`);
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieve and merge full-history, candle data; format; pass to publisher;             |
 //+--------------------------------------------------------------------------------------+
-export const Loader = async (props: { symbol: string; timeframe: string; start_time: number }) => {
+export const Import = async (message: IMessage, props: ILoaderProps) => {
   const { symbol, timeframe } = props;
-  const instrument = await Instrument.Key({ symbol });
-  const period = await Period.Key({ timeframe });
+  const [instrument, period] = await Promise.all([Instrument.Key({ symbol }), Period.Key({ timeframe })]);
 
-  if (!instrument) return `Instrument not found: ${symbol}`;
-  if (!period) return `Period not found: ${timeframe}`;
+  if (instrument && period) {
+    console.log(`Loader start for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
 
-  Object.assign(props, { instrument, period, timestamp: props.start_time });
+    const limit = AppConfig().candle_max_fetch || 100;
+    const keys = { instrument, period };
+    
+    const inserts: Array<Partial<ICandle>> = [];
+    const updates: Array<Partial<ICandle>> = [];
 
-  console.log(`Loader start for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
+    while (true) {
+      console.log(`Fetching candles for ${symbol} after [${props.startTime},${new Date(props.startTime).toISOString()}]`);
 
-  do {
-    const after = props.start_time ? `&after=${props.start_time}` : "";
-    console.log(`Fetching candles for ${props.symbol} after [${props.start_time},${new Date(props.start_time).toISOString()}]`);
+      const after = props.startTime ? `&after=${props.startTime}` : "";
 
-    try {
-      const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=100&bar=${timeframe}${after}`);
+      try {
+        const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}${after}`);
 
-      if (response.ok) {
-        const json = await response.json();
-        const result: IResult = json;
-        if (result.data.length) {
-          const api = result.data.map((field: string[]) => ({
-            ts: field[0],
-            open: field[1],
-            high: field[2],
-            low: field[3],
-            close: field[4],
-            vol: field[5],
-            volCurrency: field[6],
-            volCurrencyQuote: field[7],
-            confirm: field[8],
-          }));
+        if (response.ok) {
+          const json = await response.json();
+          const result: IResult = json;
 
-          props.start_time = parseInt(api[api.length - 1].ts);
-          publish(clear({ state: "init", symbol: symbol}), { ...props, timestamp: props.start_time }, api);
+          if (result.data.length > 0) {
+            const api: ICandleAPI[] = result.data.map((c: string[]) => ({
+              symbol,
+              ts: c[0],
+              open: c[1],
+              high: c[2],
+              low: c[3],
+              close: c[4],
+              vol: c[5],
+              volCurrency: c[6],
+              volCurrencyQuote: c[7],
+              confirm: c[8],
+            }));
+
+            props.startTime = parseInt(api[api.length - 1].ts);
+            const published = await publish(keys, api);
+            inserts.push(...published.inserts);
+            updates.push(...published.updates);
+          } else {
+            inserts.length && (await Load<ICandle>(inserts, { table: `candle` }));
+            const promises = updates.map((update) => Candle.Publish(update));
+            await Promise.all(promises);
+
+            const receipt = { ...message, db: { insert: inserts.length, update: updates.length } };
+            process.send && process.send(receipt);
+            return receipt;
+          }
         } else {
-          await new Promise((r) => setTimeout(r, 30000)); //--- wait 30 seconds for data to apply ---
-          console.log(`Loader end for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
-          return `Process finished, last timestamp: ${props.start_time}`;
+          throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
         }
-      } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
-    } catch (error) {
-      console.log(`Loader error for ${props.symbol} after ${props.start_time} on ${new Date().toISOString()}`);
-      return (error as Error).message;
-    }
+      } catch (error) {
+        console.log(`Loader error for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
+        return { ...message, text: Error().message } as IMessage;
+      }
 
-    await new Promise((r) => setTimeout(r, 5000));
-  } while (true);
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+  }
 };

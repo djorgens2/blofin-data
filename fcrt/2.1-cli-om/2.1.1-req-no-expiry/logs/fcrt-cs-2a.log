@@ -15,7 +15,7 @@
     'update_time'
   ],
   args: [
-    <Buffer f7 a6 cf 18 bf a6>,
+    <Buffer af c9 eb d0 9b d9>,
     <Buffer 11 9b b0 95 07 bd>,
     'sell',
     <Buffer 62 57 cb>,
@@ -25,13 +25,13 @@
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/o expiry; w/o tpsl',
-    2025-12-01T13:46:03.361Z,
-    2025-12-01T21:46:03.366Z,
-    2025-12-01T13:46:03.361Z
+    2025-12-03T08:13:51.264Z,
+    2025-12-03T16:13:51.266Z,
+    2025-12-03T08:13:51.264Z
   ]
 }
 {
-  submitted: <Buffer f7 a6 cf 18 bf a6>,
+  submitted: <Buffer af c9 eb d0 9b d9>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -41,10 +41,10 @@
     size: 100
   }
 }
-Test 2a: Request submitted, check db for results. <Buffer f7 a6 cf 18 bf a6>
+Test 2a: Request submitted, check db for results. <Buffer af c9 eb d0 9b d9>
 Fetched order from DB: [
   {
-    request: <Buffer f7 a6 cf 18 bf a6>,
+    request: <Buffer af c9 eb d0 9b d9>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer 54 e7 5e>,
@@ -86,8 +86,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/o expiry; w/o tpsl',
-    create_time: 2025-12-01T13:46:03.361Z,
-    expiry_time: 2025-12-01T21:46:03.366Z,
-    update_time: 2025-12-01T13:46:03.361Z
+    create_time: 2025-12-03T08:13:51.264Z,
+    expiry_time: 2025-12-03T16:13:51.266Z,
+    update_time: 2025-12-03T08:13:51.264Z
   }
 ]

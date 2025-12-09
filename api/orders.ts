@@ -59,7 +59,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
       else {
         const cancel_source = await Reference.Key<TRefKey>({ source_ref: order.cancelSource || "not_canceled" }, { table: `cancel_source` });
         const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` });
-        const order_states = await Reference.Fetch({ source_ref: order.state || "accepted" }, { table: `vw_order_states` });
+        const order_states = await Reference.Fetch({ source_ref: order.state}, { table: `vw_order_states` });
         const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
 
         const result = await Orders.Publish({
