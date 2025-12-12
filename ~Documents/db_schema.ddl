@@ -590,8 +590,8 @@ CREATE  TABLE devel.candle (
 	low                  DOUBLE    NOT NULL   ,
 	close                DOUBLE    NOT NULL   ,
 	volume               INT    NOT NULL   ,
-	vol_currency         DECIMAL(15,6)    NOT NULL   ,
-	vol_currency_quote   DECIMAL(15,6)    NOT NULL   ,
+	vol_currency         DECIMAL(24,12)    NOT NULL   ,
+	vol_currency_quote   DECIMAL(24,12)    NOT NULL   ,
 	completed            BOOLEAN    NOT NULL   ,
 	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, timestamp ),
 	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -1152,7 +1152,7 @@ join devel.state bs on
 	((bs.state = b.state)))
 join devel.state qs on
 	((qs.state = q.state)))
-left join blofin.period p on
+left join devel.period p on
 	((p.period = ipos.period)))
 join devel.state disabled on
 	((disabled.status = 'Disabled')))

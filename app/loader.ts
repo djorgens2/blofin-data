@@ -8,8 +8,12 @@
 //+---------------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IMessage } from "lib/app.util";
+
+import { clear } from "lib/app.util";
+import { Session } from "module/session";
+
 import * as Candles from "api/candles";
-import { IMessage, clear } from "lib/app.util";
 
 //+---------------------------------------------------------------------------------------------+
 //| Loads candle data locally for supplied symbol/timeframe from start_time and earlier;        |
@@ -17,12 +21,15 @@ import { IMessage, clear } from "lib/app.util";
 const symbol = process.argv[2] || "ERROR";
 const timeframe = process.argv[3] || "15m";
 const start_time = process.argv[4] ? parseInt(process.argv[4]) : new Date().getTime();
-const message: IMessage = clear({ state: 'init', symbol});
 
-console.log("In App.Loader for ", { symbol, timeframe, start_time }, "start: ", new Date().toLocaleString());
+if (Session().account) {
+  const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
 
-Candles.Import(message, { symbol, timeframe, startTime: start_time }).then((res) => {
-  console.log(`-> Import for ${res?.symbol} complete:`, new Date().toLocaleString());
-  res?.db && res.db.insert && console.log(`  # [Info] ${message.symbol}: ${res.db.insert} candles imported`);
-  res?.db && res.db.update && console.log(`  # [Info] ${message.symbol}: ${res.db.update} candles updated`);
-});
+  console.log("In App.Loader for ", { symbol, timeframe, start_time }, "start: ", new Date().toLocaleString());
+
+  Candles.Import(message, { symbol, timeframe, startTime: start_time }).then((res) => {
+    console.log(`-> Import for ${res?.symbol} complete:`, new Date().toLocaleString());
+    res?.db && res.db.insert && console.log(`  # [Info] ${message.symbol}: ${res.db.insert} candles imported`);
+    res?.db && res.db.update && console.log(`  # [Info] ${message.symbol}: ${res.db.update} candles updated`);
+  });
+}

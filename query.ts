@@ -187,7 +187,10 @@ const show = async (subject: string, args: string): Promise<string> => {
     }
     case Subject.Account: {
       const props = parseJSON<Account.IAccount>(args);
-      // const key = await Account.Key(props!);
+      Object.assign(props!, {
+        ...props,
+        account: hexify(props?.account!),
+      });
       const rows = await Account.Fetch(props!);
       console.log("Fetch Account:", props, { key: 0 }, rows);
       return "ok";

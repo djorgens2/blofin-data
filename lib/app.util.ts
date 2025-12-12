@@ -39,7 +39,9 @@ export type Role = (typeof Role)[keyof typeof Role];
 //-- IPC message header
 export interface IMessage {
   state: `init` | `api` | `update` | `ready`;
+  account: Uint8Array;
   symbol: string;
+  timeframe: string;
   code?: number;
   success?: boolean;
   text?: string;
@@ -52,7 +54,7 @@ export interface IMessage {
     fractal?: number;
     sma?: number;
   };
-  account?: {
+  trades?: {
     open?: number;
     close?: number;
   };
@@ -64,7 +66,9 @@ export interface IMessage {
 export const clear = (message: IMessage): IMessage => {
   return {
     state: message.state,
+    account: message.account,
     symbol: message.symbol,
+    timeframe: message.timeframe,
     code: 0,
     success: true,
     text: "",
@@ -77,7 +81,7 @@ export const clear = (message: IMessage): IMessage => {
       fractal: 0,
       sma: 0,
     },
-    account: {
+    trades: {
       open: 0,
       close: 0,
     },

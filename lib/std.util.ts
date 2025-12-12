@@ -5,6 +5,7 @@
 "use strict";
 
 import Prompt from "cli/modules/Prompts";
+import Decimal from "decimal.js";
 
 //+--------------------------------------------------------------------------------------+
 //| Currency formatter; returns values formatted in USD;                                 |
@@ -94,32 +95,46 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 };
 
 //+--------------------------------------------------------------------------------------+
-//| Returns true on equal comparison of number/binary at specified precision             |
+//| Returns true on equal comparison of values at specified precision                    |
 //+--------------------------------------------------------------------------------------+
-export const isEqual = (source: number | string | Uint8Array | Date, benchmark: number | string | Uint8Array | Date, digits: number = 8): boolean => {
-  if (source instanceof Uint8Array)
-    if (benchmark instanceof Uint8Array) return source.every((value, index) => value === benchmark[index]);
-    else return false;
+type ComparableValue = number | string | Uint8Array | Date | Decimal;
+export const isEqual = (source: ComparableValue, benchmark: ComparableValue, digits: number = 8, log: boolean = false): boolean => {
+  if (source === undefined && benchmark === undefined) {
+    return true;
+  }
 
-  const arg1: string =
-    typeof source === "string"
-      ? parseFloat(source).toFixed(digits)
-      : source instanceof Date
-      ? source.getTime().toString()
-      : typeof source === "number"
-      ? source.toFixed(digits)
-      : ``;
+  if (source === undefined || benchmark === undefined) {
+    return false;
+  }
 
-  const arg2: string =
-    typeof benchmark === "string"
-      ? parseFloat(benchmark).toFixed(digits)
-      : benchmark instanceof Date
-      ? benchmark.getTime().toString()
-      : typeof benchmark === "number"
-      ? benchmark.toFixed(digits)
-      : ``;
+  // --- 1. Handle Uint8Array (Buffer/Binary data) ---
+  if (source instanceof Uint8Array) {
+    if (benchmark instanceof Uint8Array) {
+      if (source.length !== benchmark.length) return false;
+      return source.every((value, index) => value === benchmark[index]);
+    }
+    return false;
+  }
 
-  return arg1 === arg2;
+  // --- 2. Handle Date Objects (Compare timestamps numerically) ---
+  if (source instanceof Date || benchmark instanceof Date) {
+    const sourceTime = source instanceof Date ? source.getTime() : new Date(source as string | number).getTime();
+    const benchTime = benchmark instanceof Date ? benchmark.getTime() : new Date(benchmark as string | number).getTime();
+    return sourceTime === benchTime;
+  }
+
+  // --- 3. Handle Numeric/String values using Decimal.js ---
+  try {
+    const arg1 = new Decimal(source as string | number | Decimal);
+    const arg2 = new Decimal(benchmark as string | number | Decimal);
+
+    log && console.log({ arg1, arg2 });
+
+    return arg1.toFixed(digits) === arg2.toFixed(digits);
+  } catch (e) {
+    console.error("isEqual: Invalid input for Decimal conversion", { source, benchmark });
+    return false; // Return false if conversion fails (e.g., empty string)
+  }
 };
 
 //+--------------------------------------------------------------------------------------+

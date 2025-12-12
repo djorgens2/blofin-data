@@ -4,17 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IMessage } from "lib/app.util";
 import type { ICandle } from "db/interfaces/candle";
 
-import { hasValues } from "lib/std.util";
 import { Session } from "module/session";
 import { Select, Load } from "db/query.utils";
-import { AppConfig } from "db/app.config";
+import { isEqual } from "lib/std.util";
 
 import * as Candle from "db/interfaces/candle";
 import * as Period from "db/interfaces/period";
 import * as Instrument from "db/interfaces/instrument";
-import { clear, IMessage } from "lib/app.util";
 
 export interface ICandleAPI {
   symbol?: string;
@@ -53,30 +52,30 @@ interface ILoaderProps {
   startTime: number;
 }
 
-
 // +--------------------------------------------------------------------------------------+
 // | Test for changed candle;                                                             |
 // +--------------------------------------------------------------------------------------+
 const isChanged = (apiCandle: Partial<ICandle>, dbCandle: Partial<ICandle>): boolean => {
-  return (
-    apiCandle.open !== dbCandle.open ||
-    apiCandle.high !== dbCandle.high ||
-    apiCandle.low !== dbCandle.low ||
-    apiCandle.close !== dbCandle.close ||
-    apiCandle.volume !== dbCandle.volume ||
-    apiCandle.vol_currency !== dbCandle.vol_currency ||
-    apiCandle.vol_currency_quote !== dbCandle.vol_currency_quote ||
-    !!apiCandle.completed !== !!dbCandle.completed
+  const changed = !(
+    isEqual(apiCandle.open!, dbCandle.open!) &&
+    isEqual(apiCandle.high!, dbCandle.high!) &&
+    isEqual(apiCandle.low!, dbCandle.low!) &&
+    isEqual(apiCandle.close!, dbCandle.close!) &&
+    isEqual(apiCandle.volume!, dbCandle.volume!) &&
+    isEqual(apiCandle.vol_currency!, dbCandle.vol_currency!, 5) &&
+    isEqual(apiCandle.vol_currency_quote!, dbCandle.vol_currency_quote!, 5) &&
+    !!apiCandle.completed === !!dbCandle.completed
   );
+  return changed;
 };
 
 // +--------------------------------------------------------------------------------------+
 // | Aggregate and format data for bulk loading;                                          |
 // +--------------------------------------------------------------------------------------+
 const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
-  api.length > 5 && console.log(`-> Candle:Publish [API]: ${api[0].symbol} / ${api.length}`);
+  if (api.length) {
+    api.length > 5 && console.log(`-> Candle.Publish [API]: ${api[0].symbol} / ${api.length}`);
 
-  if (hasValues(api)) {
     const { instrument, period } = props;
     const candles: Array<Partial<ICandle>> = api.map((c: ICandleAPI) => {
       return {
@@ -94,8 +93,9 @@ const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
       };
     });
 
-    const dbBatch = (await Candle.Batch({ ...props, timestamp: candles[0].timestamp, limit: AppConfig().candle_max_fetch })) ?? [];
+    const dbBatch = (await Candle.Batch({ ...props, timestamp: candles[0].timestamp, limit: Session().candle_max_fetch })) ?? [];
     const dbCandleMap = new Map<number, Partial<ICandle>>();
+
     dbBatch.forEach((c) => dbCandleMap.set(c.timestamp!, c));
 
     const categorized = candles.reduce(
@@ -126,7 +126,10 @@ const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
 //| Retrieve blofin rest api candle data, format, then pass to publisher;                |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (message: IMessage) => {
-  const instrument = await Select<IInstrumentCandle>({ account: Session().account, symbol: message.symbol }, { table: "vw_instrument_candles" });
+  const instrument = await Select<IInstrumentCandle>(
+    { account: Session().account, symbol: message.symbol, timeframe: message.timeframe },
+    { table: "vw_instrument_candles" }
+  );
 
   if (instrument.length) {
     const [current] = instrument;
@@ -167,7 +170,7 @@ export const Publish = async (message: IMessage) => {
     } catch (error) {
       console.log("Bad request in Candles.Import", { response: error });
     }
-  } else throw new Error(`Unathorized fetch request; no instruments found for account`);
+  } else throw new Error(`Unathorized fetch request; instrument ${message.symbol} not configured for account ${Session().alias}`);
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -180,11 +183,9 @@ export const Import = async (message: IMessage, props: ILoaderProps) => {
   if (instrument && period) {
     console.log(`Loader start for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
 
-    const limit = AppConfig().candle_max_fetch || 100;
+    const receipt = { ...message, db: { insert: 0, update: 0 } };
+    const limit = Session().candle_max_fetch || 100;
     const keys = { instrument, period };
-    
-    const inserts: Array<Partial<ICandle>> = [];
-    const updates: Array<Partial<ICandle>> = [];
 
     while (true) {
       console.log(`Fetching candles for ${symbol} after [${props.startTime},${new Date(props.startTime).toISOString()}]`);
@@ -212,16 +213,19 @@ export const Import = async (message: IMessage, props: ILoaderProps) => {
               confirm: c[8],
             }));
 
-            props.startTime = parseInt(api[api.length - 1].ts);
             const published = await publish(keys, api);
-            inserts.push(...published.inserts);
-            updates.push(...published.updates);
-          } else {
-            inserts.length && (await Load<ICandle>(inserts, { table: `candle` }));
-            const promises = updates.map((update) => Candle.Publish(update));
-            await Promise.all(promises);
+            props.startTime = Math.min(...api.map((c) => parseInt(c.ts)));
 
-            const receipt = { ...message, db: { insert: inserts.length, update: updates.length } };
+            if (published.updates.length) {
+              const promises = published.updates.map((update) => Candle.Publish(update));
+              await Promise.all(promises);
+              receipt.db.update += published.updates.length;
+            }
+            if (published.inserts.length) {
+              await Load<ICandle>(published.inserts, { table: `candle` });
+              receipt.db.insert += published.inserts.length;
+            }
+          } else {
             process.send && process.send(receipt);
             return receipt;
           }

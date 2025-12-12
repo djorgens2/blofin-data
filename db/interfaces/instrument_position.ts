@@ -77,7 +77,7 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
       const revised: Partial<IInstrumentPosition> = {
         instrument_position: current.instrument_position,
         state: isEqual(state!, current.state!) ? undefined : state,
-        margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
+        margin_mode: props.margin_mode! === current.margin_mode! ? undefined : props.margin_mode,
         leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
         lot_scale: isEqual(props.lot_scale!, current.lot_scale!) ? undefined : props.lot_scale,
         martingale: isEqual(props.martingale!, current.martingale!) ? undefined : props.martingale,

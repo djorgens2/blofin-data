@@ -139,7 +139,7 @@ const fibonacciPrice = (root: number, expansion: number, percent: number, digits
 //+--------------------------------------------------------------------------------------+
 //| Module CFractal                                                                      |
 //+--------------------------------------------------------------------------------------+
-export const CFractal = async (message: IMessage, instrument: Partial<IInstrumentPosition>) => {
+export const CFractal = async (message: Partial<IMessage>, instrument: Partial<IInstrumentPosition>) => {
   const event = CEvent();
   const Bar: Partial<IBar> = {};
   const SMA: Partial<IBar> = {};
@@ -150,7 +150,7 @@ export const CFractal = async (message: IMessage, instrument: Partial<IInstrumen
     period: instrument.period!,
     timeframe: instrument.timeframe!,
   };
-  const candles = await Candle.Fetch({ ...props, limit: 10000 }); //-- limit will be added to instrument
+  const candles = await Candle.Fetch(props, { suffix: `ORDER BY timestamp DESC LIMIT 10000` });
   console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0 });
   const start: Partial<ICandle> = { ...(candles![candles!.length - 1] || 0) }; // -- oldest candle
 

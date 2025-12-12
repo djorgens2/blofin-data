@@ -8,7 +8,7 @@ import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { clear, IMessage } from "lib/app.util";
 import { hexify } from "lib/crypto.util";
-import { config } from "module/session";
+import { Session, config } from "module/session";
 
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
@@ -49,20 +49,19 @@ export const Import = async () => {
   await InstrumentPositionAPI.Import();
   await InstrumentPeriod.Import();
 
-  const account = hexify(process.env.account || "???");
   const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
-    { account, auto_status: "Enabled", symbol: undefined },
+    { account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
     { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
   );
 
-  config({ account });
+  console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));
 
-  const promises = authorized.map((instrument) => {
+  const promises = authorized.map(async (instrument) => {
     const { symbol, timeframe } = instrument;
 
     if (symbol && timeframe) {
       const startTime = 0;
-      const message: IMessage = clear({ state: "init", symbol });
+      const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
 
       console.log("In App.Loader for ", { symbol, timeframe, startTime }, "start: ", new Date().toLocaleString());
 
@@ -74,34 +73,43 @@ export const Import = async () => {
   published.forEach((message) => {
     if (message?.db) {
       console.log(`-> Import for ${message.symbol} complete:`, new Date().toLocaleString());
-      message.db.insert && console.log(`  # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
-      message.db.update && console.log(`  # [Info] ${message.symbol}: ${message.db.update} candles updated`);
+      message.db.insert && console.log(`   # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
+      message.db.update && console.log(`   # [Info] ${message.symbol}: ${message.db.update} candles updated`);
     }
   });
 
   //-------------------------------- candles Import ---------------------------------------//
   const importCandles = async () => {
-    const promises = authorized.map((instrument) => {
-      return CandleAPI.Publish(clear({ state: `init`, symbol: instrument.symbol! }));
-    });
+    const promises = authorized.map(async (instrument) => {
+    const { symbol, timeframe } = instrument;
+
+    if (symbol && timeframe) {
+      const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
+      return CandleAPI.Publish(clear(message));
+    }});
     const published = await Promise.all(promises);
 
     if (published) {
       console.log("In Candles.Publish [API]:", new Date().toLocaleString());
-      console.log("-> [Info] Publishing:", published.map((i) => i?.symbol || `???`).join(", "));
+      console.log(`-> Authorized Symbols:`, authorized.map((auth) => auth.symbol).join(","));
 
       published.forEach((message) => {
         if (message?.db) {
-          message.db.insert && console.log(`  # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
-          message.db.update && console.log(`  # [Info] ${message.symbol}: ${message.db.update} candles updated`);
+          message.db.insert && console.log(`   # [Info] ${message.symbol}: ${message.db.insert} candles imported`);
+          message.db.update && console.log(`   # [Info] ${message.symbol}: ${message.db.update} candles updated`);
         }
       });
     }
   };
 
   setInterval(async () => {
-    importCandles();
+    await importCandles();
   }, 5000);
 };
 
-Import();
+const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
+config({ account }).then(() => {
+  console.log(Session());
+
+  Import();
+});

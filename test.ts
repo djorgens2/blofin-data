@@ -2091,94 +2091,92 @@ import { parse } from "path";
 // run();
 
 //---------------------------------- json -> csv test ----------------------------------------//
-// import * as fs from 'fs';
-// import * as path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 
-// // Define the interface for the raw data structure
-// interface ApiResponse {
-//   code: string;
-//   msg: string;
-//   data: string[][]; 
-// }
-
-// const inputFilePath = path.join(__dirname, 'xrp.json');
-
-// function readJsonFile(filePath: string): ApiResponse {
-//   try {
-//     const jsonString = fs.readFileSync(filePath, 'utf-8');
-//     const data: ApiResponse = JSON.parse(jsonString);
-//     return data;
-//   } catch (error) {
-//     console.error("Error reading or parsing JSON file:", error);
-//     throw error;
-//   }
-// }
-
-// function convertJsonToCsv(apiResponse: ApiResponse): string {
-//   if (apiResponse.code !== "0" || !apiResponse.data || apiResponse.data.length === 0) {
-//     return "";
-//   }
-  
-//   // Assuming headers based on your previous data
-//   const header = "Timestamp,Open,High,Low,Close,Volume,CurrencyVolume,TradeAmount,Flag";
-//   const csvRows = apiResponse.data.map(row => row.join(','));
-//   const csvString = [header, ...csvRows].join('\n');
-
-//   return csvString;
-// }
-
-// const outputFilePath = path.join(__dirname, 'output_data.csv');
-
-// function writeCsvFile(filePath: string, csvContent: string): void {
-//   try {
-//     fs.writeFileSync(filePath, csvContent, 'utf-8');
-//     console.log(`Successfully wrote CSV data to ${filePath}`);
-//   } catch (error) {
-//     console.error("Error writing CSV file:", error);
-//     throw error;
-//   }
-// }
-
-// // Assume the above functions (readJsonFile, convertJsonToCsv, writeCsvFile) are available
-
-// async function processApiFile() {
-//     const jsonData = readJsonFile(inputFilePath);
-//     const csvContent = convertJsonToCsv(jsonData);
-    
-//     if (csvContent) {
-//         writeCsvFile(outputFilePath, csvContent);
-//     } else {
-//         console.log("No data to write to CSV.");
-//     }
-// }
-
-// processApiFile();
-
-//-------------------------------- candles Import ---------------------------------------//
-import * as Candles from "db/interfaces/candle";
-import * as CandleAPI from "api/candles"
-import { clear } from "lib/app.util";
-
-// async function fetchBatch() {
-//   const candles = await Candles.Batch({ symbol: 'XRP-USDT', timeframe: "15m", timestamp: 1765094400000, limit: 10 });
-//   console.log("Fetch filtered period:", candles);
-
-// }
-
-// fetchBatch();
-async function importCandles() {
-  const symbol=`XRP-USDT`
-  const message = clear({state: `init`, symbol});
-  console.log("In App.Loader for ", { symbol }, "start: ", new Date().toLocaleString());
-  const publish = await CandleAPI.Publish(message);
-
-  console.log(`-> Import for ${publish?.symbol} complete:`, new Date().toLocaleString());
-  publish?.db && publish.db.insert && console.log(`  # [Info] ${message.symbol}: ${publish.db.insert} candles imported`);
-  publish?.db && publish.db.update && console.log(`  # [Info] ${message.symbol}: ${publish.db.update} candles updated`);
-
-  process.exit(0);
+// Define the interface for the raw data structure
+interface ApiResponse {
+  code: string;
+  msg: string;
+  data: string[][]; 
 }
 
-importCandles();
+const inputFilePath = path.join(__dirname, 'btc.json');
 
-console.log(process.env.account);
+function readJsonFile(filePath: string): ApiResponse {
+  try {
+    const jsonString = fs.readFileSync(filePath, 'utf-8');
+    const data: ApiResponse = JSON.parse(jsonString);
+    return data;
+  } catch (error) {
+    console.error("Error reading or parsing JSON file:", error);
+    throw error;
+  }
+}
+
+function convertJsonToCsv(apiResponse: ApiResponse): string {
+  if (apiResponse.code !== "0" || !apiResponse.data || apiResponse.data.length === 0) {
+    return "";
+  }
+  
+  // Assuming headers based on your previous data
+  const header = "Timestamp,Open,High,Low,Close,Volume,CurrencyVolume,TradeAmount,Flag";
+  const csvRows = apiResponse.data.map(row => row.join(','));
+  const csvString = [header, ...csvRows].join('\n');
+
+  return csvString;
+}
+
+const outputFilePath = path.join(__dirname, 'btc.csv');
+
+function writeCsvFile(filePath: string, csvContent: string): void {
+  try {
+    fs.writeFileSync(filePath, csvContent, 'utf-8');
+    console.log(`Successfully wrote CSV data to ${filePath}`);
+  } catch (error) {
+    console.error("Error writing CSV file:", error);
+    throw error;
+  }
+}
+
+// Assume the above functions (readJsonFile, convertJsonToCsv, writeCsvFile) are available
+
+async function processApiFile() {
+    const jsonData = readJsonFile(inputFilePath);
+    const csvContent = convertJsonToCsv(jsonData);
+    
+    if (csvContent) {
+        writeCsvFile(outputFilePath, csvContent);
+    } else {
+        console.log("No data to write to CSV.");
+    }
+}
+
+processApiFile();
+
+//-------------------------------- candles Import ---------------------------------------//
+// import * as Candles from "db/interfaces/candle";
+// import * as CandleAPI from "api/candles"
+// import { clear } from "lib/app.util";
+
+// // async function fetchBatch() {
+// //   const candles = await Candles.Batch({ symbol: 'XRP-USDT', timeframe: "15m", timestamp: 1765094400000, limit: 10 });
+// //   console.log("Fetch filtered period:", candles);
+
+// // }
+
+// // fetchBatch();
+// async function importCandles() {
+//   const symbol=`XRP-USDT`
+//   const message = clear({state: `init`, symbol});
+//   console.log("In App.Loader for ", { symbol }, "start: ", new Date().toLocaleString());
+//   const publish = await CandleAPI.Publish(message);
+
+//   console.log(`-> Import for ${publish?.symbol} complete:`, new Date().toLocaleString());
+//   publish?.db && publish.db.insert && console.log(`  # [Info] ${message.symbol}: ${publish.db.insert} candles imported`);
+//   publish?.db && publish.db.update && console.log(`  # [Info] ${message.symbol}: ${publish.db.update} candles updated`);
+
+//   process.exit(0);
+// }
+
+// importCandles();

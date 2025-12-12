@@ -4,8 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { isEqual } from "lib/std.util";
+import { Session } from "module/session";
 
 export interface ICandle {
   instrument: Uint8Array;
@@ -38,26 +39,20 @@ export const Publish = async (props: Partial<ICandle>) => {
 
   if (candles) {
     const [candle] = candles;
-    await Update<ICandle>(
-      {
-        instrument,
-        period,
-        timestamp,
-        open: props.open ? (isEqual(props.open, candle.open!) ? undefined : props.open) : undefined,
-        high: props.high ? (isEqual(props.high, candle.high!) ? undefined : props.high) : undefined,
-        low: props.low ? (isEqual(props.low, candle.low!) ? undefined : props.low) : undefined,
-        close: props.close ? (isEqual(props.close, candle.close!) ? undefined : props.close) : undefined,
-        volume: props.volume ? (isEqual(props.volume, candle.volume!) ? undefined : props.volume) : undefined,
-        vol_currency: props.vol_currency ? (isEqual(props.vol_currency, candle.vol_currency!) ? undefined : props.vol_currency) : undefined,
-        vol_currency_quote: props.vol_currency_quote
-          ? isEqual(props.vol_currency_quote, candle.vol_currency_quote!)
-            ? undefined
-            : props.vol_currency_quote
-          : undefined,
-        completed: props.completed ? (!!props.completed === !!candle.completed! ? undefined : props.completed) : undefined,
-      },
-      { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }] }
-    );
+    const revised = {
+      instrument,
+      period,
+      timestamp,
+      open: isEqual(props.open!, candle.open!) ? undefined : props.open,
+      high: isEqual(props.high!, candle.high!) ? undefined : props.high,
+      low: isEqual(props.low!, candle.low!) ? undefined : props.low,
+      close: isEqual(props.close!, candle.close!) ? undefined : props.close,
+      volume: isEqual(props.volume!, candle.volume!) ? undefined : props.volume,
+      vol_currency: isEqual(props.vol_currency!, candle.vol_currency!, 5) ? undefined : props.vol_currency,
+      vol_currency_quote: isEqual(props.vol_currency_quote!, candle.vol_currency_quote!, 5) ? undefined : props.vol_currency_quote,
+      completed: !!props.completed === !!candle.completed! ? undefined : props.completed,
+    };
+    return await Update<ICandle>(revised, { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }] });
   } else {
     await Insert<ICandle>(
       {
@@ -78,15 +73,21 @@ export const Publish = async (props: Partial<ICandle>) => {
   }
 };
 
+//export const Fetch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
+//   const { limit, ...columns } = props;
+//   const suffix = `ORDER BY timestamp DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
+//   const keys = props.timestamp ? [{ key: `timestamp`, sign: `>=` }] : [];
+//   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
+
+//   return result.length ? result : undefined;
+// };
+
+
 //+--------------------------------------------------------------------------------------+
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
-  const { limit, ...columns } = props;
-  const suffix = `ORDER BY timestamp DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
-  const keys = props.timestamp ? [{ key: `timestamp`, sign: `>=` }] : [];
-  const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
-
+export const Fetch = async (props: Partial<ICandle>, options?: TOptions): Promise<Array<Partial<ICandle>> | undefined> => {
+  const result = await Select<ICandle>(props, { table: options?.table || `vw_candles`, suffix: options?.suffix });
   return result.length ? result : undefined;
 };
 
@@ -98,6 +99,6 @@ export const Batch = async (props: Partial<ICandle>): Promise<Array<Partial<ICan
   const suffix = `ORDER BY timestamp DESC LIMIT ${limit || 1}`;
   const keys = props.timestamp ? [{ key: `timestamp`, sign: `<=` }] : [];
   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
-  
+
   return result.length ? result : undefined;
 };

@@ -52,7 +52,7 @@ export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["
         size: isEqual(props.size!, current.size!) ? undefined : props.size,
         size_available: isEqual(props.size_available!, current.size_available!) ? undefined : props.size_available,
         leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-        margin_mode: isEqual(props.margin_mode!, current.margin_mode!) ? undefined : props.margin_mode,
+        margin_mode: props.margin_mode! === current.margin_mode! ? undefined : props.margin_mode,
         margin_used: isEqual(props.margin_used!, current.margin_used!) ? undefined : props.margin_used,
         margin_ratio: isEqual(props.margin_ratio!, current.margin_ratio!) ? undefined : props.margin_ratio,
         margin_initial: isEqual(props.margin_initial!, current.margin_initial!) ? undefined : props.margin_initial,

@@ -16,6 +16,7 @@ import * as AccountAPI from "api/accounts";
 import * as OrderAPI from "api/orders";
 import * as Accounts from "db/interfaces/account";
 import * as Execute from "module/trades";
+import { Select } from "db/query.utils";
 
 export type IResponseProps = {
   event: string;
@@ -33,16 +34,21 @@ export interface ISession {
   account: Uint8Array;
   alias: string;
   margin_mode: "cross" | "isolated";
-  hedging: boolean
+  hedging: boolean;
   state: "disconnected" | "connected" | "connecting" | "error" | "closed";
-  audit_order: string;
-  audit_stops: string;
   api: string;
   secret: string;
   phrase: string;
   rest_api_url: string;
   private_wss_url: string;
   public_wss_url: string;
+  candle_max_fetch: number;
+  leverage_max_fetch: number;
+  orders_max_fetch: number;
+  default_sma: number;
+  default_leverage: number;
+  audit_order: string;
+  audit_stops: string;
 }
 
 const session: Partial<ISession> = {};
@@ -54,27 +60,52 @@ export const Session = () => {
 export const setSession = (props: Partial<ISession>) => Object.assign(session, { ...session, ...props });
 
 //+--------------------------------------------------------------------------------------+
-//| Configures session account from user-supplied account details (keys);                |
+//| Helper function to safely parse the environment variable JSON                        |
+//+--------------------------------------------------------------------------------------+
+const parseEnvAccounts = (envVar: string | undefined): Array<ISession> => {
+  if (!envVar) return [];
+  try {
+    const keys = JSON.parse(envVar);
+    return Array.isArray(keys) ? keys : [];
+  } catch (e) {
+    console.error("Error parsing APP_ACCOUNT environment variable:", e);
+    return [];
+  }
+};
+
+//+--------------------------------------------------------------------------------------+
+//| configures environment/application/globals on session opened with supplied keys;     |
 //+--------------------------------------------------------------------------------------+
 export const config = async (props: Partial<IAccount>) => {
-  const [search] = (await Accounts.Fetch(props)) ?? [undefined];
+  const promiseAccount = Accounts.Fetch(props);
+  const promiseAppConfig = Select<ISession>({}, { table: "app_config" });
+  const sessionKeys: Array<ISession> = parseEnvAccounts(process.env.APP_ACCOUNT);
+  const [config, search] = await Promise.all([promiseAppConfig, promiseAccount]);
 
   if (search) {
-    const keys: Array<ISession> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
-    const props = keys.find(({ alias }) => alias === search.alias);
+    const [appConfig] = config;
+    const [{ account, alias, margin_mode, hedging }] = search;
+    const sessionKey = sessionKeys.find((key) => key.alias === alias);
 
-    if (props) {
-      const { alias, ...config } = props;
+    if (sessionKey) {
       setSession({
-        ...config,
-        account: search.account,
-        margin_mode: search.margin_mode,
-        hedging: search.hedging,
+        ...appConfig,
+        ...sessionKey,
+        account,
+        margin_mode,
+        hedging,
         state: "disconnected",
         audit_order: "0",
         audit_stops: "0",
       });
+      console.log(`[Info] Session.Config: ${alias} configured successfully`);
+    } else {
+      console.warn(`[Error] Session.Config: Configuration failed; ${alias} not found`);
+      process.exit(1);
     }
+  } else {
+    console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");
+    process.exit(1);
   }
 };
 
@@ -114,8 +145,8 @@ export const signLogon = async (key: string) => {
 //+--------------------------------------------------------------------------------------+
 //| Opens the ws to Blofin and establishes com channels/listeners;                       |
 //+--------------------------------------------------------------------------------------+
-export const openWebSocket = (props: Partial<ISession>) => {
-  const { account, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
+export const openWebSocket = () => {
+  const { account, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = Session();
   const ws = new WebSocket(private_wss_url!);
 
   setSession({ account, state: "connecting", audit_order: "0", audit_stops: "0", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
@@ -171,4 +202,4 @@ export const openWebSocket = (props: Partial<ISession>) => {
   };
 
   return ws;
-}
+};
