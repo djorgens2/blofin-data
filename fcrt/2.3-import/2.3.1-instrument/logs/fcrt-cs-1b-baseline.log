@@ -1,0 +1,28 @@
+[Info] Session.Config: Blofin Demo configured successfully
+{
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
+  alias: 'Blofin Demo',
+  api: '6e03ab69bdd646c1afbc92bc3725edaa',
+  secret: '66b55bde5057499bb8dd078f60d79cce',
+  phrase: 'development_api_key',
+  rest_api_url: 'https://demo-trading-openapi.blofin.com',
+  private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
+  public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
+  account: <Buffer 24 59 7a>,
+  margin_mode: 'cross',
+  hedging: 1,
+  state: 'disconnected',
+  audit_order: '0',
+  audit_stops: '0'
+}
+In Instruments.Import [API]: 12/14/2025, 2:57:08 PM
+-> Instrument.Publish [API]
+-> Instruments.Fetch [API]: 12/14/2025, 2:57:10 PM
+-> Instrument.Position.Import [API]
+   # [Info] Instrument.Position.Import: 32 instruments published
+   # [Info] Instrument.Position.Import: 64 positions published
+[Info] Import.Instruments: Successfully completed

@@ -97,7 +97,7 @@ export const setAccount = async (props: any) => {
 //+--------------------------------------------------------------------------------------+
 //| Presents the Account view;                                                           |
 //+--------------------------------------------------------------------------------------+
-export const menuViewAccount = async () => {
+export const View = async () => {
   setHeader("View Accounts");
 
   const accounts = await Accounts.Fetch({});

@@ -1,0 +1,47 @@
+Submitting stop request: {
+  stop_request: <Buffer df 8a e8 d2 cb>,
+  size: 100,
+  trigger_price: 3.05,
+  order_price: 3.15,
+  memo: 'Test 3b: submit update to stop loss request'
+}
+-> [Info] stop_request updated {
+  filters: { stop_request: <Buffer df 8a e8 d2 cb> },
+  columns: { trigger_price: 3.05, order_price: 3.15 }
+}
+-> [Info] stop_request updated {
+  filters: { stop_request: <Buffer df 8a e8 d2 cb> },
+  columns: {
+    memo: 'Test 3b: submit update to stop loss request',
+    update_time: 2025-11-15T03:08:26.315Z
+  }
+}
+{
+  result: <Buffer df 8a e8 d2 cb>,
+  request: {
+    stop_request: <Buffer df 8a e8 d2 cb>,
+    size: 100,
+    trigger_price: 3.05,
+    order_price: 3.15,
+    memo: 'Test 3b: submit update to stop loss request'
+  }
+}
+Submitting stop request: {
+  stop_request: <Buffer e4 ba 01 ad 14>,
+  size: 100,
+  trigger_price: 1.95,
+  order_price: 1.975,
+  reduce_only: false,
+  memo: 'Test 3b: submit update to take profit request'
+}
+{
+  result: <Buffer e4 ba 01 ad 14>,
+  request: {
+    stop_request: <Buffer e4 ba 01 ad 14>,
+    size: 100,
+    trigger_price: 1.95,
+    order_price: 1.975,
+    reduce_only: false,
+    memo: 'Test 3b: submit update to take profit request'
+  }
+}

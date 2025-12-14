@@ -1,0 +1,64 @@
+In Requests.Leverage [API]
+-> [Info] request updated {
+  filters: { request: <Buffer cd ca 06 28 77 78> },
+  columns: { state: <Buffer 1b 0c b1> }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer cd ca 06 28 77 78> },
+  columns: {
+    memo: '[Auto-Cancel]: New request for instrument/position auto-cancels existing open request',
+    update_time: 2025-11-17T05:49:49.378Z
+  }
+}
+-> [Info: Requests.Leverage] Leverage set: {
+  code: '110006',
+  msg: 'You have pending cross orders. Please cancel them before adjusting your leverage.'
+}
+-> [Error] Response.Leverage: update not processed; error returned: 110006 response: You have pending cross orders. Please cancel them before adjusting your leverage.
+{
+  sql: 'INSERT INTO devel.request ( request, instrument_position, state, leverage, request_type, margin_mode, memo, create_time, expiry_time, update_time ) VALUES ( ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?)',
+  args: [
+    <Buffer b7 b3 6d 95 af 67>,
+    <Buffer 62 45 1c 33 17 21>,
+    <Buffer 62 57 cb>,
+    40,
+    <Buffer b8 32 96>,
+    'cross',
+    'Test 3a: merge live request with revised leverage',
+    2025-11-17T05:49:49.666Z,
+    2025-11-17T13:49:49.668Z,
+    2025-11-17T05:49:49.666Z
+  ],
+  props: {
+    request: <Buffer b7 b3 6d 95 af 67>,
+    order_id: undefined,
+    instrument_position: <Buffer 62 45 1c 33 17 21>,
+    action: undefined,
+    state: <Buffer 62 57 cb>,
+    price: undefined,
+    size: undefined,
+    leverage: 40,
+    request_type: <Buffer b8 32 96>,
+    margin_mode: 'cross',
+    reduce_only: undefined,
+    broker_id: undefined,
+    memo: 'Test 3a: merge live request with revised leverage',
+    create_time: 2025-11-17T05:49:49.666Z,
+    expiry_time: 2025-11-17T13:49:49.668Z,
+    update_time: 2025-11-17T05:49:49.666Z
+  }
+}
+Error: Field 'action' doesn't have a default value
+    at PromisePool.execute (/home/djorgenson/Projects/blofin-data/node_modules/mysql2/lib/promise/pool.js:54:22)
+    at modify (/home/djorgenson/Projects/blofin-data/db/query.utils.ts:29:32)
+    at Insert (/home/djorgenson/Projects/blofin-data/db/query.utils.ts:107:95)
+    at publish (/home/djorgenson/Projects/blofin-data/db/interfaces/request.ts:119:26)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.Submit (/home/djorgenson/Projects/blofin-data/db/interfaces/request.ts:204:22)
+    at async submit (/home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.4-leverage/test/fcrt-cs-3a.ts:47:21) {
+  code: 'ER_NO_DEFAULT_FOR_FIELD',
+  errno: 1364,
+  sql: 'INSERT INTO devel.request ( request, instrument_position, state, leverage, request_type, margin_mode, memo, create_time, expiry_time, update_time ) VALUES ( ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?,  ?)',
+  sqlState: 'HY000',
+  sqlMessage: "Field 'action' doesn't have a default value"
+}

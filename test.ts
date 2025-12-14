@@ -6,6 +6,7 @@
 // import { IInstrument } from "db/interfaces/instrument";
 import { hexify } from "lib/crypto.util";
 import { bufferString, hexString, isEqual, setExpiry } from "lib/std.util";
+import { config, Session } from "module/session";
 import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
@@ -2091,68 +2092,68 @@ import { parse } from "path";
 // run();
 
 //---------------------------------- json -> csv test ----------------------------------------//
-import * as fs from 'fs';
-import * as path from 'path';
+// import * as fs from 'fs';
+// import * as path from 'path';
 
-// Define the interface for the raw data structure
-interface ApiResponse {
-  code: string;
-  msg: string;
-  data: string[][]; 
-}
+// // Define the interface for the raw data structure
+// interface ApiResponse {
+//   code: string;
+//   msg: string;
+//   data: string[][];
+// }
 
-const inputFilePath = path.join(__dirname, 'btc.json');
+// const inputFilePath = path.join(__dirname, 'btc.json');
 
-function readJsonFile(filePath: string): ApiResponse {
-  try {
-    const jsonString = fs.readFileSync(filePath, 'utf-8');
-    const data: ApiResponse = JSON.parse(jsonString);
-    return data;
-  } catch (error) {
-    console.error("Error reading or parsing JSON file:", error);
-    throw error;
-  }
-}
+// function readJsonFile(filePath: string): ApiResponse {
+//   try {
+//     const jsonString = fs.readFileSync(filePath, 'utf-8');
+//     const data: ApiResponse = JSON.parse(jsonString);
+//     return data;
+//   } catch (error) {
+//     console.error("Error reading or parsing JSON file:", error);
+//     throw error;
+//   }
+// }
 
-function convertJsonToCsv(apiResponse: ApiResponse): string {
-  if (apiResponse.code !== "0" || !apiResponse.data || apiResponse.data.length === 0) {
-    return "";
-  }
-  
-  // Assuming headers based on your previous data
-  const header = "Timestamp,Open,High,Low,Close,Volume,CurrencyVolume,TradeAmount,Flag";
-  const csvRows = apiResponse.data.map(row => row.join(','));
-  const csvString = [header, ...csvRows].join('\n');
+// function convertJsonToCsv(apiResponse: ApiResponse): string {
+//   if (apiResponse.code !== "0" || !apiResponse.data || apiResponse.data.length === 0) {
+//     return "";
+//   }
 
-  return csvString;
-}
+//   // Assuming headers based on your previous data
+//   const header = "Timestamp,Open,High,Low,Close,Volume,CurrencyVolume,TradeAmount,Flag";
+//   const csvRows = apiResponse.data.map(row => row.join(','));
+//   const csvString = [header, ...csvRows].join('\n');
 
-const outputFilePath = path.join(__dirname, 'btc.csv');
+//   return csvString;
+// }
 
-function writeCsvFile(filePath: string, csvContent: string): void {
-  try {
-    fs.writeFileSync(filePath, csvContent, 'utf-8');
-    console.log(`Successfully wrote CSV data to ${filePath}`);
-  } catch (error) {
-    console.error("Error writing CSV file:", error);
-    throw error;
-  }
-}
+// const outputFilePath = path.join(__dirname, 'btc.csv');
 
-// Assume the above functions (readJsonFile, convertJsonToCsv, writeCsvFile) are available
+// function writeCsvFile(filePath: string, csvContent: string): void {
+//   try {
+//     fs.writeFileSync(filePath, csvContent, 'utf-8');
+//     console.log(`Successfully wrote CSV data to ${filePath}`);
+//   } catch (error) {
+//     console.error("Error writing CSV file:", error);
+//     throw error;
+//   }
+// }
 
-async function processApiFile() {
-    const jsonData = readJsonFile(inputFilePath);
-    const csvContent = convertJsonToCsv(jsonData);
-    
-    if (csvContent) {
-        writeCsvFile(outputFilePath, csvContent);
-    } else {
-        console.log("No data to write to CSV.");
-    }
-}
+// // Assume the above functions (readJsonFile, convertJsonToCsv, writeCsvFile) are available
 
-processApiFile();
+// async function processApiFile() {
+//     const jsonData = readJsonFile(inputFilePath);
+//     const csvContent = convertJsonToCsv(jsonData);
+
+//     if (csvContent) {
+//         writeCsvFile(outputFilePath, csvContent);
+//     } else {
+//         console.log("No data to write to CSV.");
+//     }
+// }
+
+// processApiFile();
 
 //-------------------------------- candles Import ---------------------------------------//
 // import * as Candles from "db/interfaces/candle";
@@ -2180,3 +2181,19 @@ processApiFile();
 // }
 
 // importCandles();
+import * as Import from "app/import";
+
+const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
+config({ account })
+  .then( async () => {
+    console.log(Session());
+    await Import.importInstruments()
+      .then(() => {
+        console.log("[Info] Import.Instruments: Successfully completed");
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.log("[Error] Import.Instruments: Failed to complete successfully");
+        process.exit(1);
+      });
+  });

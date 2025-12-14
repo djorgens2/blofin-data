@@ -2,17 +2,18 @@
 //|                                                                              menu.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
 import Prompt, { IOption } from "cli/modules/Prompts";
 
 import { setHeader } from "cli/modules/Header";
 import { setMenu } from "cli/modules/Menu";
+import { isEqual } from "lib/std.util";
 
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "cli/interfaces/user";
-import { menuCreateAccount, menuEditAccount, menuViewAccount, menuDropAccount } from "cli/interfaces/account";
-import { isEqual } from "lib/std.util";
+import { menuCreateAccount, menuEditAccount, menuDropAccount } from "cli/interfaces/account";
+import * as Account from "cli/interfaces/account";
+import * as Instrument from "cli/interfaces/instruments";
 
 //+--------------------------------------------------------------------------------------+
 //| View menu; displays the rows for the supplied subject area;                          |
@@ -23,7 +24,10 @@ export const menuView = async (area: string) => {
       await menuViewUser();
       break;
     case "Accounts":
-      await menuViewAccount();
+      await Account.View();
+      break;
+    case "Instruments":
+      await Instrument.View();
       break;
     default:
       console.log(`${area} not enabled.`);
@@ -100,7 +104,7 @@ export const Menu = async () => {
     const menu: Array<IOption> = await setMenu();
     const { select } = await Prompt(["select"], { message: " Main Menu:", choices: menu });
     const key = select ? select : Buffer.from([0, 0, 0]);
-    const option = menu.find(({ value }) => isEqual(value,key));
+    const option = menu.find(({ value }) => isEqual(value, key));
 
     switch (option?.title) {
       case "End Session": {
@@ -112,7 +116,7 @@ export const Menu = async () => {
       default: {
         const { select } = await Prompt(["select"], { message: " Authorized options:", choices: option?.choices });
         const key = select ? select : Buffer.from([0, 0, 0]);
-        const suboption = option?.choices!.find(({ value }) => isEqual(value,key));
+        const suboption = option?.choices!.find(({ value }) => isEqual(value, key));
         suboption?.func && (await eval(suboption?.func));
       }
     }

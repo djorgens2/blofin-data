@@ -14,3 +14,24 @@ build/*
 
 !fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/*
 !fcrt/2.1-cli-om/2.1.2-req-expiry/logs/*.log
+
+!fcrt/2.1-cli-om/2.1.3-req-update/Documents/*
+!fcrt/2.1-cli-om/2.1.3-req-update/logs/*.log
+
+!fcrt/2.1-cli-om/2.1.4-leverage/Documents/*
+!fcrt/2.1-cli-om/2.1.4-leverage/logs/*.log
+
+!fcrt/2.2-cli-sm/2.2.1-stop-submit/Documents/*
+!fcrt/2.2-cli-sm/2.2.1-stop-submit/logs/*.log
+
+!fcrt/2.2-cli-sm/2.2.2-stop-with-req/Documents/*
+!fcrt/2.2-cli-sm/2.2.2-stop-with-req/logs/*.log
+
+!fcrt/2.2-cli-sm/2.2.3-stop-with-pos/Documents/*
+!fcrt/2.2-cli-sm/2.2.3-stop-with-pos/logs/*.log
+
+!fcrt/2.3-import/2.3.1-instrument/Documents/*
+!fcrt/2.3-import/2.3.1-instrument/logs/*.log
+
+!fcrt/2.3-import/2.3.2-candle/Documents/*
+!fcrt/2.3-import/2.3.2-candle/logs/*.log

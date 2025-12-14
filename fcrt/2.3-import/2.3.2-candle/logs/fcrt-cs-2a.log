@@ -1,0 +1,77 @@
+In Requests.Leverage [API]
+-> [Info: Requests.Leverage] Leverage set: {
+  code: '0',
+  msg: 'success',
+  data: {
+    leverage: '50',
+    marginMode: 'cross',
+    instId: 'XRP-USDT',
+    positionSide: ''
+  }
+}
+-> [Info] instrument updated {
+  filters: { instrument: <Buffer 54 e7 5e> },
+  columns: { leverage: 50 }
+}
+-> Leverage updated: { instrument: <Buffer 54 e7 5e>, leverage: 50 }
+-> [Info] request updated {
+  filters: { request: <Buffer df ee db dc 0c 9b> },
+  columns: { price: 2.55, leverage: 50, expiry_time: 2025-11-17T21:59:36.612Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer df ee db dc 0c 9b> },
+  columns: { update_time: 2025-11-16T21:59:37.053Z }
+}
+Test 2a: Request submitted, check db for results. <Buffer df ee db dc 0c 9b>
+Fetched order from DB: [
+  {
+    account: <Buffer 24 59 7a>,
+    request: <Buffer df ee db dc 0c 9b>,
+    order_id: null,
+    instrument_position: <Buffer 62 45 1c 33 17 21>,
+    instrument: <Buffer 54 e7 5e>,
+    symbol: 'XRP-USDT',
+    base_currency: <Buffer c2 35 f3>,
+    base_symbol: 'XRP',
+    quote_currency: <Buffer cb 69 43>,
+    quote_symbol: 'USDT',
+    state: <Buffer 62 57 cb>,
+    status: 'Queued',
+    request_state: <Buffer 62 57 cb>,
+    request_status: 'Queued',
+    order_state: null,
+    order_status: null,
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer b8 32 96>,
+    order_type: 'limit',
+    margin_mode: 'cross',
+    auto_trade: 0,
+    price: 2.55,
+    size: 500,
+    leverage: 50,
+    filled_size: null,
+    filled_amount: null,
+    average_price: null,
+    fee: null,
+    pnl: null,
+    digits: 4,
+    order_category: null,
+    category: null,
+    cancel_source: null,
+    canceled_by: null,
+    contract_type: 'linear',
+    instrument_type: 'SWAP',
+    reduce_only: 1,
+    broker_id: null,
+    trade_period: <Buffer 03 e8 0e>,
+    trade_timeframe: '15m',
+    timeframe_units: 15,
+    trade_state: <Buffer 5b 34 d5>,
+    trade_status: 'Enabled',
+    memo: 'Test 2a: stops with open position;',
+    create_time: 2025-11-16T21:55:26.183Z,
+    expiry_time: 2025-11-17T21:59:36.612Z,
+    update_time: 2025-11-16T21:59:37.053Z
+  }
+]

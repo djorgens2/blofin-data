@@ -13,29 +13,32 @@ import UserToken from "cli/interfaces/user";
 //+--------------------------------------------------------------------------------------+
 export const setHeader = (heading: string) => {
   const { username, title, error, message } = UserToken();
-  const page = `**** ${heading} ****`.padStart((120 - heading.length) / 2, " ");
+  const content = `**** ${heading} ****`;
+  const paddingLeft = Math.floor((172 - content.length) / 2);
+  const page = content.padStart(paddingLeft, " ");
+
   const color =
     error === 0
-      ? `${green("Success:")} `
+      ? `${green("    Success:")} `
       : error < 200
-      ? `${cyan(" Confirmed:")} `
+      ? `${cyan("  Confirmed:")} `
       : error < 300
       ? `${yellow("*** Warning:")} `
       : error < 400
-      ? `${red("*** Error:")} `
-      : ``;
+      ? `${red("  *** Error:")} `
+      : `             `;
 
   console.clear();
-  console.log(`${'+'.padEnd(132,'-')}+`);
-  console.log(`|`);
-  console.log(`|`, cyan(page));
-  console.log(`|`);
-  console.log(`|    `, bold(`Log Time:`), dim(new Date().toLocaleString()));
-  username.length === 0 ? console.log(`|`) : console.log(`|        User: ${green(username)}`);
-  title.length === 0 ? console.log(`|`) : console.log(`|        Role: ${green(title)}`);
-  console.log(`|`);
-  console.log(`|     ${color} ${message}`);
-  console.log(`|`);
-  console.log(`${'+'.padEnd(132,'-')}+`);
+  console.log(`┌${"─".repeat(132)}┐`);
+  console.log(`│${" ".repeat(132)}│`);
+  console.log(`│` + cyan(page).padEnd(142) + `│`);
+  console.log(`│${" ".repeat(132)}│`);
+  console.log(`│    `, bold(`Log Time:`), dim(new Date().toLocaleString().padEnd(117)) + "│");
+  username.length === 0 ? console.log(`│${" ".repeat(132)}│`) : console.log(`│        User: ${green(username).padEnd(128)}│`);
+  title.length === 0 ? console.log(`│${" ".repeat(132)}│`) : console.log(`│        Role: ${green(title).padEnd(128)}│`);
+  console.log(`│${" ".repeat(132)}│`);
+  console.log(`│${color} ${message.padEnd(118)}` + "│");
+  console.log(`│${" ".repeat(132)}│`);
+  console.log(`└${"─".repeat(132)}┘`);
   console.log(``);
 };

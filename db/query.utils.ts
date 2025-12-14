@@ -162,7 +162,7 @@ export const Distinct = async <T>(props: Partial<T>, options: TOptions): Promise
   const { table } = options;
   const fields = Object.keys(props).join(", ");
   const [keys, args] = parseKeys(filters);
-  const sql = `SELECT DISTINCT ${fields} FROM ${DB_SCHEMA}.${table}${keys.length ? " WHERE ".concat(keys.join(" AND ")) : ""}`;
+  const sql = `SELECT DISTINCT ${fields} FROM ${DB_SCHEMA}.${table}${keys.length ? " WHERE ".concat(keys.join(" AND ")) : ""} ${options.suffix ? options.suffix : ``}`;
 
   try {
     const result = await select(sql, args);

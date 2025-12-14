@@ -2,7 +2,6 @@
 //|                                                                               cli.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
 import UserToken from "cli/interfaces/user";

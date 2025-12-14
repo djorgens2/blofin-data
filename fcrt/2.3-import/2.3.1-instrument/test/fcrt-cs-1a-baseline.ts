@@ -1,0 +1,20 @@
+//----------------------------- Instrument Baseline Test-------------------------------------------//
+import { Session, config } from "module/session";
+import { hexify } from "lib/crypto.util";
+
+import * as Import from "app/import";
+
+const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
+config({ account })
+  .then( async () => {
+    console.log(Session());
+    await Import.importInstruments()
+      .then(() => {
+        console.log("[Info] Import.Instruments: Successfully completed");
+        process.exit(0);
+      })
+      .catch((e) => {
+        console.log("[Error] Import.Instruments: Failed to complete successfully");
+        process.exit(1);
+      });
+  });

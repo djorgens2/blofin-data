@@ -1,0 +1,134 @@
+Test 1d: request reject on size, resub, then edit and resub
+{
+  instrument_position: <Buffer 11 9b b0 95 07 bd>,
+  audit: [
+    {
+      account: <Buffer 24 59 7a>,
+      instrument_position: <Buffer 11 9b b0 95 07 bd>,
+      instrument: <Buffer 54 e7 5e>,
+      position: 'short',
+      symbol: 'XRP-USDT',
+      base_currency: <Buffer c2 35 f3>,
+      base_symbol: 'XRP',
+      quote_currency: <Buffer cb 69 43>,
+      quote_symbol: 'USDT',
+      state: <Buffer e8 fc f7>,
+      status: 'Closed',
+      occurs: 130
+    },
+    {
+      account: <Buffer 24 59 7a>,
+      instrument_position: <Buffer 11 9b b0 95 07 bd>,
+      instrument: <Buffer 54 e7 5e>,
+      position: 'short',
+      symbol: 'XRP-USDT',
+      base_currency: <Buffer c2 35 f3>,
+      base_symbol: 'XRP',
+      quote_currency: <Buffer cb 69 43>,
+      quote_symbol: 'USDT',
+      state: <Buffer e1 cb 25>,
+      status: 'Fulfilled',
+      occurs: 16
+    },
+    {
+      account: <Buffer 24 59 7a>,
+      instrument_position: <Buffer 11 9b b0 95 07 bd>,
+      instrument: <Buffer 54 e7 5e>,
+      position: 'short',
+      symbol: 'XRP-USDT',
+      base_currency: <Buffer c2 35 f3>,
+      base_symbol: 'XRP',
+      quote_currency: <Buffer cb 69 43>,
+      quote_symbol: 'USDT',
+      state: <Buffer 4b c9 9c>,
+      status: 'Pending',
+      occurs: 1
+    }
+  ],
+  valid: [
+    {
+      account: <Buffer 24 59 7a>,
+      instrument_position: <Buffer 11 9b b0 95 07 bd>,
+      instrument: <Buffer 54 e7 5e>,
+      position: 'short',
+      symbol: 'XRP-USDT',
+      base_currency: <Buffer c2 35 f3>,
+      base_symbol: 'XRP',
+      quote_currency: <Buffer cb 69 43>,
+      quote_symbol: 'USDT',
+      state: <Buffer 4b c9 9c>,
+      status: 'Pending',
+      occurs: 1
+    }
+  ]
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 0f bc 26 d6 b6 47> },
+  columns: { expiry_time: 2025-12-03T15:47:10.549Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 0f bc 26 d6 b6 47> },
+  columns: {
+    state: <Buffer 15 3e 21>,
+    memo: 'Test 1d: Updating Order: setting expiry to 1m;',
+    update_time: 2025-12-03T15:46:10.581Z
+  }
+}
+[Info] Starting Order: submitting request [Request.req_fcrt_1d] {
+  account: <Buffer 24 59 7a>,
+  instrument_position: <Buffer 11 9b b0 95 07 bd>,
+  symbol: 'XRP-USDT',
+  position: 'short',
+  expiry_time: 2025-12-03T15:47:10.549Z,
+  memo: 'Test 1d: request reject on size, resub, then edit and resub'
+}
+Test 1d: Request submitted, check db for results. <Buffer 0f bc 26 d6 b6 47>
+Fetched order from DB: [
+  {
+    request: <Buffer 0f bc 26 d6 b6 47>,
+    order_id: <Buffer 00 e8 db a1 af 2d>,
+    account: <Buffer 24 59 7a>,
+    instrument: <Buffer 54 e7 5e>,
+    instrument_position: <Buffer 11 9b b0 95 07 bd>,
+    symbol: 'XRP-USDT',
+    base_currency: <Buffer c2 35 f3>,
+    base_symbol: 'XRP',
+    quote_currency: <Buffer cb 69 43>,
+    quote_symbol: 'USDT',
+    state: <Buffer 15 3e 21>,
+    status: 'Hold',
+    request_state: <Buffer 4b c9 9c>,
+    request_status: 'Pending',
+    order_state: <Buffer de 78 79>,
+    order_status: 'live',
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer b8 32 96>,
+    order_type: 'limit',
+    margin_mode: 'cross',
+    price: 2.55,
+    size: 100,
+    leverage: 50,
+    filled_size: 0,
+    filled_amount: 0,
+    average_price: 0,
+    fee: 0,
+    pnl: 0,
+    digits: 4,
+    order_category: <Buffer 4f ae 94>,
+    category: 'normal',
+    cancel_source: <Buffer 3d 66 8d>,
+    canceled_by: 'not_canceled',
+    contract_type: <Buffer 9b 1a cc>,
+    instrument_type: <Buffer e1 a1 fa>,
+    reduce_only: 1,
+    broker_id: null,
+    trade_period: <Buffer 03 e8 0e>,
+    trade_timeframe: '15m',
+    timeframe_units: 15,
+    memo: 'Test 1d: Updating Order: setting expiry to 1m;',
+    create_time: 2025-12-03T15:29:15.140Z,
+    expiry_time: 2025-12-03T15:47:10.549Z,
+    update_time: 2025-12-03T15:46:10.581Z
+  }
+]

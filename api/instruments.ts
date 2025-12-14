@@ -41,7 +41,7 @@ export interface IResult {
 //| Publish - Creates new instruments; populates periods on new Blofin receipts          |
 //+--------------------------------------------------------------------------------------+
 const publish = async (props: Array<IInstrumentAPI>) => {
-  console.log("-> Instrument:Publish [API]");
+  console.log("-> Instrument.Publish [API]");
 
   const published: Array<IInstrument["instrument"]> = [];
   const modified: Array<IInstrument["instrument"]> = [];
@@ -82,7 +82,7 @@ const publish = async (props: Array<IInstrumentAPI>) => {
 //| Fetches instruments specific to the account (demo/production)                        |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async () => {
-  console.log("In Instruments.Fetch [API]:", new Date().toLocaleString());
+  console.log("-> Instruments.Fetch [API]:", new Date().toLocaleString());
 
   try {
     const response = await fetch(`${Session().rest_api_url}/api/v1/market/instruments`);
