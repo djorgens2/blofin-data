@@ -100,7 +100,7 @@ const processOrders = async () => {
     if (requests) for (const pending of requests) expiry < pending.expiry_time! ? verify.push(pending) : expired.push({ request: pending.request });
 
     if (verify.length) {
-      const update_time = new Date()
+      const update_time = new Date();
       const promises = verify.map((request) => Request.Submit({ ...request, update_time }));
       await Promise.all(promises);
       console.log(">> [Info] Trades.Pending: Requests pending:", verify.length);
@@ -129,10 +129,12 @@ const processOrders = async () => {
         { queued: [], expired: [] }
       );
 
-      const promises = queued.map(async (r) => LeverageAPI.Leverage({ instId: r.instId, positionSide: r.positionSide, leverage: r.leverage }));
+      const promises = queued.map(async (r) =>
+        LeverageAPI.Leverage({ instId: r.instId, positionSide: r.positionSide, leverage: r.leverage, marginMode: r.marginMode })
+      );
       const results = await Promise.all(promises);
       const updates = results.filter((result) => result);
-      
+
       const [accepted, rejected] = queued.length ? (await RequestAPI.Submit(queued)) ?? [[], []] : [[], []];
 
       console.log(">> Trades.Queued: Requests in queue:", requests.length);
@@ -444,8 +446,8 @@ export const Trades = async () => {
 
   await PositionsAPI.Import();
   await OrderAPI.Import();
-//  await StopsAPI.Import();
+  //  await StopsAPI.Import();
 
   await processOrders();
-//  await processStops();
+  //  await processStops();
 };

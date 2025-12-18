@@ -15,23 +15,23 @@
     'update_time'
   ],
   args: [
-    <Buffer af c9 eb d0 9b d9>,
-    <Buffer 11 9b b0 95 07 bd>,
+    <Buffer 92 ac e0 92 71 9f>,
+    <Buffer ed da 99 9d fb 4e>,
     'sell',
     <Buffer 62 57 cb>,
     2.95,
     100,
-    40,
+    15,
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/o expiry; w/o tpsl',
-    2025-12-03T08:13:51.264Z,
-    2025-12-03T16:13:51.266Z,
-    2025-12-03T08:13:51.264Z
+    2025-12-15T11:27:30.867Z,
+    2025-12-15T19:27:30.868Z,
+    2025-12-15T11:27:30.867Z
   ]
 }
 {
-  submitted: <Buffer af c9 eb d0 9b d9>,
+  submitted: <Buffer 92 ac e0 92 71 9f>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -41,18 +41,18 @@
     size: 100
   }
 }
-Test 2a: Request submitted, check db for results. <Buffer af c9 eb d0 9b d9>
+Test 2a: Request submitted, check db for results. <Buffer 92 ac e0 92 71 9f>
 Fetched order from DB: [
   {
-    request: <Buffer af c9 eb d0 9b d9>,
+    request: <Buffer 92 ac e0 92 71 9f>,
     order_id: null,
     account: <Buffer 24 59 7a>,
-    instrument: <Buffer 54 e7 5e>,
-    instrument_position: <Buffer 11 9b b0 95 07 bd>,
+    instrument: <Buffer a2 80 0a>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
     symbol: 'XRP-USDT',
-    base_currency: <Buffer c2 35 f3>,
+    base_currency: <Buffer 20 e0 67>,
     base_symbol: 'XRP',
-    quote_currency: <Buffer cb 69 43>,
+    quote_currency: <Buffer b5 2b c7>,
     quote_symbol: 'USDT',
     state: <Buffer 62 57 cb>,
     status: 'Queued',
@@ -67,7 +67,7 @@ Fetched order from DB: [
     margin_mode: 'cross',
     price: 2.95,
     size: 100,
-    leverage: 40,
+    leverage: 15,
     filled_size: null,
     filled_amount: null,
     average_price: null,
@@ -86,8 +86,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/o expiry; w/o tpsl',
-    create_time: 2025-12-03T08:13:51.264Z,
-    expiry_time: 2025-12-03T16:13:51.266Z,
-    update_time: 2025-12-03T08:13:51.264Z
+    create_time: 2025-12-15T11:27:30.867Z,
+    expiry_time: 2025-12-15T19:27:30.868Z,
+    update_time: 2025-12-15T11:27:30.867Z
   }
 ]

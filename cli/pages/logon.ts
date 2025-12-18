@@ -10,7 +10,6 @@ import UserToken from "cli/interfaces/user";
 import { setHeader } from "cli/modules/Header";
 import { setUserToken, setCredentials } from "cli/interfaces/user";
 
-import * as Initial from "cli/interfaces/seed";
 import * as Users from "db/interfaces/user";
 
 //+--------------------------------------------------------------------------------------+

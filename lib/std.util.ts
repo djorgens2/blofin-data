@@ -99,11 +99,11 @@ export const isBetween = (source: number, bound1: number, bound2: number, inclus
 //+--------------------------------------------------------------------------------------+
 type ComparableValue = number | string | Uint8Array | Date | Decimal;
 export const isEqual = (source: ComparableValue, benchmark: ComparableValue, digits: number = 8, log: boolean = false): boolean => {
-  if (source === undefined && benchmark === undefined) {
+  if (source == null && benchmark == null) {
     return true;
   }
 
-  if (source === undefined || benchmark === undefined) {
+  if (source == null  || benchmark == null) {
     return false;
   }
 

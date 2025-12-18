@@ -1,4 +1,11 @@
+[Info] Session.Config: Blofin Demo configured successfully
 -> Test 2a: Using Account: {
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
+  alias: 'Blofin Demo',
   api: '6e03ab69bdd646c1afbc92bc3725edaa',
   secret: '66b55bde5057499bb8dd078f60d79cce',
   phrase: 'development_api_key',
@@ -29,23 +36,23 @@
     'update_time'
   ],
   args: [
-    <Buffer 0e ea cd 64 b6 47>,
-    <Buffer 11 9b b0 95 07 bd>,
+    <Buffer 4c 5b 4a 35 37 be>,
+    <Buffer ed da 99 9d fb 4e>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
     100,
-    40,
+    15,
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/ expiry; w/o tpsl',
-    2025-12-03T14:27:18.789Z,
-    2025-12-03T14:32:18.756Z,
-    2025-12-03T14:27:18.789Z
+    2025-12-15T14:50:09.513Z,
+    2025-12-15T14:55:09.482Z,
+    2025-12-15T14:50:09.513Z
   ]
 }
 {
-  submitted: <Buffer 0e ea cd 64 b6 47>,
+  submitted: <Buffer 4c 5b 4a 35 37 be>,
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -53,22 +60,22 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2025-12-03T14:32:18.756Z,
+    expiry_time: 2025-12-15T14:55:09.482Z,
     memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
-Test 2a: Request submitted, check db for results. <Buffer 0e ea cd 64 b6 47>
+Test 2a: Request submitted, check db for results. <Buffer 4c 5b 4a 35 37 be>
 Fetched order from DB: [
   {
-    request: <Buffer 0e ea cd 64 b6 47>,
+    request: <Buffer 4c 5b 4a 35 37 be>,
     order_id: null,
     account: <Buffer 24 59 7a>,
-    instrument: <Buffer 54 e7 5e>,
-    instrument_position: <Buffer 11 9b b0 95 07 bd>,
+    instrument: <Buffer a2 80 0a>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
     symbol: 'XRP-USDT',
-    base_currency: <Buffer c2 35 f3>,
+    base_currency: <Buffer 20 e0 67>,
     base_symbol: 'XRP',
-    quote_currency: <Buffer cb 69 43>,
+    quote_currency: <Buffer b5 2b c7>,
     quote_symbol: 'USDT',
     state: <Buffer 62 57 cb>,
     status: 'Queued',
@@ -83,7 +90,7 @@ Fetched order from DB: [
     margin_mode: 'cross',
     price: 2.85,
     size: 100,
-    leverage: 40,
+    leverage: 15,
     filled_size: null,
     filled_amount: null,
     average_price: null,
@@ -102,8 +109,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/ expiry; w/o tpsl',
-    create_time: 2025-12-03T14:27:18.789Z,
-    expiry_time: 2025-12-03T14:32:18.756Z,
-    update_time: 2025-12-03T14:27:18.789Z
+    create_time: 2025-12-15T14:50:09.513Z,
+    expiry_time: 2025-12-15T14:55:09.482Z,
+    update_time: 2025-12-15T14:50:09.513Z
   }
 ]

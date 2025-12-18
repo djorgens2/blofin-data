@@ -1,0 +1,364 @@
+[Info] Session.Config: Blofin Demo configured successfully
+{
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
+  alias: 'Blofin Demo',
+  api: '6e03ab69bdd646c1afbc92bc3725edaa',
+  secret: '66b55bde5057499bb8dd078f60d79cce',
+  phrase: 'development_api_key',
+  rest_api_url: 'https://demo-trading-openapi.blofin.com',
+  private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
+  public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
+  account: <Buffer 24 59 7a>,
+  margin_mode: 'cross',
+  hedging: 1,
+  state: 'disconnected',
+  audit_order: '0',
+  audit_stops: '0'
+}
+-> Imports Authorized: AR-USDT,ADA-USDT,AR-USDT,AVAX-USDT
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '1H', startTime: 0 } start:  12/14/2025, 6:40:22 PM
+In App.Loader for  { symbol: 'ADA-USDT', timeframe: '15m', startTime: 0 } start:  12/14/2025, 6:40:22 PM
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '30m', startTime: 0 } start:  12/14/2025, 6:40:22 PM
+In App.Loader for  { symbol: 'AVAX-USDT', timeframe: '1H', startTime: 0 } start:  12/14/2025, 6:40:22 PM
+Loader start for AR-USDT after 0 on 2025-12-15T02:40:22.625Z
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AR-USDT after 0 on 2025-12-15T02:40:22.669Z
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for ADA-USDT after 0 on 2025-12-15T02:40:22.670Z
+Fetching candles for ADA-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AVAX-USDT after 0 on 2025-12-15T02:40:22.671Z
+Fetching candles for AVAX-USDT after [0,1970-01-01T00:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for ADA-USDT after [1764470700000,2025-11-30T02:45:00.000Z]
+Fetching candles for AR-USDT after [1763175600000,2025-11-15T03:00:00.000Z]
+Fetching candles for AR-USDT after [1760583600000,2025-10-16T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1760583600000,2025-10-16T03:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for ADA-USDT after [1763174700000,2025-11-15T02:45:00.000Z]
+Fetching candles for AR-USDT after [1760583600000,2025-10-16T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1755399600000,2025-08-17T03:00:00.000Z]
+Fetching candles for AR-USDT after [1755399600000,2025-08-17T03:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for ADA-USDT after [1761878700000,2025-10-31T02:45:00.000Z]
+Fetching candles for AR-USDT after [1750215600000,2025-06-18T03:00:00.000Z]
+Fetching candles for AR-USDT after [1757991600000,2025-09-16T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1750215600000,2025-06-18T03:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for ADA-USDT after [1760582700000,2025-10-16T02:45:00.000Z]
+Fetching candles for AR-USDT after [1745031600000,2025-04-19T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1745031600000,2025-04-19T03:00:00.000Z]
+Fetching candles for AR-USDT after [1755399600000,2025-08-17T03:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1759286700000,2025-10-01T02:45:00.000Z]
+Fetching candles for AR-USDT after [1739847600000,2025-02-18T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1739847600000,2025-02-18T03:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1752807600000,2025-07-18T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1757990700000,2025-09-16T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1734663600000,2024-12-20T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1734663600000,2024-12-20T03:00:00.000Z]
+Fetching candles for AR-USDT after [1750215600000,2025-06-18T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1756694700000,2025-09-01T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1729479600000,2024-10-21T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1729479600000,2024-10-21T03:00:00.000Z]
+Fetching candles for AR-USDT after [1747623600000,2025-05-19T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1755398700000,2025-08-17T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1724295600000,2024-08-22T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1724295600000,2024-08-22T03:00:00.000Z]
+Fetching candles for AR-USDT after [1745031600000,2025-04-19T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1754102700000,2025-08-02T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1719111600000,2024-06-23T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1719111600000,2024-06-23T03:00:00.000Z]
+Fetching candles for AR-USDT after [1742439600000,2025-03-20T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for ADA-USDT after [1752806700000,2025-07-18T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1713927600000,2024-04-24T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1713927600000,2024-04-24T03:00:00.000Z]
+Fetching candles for AR-USDT after [1739847600000,2025-02-18T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1751510700000,2025-07-03T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1708743600000,2024-02-24T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1708743600000,2024-02-24T03:00:00.000Z]
+Fetching candles for AR-USDT after [1737255600000,2025-01-19T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1750214700000,2025-06-18T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1703559600000,2023-12-26T03:00:00.000Z]
+Fetching candles for AVAX-USDT after [1703559600000,2023-12-26T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for AR-USDT after [1734663600000,2024-12-20T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1748918700000,2025-06-03T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1698375600000,2023-10-27T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 210
+Fetching candles for AVAX-USDT after [1698375600000,2023-10-27T03:00:00.000Z]
+Fetching candles for AR-USDT after [1732071600000,2024-11-20T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1747622700000,2025-05-19T02:45:00.000Z]
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AVAX-USDT after [1693191600000,2023-08-28T03:00:00.000Z]
+Fetching candles for AR-USDT after [1729479600000,2024-10-21T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1746326700000,2025-05-04T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AVAX-USDT after [1688007600000,2023-06-29T03:00:00.000Z]
+Fetching candles for AR-USDT after [1726887600000,2024-09-21T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1745030700000,2025-04-19T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AVAX-USDT after [1682823600000,2023-04-30T03:00:00.000Z]
+Fetching candles for AR-USDT after [1724295600000,2024-08-22T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1743734700000,2025-04-04T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AVAX-USDT after [1677639600000,2023-03-01T03:00:00.000Z]
+Fetching candles for AR-USDT after [1721703600000,2024-07-23T03:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1145
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1742438700000,2025-03-20T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AVAX-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for AR-USDT after [1719111600000,2024-06-23T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1741142700000,2025-03-05T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1716519600000,2024-05-24T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1739846700000,2025-02-18T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1713927600000,2024-04-24T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1738550700000,2025-02-03T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1711335600000,2024-03-25T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1737254700000,2025-01-19T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1708743600000,2024-02-24T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1735958700000,2025-01-04T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1706151600000,2024-01-25T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1734662700000,2024-12-20T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1703559600000,2023-12-26T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1733366700000,2024-12-05T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1700967600000,2023-11-26T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ADA-USDT after [1732070700000,2024-11-20T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1698375600000,2023-10-27T03:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 420
+Fetching candles for ADA-USDT after [1730774700000,2024-11-05T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+Fetching candles for ADA-USDT after [1729478700000,2024-10-21T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1728182700000,2024-10-06T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1726886700000,2024-09-21T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1725590700000,2024-09-06T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1724294700000,2024-08-22T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1722998700000,2024-08-07T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1721702700000,2024-07-23T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1720406700000,2024-07-08T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1719110700000,2024-06-23T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1717814700000,2024-06-08T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1716518700000,2024-05-24T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1715222700000,2024-05-09T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1713926700000,2024-04-24T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1712630700000,2024-04-09T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1711334700000,2024-03-25T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1710038700000,2024-03-10T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1708742700000,2024-02-24T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1707446700000,2024-02-09T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1706150700000,2024-01-25T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1704854700000,2024-01-10T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1703558700000,2023-12-26T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1702262700000,2023-12-11T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1700966700000,2023-11-26T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1699670700000,2023-11-11T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1698374700000,2023-10-27T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1697078700000,2023-10-12T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1695782700000,2023-09-27T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1694486700000,2023-09-12T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1693190700000,2023-08-28T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1691894700000,2023-08-13T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1690598700000,2023-07-29T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1689302700000,2023-07-14T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1688006700000,2023-06-29T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1686710700000,2023-06-14T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1685414700000,2023-05-30T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1684118700000,2023-05-15T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1682822700000,2023-04-30T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1681526700000,2023-04-15T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1680230700000,2023-03-31T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1678934700000,2023-03-16T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1677638700000,2023-03-01T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1676342700000,2023-02-14T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1675046700000,2023-01-30T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for ADA-USDT after [1673750700000,2023-01-15T02:45:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 259
+Fetching candles for ADA-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+-> Import for AR-USDT complete: 12/14/2025, 6:42:43 PM
+   # [Info] AR-USDT: 18930 candles imported
+-> Import for ADA-USDT complete: 12/14/2025, 6:42:43 PM
+   # [Info] ADA-USDT: 102499 candles imported
+-> Import for AR-USDT complete: 12/14/2025, 6:42:43 PM
+   # [Info] AR-USDT: 37860 candles imported
+-> Import for AVAX-USDT complete: 12/14/2025, 6:42:43 PM
+   # [Info] AVAX-USDT: 25625 candles imported
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1765764000000
+  },
+  columns: {
+    close: 3.833,
+    volume: 19994,
+    vol_currency: 1999.4,
+    vol_currency_quote: 7682.8287
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1765765800000
+  },
+  columns: {
+    low: 0.4031,
+    close: 0.4031,
+    volume: 1066,
+    vol_currency: 106632,
+    vol_currency_quote: 43165.3874
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1765765800000
+  },
+  columns: {
+    close: 3.833,
+    volume: 323,
+    vol_currency: 32.3,
+    vol_currency_quote: 123.8167
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 4d 38 93>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1765764000000
+  },
+  columns: {
+    close: 13.122,
+    volume: 9048,
+    vol_currency: 9048.8,
+    vol_currency_quote: 119133.8242
+  }
+}
+In Candles.Publish [API]: 12/14/2025, 6:42:44 PM
+-> Authorized Symbols: AR-USDT,ADA-USDT,AR-USDT,AVAX-USDT
+   # [Info] AR-USDT: 1 candles updated
+   # [Info] ADA-USDT: 1 candles updated
+   # [Info] AR-USDT: 1 candles updated
+   # [Info] AVAX-USDT: 1 candles updated
+[Info] Import.Candles: Successfully completed

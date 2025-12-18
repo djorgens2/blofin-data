@@ -1999,16 +1999,15 @@ import { parse } from "path";
 // })();
 
 //---------------------------------- instrument position import test ----------------------------------------//
-// import { config } from "module/session";
-// import * as InstrumentPosition from "db/interfaces/instrument_position";
+import * as InstrumentPosition from "api/instrumentPositions";
 
-// const args = process.argv.slice(2); // get account id
+const args = process.argv.slice(2); // get account id
 
-// (async () => {
-//   await config({ account: hexify(args[0]) });
-//   await InstrumentPosition.Import();
+(async () => {
+  await config({ account: hexify(args[0]) });
+  await InstrumentPosition.Import();
 
-// })();
+})();
 
 //---------------------------------- Session config get multiple leverage test ----------------------------------------//
 // import type { IInstrumentPosition } from "db/interfaces/instrument_position";
@@ -2181,19 +2180,37 @@ import { parse } from "path";
 // }
 
 // importCandles();
-import * as Import from "app/import";
+// import * as Import from "app/import";
 
-const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-config({ account })
-  .then( async () => {
-    console.log(Session());
-    await Import.importInstruments()
-      .then(() => {
-        console.log("[Info] Import.Instruments: Successfully completed");
-        process.exit(0);
-      })
-      .catch((e) => {
-        console.log("[Error] Import.Instruments: Failed to complete successfully");
-        process.exit(1);
-      });
-  });
+// const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
+// config({ account })
+//   .then( async () => {
+//     console.log(Session());
+//     await Import.importInstruments()
+//       .then(() => {
+//         console.log("[Info] Import.Instruments: Successfully completed");
+//         process.exit(0);
+//       })
+//       .catch((e) => {
+//         console.log("[Error] Import.Instruments: Failed to complete successfully");
+//         process.exit(1);
+//       });
+//   });
+
+// const str1: string = "10"
+// const num1: number = 10;
+
+// isEqual(str1,num1) && console.log('Yes they are');
+
+// const null1: string = null;
+// const undef1: number = undefined;
+
+// isEqual(str1,null1) && console.log('Yes they are');
+// isEqual(str1,undef1) && console.log('Yes they are');
+// isEqual(null1,str1) && console.log('Yes they are');
+// isEqual(undef1,str1) && console.log('Yes they are');
+
+// isEqual(null1,null1) && console.log('1. Yes they are');
+// isEqual(undef1,undef1) && console.log('2. Yes they are');
+// isEqual(null1,undef1) && console.log('3. Yes they are');
+// isEqual(undef1,null1) && console.log('4. Yes they are');

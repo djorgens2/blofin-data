@@ -54,7 +54,6 @@ export interface IRequest {
 const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
   if (hasValues<Partial<IRequest>>(current)) {
     if (hasValues<Partial<IRequest>>(props)) {
-      console.log(">> [Info] Request.Publish: Updating existing request:", current.request);;
       const update_time = props.update_time || new Date();
       const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
 
@@ -69,18 +68,19 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
           reduce_only: props.reduce_only ? (!!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only) : undefined,
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
-          expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
         };
 
         const [result, updates] = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
 
-        if (result && updates) {
-          const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const [result, updates] = await Update(
+        if (updates || !isEqual(props.expiry_time!, current.expiry_time!)) {
+          const state = updates && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
+          const memo = !updates && `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}`;
+          const [result] = await Update(
             {
               request: current.request,
               state,
               memo: props.memo === current.memo ? undefined : props.memo,
+              expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
               update_time,
             },
             { table: `request`, keys: [{ key: `request` }] }
@@ -165,6 +165,8 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
       const [current] = (await Orders.Fetch(query, { suffix: `ORDER BY update_time DESC LIMIT 1` })) ?? [{ request: undefined }];
 
       if (current.request) {
+        props.update_time === undefined && Object.assign(props, { update_time: Date() });
+
         if (props.update_time! > current.update_time!) {
           if (auto_status === "Enabled") {
             const promise = Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` }) ?? [{}];
@@ -175,7 +177,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
                 Cancel({ request, memo: `[Request.Submit]: New request on open instrument/position auto-cancels` })
               );
               await Promise.all(promises);
-              props.status = props.status === "Pending" ? "Hold" : props.status;
+              props.status = current.status === "Pending" ? "Hold" : current.status;
             }
           }
 

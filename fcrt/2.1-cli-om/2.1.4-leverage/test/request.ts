@@ -26,6 +26,6 @@ export const req_fcrt_2b: Partial<IRequest> = {
 export const req_fcrt_2c: Partial<IRequest> = {
   symbol: "XRP-USDT",
   position: "short",
-  leverage: 50,
+  leverage: 40,
   memo: "Test 2c: update pending order with revised leverage (quiesced app)",
 };

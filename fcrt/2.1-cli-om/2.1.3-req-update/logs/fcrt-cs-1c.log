@@ -1,30 +1,30 @@
 Test 1c: request reject on size, resub, then edit and resub
 {
-  instrument_position: <Buffer 11 9b b0 95 07 bd>,
+  instrument_position: <Buffer ed da 99 9d fb 4e>,
   audit: [
     {
       account: <Buffer 24 59 7a>,
-      instrument_position: <Buffer 11 9b b0 95 07 bd>,
-      instrument: <Buffer 54 e7 5e>,
+      instrument_position: <Buffer ed da 99 9d fb 4e>,
+      instrument: <Buffer a2 80 0a>,
       position: 'short',
       symbol: 'XRP-USDT',
-      base_currency: <Buffer c2 35 f3>,
+      base_currency: <Buffer 20 e0 67>,
       base_symbol: 'XRP',
-      quote_currency: <Buffer cb 69 43>,
+      quote_currency: <Buffer b5 2b c7>,
       quote_symbol: 'USDT',
       state: <Buffer e8 fc f7>,
       status: 'Closed',
-      occurs: 130
+      occurs: 137
     },
     {
       account: <Buffer 24 59 7a>,
-      instrument_position: <Buffer 11 9b b0 95 07 bd>,
-      instrument: <Buffer 54 e7 5e>,
+      instrument_position: <Buffer ed da 99 9d fb 4e>,
+      instrument: <Buffer a2 80 0a>,
       position: 'short',
       symbol: 'XRP-USDT',
-      base_currency: <Buffer c2 35 f3>,
+      base_currency: <Buffer 20 e0 67>,
       base_symbol: 'XRP',
-      quote_currency: <Buffer cb 69 43>,
+      quote_currency: <Buffer b5 2b c7>,
       quote_symbol: 'USDT',
       state: <Buffer e1 cb 25>,
       status: 'Fulfilled',
@@ -32,13 +32,13 @@ Test 1c: request reject on size, resub, then edit and resub
     },
     {
       account: <Buffer 24 59 7a>,
-      instrument_position: <Buffer 11 9b b0 95 07 bd>,
-      instrument: <Buffer 54 e7 5e>,
+      instrument_position: <Buffer ed da 99 9d fb 4e>,
+      instrument: <Buffer a2 80 0a>,
       position: 'short',
       symbol: 'XRP-USDT',
-      base_currency: <Buffer c2 35 f3>,
+      base_currency: <Buffer 20 e0 67>,
       base_symbol: 'XRP',
-      quote_currency: <Buffer cb 69 43>,
+      quote_currency: <Buffer b5 2b c7>,
       quote_symbol: 'USDT',
       state: <Buffer 4b c9 9c>,
       status: 'Pending',
@@ -48,13 +48,13 @@ Test 1c: request reject on size, resub, then edit and resub
   valid: [
     {
       account: <Buffer 24 59 7a>,
-      instrument_position: <Buffer 11 9b b0 95 07 bd>,
-      instrument: <Buffer 54 e7 5e>,
+      instrument_position: <Buffer ed da 99 9d fb 4e>,
+      instrument: <Buffer a2 80 0a>,
       position: 'short',
       symbol: 'XRP-USDT',
-      base_currency: <Buffer c2 35 f3>,
+      base_currency: <Buffer 20 e0 67>,
       base_symbol: 'XRP',
-      quote_currency: <Buffer cb 69 43>,
+      quote_currency: <Buffer b5 2b c7>,
       quote_symbol: 'USDT',
       state: <Buffer 4b c9 9c>,
       status: 'Pending',
@@ -63,20 +63,21 @@ Test 1c: request reject on size, resub, then edit and resub
   ]
 }
 -> [Info] request updated {
-  filters: { request: <Buffer 0f bc 26 d6 b6 47> },
-  columns: { price: 2.55, size: 100, expiry_time: 2025-12-03T16:38:37.106Z }
+  filters: { request: <Buffer 12 54 88 50 9e 1d> },
+  columns: { price: 2.55, size: 100 }
 }
 -> [Info] request updated {
-  filters: { request: <Buffer 0f bc 26 d6 b6 47> },
+  filters: { request: <Buffer 12 54 88 50 9e 1d> },
   columns: {
     state: <Buffer 15 3e 21>,
     memo: 'Test 1c: Updating Order: Updates to hold;',
-    update_time: 2025-12-03T15:38:37.138Z
+    expiry_time: 2025-12-17T01:06:54.496Z,
+    update_time: 2025-12-17T00:06:54.529Z
   }
 }
 [Info] Starting Order: submitting request [Request.req_fcrt_1c] {
   account: <Buffer 24 59 7a>,
-  instrument_position: <Buffer 11 9b b0 95 07 bd>,
+  instrument_position: <Buffer ed da 99 9d fb 4e>,
   symbol: 'XRP-USDT',
   position: 'short',
   action: 'sell',
@@ -85,21 +86,21 @@ Test 1c: request reject on size, resub, then edit and resub
   size: 100,
   leverage: 50,
   status: 'Hold',
-  expiry_time: 2025-12-03T16:38:37.106Z,
+  expiry_time: 2025-12-17T01:06:54.496Z,
   memo: 'Test 1c: request reject on size, resub, then edit and resub'
 }
-Test 1c: Request submitted, check db for results. <Buffer 0f bc 26 d6 b6 47>
+Test 1c: Request submitted, check db for results. <Buffer 12 54 88 50 9e 1d>
 Fetched order from DB: [
   {
-    request: <Buffer 0f bc 26 d6 b6 47>,
-    order_id: <Buffer 00 e8 db a1 ad 24>,
+    request: <Buffer 12 54 88 50 9e 1d>,
+    order_id: <Buffer 00 e8 db ab 49 07>,
     account: <Buffer 24 59 7a>,
-    instrument: <Buffer 54 e7 5e>,
-    instrument_position: <Buffer 11 9b b0 95 07 bd>,
+    instrument: <Buffer a2 80 0a>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
     symbol: 'XRP-USDT',
-    base_currency: <Buffer c2 35 f3>,
+    base_currency: <Buffer 20 e0 67>,
     base_symbol: 'XRP',
-    quote_currency: <Buffer cb 69 43>,
+    quote_currency: <Buffer b5 2b c7>,
     quote_symbol: 'USDT',
     state: <Buffer 15 3e 21>,
     status: 'Hold',
@@ -133,8 +134,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 1c: Updating Order: Updates to hold;',
-    create_time: 2025-12-03T15:29:15.140Z,
-    expiry_time: 2025-12-03T16:38:37.106Z,
-    update_time: 2025-12-03T15:38:37.138Z
+    create_time: 2025-12-16T23:50:51.394Z,
+    expiry_time: 2025-12-17T01:06:54.496Z,
+    update_time: 2025-12-17T00:06:54.529Z
   }
 ]

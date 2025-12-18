@@ -1,5 +1,12 @@
->> [Info] Application.Initialization start: 12/3/2025, 10:15:44 AM
--> Seed Account: {
+[Info] Session.Config: Blofin Demo configured successfully
+>> [Info] Application.Initialization start: 12/17/2025, 7:21:59 PM
+-> Active Session: {
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
+  alias: 'Blofin Demo',
   api: '6e03ab69bdd646c1afbc92bc3725edaa',
   secret: '66b55bde5057499bb8dd078f60d79cce',
   phrase: 'development_api_key',
@@ -13,23 +20,23 @@
   audit_order: '0',
   audit_stops: '0'
 }
-In Subject.Area.Import: 12/3/2025, 10:15:44 AM
+In Subject.Area.Import: 12/17/2025, 7:21:59 PM
    # Subject Area imports:  5 verified
-In Activity.Import: 12/3/2025, 10:15:44 AM
+In Activity.Import: 12/17/2025, 7:21:59 PM
    # Activity imports:  8 verified
-In Authority.Import: 12/3/2025, 10:15:45 AM
+In Authority.Import: 12/17/2025, 7:21:59 PM
    # Authority imports:  6 verified
-In Broker.Import: 12/3/2025, 10:15:45 AM
+In Broker.Import: 12/17/2025, 7:22:00 PM
    # Broker imports:  1 verified
-In Contract.Type.Import: 12/3/2025, 10:15:45 AM
+In Contract.Type.Import: 12/17/2025, 7:22:00 PM
    # Contract Type imports:  2 verified
-In Environment.Import: 12/3/2025, 10:15:45 AM
+In Environment.Import: 12/17/2025, 7:22:00 PM
    # Environment imports:  4 verified
-In Instrument.Type.Import: 12/3/2025, 10:15:45 AM
+In Instrument.Type.Import: 12/17/2025, 7:22:00 PM
    # Instrument Type imports:  1 verified
-In Period.Import: 12/3/2025, 10:15:45 AM
+In Period.Import: 12/17/2025, 7:22:00 PM
    # Period imports:  15 verified
-In Reference.Import: 12/3/2025, 10:15:46 AM
+In Reference.Import: 12/17/2025, 7:22:01 PM
    # Order State imports:  7 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -39,306 +46,1966 @@ In Reference.Import: 12/3/2025, 10:15:46 AM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 12/3/2025, 10:15:46 AM
+In Role.Import: 12/17/2025, 7:22:01 PM
    # Role imports:  4 verified
-In State.Import: 12/3/2025, 10:15:46 AM
+In State.Import: 12/17/2025, 7:22:01 PM
    # State imports:  15 verified
-In Instruments.Import [API]: 12/3/2025, 10:15:46 AM
--> Instrument:Publish [API]
-In Instruments.Fetch [API]: 12/3/2025, 10:15:49 AM
+In Instruments.Import [API]: 12/17/2025, 7:22:02 PM
+-> Instrument.Publish [API]
+-> Instruments.Fetch [API]: 12/17/2025, 7:22:03 PM
 -> Instrument.Position.Import [API]
--> Leverage.Fetch [API]
--> Leverage.Fetch [API]
-   # [Warning] Instrument.Position.Publish: Errors/Skips: 64 positions processed
->> [Info] Application.Initialization finished: 12/3/2025, 10:15:51 AM
-Connected to websocket: [1813579:wss://demo-trading-openapi.blofin.com/ws/private]
+   # [Info] Instrument.Position.Import: 33 instruments published
+   # [Info] Instrument.Position.Import: 66 positions published
+-> Imports Authorized: ONDO-USDT,XRP-USDT,DOGE-USDT,AR-USDT,ADA-USDT,BTC-USDT,AR-USDT,AVAX-USDT
+In App.Loader for  { symbol: 'ONDO-USDT', timeframe: '15m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'XRP-USDT', timeframe: '15m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'DOGE-USDT', timeframe: '15m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '1H', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'ADA-USDT', timeframe: '15m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'BTC-USDT', timeframe: '15m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '30m', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+In App.Loader for  { symbol: 'AVAX-USDT', timeframe: '1H', startTime: 0 } start:  12/17/2025, 7:22:04 PM
+Loader start for ONDO-USDT after 0 on 2025-12-18T03:22:04.271Z
+Fetching candles for ONDO-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AR-USDT after 0 on 2025-12-18T03:22:04.272Z
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for DOGE-USDT after 0 on 2025-12-18T03:22:04.273Z
+Fetching candles for DOGE-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for XRP-USDT after 0 on 2025-12-18T03:22:04.274Z
+Fetching candles for XRP-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AR-USDT after 0 on 2025-12-18T03:22:04.275Z
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for ADA-USDT after 0 on 2025-12-18T03:22:04.276Z
+Fetching candles for ADA-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for BTC-USDT after 0 on 2025-12-18T03:22:04.277Z
+Fetching candles for BTC-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AVAX-USDT after 0 on 2025-12-18T03:22:04.278Z
+Fetching candles for AVAX-USDT after [0,1970-01-01T00:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer dd 63 0b>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766025900000
+  },
+  columns: {
+    low: 0.3894,
+    close: 0.3895,
+    volume: 446,
+    vol_currency: 44.6,
+    vol_currency_quote: 17.40908,
+    completed: true
+  }
+}
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1766025000000
+  },
+  columns: {
+    low: 3.34,
+    close: 3.34,
+    volume: 849,
+    vol_currency: 84.9,
+    vol_currency_quote: 284.8817,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766023200000
+  },
+  columns: {
+    close: 3.34,
+    volume: 2035,
+    vol_currency: 203.5,
+    vol_currency_quote: 681.2311,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766025900000
+  },
+  columns: {
+    low: 1.8615,
+    close: 1.8634,
+    volume: 1268,
+    vol_currency: 126833,
+    vol_currency_quote: 236455.8308,
+    completed: true
+  }
+}
+-> Candle.Publish [API]: BTC-USDT / 1440
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer d4 45 2e>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766025900000
+  },
+  columns: {
+    low: 0.12607,
+    close: 0.12625,
+    volume: 856,
+    vol_currency: 856920,
+    vol_currency_quote: 108256.184,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766025900000
+  },
+  columns: {
+    close: 0.3675,
+    volume: 796,
+    vol_currency: 79676,
+    vol_currency_quote: 29302.5844,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 4d 38 93>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766023200000
+  },
+  columns: {
+    close: 11.829,
+    volume: 9979,
+    vol_currency: 9979,
+    vol_currency_quote: 117851.2664,
+    completed: true
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766025900000
+  },
+  columns: {
+    close: 86663,
+    volume: 19978,
+    vol_currency: 19.9789,
+    vol_currency_quote: 1731380.76315,
+    completed: true
+  }
+}
+Fetching candles for ONDO-USDT after [1764732600000,2025-12-03T03:30:00.000Z]
+Fetching candles for AR-USDT after [1760846400000,2025-10-19T04:00:00.000Z]
+Fetching candles for AR-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1764732600000,2025-12-03T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1764732600000,2025-12-03T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1760846400000,2025-10-19T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1764732600000,2025-12-03T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1764732600000,2025-12-03T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+Fetching candles for AR-USDT after [1755662400000,2025-08-20T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1755662400000,2025-08-20T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+Fetching candles for AR-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for BTC-USDT after [1763436600000,2025-11-18T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ONDO-USDT after [1762140600000,2025-11-03T03:30:00.000Z]
+Fetching candles for AR-USDT after [1750478400000,2025-06-21T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1762140600000,2025-11-03T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1762140600000,2025-11-03T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1750478400000,2025-06-21T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1762140600000,2025-11-03T03:30:00.000Z]
+Fetching candles for BTC-USDT after [1762140600000,2025-11-03T03:30:00.000Z]
+Fetching candles for AR-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for ONDO-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for AR-USDT after [1745294400000,2025-04-22T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1745294400000,2025-04-22T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for BTC-USDT after [1760844600000,2025-10-19T03:30:00.000Z]
+Fetching candles for AR-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1759548600000,2025-10-04T03:30:00.000Z]
+Fetching candles for AR-USDT after [1740110400000,2025-02-21T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1759548600000,2025-10-04T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1759548600000,2025-10-04T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1740110400000,2025-02-21T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1759548600000,2025-10-04T03:30:00.000Z]
+Fetching candles for AR-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+Fetching candles for BTC-USDT after [1759548600000,2025-10-04T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+Fetching candles for AR-USDT after [1734926400000,2024-12-23T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1734926400000,2024-12-23T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+Fetching candles for AR-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1758252600000,2025-09-19T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1756956600000,2025-09-04T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1756956600000,2025-09-04T03:30:00.000Z]
+Fetching candles for AR-USDT after [1729742400000,2024-10-24T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1756956600000,2025-09-04T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1729742400000,2024-10-24T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1756956600000,2025-09-04T03:30:00.000Z]
+Fetching candles for AR-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1756956600000,2025-09-04T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+Fetching candles for AR-USDT after [1724558400000,2024-08-25T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1724558400000,2024-08-25T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+Fetching candles for AR-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for BTC-USDT after [1755660600000,2025-08-20T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1754364600000,2025-08-05T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1754364600000,2025-08-05T03:30:00.000Z]
+Fetching candles for AR-USDT after [1719374400000,2024-06-26T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1754364600000,2025-08-05T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1719374400000,2024-06-26T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1754364600000,2025-08-05T03:30:00.000Z]
+Fetching candles for AR-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for BTC-USDT after [1754364600000,2025-08-05T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+Fetching candles for AR-USDT after [1714190400000,2024-04-27T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1714190400000,2024-04-27T04:00:00.000Z]
+Fetching candles for DOGE-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+Fetching candles for AR-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1753068600000,2025-07-21T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1751772600000,2025-07-06T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1751772600000,2025-07-06T03:30:00.000Z]
+Fetching candles for AR-USDT after [1709006400000,2024-02-27T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1751772600000,2025-07-06T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1709006400000,2024-02-27T04:00:00.000Z]
+Fetching candles for AR-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for DOGE-USDT after [1751772600000,2025-07-06T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1751772600000,2025-07-06T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+Fetching candles for AR-USDT after [1703822400000,2023-12-29T04:00:00.000Z]
+Fetching candles for XRP-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1703822400000,2023-12-29T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for AR-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for BTC-USDT after [1750476600000,2025-06-21T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1749180600000,2025-06-06T03:30:00.000Z]
+Fetching candles for AR-USDT after [1698638400000,2023-10-30T04:00:00.000Z]
+Fetching candles for ADA-USDT after [1749180600000,2025-06-06T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1749180600000,2025-06-06T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1698638400000,2023-10-30T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for AR-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 283
+Fetching candles for DOGE-USDT after [1749180600000,2025-06-06T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1749180600000,2025-06-06T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+Fetching candles for ADA-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1693454400000,2023-08-31T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for AR-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1747884600000,2025-05-22T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1746588600000,2025-05-07T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1746588600000,2025-05-07T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1746588600000,2025-05-07T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1688270400000,2023-07-02T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for AR-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1746588600000,2025-05-07T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1746588600000,2025-05-07T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1683086400000,2023-05-03T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1745292600000,2025-04-22T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1743996600000,2025-04-07T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1743996600000,2025-04-07T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1743996600000,2025-04-07T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1677902400000,2023-03-04T04:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1743996600000,2025-04-07T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AVAX-USDT / 1218
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1743996600000,2025-04-07T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+Fetching candles for AVAX-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for AR-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1742700600000,2025-03-23T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1741404600000,2025-03-08T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1741404600000,2025-03-08T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1741404600000,2025-03-08T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1741404600000,2025-03-08T03:30:00.000Z]
+Fetching candles for AR-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1741404600000,2025-03-08T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+Fetching candles for AR-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1740108600000,2025-02-21T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1738812600000,2025-02-06T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1738812600000,2025-02-06T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1738812600000,2025-02-06T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1738812600000,2025-02-06T03:30:00.000Z]
+Fetching candles for AR-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1738812600000,2025-02-06T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+Fetching candles for AR-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1737516600000,2025-01-22T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1736220600000,2025-01-07T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1736220600000,2025-01-07T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1736220600000,2025-01-07T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1736220600000,2025-01-07T03:30:00.000Z]
+Fetching candles for AR-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1736220600000,2025-01-07T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+Fetching candles for AR-USDT after [1703820600000,2023-12-29T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1734924600000,2024-12-23T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1733628600000,2024-12-08T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1733628600000,2024-12-08T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1733628600000,2024-12-08T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1733628600000,2024-12-08T03:30:00.000Z]
+Fetching candles for AR-USDT after [1701228600000,2023-11-29T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1733628600000,2024-12-08T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+Fetching candles for AR-USDT after [1698636600000,2023-10-30T03:30:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 565
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1732332600000,2024-11-23T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1731036600000,2024-11-08T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1731036600000,2024-11-08T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1731036600000,2024-11-08T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+Fetching candles for DOGE-USDT after [1731036600000,2024-11-08T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1731036600000,2024-11-08T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1729740600000,2024-10-24T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1728444600000,2024-10-09T03:30:00.000Z]
+Fetching candles for ADA-USDT after [1728444600000,2024-10-09T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1728444600000,2024-10-09T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1728444600000,2024-10-09T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1728444600000,2024-10-09T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1727148600000,2024-09-24T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1725852600000,2024-09-09T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1725852600000,2024-09-09T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1725852600000,2024-09-09T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1725852600000,2024-09-09T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1725852600000,2024-09-09T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1724556600000,2024-08-25T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1723260600000,2024-08-10T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1723260600000,2024-08-10T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1723260600000,2024-08-10T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1723260600000,2024-08-10T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1723260600000,2024-08-10T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1721964600000,2024-07-26T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1720668600000,2024-07-11T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1720668600000,2024-07-11T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1720668600000,2024-07-11T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1720668600000,2024-07-11T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1720668600000,2024-07-11T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1719372600000,2024-06-26T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1718076600000,2024-06-11T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1718076600000,2024-06-11T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1718076600000,2024-06-11T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1718076600000,2024-06-11T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1718076600000,2024-06-11T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1716780600000,2024-05-27T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1715484600000,2024-05-12T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1715484600000,2024-05-12T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1715484600000,2024-05-12T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1715484600000,2024-05-12T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1715484600000,2024-05-12T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1714188600000,2024-04-27T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1712892600000,2024-04-12T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1712892600000,2024-04-12T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1712892600000,2024-04-12T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1712892600000,2024-04-12T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1712892600000,2024-04-12T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1711596600000,2024-03-28T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1710300600000,2024-03-13T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1710300600000,2024-03-13T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1710300600000,2024-03-13T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1710300600000,2024-03-13T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1710300600000,2024-03-13T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1709004600000,2024-02-27T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1707708600000,2024-02-12T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for ADA-USDT after [1707708600000,2024-02-12T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1707708600000,2024-02-12T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1707708600000,2024-02-12T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1707708600000,2024-02-12T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 548
+Fetching candles for ADA-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1706412600000,2024-01-28T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1705919400000,2024-01-22T10:30:00.000Z]
+Fetching candles for ADA-USDT after [1705116600000,2024-01-13T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1705116600000,2024-01-13T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1705116600000,2024-01-13T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1705116600000,2024-01-13T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1703820600000,2023-12-29T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1703820600000,2023-12-29T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1703820600000,2023-12-29T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1703820600000,2023-12-29T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1702524600000,2023-12-14T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1702524600000,2023-12-14T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1702524600000,2023-12-14T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1702524600000,2023-12-14T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1701228600000,2023-11-29T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1701228600000,2023-11-29T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for DOGE-USDT after [1701228600000,2023-11-29T03:30:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1701228600000,2023-11-29T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1699932600000,2023-11-14T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1699932600000,2023-11-14T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1699932600000,2023-11-14T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1699932600000,2023-11-14T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1698636600000,2023-10-30T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1698636600000,2023-10-30T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1698636600000,2023-10-30T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1698636600000,2023-10-30T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1697340600000,2023-10-15T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1697340600000,2023-10-15T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1697340600000,2023-10-15T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1697340600000,2023-10-15T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1696044600000,2023-09-30T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1696044600000,2023-09-30T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1696044600000,2023-09-30T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1696044600000,2023-09-30T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1694748600000,2023-09-15T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1694748600000,2023-09-15T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1694748600000,2023-09-15T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1694748600000,2023-09-15T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1693452600000,2023-08-31T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1693452600000,2023-08-31T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1693452600000,2023-08-31T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1693452600000,2023-08-31T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1692156600000,2023-08-16T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1692156600000,2023-08-16T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1692156600000,2023-08-16T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1692156600000,2023-08-16T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1690860600000,2023-08-01T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1690860600000,2023-08-01T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1690860600000,2023-08-01T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1690860600000,2023-08-01T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1689564600000,2023-07-17T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1689564600000,2023-07-17T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1689564600000,2023-07-17T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1689564600000,2023-07-17T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1688268600000,2023-07-02T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1688268600000,2023-07-02T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1688268600000,2023-07-02T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1688268600000,2023-07-02T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1686972600000,2023-06-17T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1686972600000,2023-06-17T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1686972600000,2023-06-17T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1686972600000,2023-06-17T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1685676600000,2023-06-02T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1685676600000,2023-06-02T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1685676600000,2023-06-02T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1685676600000,2023-06-02T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1684380600000,2023-05-18T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1684380600000,2023-05-18T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1684380600000,2023-05-18T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1684380600000,2023-05-18T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1683084600000,2023-05-03T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1683084600000,2023-05-03T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1683084600000,2023-05-03T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1683084600000,2023-05-03T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1681788600000,2023-04-18T03:30:00.000Z]
+Fetching candles for XRP-USDT after [1681788600000,2023-04-18T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for DOGE-USDT after [1681788600000,2023-04-18T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1681788600000,2023-04-18T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1680492600000,2023-04-03T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1680492600000,2023-04-03T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1680492600000,2023-04-03T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1680492600000,2023-04-03T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1679196600000,2023-03-19T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1679196600000,2023-03-19T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1679196600000,2023-03-19T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1679196600000,2023-03-19T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1677900600000,2023-03-04T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1677900600000,2023-03-04T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1677900600000,2023-03-04T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1677900600000,2023-03-04T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1676604600000,2023-02-17T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1676604600000,2023-02-17T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1676604600000,2023-02-17T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1676604600000,2023-02-17T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1675308600000,2023-02-02T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for XRP-USDT after [1675308600000,2023-02-02T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1675308600000,2023-02-02T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1675308600000,2023-02-02T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1674012600000,2023-01-18T03:30:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 550
+Fetching candles for XRP-USDT after [1674012600000,2023-01-18T03:30:00.000Z]
+Fetching candles for DOGE-USDT after [1674012600000,2023-01-18T03:30:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 550
+-> Candle.Publish [API]: DOGE-USDT / 550
+Fetching candles for BTC-USDT after [1674012600000,2023-01-18T03:30:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 550
+Fetching candles for ADA-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for XRP-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for DOGE-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for BTC-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+-> Import for ONDO-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] ONDO-USDT: 2 candles imported
+   # [Info] ONDO-USDT: 1 candles updated
+-> Import for XRP-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] XRP-USDT: 2 candles imported
+   # [Info] XRP-USDT: 1 candles updated
+-> Import for DOGE-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] DOGE-USDT: 2 candles imported
+   # [Info] DOGE-USDT: 1 candles updated
+-> Import for AR-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] AR-USDT: 1 candles imported
+   # [Info] AR-USDT: 1 candles updated
+-> Import for ADA-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] ADA-USDT: 2 candles imported
+   # [Info] ADA-USDT: 1 candles updated
+-> Import for BTC-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] BTC-USDT: 2 candles imported
+   # [Info] BTC-USDT: 1 candles updated
+-> Import for AR-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] AR-USDT: 1 candles imported
+   # [Info] AR-USDT: 1 candles updated
+-> Import for AVAX-USDT complete: 12/17/2025, 7:24:13 PM
+   # [Info] AVAX-USDT: 1 candles imported
+   # [Info] AVAX-USDT: 1 candles updated
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer d4 45 2e>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: {
+    low: 0.12552,
+    close: 0.12555,
+    volume: 583,
+    vol_currency: 583930,
+    vol_currency_quote: 73387.1944
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer dd 63 0b>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: {
+    low: 0.387,
+    close: 0.3872,
+    volume: 44330,
+    vol_currency: 4433,
+    vol_currency_quote: 1716.34476
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1766026800000
+  },
+  columns: {
+    low: 3.316,
+    close: 3.317,
+    volume: 763,
+    vol_currency: 76.3,
+    vol_currency_quote: 253.9168
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: {
+    close: 0.3648,
+    volume: 707,
+    vol_currency: 70763,
+    vol_currency_quote: 25852.8265
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 4d 38 93>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766026800000
+  },
+  columns: {
+    close: 11.736,
+    volume: 3397,
+    vol_currency: 3397.2,
+    vol_currency_quote: 40090.549
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766026800000
+  },
+  columns: {
+    low: 3.316,
+    close: 3.317,
+    volume: 763,
+    vol_currency: 76.3,
+    vol_currency_quote: 253.9168
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: {
+    close: 86376,
+    volume: 24571,
+    vol_currency: 24.5714,
+    vol_currency_quote: 2123333.08155
+  }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: {
+    close: 1.8544,
+    volume: 1367,
+    vol_currency: 136739,
+    vol_currency_quote: 253732.8837
+  }
+}
+In Candles.Publish [API]: 12/17/2025, 7:24:14 PM
+-> Authorized Symbols: ONDO-USDT,XRP-USDT,DOGE-USDT,AR-USDT,ADA-USDT,BTC-USDT,AR-USDT,AVAX-USDT
+   # [Info] ONDO-USDT: 1 candles updated
+   # [Info] XRP-USDT: 1 candles updated
+   # [Info] DOGE-USDT: 1 candles updated
+   # [Info] AR-USDT: 1 candles updated
+   # [Info] ADA-USDT: 1 candles updated
+   # [Info] BTC-USDT: 1 candles updated
+   # [Info] AR-USDT: 1 candles updated
+   # [Info] AVAX-USDT: 1 candles updated
+>> [Info] Application.Initialization finished: 12/17/2025, 7:24:15 PM
+[Info] App.Main: ONDO-USDT process spawned; PID [599636]
+[Info] App.Main: XRP-USDT process spawned; PID [599637]
+[Info] App.Main: DOGE-USDT process spawned; PID [599643]
+[Info] App.Main: AR-USDT process spawned; PID [599649]
+[Info] App.Main: ADA-USDT process spawned; PID [599655]
+[Info] App.Main: BTC-USDT process spawned; PID [599661]
+[Info] App.Main: AR-USDT process spawned; PID [599668]
+[Info] App.Main: AVAX-USDT process spawned; PID [599675]
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo configured successfully
+Connected to websocket: [598818:wss://demo-trading-openapi.blofin.com/ws/private]
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 55158.99, update_time: 2025-12-03T18:15:51.676Z }
+  columns: { total_equity: 55135.164, update_time: 2025-12-18T03:24:16.365Z }
 }
 -> [Info] account_detail updated {
-  filters: { account: <Buffer 24 59 7a>, currency: <Buffer cb 69 43> },
-  columns: { equity_usd: 55158.99, coin_usd_price: 1.000125 }
-}
--> Candle:Publish [API]: XRP-USDT / 6
--> Candle:Publish [API]: BTC-USDT / 6
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T18:00:00.000Z,
-    2.1832,
-    2.1895,
-    2.1832,
-    2.1895,
-    639120,
-    639120,
-    1398487.5044,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T18:00:00.000Z,
-    92901.4,
-    93356.4,
-    92901.4,
-    93356.4,
-    126.0377,
-    126.0377,
-    11741065.13324,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:45:00.000Z,
-    2.1768,
-    2.1832,
-    2.1763,
-    2.1832,
-    409351,
-    409351,
-    893035.2968,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:45:00.000Z,
-    92710,
-    92886.1,
-    92627.2,
-    92886.1,
-    76.5946,
-    76.5946,
-    7110151.55416,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:30:00.000Z,
-    2.1725,
-    2.1778,
-    2.1718,
-    2.1778,
-    444755,
-    444755,
-    968277.4841,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 54 e7 5e>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:15:00.000Z,
-    2.1767,
-    2.1725,
-    2.1661,
-    2.1725,
-    218440,
-    218440,
-    474657.6601,
-    true
-  ]
-}
--> [Info] candle inserted {
-  fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
-  ],
-  args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:30:00.000Z,
-    92458.5,
-    92709.9,
-    92458.5,
-    92709.9,
-    45.3698,
-    45.3698,
-    4205985.272,
-    true
-  ]
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 55135.164, coin_usd_price: 0.999693 }
 }
 -> [Info] candle updated {
   filters: {
-    instrument: <Buffer 54 e7 5e>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-03T17:00:00.000Z
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1766026800000
   },
+  columns: { close: 3.318 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer d4 45 2e>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: { close: 0.12558 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: { close: 1.8542 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1766027700000
+  },
+  columns: { close: 86382.6 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766026800000
+  },
+  columns: { close: 3.318 }
+}
+-> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 4d 38 93>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1766026800000
+  },
+  columns: { close: 11.737 }
+}
+In Execute.Trades: 12/17/2025, 7:24:44 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Rejected:  20 [
+  {
+    order_id: <Buffer 00 e8 da cc c9 66>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 62 50>,
+    symbol: 'POPCAT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 52 e2>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 46 e9>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 46 d3>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 46 77>,
+    symbol: 'POPCAT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ca 46 57>,
+    symbol: 'POPCAT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c9 3e a9>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c9 3d d2>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c9 3d c0>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 d1 ef>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 7d 99>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 55 a7>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 55 43>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 4d f2>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c8 25 97>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c7 f4 09>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c7 f3 8e>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c5 34 4d>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da c5 34 39>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Leverage.Publish [API]
+-> [Info] instrument_position updated {
+  filters: { account: <Buffer 24 59 7a>, instrument: <Buffer a2 80 0a> },
+  columns: { leverage: 15 }
+}
+In Requests.Submit [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:24:45.706Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:24:45.706Z }
+}
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:24:45.978Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 56 ee 23 cb d1 96> },
   columns: {
-    high: 2.1768,
-    close: 2.1768,
-    volume: 5694,
-    vol_currency: 569486,
-    vol_currency_quote: 1236750.524,
-    completed: true
+    order_id: <Buffer 00 e8 db ac 3a 12>,
+    state: <Buffer 4b c9 9c>,
+    memo: '[Info] Response.Request: Order submitted successfully',
+    update_time: 2025-12-18T03:24:46.052Z
   }
 }
--> [Info] candle inserted {
+>> Trades.Queued: Requests in queue: 1
+-> Queued requests submitted: 1
+   # [Info] Requests accepted: 1
+-> [Info] orders inserted {
   fields: [
-    'instrument',
-    'period',
-    'bar_time',
-    'open',
-    'high',
-    'low',
-    'close',
-    'volume',
-    'vol_currency',
-    'vol_currency_quote',
-    'completed'
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'filled_amount',
+    'average_price',
+    'fee',
+    'pnl'
   ],
   args: [
-    <Buffer 5e 05 55>,
-    <Buffer 03 e8 0e>,
-    2025-12-03T17:15:00.000Z,
-    92595.3,
-    92454.5,
-    92140,
-    92454.5,
-    29.0673,
-    29.0673,
-    2687724.96174,
-    true
+    <Buffer 00 e8 db ac 3a 12>,
+    <Buffer 56 ee 23 cb d1 96>,
+    <Buffer 4f ae 94>,
+    <Buffer de 78 79>,
+    <Buffer 3d 66 8d>,
+    0,
+    0,
+    0,
+    0,
+    0
   ]
 }
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 54 e7 5e>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-03T16:45:00.000Z
-  },
-  columns: { high: 2.1787, volume: 4714 }
-}
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-03T17:00:00.000Z
-  },
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
   columns: {
-    high: 92588.3,
-    close: 92588.3,
-    volume: 25693,
-    vol_currency: 25.6935,
-    vol_currency_quote: 2373390.64783,
-    completed: true
+    available: 46743.763,
+    available_equity: 46743.763,
+    frozen: 8408.333,
+    order_frozen: 8408.333,
+    update_time: 2025-12-18T03:24:45.970Z
   }
 }
--> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 5e 05 55>,
-    period: <Buffer 03 e8 0e>,
-    bar_time: 2025-12-03T16:45:00.000Z
+In Execute.Trades: 12/17/2025, 7:25:13 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Rejected:  20 [
+  {
+    order_id: <Buffer 00 e8 da cc d5 1b>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
   },
-  columns: { high: 92711, volume: 30811 }
+  {
+    order_id: <Buffer 00 e8 da cc d4 9e>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d4 9a>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d4 8c>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d4 8a>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d4 78>,
+    symbol: 'LINK-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 d3>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 a1>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 40>,
+    symbol: 'POPCAT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 36>,
+    symbol: 'TURBO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 32>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d3 1a>,
+    symbol: 'NOT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d2 a9>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d2 87>,
+    symbol: 'TURBO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d2 71>,
+    symbol: 'NOT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d2 65>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d2 5c>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc ca a6>,
+    symbol: 'LINK-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc c9 c2>,
+    symbol: 'PONKE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc c9 ae>,
+    symbol: 'POPCAT-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:25:42 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Rejected:  20 [
+  {
+    order_id: <Buffer 00 e8 da cd 0c 47>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d9 76>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d9 04>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d8 8f>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d8 83>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d8 4e>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d8 3f>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d8 08>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d7 fc>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d7 5e>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d7 4e>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d6 f2>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d6 d8>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d6 cb>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 ed>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 eb>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 e9>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 e7>,
+    symbol: 'ETH-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 39>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cc d5 23>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:26:11 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Rejected:  20 [
+  {
+    order_id: <Buffer 00 e8 da ce 19 1c>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 19 00>,
+    symbol: 'AVAX-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 18 b8>,
+    symbol: 'ONDO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd e8 3e>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd d2 42>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd cd ad>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd cb 96>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd a6 a9>,
+    symbol: 'WIF-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd a5 39>,
+    symbol: 'WIF-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd a2 7a>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 9f ae>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 94 a9>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 8d 2b>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 8c f0>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 8c db>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 7f b5>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 7c fb>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 3c 0f>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 35 09>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da cd 33 3c>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:26:40 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Rejected:  20 [
+  {
+    order_id: <Buffer 00 e8 db 0b 7c 86>,
+    symbol: 'DOGE-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce d2 48>,
+    symbol: 'WIF-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce aa 7d>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3d 05>,
+    symbol: 'AVAX-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3b 7e>,
+    symbol: 'WIF-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3b 55>,
+    symbol: 'AR-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3a 3e>,
+    symbol: 'AVAX-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3a 29>,
+    symbol: 'AR-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 3a 1d>,
+    symbol: 'INJ-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 39 fe>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 30 53>,
+    symbol: 'AVAX-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 2b 92>,
+    symbol: 'ONDO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 25 db>,
+    symbol: 'AR-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 24 21>,
+    symbol: 'AVAX-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 24 03>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 22 5b>,
+    symbol: 'XRP-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 1f ad>,
+    symbol: 'AR-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 1f 6a>,
+    symbol: 'INJ-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 1d 07>,
+    symbol: 'ONDO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 da ce 1c 2e>,
+    symbol: 'ONDO-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55135.44, update_time: 2025-12-18T03:27:05.147Z }
 }
-Array successfully written to ./log/XRP-USDT.process.log
-Array successfully written to ./log/BTC-USDT.process.log
-In Execute.Trades: 12/3/2025, 10:16:20 AM
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 55135.44, coin_usd_price: 0.999698 }
+}
+In Execute.Trades: 12/17/2025, 7:27:09 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  10 published
+   # History Orders Rejected:  10 [
+  {
+    order_id: <Buffer 00 e8 db 0b 98 6c>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 98 50>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 95 06>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 8f ca>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 8c be>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 8c 40>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 8b 94>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 7d 45>,
+    symbol: 'BTC-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 7c 93>,
+    symbol: 'AR-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  },
+  {
+    order_id: <Buffer 00 e8 db 0b 7c 8c>,
+    symbol: 'INJ-USDT',
+    position: 'net',
+    memo: '>> [Error] Orders.Publish: Invalid instrument position; order rejected'
+  }
+]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:27:38 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -348,7 +2015,11 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:16:49 AM
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:27:52.004Z }
+}
+In Execute.Trades: 12/17/2025, 7:28:07 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -358,7 +2029,7 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:17:18 AM
+In Execute.Trades: 12/17/2025, 7:28:37 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -368,7 +2039,7 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:17:47 AM
+In Execute.Trades: 12/17/2025, 7:29:06 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -378,7 +2049,128 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:18:16 AM
+In Execute.Trades: 12/17/2025, 7:29:35 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+-> Cancel [API]
+-> WSS.Publish [API]
+-> [Info] request updated {
+  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+  columns: {
+    order_id: <Buffer 00 e8 db ac 3a 12>,
+    state: <Buffer e8 fc f7>,
+    memo: '[Info] Response.Request: Order canceled successfully',
+    update_time: 2025-12-18T03:29:36.137Z
+  }
+}
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db ac 3a 12> },
+  columns: { order_state: <Buffer 97 e7 4e> }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+  columns: { state: <Buffer 62 57 cb> }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55135.164, update_time: 2025-12-18T03:29:36.192Z }
+}
+-> [Info] request updated {
+  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+  columns: {
+    memo: '[Info] Trades.Hold: Hold request successfully resubmitted',
+    update_time: 2025-12-18T03:29:36.220Z
+  }
+}
+>> Trades.Hold: Hold orders processed: 1
+-> Hold orders submitted: 1
+   # [Info]: Hold orders accepted: 1
+-> Leverage.Publish [API]
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: {
+    available: 55152.096,
+    available_equity: 55152.096,
+    equity_usd: 55135.164,
+    frozen: 0,
+    order_frozen: 0,
+    coin_usd_price: 0.999693,
+    update_time: 2025-12-18T03:29:36.095Z
+  }
+}
+-> [Info] instrument_position updated {
+  filters: { account: <Buffer 24 59 7a>, instrument: <Buffer a2 80 0a> },
+  columns: { leverage: 50 }
+}
+In Requests.Submit [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:29:36.570Z }
+}
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:29:36.570Z }
+}
+-> WSS.Publish [API]
+-> [Info] request updated {
+  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+  columns: {
+    order_id: <Buffer 00 e8 db ac 3a 7f>,
+    state: <Buffer 4b c9 9c>,
+    memo: '[Info] Response.Request: Order submitted successfully',
+    update_time: 2025-12-18T03:29:36.947Z
+  }
+}
+>> Trades.Queued: Requests in queue: 1
+-> Queued requests submitted: 1
+   # [Info] Requests accepted: 1
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:29:36.887Z }
+}
+-> [Info] orders inserted {
+  fields: [
+    'order_id',
+    'client_order_id',
+    'order_category',
+    'order_state',
+    'cancel_source',
+    'filled_size',
+    'filled_amount',
+    'average_price',
+    'fee',
+    'pnl'
+  ],
+  args: [
+    <Buffer 00 e8 db ac 3a 7f>,
+    <Buffer 56 ee 23 cb d1 96>,
+    <Buffer 4f ae 94>,
+    <Buffer de 78 79>,
+    <Buffer 3d 66 8d>,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: {
+    available: 52577.096,
+    available_equity: 52577.096,
+    frozen: 2575,
+    order_frozen: 2575,
+    update_time: 2025-12-18T03:29:36.878Z
+  }
+}
+In Execute.Trades: 12/17/2025, 7:30:04 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -388,7 +2180,37 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:18:45 AM
+In Execute.Trades: 12/17/2025, 7:30:33 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:31:02 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:31:31 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> History.Publish [API]
+   # History Orders Processed [20]:  20 published
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:32:00 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -401,9 +2223,9 @@ In Orders.Import [API]
 -> WSS.Publish [API]
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-03T18:18:49.847Z }
+  columns: { update_time: 2025-12-18T03:32:05.159Z }
 }
-In Execute.Trades: 12/3/2025, 10:19:14 AM
+In Execute.Trades: 12/17/2025, 7:32:29 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -415,9 +2237,9 @@ In Orders.Import [API]
 >> [Info] Trades.Pending: Requests pending: 1
 -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2025-12-03T18:19:26.896Z }
+  columns: { update_time: 2025-12-18T03:32:52.014Z }
 }
-In Execute.Trades: 12/3/2025, 10:19:43 AM
+In Execute.Trades: 12/17/2025, 7:32:58 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -427,7 +2249,7 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:20:12 AM
+In Execute.Trades: 12/17/2025, 7:33:27 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -437,7 +2259,7 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:20:41 AM
+In Execute.Trades: 12/17/2025, 7:33:56 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -447,7 +2269,7 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:21:10 AM
+In Execute.Trades: 12/17/2025, 7:34:25 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
@@ -457,33 +2279,130 @@ In Orders.Import [API]
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:21:39 AM
+In Execute.Trades: 12/17/2025, 7:34:54 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
 -> History.Publish [API]
-   # History Orders Processed [20]:  20 published
+-> [Info] orders updated {
+  filters: { order_id: <Buffer 00 e8 db ac 3a 12> },
+  columns: { cancel_source: <Buffer ba 05 f1> }
+}
+   # History Orders Processed [2]:  2 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:22:08 AM
+In Execute.Trades: 12/17/2025, 7:35:23 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
-In Execute.Trades: 12/3/2025, 10:22:37 AM
+In Execute.Trades: 12/17/2025, 7:35:52 PM
 In Position.Import [API]
 In Orders.Import [API]
 -> Fetch:History [API]
 -> Fetch:Pending [API]
--> History.Publish [API]
-   # History Orders Processed [20]:  20 published
 -> Pending.Publish [API]
    # Pending Orders Processed [1]:  1 published
 >> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:36:21 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:36:50 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+-> WSS.Publish [API]
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 55135.44, update_time: 2025-12-18T03:37:05.083Z }
+}
+-> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 55135.44, coin_usd_price: 0.999698 }
+}
+In Execute.Trades: 12/17/2025, 7:37:19 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:37:48 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+-> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2025-12-18T03:37:52.059Z }
+}
+In Execute.Trades: 12/17/2025, 7:38:17 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:38:46 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:39:15 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:39:44 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:40:13 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:40:42 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
+-> Fetch:Pending [API]
+-> Pending.Publish [API]
+   # Pending Orders Processed [1]:  1 published
+>> [Info] Trades.Pending: Requests pending: 1
+In Execute.Trades: 12/17/2025, 7:41:11 PM
+In Position.Import [API]
+In Orders.Import [API]
+-> Fetch:History [API]
