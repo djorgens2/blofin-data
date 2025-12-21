@@ -6,7 +6,7 @@
 
 import type { IStops, IStopOrder } from "db/interfaces/stops";
 import type { TRefKey } from "db/interfaces/reference";
-import type { TRequest } from "db/interfaces/state";
+import type { TRequest, TStatus } from "db/interfaces/state";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -19,7 +19,10 @@ import * as Reference from "db/interfaces/reference";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IStopsAPI {
+  instrument_position: Uint8Array;
   account: Uint8Array;
+  position_state: Uint8Array;
+  position_status: TStatus;
   status: TRequest;
   tpslId: string;
   instId: string;
@@ -223,7 +226,7 @@ export const Pending = async (): Promise<Array<Partial<IStopsAPI>> | undefined> 
     console.log(error);
     return [];
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Cancel - closes a pending TP/SL order;                                               |
@@ -253,8 +256,8 @@ export const Cancel = async (cancels: Array<Partial<IStopsAPI>>) => {
     });
     if (response.ok) {
       const json = await response.json();
-      return json.data;
-    }
+      return await Response.Stops(json, { success: "Closed", fail: "Canceled" });
+    } else throw new Error(`Stops.Cancel: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(error);
     return [];
@@ -289,7 +292,7 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
     if (response.ok) {
       const json = await response.json();
       return await Response.Stops(json, { success: "Pending", fail: "Rejected" });
-    }
+    } else throw new Error(`Stops.Submit: Response not ok: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(error);
   }

@@ -1,7 +1,7 @@
 //----------------------------- stop order test  -------------------------------------------------------//
 import type { IStops } from "db/interfaces/stops";
 
-import { setSession, Session } from "module/session";
+import { Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { req_fcrt_2a } from "./request";
 
@@ -11,7 +11,7 @@ import * as Stops from "db/interfaces/stops";
 const args = process.argv.slice(2); // get account id
 
 if (args.length) {
-  setSession({ account: hexify(args[0]) });
+  config({ account: hexify(args[0]) });
 
   const submit = async (request: Partial<IStops>) => {
     const instrument_position = await IPos.Key({ account: Session().account, symbol: req_fcrt_2a.symbol, position: req_fcrt_2a.position });

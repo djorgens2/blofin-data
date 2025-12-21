@@ -10,6 +10,7 @@ import type { ILeverageAPI } from "api/leverage";
 import type { IInstrumentAPI } from "api/instruments";
 import type { TRequest, IRequestState } from "db/interfaces/state";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IStops } from "db/interfaces/stops";
 
 import { hexify } from "lib/crypto.util";
 import { Update } from "db/query.utils";
@@ -23,10 +24,11 @@ type TResult = {
   code: string;
   msg: string;
 };
+
 export type TResponse = {
   code: string;
   msg: string;
-  data: Array<Partial<IInstrumentAPI | ILeverageAPI | IRequestAPI | IStopsAPI> & TResult> |{ } & TResult;
+  data: Array<Partial<IInstrumentAPI | ILeverageAPI | IRequestAPI | IStopsAPI> & TResult> | ({} & TResult);
 };
 
 export interface IResponse {
@@ -82,8 +84,8 @@ export const Request = async (response: TResponse, props: { success: TRequest; f
 //| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
 export const Stops = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
-  const accept: Array<Partial<IResponse>> = [];
-  const reject: Array<Partial<IResponse>> = [];
+  const accept: Array<Partial<IStops>> = [];
+  const reject: Array<Partial<IStops>> = [];
   const current = response.data ? (Array.isArray(response.data) ? response.data : [response.data]) : undefined;
 
   if (current) {
@@ -103,7 +105,7 @@ export const Stops = async (response: TResponse, props: { success: TRequest; fai
         update_time: new Date(),
       };
       const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `stop_request` }] });
-      result ? accept.push({ ...stop_request, code: parseInt(response.code!) }) : reject.push({ ...stop_request, code: parseInt(response.code!) });
+      result ? accept.push(stop_request) : reject.push(stop_request);
     }
     return [accept, reject];
   } else {

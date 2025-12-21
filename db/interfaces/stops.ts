@@ -60,8 +60,9 @@ export interface IStops extends IStopOrder {
 const publish = async (current: Partial<IStopRequest>, props: Partial<IStopRequest>): Promise<IStopRequest["stop_request"] | undefined> => {
   if (hasValues<Partial<IStopRequest>>(current)) {
     if (hasValues<Partial<IStopRequest>>(props)) {
-      const update_time = props.update_time ? props.update_time : new Date();
+      const update_time = props.update_time || new Date();
       const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
+
       if (update_time > current.update_time!) {
         const revised: Partial<IStopRequest> = {
           stop_request: props.stop_request,
@@ -91,13 +92,13 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
         } else return undefined;
       } else return undefined;
     } else {
-      console.log(">> [Error] Stop.Publish: No properties to update");
+      console.log("[Error] Stop.Publish: No properties to update");
       return undefined;
     }
   } else {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const request: Partial<IStopRequest> = {
-      stop_request: props.stop_request,
+      stop_request: props.stop_request || hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`),
       tpsl_id: props.tpsl_id,
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
@@ -121,19 +122,19 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IStops>, options: TOptions = { table: `vw_stop_orders` }): Promise<Array<Partial<IStops>> | undefined> => {
+export const Fetch = async (props: Partial<IStops>, options?: TOptions ): Promise<Array<Partial<IStops>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
-  const result = await Select<IStopOrder>(props, options);
+  const result = await Select<IStopOrder>(props, { ...options, table: `vw_stop_orders` });
   return result.length ? result : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches a request key from local db that meet props criteria; notfound returns undef |
 //+--------------------------------------------------------------------------------------+
-export const Key = async (props: Partial<IStops>, options: TOptions = { table: `vw_stop_orders` }): Promise<IStopOrder["stop_request"] | undefined> => {
+export const Key = async (props: Partial<IStops>, options?: TOptions): Promise<IStopOrder["stop_request"] | undefined> => {
   if (hasValues<Partial<IStops>>(props)) {
     Object.assign(props, { account: props.account || Session().account });
-    const [result] = await Select<IStopOrder>(props, options);
+    const [result] = await Select<IStopOrder>(props, { ...options, table: `vw_stop_orders` });
     return result ? result.stop_request : undefined;
   } else return undefined;
 };
@@ -215,26 +216,27 @@ export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop
 
     if (instrument_position) {
       const query = props.stop_request
-        ? { request: props.stop_request }
+        ? { stop_request: props.stop_request }
         : ({
             instrument_position,
             status: props.stop_type === "tp" && open_take_profit ? "Pending" : props.stop_type === "sl" && open_stop_loss ? "Pending" : "Queued",
           } satisfies Partial<IStops>);
       const [current] = (await Fetch(query, { suffix: `ORDER BY update_time DESC LIMIT 1` })) ?? [{ stop_request: undefined }];
 
-      // Handle existing request update
       if (current.stop_request) {
+        props.update_time === undefined && Object.assign(props, { update_time: Date() });
+
         if (props.update_time! > current.update_time!) {
-         if (auto_status === "Enabled") {
+          if (auto_status === "Enabled") {
             const promise = Fetch({ instrument_position, stop_type: current.stop_type }, { suffix: `AND status IN ("Pending", "Queued")` }) ?? [{}];
             const queue = await promise;
             if (queue) {
               const cancels = queue.filter(({ stop_request }) => !isEqual(stop_request!, current.stop_request!));
               const promises = cancels.map(({ stop_request }) =>
-                Cancel({ stop_request, memo: `[Warning] Stop.Request.Submit: New TPSL request on open instrument/position auto-cancels` })
+                Cancel({ stop_request, memo: `[Warning] Stop.Request.Submit: New TPSL request on open instrument/position auto-cancels existing` })
               );
               await Promise.all(promises);
-              props.status = props.status === "Pending" ? "Hold" : props.status;
+              props.status = current.status === "Pending" ? "Hold" : current.status;
             }
           }
 
@@ -248,37 +250,20 @@ export const Submit = async (props: Partial<IStops>): Promise<IStopRequest["stop
             await publish(current, { ...props, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
             return current.stop_request;
           }
-        } else {
-          const result = await publish(
-            {},
-            {
-              ...props,
-              memo: props.memo || `[Warning] Stops.Submit: Request missing; was added locally; updated and settled`,
-            }
-          );
-          return result ? result : undefined;
-        }
+        } else return current.stop_request;
+      } else {
+        // Handle new request submission
+        const result = await publish(
+          {},
+          {
+            ...props,
+            instrument_position,
+            margin_mode: props.margin_mode || margin_mode,
+            memo: props.memo || `[Warning] Stops.Submit: Stop Request missing; was added locally; updated and settled`,
+          }
+        );
+        return result ? result : undefined;
       }
-
-      // Handle new request submission
-
-      if (auto_status === "Enabled") {
-        if (props.stop_type && ((props.stop_type === "tp" && open_take_profit) || (props.stop_type === "sl" && open_stop_loss))) {
-          await Cancel({
-            instrument_position: current.instrument_position,
-            memo: `[Info] Stops.Submit: New stop request submitted; canceling existing pending stop(s)`,
-          });
-        }
-      }
-      return await publish(
-        {},
-        {
-          ...props,
-          instrument_position: current.instrument_position,
-          stop_request: hexify(uniqueKey(8), 4, props.stop_type === "tp" ? `e4` : `df`),
-          status: "Queued",
-        }
-      );
     } else {
       console.log(">> [Error] Stops.Submit: Invalid stop request; missing instrument position; request rejected");
       return undefined;

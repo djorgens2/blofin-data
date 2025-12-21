@@ -21,7 +21,7 @@ export const Process = async () => {
   const [cli_message] = process.argv.slice(2);
   const message: Partial<IMessage> = parseJSON<IMessage>(cli_message) ?? {};
 
-  message.account && await config({account: hexify(message.account)});
+  message.account && (await config({ account: hexify(message.account) }));
 
   const instrument_position = await InstrumentPosition.Fetch({
     account: Session().account,

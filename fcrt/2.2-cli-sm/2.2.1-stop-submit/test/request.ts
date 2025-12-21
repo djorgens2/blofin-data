@@ -9,8 +9,6 @@ export const req_fcrt_2a: Partial<IStops> = {
   size: 100,
   trigger_price: 2.85,
   order_price: 2.875,
-  reduce_only: false,
-  broker_id: undefined,
   memo: "Test 2a: submit stop loss request without order",
 };
 

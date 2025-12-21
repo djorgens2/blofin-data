@@ -74,12 +74,12 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
 
         if (updates || !isEqual(props.expiry_time!, current.expiry_time!)) {
           const state = updates && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const memo = !updates && `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}`;
+          const memo = updates ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
           const [result] = await Update(
             {
               request: current.request,
               state,
-              memo: props.memo === current.memo ? undefined : props.memo,
+              memo: props.memo === current.memo ? memo : props.memo,
               expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
               update_time,
             },
@@ -90,7 +90,7 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
         } else return undefined;
       } else return undefined;
     } else {
-      console.log(">> [Error] Request.Publish: No properties to update");
+      console.log("[Error] Request.Publish: No properties to update");
       return undefined;
     }
   } else {
@@ -174,7 +174,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IRequest["reques
             if (queue) {
               const cancels = queue.filter(({ request }) => !isEqual(request!, current.request!));
               const promises = cancels.map(({ request }) =>
-                Cancel({ request, memo: `[Request.Submit]: New request on open instrument/position auto-cancels` })
+                Cancel({ request, memo: `[Warning] Request.Submit: New request on open instrument/position auto-cancels existing` })
               );
               await Promise.all(promises);
               props.status = current.status === "Pending" ? "Hold" : current.status;

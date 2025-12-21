@@ -11,7 +11,7 @@ import { importCandles, importInstruments, importSeed } from "app/import";
 
 const initialize = async () => {
   await importSeed();
-  await importInstruments ();
+  await importInstruments();
   await importCandles();
 
   setTimeout(async () => {
