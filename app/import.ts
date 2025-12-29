@@ -14,10 +14,7 @@ import { Distinct } from "db/query.utils";
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
 import * as Broker from "db/interfaces/broker";
-import * as ContractType from "db/interfaces/contract_type";
 import * as Environment from "db/interfaces/environment";
-import * as InstrumentPeriod from "db/interfaces/instrument_period";
-import * as InstrumentType from "db/interfaces/instrument_type";
 import * as Period from "db/interfaces/period";
 import * as References from "db/interfaces/reference";
 import * as RoleAuthority from "db/interfaces/role_authority";
@@ -28,6 +25,7 @@ import * as Roles from "db/interfaces/role";
 import * as CandleAPI from "api/candles";
 import * as InstrumentAPI from "api/instruments";
 import * as InstrumentPositionAPI from "api/instrumentPositions";
+import * as PositionsAPI from "api/positions";
 
 //+--------------------------------------------------------------------------------------+
 //| Imports full-candle history; follows up with a candle refresh;                       |
@@ -99,7 +97,7 @@ export const importCandles = async () => {
 export const importInstruments = async () => {
   await InstrumentAPI.Import();
   await InstrumentPositionAPI.Import();
-  await InstrumentPeriod.Import();
+  await PositionsAPI.Import();
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -110,9 +108,7 @@ export const importSeed = async () => {
   await Activity.Import();
   await Authority.Import();
   await Broker.Import();
-  await ContractType.Import();
   await Environment.Import();
-  await InstrumentType.Import();
   await Period.Import();
   await References.Import();
   await Roles.Import();

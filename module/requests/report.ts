@@ -31,6 +31,14 @@ export interface TStatistics {
 // console.log(">> [Info] Trades.Rejected: Request retries:", requests.length);
 // pending.length && console.log(">> [Info] Trades.Pending: Requests pending:", pending.length);
 // expired.length && console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length, expired);
+
+// if (cancels.length) {
+//   console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
+//   accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
+//   rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
+//   closed.length && console.log("   # [Warning] Canceled requests previously closed (???):", closed.length);
+// }
+
 //+--------------------------------------------------------------------------------------+
 //| handles reporting and statistical output. ***new, may grow this approach             |
 //+--------------------------------------------------------------------------------------+

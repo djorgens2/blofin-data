@@ -113,7 +113,6 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>) 
             position: order.positionSide,
             memo: `>> [Error] Orders.Publish: Request publication failed for order; order rejected`,
           });
-          console.log(`>> [Error] Orders.Publish: ${hexString(result!, 6)}<>${hexString(order_id, 6)}`);
         }
       }
     }
@@ -152,42 +151,6 @@ const Pending = async (): Promise<Array<Partial<IOrderAPI>> | undefined> => {
   } catch (error) {
     console.log(">> [Error] Order.Pending:", error, method, path, headers);
     return [];
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Cancel - closes pending orders by batch;                                             |
-//+--------------------------------------------------------------------------------------+
-export const Cancel = async (cancels: Array<Partial<IOrderAPI>>) => {
-  console.log(`-> Cancel [API]`);
-
-  const method = "POST";
-  const path = "/api/v1/trade/cancel-batch-orders";
-  const body = JSON.stringify(cancels.map(({ instId, orderId }) => ({ instId, orderId })));
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
-
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-      body,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return await Response.Request(json, { success: "Closed", fail: "Canceled" });
-    } else throw new Error(`Order.Cancel: Response not ok: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log(">> [Error] Order.Cancel:", error, method, headers, body);
-    return undefined;
   }
 };
 

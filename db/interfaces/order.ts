@@ -34,7 +34,6 @@ export interface IOrder extends IRequest {
   pnl: number;
   trade_period: Uint8Array;
   trade_timeframe: string;
-  suspense: boolean;
 }
 
 //+--------------------------------------------------------------------------------------+
@@ -59,8 +58,7 @@ export const Publish = async (props: Partial<IOrder>) => {
         pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
       };
 
-      const [result, updates] = await Update(revised, { table: `orders`, keys: [{ key: `order_id` }] });
-      return result ? result.order_id : undefined;
+      return await Update(revised, { table: `orders`, keys: [{ key: `order_id` }] });
     } else {
       const order_category = props.order_category || (await References.Key<TRefKey>({ source_ref: "normal" }, { table: `order_category` }));
       const order_state = props.order_state || (await References.Key({ source_ref: "accepted" }, { table: `order_state` }));

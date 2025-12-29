@@ -155,18 +155,3 @@ export const Leverage = async (response: TResponse) => {
   return undefined;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns instrument data from the api on success, error if api call failed;           |
-//+--------------------------------------------------------------------------------------+
-export const Instruments = async (response: TResponse) => {
-  if (response.code === "0") {
-    return response.data as Array<IInstrumentAPI>;
-  }
-
-  console.log(
-    `-> [Error] Response.Instruments: update not processed; error returned:`,
-    response.code || -1,
-    response.msg ? `response: `.concat(response.msg) : ``
-  );
-  return undefined;
-};

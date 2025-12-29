@@ -4,7 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -19,28 +21,23 @@ export interface IEnvironment {
 export const Import = async () => {
   console.log("In Environment.Import:", new Date().toLocaleString());
  
-  const success: Array<Partial<IEnvironment>> = [];
-  const errors: Array<Partial<IEnvironment>> = [];
   const environments: Array<string> = ["Production", "Development", "Test", "Quality Assurance (QA)"];
-
-  for (const environ of environments) {
-    const result = await Add({ environ });
-    result ? success.push({ environment: result }) : errors.push({ environ });
-  }
-
-  success.length && console.log("   # Environment imports: ", success.length, "verified");
-  errors.length && console.log("   # Environment rejects: ", errors.length, { errors });
+  const result = await Promise.all(environments.map(async (environ) => Add({ environ })));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Environment.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new environments;` : `No new environments;`,
+    `${exists.length} environments verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds seed environments to local database;                                            |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
-  if (props.environment === undefined) {
-    Object.assign(props, { environment: hashKey(6) });
-    const result = await Insert<IEnvironment>(props, { table: `environment`, ignore: true });
-    return result ? result.environment : undefined;
-  } else return props.environment;
+export const Add = async (props: Partial<IEnvironment>): Promise<IPublishResult<IEnvironment>> => {
+  Object.assign(props, { environment: hashKey(6) });
+  const result = await Insert<IEnvironment>(props, { table: `environment`, ignore: true });
+  return { key: PrimaryKey(props, ["environment"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

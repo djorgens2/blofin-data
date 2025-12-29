@@ -4,10 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ICurrency } from "db/interfaces/currency";
 import type { TSymbol } from "db/interfaces/state";
+import type { ICurrency } from "db/interfaces/currency";
+import type { IPublishResult, TOptions } from "db/query.utils";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Select, Insert, PrimaryKey, Distinct } from "db/query.utils";
 import { splitSymbol } from "lib/app.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues, isEqual } from "lib/std.util";
@@ -42,25 +43,24 @@ export interface IInstrument {
 //+--------------------------------------------------------------------------------------+
 //| Publishes new instruments to the database; returns Key                               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrument>) => {
-  const instrument = await Key(props);
+export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResult<IInstrument>> => {
+  if (props.symbol) {
+    const instrument = await Key({ symbol: props.symbol });
 
-  if (instrument) {
-    const results = await Fetch({ instrument });
-
-    if (results) return instrument;
-    else throw new Error(`Unathorized instrument publication; instrument not found`);
-  } else {
-    const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
-    const instrument: Partial<IInstrument> = {
-      instrument: hashKey(6),
-      base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })),
-      quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })),
-      create_time: new Date()
-    };
-    const result = await Insert<IInstrument>(instrument, { table: `instrument` });
-    return result ? result.instrument : undefined;
-  }
+    if (instrument) {
+      return { key: PrimaryKey({ instrument }, [`instrument`]), response: { success: true, code: 200, category: `exists`, rows: 0 } };
+    } else {
+      const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
+      const missing: Partial<IInstrument> = {
+        instrument: hashKey(6),
+        base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })).key?.currency,
+        quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })).key?.currency,
+        create_time: new Date(),
+      };
+      const result = await Insert<IInstrument>(missing, { table: `instrument` });
+      return { key: PrimaryKey(missing, [`instrument`]), response: result };
+    }
+  } else return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -76,31 +76,32 @@ export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["ins
 //+--------------------------------------------------------------------------------------+
 //| Returns instruments meeting supplied criteria; returns all on empty set {};          |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IInstrument>): Promise<Array<Partial<IInstrument>> | undefined> => {
-  const result = await Select<IInstrument>(props, { table: `vw_instruments` });
+export const Fetch = async (props: Partial<IInstrument>, options?: TOptions): Promise<Array<Partial<IInstrument>> | undefined> => {
+  const result = await Select<IInstrument>(props, { ...options, table: options?.table || `vw_instruments` });
   return result.length ? result : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Audits instrument records for discrepancies; returns array of corrected instruments; |
 //+--------------------------------------------------------------------------------------+
-export const Suspense = async (props: Array<IInstrument["instrument"]>) => {
-  if (props.length) {
-    const local = await Select<IInstrument>({ status: `Suspended` }, { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] });
-    const missing = local && local.filter((db) => !props.some((api) => isEqual(api, db.instrument!)));
+export const Suspense = async (props: Array<Partial<IInstrument>>): Promise<Array<IPublishResult<ICurrency>>> => {
+  if (hasValues(props)) {
+    const current = await Distinct<IInstrument>(
+      { symbol: undefined, base_currency: undefined, status: `Suspended` },
+      { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] }
+    );
+    const api = props.filter((p) => p.status === `Enabled`);
+    const suspense = current
+      .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
+      .map((instrument) =>
+        Currency.Publish({
+          currency: instrument.base_currency,
+          status: `Suspended`,
+        })
+      );
 
-    if (missing) {
-      const suspense: Array<Partial<ICurrency>> = missing
-        .filter((instrument) => instrument.status !== `Suspended`)
-        .map((instrument) => ({
-          currency: instrument.base_currency!,
-          symbol: instrument.base_symbol!,
-        }));
-
-      if (suspense && suspense.length) {
-        await Currency.Suspend(suspense);
-        return suspense;
-      }
-    } else return undefined;
-  } else return undefined;
+    const results = await Promise.all(suspense);
+    console.log(`-> Instrument.Suspense: Found ${suspense.length} instruments to suspend`);
+    return results as Array<IPublishResult<ICurrency>>;
+  } else return [{key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 }}];
 };

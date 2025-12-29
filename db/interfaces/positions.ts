@@ -5,9 +5,13 @@
 "use strict";
 
 import type { TStatus } from "db/interfaces/state";
+import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { isEqual } from "lib/std.util";
+import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import { hasValues, isEqual } from "lib/std.util";
+import { Session } from "module/session";
+
+import * as State from "db/interfaces/state";
 
 export interface IPositions {
   account: Uint8Array;
@@ -42,9 +46,10 @@ export interface IPositions {
 //+--------------------------------------------------------------------------------------+
 //| Inserts or updates positions; returns positions key;                                 |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["positions"] | undefined, Partial<IPositions> | undefined]> => {
-  if (props) {
-    const positions = await Fetch({ positions: props.positions });
+export const Publish = async (props: Partial<IPositions>): Promise<IPublishResult<IPositions>> => {
+  if (hasValues(props)) {
+    const positions = await Fetch({ account: Session().account, positions: props.positions });
+
     if (positions) {
       const [current] = positions;
       const revised: Partial<IPositions> = {
@@ -66,14 +71,20 @@ export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["
         create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
         update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
-      const [result, updates] = await Update(revised, { table: `positions`, keys: [{ key: `positions` }] });
-      return result ? [result.positions, updates] : [undefined, undefined];
+      const result = await Update(revised, { table: `positions`, keys: [{ key: `positions` }] });
+      return {
+        key: PrimaryKey(current, ["positions", "instrument_position"]),
+        response: result,
+      };
     } else {
       const result = await Insert<IPositions>(props, { table: `positions` });
-      return result ? [result.positions, props] : [undefined, undefined];
+      return {
+        key: PrimaryKey(props, ["positions", "instrument_position"]),
+        response: result,
+      };
     }
-  } else return [undefined, undefined];
-}
+  } else return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
@@ -81,4 +92,4 @@ export const Publish = async (props: Partial<IPositions>): Promise<[IPositions["
 export const Fetch = async (props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> => {
   const result = await Select<IPositions>(props, { table: `vw_positions` });
   return result.length ? result : undefined;
-}
+};

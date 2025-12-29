@@ -4,6 +4,9 @@
 //import { parseColumns, parseKeys } from "db/query.utils";
 // import { ILeverageAPI, Instruments } from "api/instruments";
 // import { IInstrument } from "db/interfaces/instrument";
+import { ILeverageAPI } from "api/leverage";
+import { TPosition } from "db/interfaces/instrument_position";
+import { Distinct, IPublishResult, PrimaryKey } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 import { bufferString, hexString, isEqual, setExpiry } from "lib/std.util";
 import { config, Session } from "module/session";
@@ -1999,15 +2002,15 @@ import { parse } from "path";
 // })();
 
 //---------------------------------- instrument position import test ----------------------------------------//
-import * as InstrumentPosition from "api/instrumentPositions";
+// import * as InstrumentPosition from "api/instrumentPositions";
 
-const args = process.argv.slice(2); // get account id
+// const args = process.argv.slice(2); // get account id
 
-(async () => {
-  await config({ account: hexify(args[0]) });
-  await InstrumentPosition.Import();
+// (async () => {
+//   await config({ account: hexify(args[0]) });
+//   await InstrumentPosition.Import();
 
-})();
+// })();
 
 //---------------------------------- Session config get multiple leverage test ----------------------------------------//
 // import type { IInstrumentPosition } from "db/interfaces/instrument_position";
@@ -2214,3 +2217,147 @@ const args = process.argv.slice(2); // get account id
 // isEqual(undef1,undef1) && console.log('2. Yes they are');
 // isEqual(null1,undef1) && console.log('3. Yes they are');
 // isEqual(undef1,null1) && console.log('4. Yes they are');
+
+// //---------------------------------- stops updateable view  test ----------------------------------------//
+// import { Update } from "db/query.utils";
+
+// const test1 = { request: hexify("a6d98e3fea24"), base_symbol: "WHOA-1", quote_symbol: "DJJ" };
+// const test2 = { request: hexify("a6d98e3fea24"), base_symbol: "WHOA-2", quote_symbol: "DJJ" };
+// const test3 = { request: hexify("a6d98e3fea24"), base_symbol: "WHOA-??", quote_symbol: "DJX" };
+// const test4 = { request: hexify("06d98e3fea24"), base_symbol: "WHOA-NF", quote_symbol: "DJNF" };
+
+// const run = async () => {
+//   const result1 = await Update(test1, { table: `update_test`, keys: [{ key: `request` }] });
+//   console.log("Update Result:", result1);
+//   const count1 = result1.rows || 0;
+
+//   const result2 = await Promise.all([
+//     Update(test2, { table: `update_test`, keys: [{ key: `request` }] }),
+//     Update(test1, { table: `update_test`, keys: [{ key: `request` }] }),
+//   ]);
+//   console.log("Update Result2:", result2);
+//   const count2 = result2.filter((res) => res.rows || 0 > 0).length;
+
+//   const result3 = await Promise.all([
+//     Update(test3, { table: `update_test`, keys: [{ key: `request`, sign: ">" }], limit: 2 }),
+//     Update(test2, { table: `update_test`, keys: [{ key: `request` }] }),
+//     Update(test1, { table: `update_test`, keys: [{ key: `request` }] }),
+//     Update(test4, { table: `update_test`, keys: [{ key: `request` }] }),
+//     Update(test4, { table: `update_test2`, keys: [{ key: `request` }] }),
+//     Update({}, { table: `update_test2`, keys: [{ key: `request` }] })
+//   ]);
+//   console.log("Update Result3:", result3);
+//   const count3 = result3.filter((res) => res.rows || 0 > 0).length;
+
+//   //-- finals -- //
+//   console.log("// -- final -- //");
+//   console.log("Update Count1:", count1);
+//   console.log("Update Count2:", count2);
+//   console.log("Update Count3:", count3);
+
+// // -- summary -- //
+//   console.log("Updates Attempted:", result3.reduce((acc, curr) => acc + (curr.rows || 1), 0));
+//   console.log("-> Succeeded:", result3.reduce((acc, curr) => acc + (curr.rows || 0), 0));
+//   console.log("-> Not Found:", result3.filter(res => res.category === 'not-found').length);
+//   console.log("-> Errors:",    result3.filter(res => res.category === 'error').length);
+//   console.log("-> Malformed:", result3.filter(res => res.category === 'null-query').length);
+
+//   console.log("// -- end -- //");
+
+//   process.exit(0);
+// };
+
+// run();
+
+//---------------------------------- ipos publish + summary test ----------------------------------------//
+import * as Activity from "db/interfaces/activity";
+import * as Authority from "db/interfaces/authority";
+import * as Broker from "db/interfaces/broker";
+import * as Environment from "db/interfaces/environment";
+import * as Period from "db/interfaces/period";
+import * as References from "db/interfaces/reference";
+import * as Role from "db/interfaces/role";
+import * as RoleAuthority from "db/interfaces/role_authority";
+import * as State from "db/interfaces/state";
+import * as SubjectArea from "db/interfaces/subject_area";
+import * as Positions from "api/positions";
+// import type { ICurrency } from "db/interfaces/currency";
+// import type { IInstrument } from "db/interfaces/instrument";
+
+// import * as Currency from "db/interfaces/currency";
+// import * as InstrumentType from "db/interfaces/instrument_type";
+// import * as Instruments from "api/instruments";
+
+const args = process.argv.slice(2); // get account id
+
+const run = async () => {
+  await config({ account: hexify(args[0]) });
+
+  console.log("Session Configured for Account:", Session().account);
+
+  //-- import positions --//
+  const results = await Positions.Import();
+  console.log("Import Results:", results);
+
+  //-- import Seed Data --//
+  //const seed = await Promise.all([
+    await Activity.Import();
+    await Authority.Import();
+    await Broker.Import();
+    await Environment.Import();
+    await Period.Import();
+    await Role.Import();
+    await RoleAuthority.Import({status:`Enabled`});
+    await State.Import();
+    await SubjectArea.Import();
+    await References.Import();
+  //]);
+
+  //const results = await InstrumentPositions.Import();
+  //  const bc: IPublishResult<ICurrency> = (await Currency.Publish({ symbol: undefined }));
+  //  console.log("Currency Publish Result:", bc);
+  //  console.log("Import Results:", results);
+  //  const instrument = await InstrumentType.Publish({ symbol: undefined });
+  //   const props: Partial<InstrumentType.IInstrumentType> = {
+  //     instrument_type: "NEVER",
+  //     description: "This is a test instrument type",
+  //   };
+  //   const instrument = await InstrumentType.Publish(props);
+  //   const result = await InstrumentType.Publish(props);
+  //   console.log("InstrumentType Publish Result:", result, result.key?.instrument_type);
+  //   const instrument_type = result.key?.instrument_type
+  //       ? result.key?.instrument_type
+  //       : props.instrument_type;
+  //   console.log("Instrument Publish Result:", instrument_type);
+  process.exit(0);
+};
+
+run();
+
+//---------------------------------- on one preprocessor (etl before the call) ----------------------------------------//
+// export interface IKeyTest {
+//   instrument: Uint8Array;
+//   detailid: Uint8Array;
+//   leverage: string;
+//   marginMode: "cross" | "isolated";
+//   instId: string;
+//   positionSide: TPosition;
+// }
+
+// const ipos: IKeyTest = {
+//   instrument: hexify("0009802E", 4)!,
+//   detailid: hexify("0009802E", 4)!,
+//   leverage: "8",
+//   marginMode: "cross",
+//   instId: "BTC-USD",
+//   positionSide: "short",
+// };
+
+// type CompositeKey<T> = { [K in keyof T]?: T[K] };
+
+// const CPK_KEYS: (keyof IKeyTest)[] = ["instrument",];
+// console.log(compositeKey(ipos, CPK_KEYS));
+
+// const check: CompositeKey<IKeyTest> = { instrument: hexify("0009802E", 4)!, detailid: hexify("0009802E", 4)! };
+// const check2: CompositeKey<IKeyTest> = ipos;
+// console.log(check2, compositeKey(check2, CPK_KEYS));

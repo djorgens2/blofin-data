@@ -38,12 +38,10 @@ export interface IAccountAPI {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Retrieve blofin account data and details; apply updates to local db;                 |
+//| WSS only feed receives blofin account data and details; apply updates to local db;   |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async(props: IAccountAPI) => {
-  const account = await Accounts.Fetch({ account: Session().account });
-
-  if (account) {
+export const Publish = async (props: IAccountAPI) => {
+  if (props && props.details) {
     await Accounts.Publish({
       account: Session().account,
       total_equity: format(props!.totalEquity, 3),
@@ -55,7 +53,7 @@ export const Publish = async(props: IAccountAPI) => {
       const currency = await Currency.Key({ symbol: detail.currency });
 
       currency &&
-        Accounts.PublishDetail({
+        (await Accounts.PublishDetail({
           account: Session().account,
           currency,
           balance: format(detail.balance!, 3),
@@ -74,7 +72,7 @@ export const Publish = async(props: IAccountAPI) => {
           spot_available: format(detail.spotAvailable!, 3),
           liability: format(detail.liability!, 3),
           update_time: new Date(parseInt(detail.ts!)),
-        });
+        }));
     }
   }
-}
+};

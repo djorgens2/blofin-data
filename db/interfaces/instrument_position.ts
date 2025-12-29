@@ -5,10 +5,11 @@
 "use strict";
 
 import type { TStatus, TSystem } from "db/interfaces/state";
+import type { IPublishResult, TResponse } from "db/query.utils";
 
-import { Select, Update, Insert, TOptions } from "db/query.utils";
+import { Select, Update, Insert, TOptions, PrimaryKey } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
-import { hashKey } from "lib/crypto.util";
+import { hashKey, hexify } from "lib/crypto.util";
 import { Session } from "module/session";
 
 import * as State from "db/interfaces/state";
@@ -62,10 +63,11 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrumentPosition>) => {
+export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPublishResult<IInstrumentPosition>> => {
   if (hasValues(props)) {
     const instrument_position = await Fetch({
       account: Session().account,
+      instrument_position: props.instrument_position,
       instrument: props.instrument,
       symbol: props.symbol,
       position: props.position,
@@ -86,19 +88,24 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
         strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
         close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
       };
-      const [result, updates] = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+      const result: TResponse = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
 
-      result && updates && await Update({ instrument_position, update_time: props.update_time|| new Date() }, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
-
-      return result ? result : undefined;
+      if (result.success) {
+        const confirm: TResponse = await Update(
+          { instrument_position: current.instrument_position, update_time: props.update_time || new Date() },
+          { table: `instrument_position`, keys: [{ key: `instrument_position` }] }
+        );
+        return { key: PrimaryKey(revised, ["instrument_position"]), response: confirm };
+      } else return { key: PrimaryKey(revised, ["instrument_position"]), response: result };
     } else {
-      const instrument = props.instrument || (await Instrument.Key({ symbol: props.symbol}));
-      const state = props.state || (await State.Key({ status: props.status ||  'Closed'}));
-      const period = props.period || await Period.Key({ timeframe: props.timeframe! });
-
-      const instrument_position: Partial<IInstrumentPosition> = {
-        instrument_position: hashKey(12),
-        account: Session().account,
+      const instrument_position = hashKey(12);
+      const account = Session().account;
+      const instrument = props.instrument || (await Instrument.Key({ symbol: props.symbol }));
+      const state = props.state || (await State.Key({ status: props.status || "Closed" }));
+      const period = props.period || (await Period.Key({ timeframe: props.timeframe! }));
+      const missing: Partial<IInstrumentPosition> = {
+        instrument_position,
+        account,
         instrument,
         position: props.position,
         state,
@@ -109,13 +116,13 @@ export const Publish = async (props: Partial<IInstrumentPosition>) => {
         strict_stops: props.strict_stops,
         strict_targets: props.strict_targets,
         update_time: props.update_time || new Date(),
-        close_time: props.close_time || new Date()
+        close_time: props.close_time || new Date(),
       };
-      const result = await Insert(instrument_position, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
-      return result ? result : undefined;
+      const result: TResponse = await Insert(missing, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+      return { key: PrimaryKey(missing, ["instrument_position"]), response: result };
     }
   } else {
-    return undefined;
+    return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
   }
 };
 

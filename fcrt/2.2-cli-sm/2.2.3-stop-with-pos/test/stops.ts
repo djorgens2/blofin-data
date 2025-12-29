@@ -1,8 +1,7 @@
-import { IStopRequest } from "db/interfaces/stops";
-import { hexify } from "lib/crypto.util";
+import { IStops } from "db/interfaces/stops";
 
 //-- Test 2b: submit stop loss with position --//
-export const req_fcrt_2b: Array<Partial<IStopRequest>> = [
+export const req_fcrt_2b: Array<Partial<IStops>> = [
   {
     symbol: "XRP-USDT",
     position: "long",
@@ -24,7 +23,7 @@ export const req_fcrt_2b: Array<Partial<IStopRequest>> = [
 ];
 
 //-- Test 3b: submit updates to queued stop requests--//
-export const req_fcrt_3b: Array<Partial<IStopRequest>> = [
+export const req_fcrt_3b: Array<Partial<IStops>> = [
   {
     symbol: "XRP-USDT",
     position: "short",

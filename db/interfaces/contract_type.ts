@@ -3,49 +3,53 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
+import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert } from "db/query.utils";
+import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
 export interface IContractType {
-  contract_type: Uint8Array;
+  contract_type: Uint8Array | string;
   source_ref: string;
   description: string;
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Imports contract types seed data to the database;                                    |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  console.log("In Contract.Type.Import:", new Date().toLocaleString());
-
-  const success: Array<Partial<IContractType>> = [];
-  const errors: Array<Partial<IContractType>> = [];
-  const contract_types: Array<string> = ["linear", "inverse"];
-
-   for (const contract_type of contract_types) {
-     const result = await Publish({source_ref: contract_type});
-     result ? success.push({ contract_type: result }) : errors.push({ source_ref: contract_type });
-   }
- 
-   success.length && console.log("   # Contract Type imports: ", success.length, "verified");
-   errors.length && console.log("   # Contract Type rejects: ", errors.length, { errors });
- };
- 
-//+--------------------------------------------------------------------------------------+
 //| Adds contract types to local database;                                               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IContractType>) => {
-  if (props.contract_type === undefined) {
-    const contract_type = await Key({ source_ref: props.source_ref });
+export const Publish = async (props: Partial<IContractType>): Promise<IPublishResult<IContractType>> => {
+  if (hasValues(props)) {
+    const search = {
+      contract_type: typeof props.contract_type === "string" ? undefined : props.contract_type,
+      source_ref: typeof props.contract_type === "string" ? props.contract_type : props.source_ref,
+    };
+    const exists = await Key(search);
 
-    if (contract_type === undefined) {
-      Object.assign(props, { contract_type: hashKey(6) });
-      const result = await Insert<IContractType>(props, { table: `contract_type`, ignore: true });
-      return result ? result.contract_type : undefined;
-    } else return contract_type;
+    if (exists) {
+      if (hasValues<Partial<IContractType>>({ description: props.description })) {
+        const [current] = (await Fetch({ contract_type: exists })) ?? [];
+        if (current) {
+          const revised = {
+            contract_type: current.contract_type,
+            description: props.description ? (props.description === current.description ? undefined : props.description) : undefined,
+          };
+          const result = await Update<IContractType>(revised, { table: `contract_type`, keys: [{ key: `contract_type` }] });
+          return { key: PrimaryKey(current, ["contract_type"]), response: result };
+        }
+      }
+      return { key: PrimaryKey({contract_type: exists}, ["contract_type"]), response: { success: true, code: 200, category: `exists`, rows: 0 } };
+    } else {
+      const missing = {
+        contract_type: hashKey(6),
+        source_ref: search.source_ref,
+        description: props.description || "Description pending",
+      };
+      const result = await Insert<IContractType>(missing, { table: `contract_type` });
+      return { key: PrimaryKey(missing, ["contract_type"]), response: result };
+    }
   }
+  return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

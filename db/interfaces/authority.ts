@@ -4,7 +4,9 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -18,31 +20,25 @@ export interface IAuthority {
 //| Imports authority seed data to the database;                                         |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
- console.log("In Authority.Import:", new Date().toLocaleString());
-
-  const success: Array<Partial<IAuthority>> = [];
-  const errors: Array<Partial<IAuthority>> = [];
+  console.log("In Authority.Import:", new Date().toLocaleString());
 
   const privileges: Array<string> = ["View", "Edit", "Create", "Delete", "Operate", "Configure"];
-
-  for (const [priority, privilege] of privileges.entries()) {
-      const result = await Add({privilege, priority});
-      result ? success.push({authority: result}) : errors.push({privilege});
-    };
-  
-    success.length && console.log("   # Authority imports: ", success.length, "verified");
-    errors.length && console.log("   # Authority rejects: ", errors.length, { errors });
-  };
+  const result = await Promise.all(privileges.map(async (privilege) => Add({ privilege })));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Authority.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new privileges;` : `No new privileges;`,
+    `${exists.length} privileges verified;`
+  );
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Add an authority to local database;                                                  |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined>  => {
-  if (props.authority === undefined) {
-    Object.assign(props, { authority: hashKey(6) });
-    const result = await Insert<IAuthority>(props, { table: `authority`, ignore: true });
-    return result ? result.authority : undefined;
-  } else return props.authority;
+export const Add = async (props: Partial<IAuthority>): Promise<IPublishResult<IAuthority>> => {
+  Object.assign(props, { authority: hashKey(6) });
+  const result = await Insert<IAuthority>(props, { table: `authority`, ignore: true });
+  return { key: PrimaryKey(props, ["authority"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -59,6 +55,6 @@ export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["autho
 //| Returns authorities meeting supplied criteria; returns all on empty prop set {};     |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IAuthority>): Promise<Array<Partial<IAuthority>> | undefined> => {
-  const result = await Select<IAuthority>(props, {table: `authority` });
+  const result = await Select<IAuthority>(props, { table: `authority` });
   return result.length ? result : undefined;
 };

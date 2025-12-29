@@ -4,11 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Session } from "module/session";
-
+import type { IPublishResult } from "db/query.utils";
 import type { IInstrument } from "db/interfaces/instrument";
+import type { ICurrency } from "db/interfaces/currency";
 
-import * as Response from "api/response";
+import { Session } from "module/session";
+import { Summary } from "db/query.utils";
+
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentDetail from "db/interfaces/instrument_detail";
 import * as InstrumentPeriod from "db/interfaces/instrument_period";
@@ -31,27 +33,17 @@ export interface IInstrumentAPI {
   state: string;
 }
 
-export interface IResult {
-  code: string;
-  msg: string;
-  data: Array<IInstrumentAPI>;
-}
-
 //+--------------------------------------------------------------------------------------+
 //| Publish - Creates new instruments; populates periods on new Blofin receipts          |
 //+--------------------------------------------------------------------------------------+
 const publish = async (props: Array<IInstrumentAPI>) => {
   console.log("-> Instrument.Publish [API]");
 
-  const published: Array<IInstrument["instrument"]> = [];
-  const modified: Array<IInstrument["instrument"]> = [];
-
-  for (const api of props) {
-    const instrument = await Instrument.Publish({ symbol: api.instId });
-
-    if (instrument) {
-      const instrument_detail = await InstrumentDetail.Publish({
-        instrument,
+  const imports = props.map(async (api) => {
+    const master = await Instrument.Publish({ symbol: api.instId });
+    if (master.response.success) {
+      const detail = await InstrumentDetail.Publish({
+        instrument: master.key?.instrument,
         instrument_type: api.instType,
         contract_type: api.contractType,
         contract_value: parseFloat(api.contractValue),
@@ -64,18 +56,18 @@ const publish = async (props: Array<IInstrumentAPI>) => {
         list_time: new Date(parseInt(api.listTime)),
         expiry_time: new Date(parseInt(api.expireTime)),
       });
+      return detail as IPublishResult<IInstrument>;
+    } else return master as IPublishResult<IInstrument>;
+  });
 
-      published.push(instrument);
-      instrument_detail && modified.push(instrument);
-    }
-  }
+  const published: Array<IPublishResult<IInstrument>> = await Promise.all(imports);
+  const suspended: Array<IPublishResult<ICurrency>> = await Instrument.Suspense(
+    props.map((i) => ({ symbol: i.instId, status: i.state === "live" ? "Enabled" : "Suspended" }))
+  );
 
-  const suspense = await Instrument.Suspense(published);
-  
   await InstrumentPeriod.Import();
-  
-  suspense && console.log("   # Instruments:Suspended: ", suspense.length, { suspense });
-  modified.length && console.log("   # Instruments Updated: ", modified.length, "modified");
+
+  return Summary(published.map((p) => p?.response).concat(suspended.map((s) => s?.response)));
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -88,10 +80,16 @@ export const Fetch = async () => {
     const response = await fetch(`${Session().rest_api_url}/api/v1/market/instruments`);
 
     if (response.ok) {
-      const json = await response.json();
-      const result: IResult = json;
-
-      return await Response.Instruments(json);
+      const result = await response.json();
+      const json = result.data as Array<IInstrumentAPI>;
+      if (result.code === "0") {
+        return json;
+      }
+      console.log(
+        `-> [Error] Instrument.Fetch: failed to retrieve instruments; error returned:`,
+        result.code || -1,
+        result.msg ? `response: `.concat(result.msg) : ``
+      );
     } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);
@@ -108,10 +106,16 @@ export const Import = async () => {
     const response = await fetch(`https://openapi.blofin.com/api/v1/market/instruments`);
 
     if (response.ok) {
-      const json = await response.json();
-      const result: IResult = json;
-
-      await publish(result.data);
+      const result = await response.json();
+      const json = result.data as Array<IInstrumentAPI>;
+      if (result.code === "0") {
+        return await publish(json);
+      }
+      console.log(
+        `-> [Error] Instrument.Import: failed to retrieve instruments; error returned:`,
+        result.code || -1,
+        result.msg ? `response: `.concat(result.msg) : ``
+      );
     } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);

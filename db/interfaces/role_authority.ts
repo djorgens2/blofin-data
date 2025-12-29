@@ -6,7 +6,7 @@
 
 import type { TAccess, IAccess } from "db/interfaces/state";
 
-import { Select, Distinct, Update, Load } from "db/query.utils";
+import { Select, Distinct, Update, Load, TResponse } from "db/query.utils";
 
 import * as State from "db/interfaces/state";
 
@@ -43,7 +43,7 @@ export const Import = async (props: { status: TAccess }) => {
 //+--------------------------------------------------------------------------------------+
 //| Disables authority based on supplied properties;                                     |
 //+--------------------------------------------------------------------------------------+
-export const Disable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuthority["state"] | undefined> => {
+export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse> => {
   const { role, authority, activity } = props;
 
   if (role && authority && activity) {
@@ -53,15 +53,14 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuth
       activity,
       state: await State.Key<IAccess>({ status: "Disabled" }),
     };
-    const [result, updates] = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-    return result ? result.state : undefined;
-  } else return undefined;
+    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
+  } else return { success: false, code: 400, category: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Enables authority based on supplied properties;                                      |
 //+--------------------------------------------------------------------------------------+
-export const Enable = async (props: Partial<IRoleAuthority>): Promise<IRoleAuthority["state"] | undefined> => {
+export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse> => {
   const { role, authority, activity } = props;
 
   if (role && authority && activity) {
@@ -71,9 +70,8 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<IRoleAutho
       activity,
       state: await State.Key<IAccess>({ status: "Enabled" }),
     };
-    const [result, updates] = await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-    return result ? result.state : undefined;
-  } else return undefined;
+    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
+  } else return { success: false, code: 400, category: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+

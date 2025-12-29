@@ -9,18 +9,13 @@ import { Select, Load } from "db/query.utils";
 export interface IInstrumentPeriod {
   instrument: Uint8Array;
   symbol: string;
-  base_symbol: string;
   base_currency: Uint8Array;
-  quote_symbol: string;
+  base_symbol: string;
   quote_currency: Uint8Array;
+  quote_symbol: string;
   period: Uint8Array;
   timeframe: string;
   timeframe_units: number;
-  bulk_collection_rate: number;
-  interval_collection_rate: number;
-  sma_factor: number;
-  active_collection: boolean;
-  suspense: boolean;
 }
 
 //+--------------------------------------------------------------------------------------+

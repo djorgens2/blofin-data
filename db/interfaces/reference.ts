@@ -6,8 +6,9 @@
 
 import type { TRequest } from "db/interfaces/state";
 import type { TOptions } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert } from "db/query.utils";
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -122,7 +123,7 @@ export const Add = async (table: string, props: { [key: string]: any }) => {
   if (Object.keys(props).length) {
     props[Object.keys(props)[0]] === 0 && (props[Object.keys(props)[0]] = hashKey(6));
     const result = await Insert<IReference>(props, { table, ignore: true });
-    return result ? result[Object.keys(result)[0]] : undefined;
+    return result;
   }
 }
 

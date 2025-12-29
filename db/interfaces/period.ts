@@ -4,7 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -21,8 +23,6 @@ export interface IPeriod {
 export const Import = async () => {
   console.log("In Period.Import:", new Date().toLocaleString());
 
-  const success: Array<Partial<IPeriod>> = [];
-  const errors: Array<Partial<IPeriod>> = [];
   const periods: Array<Partial<IPeriod>> = [
     { timeframe: "1m", description: "1 Minute", timeframe_units: 1 },
     { timeframe: "3m", description: "3 Minutes", timeframe_units: 3 },
@@ -41,24 +41,22 @@ export const Import = async () => {
     { timeframe: "1M", description: "1 Month", timeframe_units: 0 },
   ];
 
-  for (const period of periods) {
-    const result = await Add(period);
-    result ? success.push({ period: result }) : errors.push({ timeframe: period.timeframe });
-  }
-
-  success.length && console.log("   # Period imports: ", success.length, "verified");
-  errors.length && console.log("   # Period rejects: ", errors.length, { errors });
+  const result = await Promise.all(periods.map(async (period) => Add(period)));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Period.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new periods;` : `No new periods;`,
+    `${exists.length} periods verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds periods/timeframes to local database;                                           |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | undefined> => {
-  if (props.period === undefined) {
-    Object.assign(props, { period: hashKey(6) });
-    const result = await Insert<IPeriod>(props, { table: `period`, ignore: true });
-    return result ? result.period : undefined;
-  } else return props.period;
+export const Add = async (props: Partial<IPeriod>): Promise<IPublishResult<IPeriod>> => {
+  Object.assign(props, { period: hashKey(6) });
+  const result = await Insert<IPeriod>(props, { table: `period`, ignore: true });
+  return { key: PrimaryKey(props, ["period"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

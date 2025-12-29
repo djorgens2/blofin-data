@@ -4,7 +4,9 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -20,34 +22,28 @@ export interface IRole {
 export const Import = async () => {
   console.log("In Role.Import:", new Date().toLocaleString());
 
-  const success: Array<Partial<IRole>> = [];
-  const errors: Array<Partial<IRole>> = [];
-
   const roles: Array<Partial<IRole>> = [
     { title: "Admin", auth_rank: 40 },
     { title: "Editor", auth_rank: 20 },
     { title: "Operator", auth_rank: 30 },
     { title: "Viewer", auth_rank: 10 },
   ];
-
-  for (const role of roles) {
-    const result = await Add(role);
-    result ? success.push({ role: result }) : errors.push({ title: role.title });
-  }
-
-  success.length && console.log("   # Role imports: ", success.length, "verified");
-  errors.length && console.log("   # Role rejects: ", errors.length, { errors });
+  const result = await Promise.all(roles.map(async (role) => Add(role)));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Role.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new roles;` : `No new roles;`,
+    `${exists.length} roles verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds roles to local database;                                                        |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IRole>) => {
-  if (props.role === undefined) {
-    Object.assign(props, { role: hashKey(6) });
-    const result = await Insert<IRole>(props, { table: `role`, ignore: true });
-    return result ? result.role : undefined;
-  } else return props.role;
+export const Add = async (props: Partial<IRole>): Promise<IPublishResult<IRole>> => {
+  Object.assign(props, { role: hashKey(6) });
+  const result = await Insert<IRole>(props, { table: `role`, ignore: true });
+  return { key: PrimaryKey(props, ["role"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

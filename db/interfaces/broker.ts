@@ -4,7 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -21,28 +23,24 @@ export interface IBroker {
 export const Import = async () => {
   console.log("In Broker.Import:", new Date().toLocaleString());
 
-  const success: Array<Partial<IBroker>> = [];
-  const errors: Array<Partial<IBroker>> = [];
   const brokers: Array<Partial<IBroker>> = [{ name: "Blofin", image_url: "./images/broker/blofin.png", website_url: "https://blofin.com/" }];
 
-  for (const broker of brokers) {
-    const result = await Add(broker);
-    result ? success.push({ broker: result }) : errors.push({ name: broker.name });
-  }
-
-  success.length && console.log("   # Broker imports: ", success.length, "verified");
-  errors.length && console.log("   # Broker rejects: ", errors.length, { errors });
+  const result = await Promise.all(brokers.map(async (broker) => Add(broker)));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Broker.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new brokers;` : `No new brokers;`,
+    `${exists.length} brokers verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Add a broker to local database;                                                      |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IBroker>): Promise<IBroker["broker"] | undefined> => {
-  if (props.broker === undefined) {
-    Object.assign(props, { broker: hashKey(6) });
-    const result = await Insert<IBroker>(props, { table: `broker`, ignore: true });
-    return result ? result.broker : undefined;
-  } else return props.broker;
+export const Add = async (props: Partial<IBroker>): Promise<IPublishResult<IBroker>> => {
+  Object.assign(props, { broker: hashKey(6) });
+  const result = await Insert<IBroker>(props, { table: `broker`, ignore: true });
+  return { key: PrimaryKey(props, ["broker"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

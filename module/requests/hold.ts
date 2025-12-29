@@ -9,7 +9,7 @@ import type { IRequestState } from "db/interfaces/state";
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
 
-import * as OrderAPI from "api/orders";
+import * as RequestAPI from "api/requests";
 import * as Request from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
 import * as States from "db/interfaces/state";
@@ -23,9 +23,9 @@ export const Hold = async () => {
   if (orders) {
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const cancels = orders.map(({ symbol, order_id }) => ({ instId: symbol, orderId: BigInt(hexString(order_id!, 10)).toString() }));
-    const [processed, errors] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
+    const {size, accepted, rejected} = (await RequestAPI.Cancel(cancels)) ?? { size: 0, accepted: 0, rejected: 0 }
 
-    for (const hold of processed) {
+    for (const hold of accepted) {
       const result = await Request.Submit({
         request: hold.request!,
         state: queued,

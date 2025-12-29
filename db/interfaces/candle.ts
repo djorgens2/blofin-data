@@ -97,7 +97,7 @@ export const Fetch = async (props: Partial<ICandle>, options?: TOptions): Promis
 export const Batch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
   const { limit, ...columns } = props;
   const suffix = `ORDER BY timestamp DESC LIMIT ${limit || 1}`;
-  const keys = props.timestamp ? [{ key: `timestamp`, sign: `<=` }] : [];
+  const keys = props.timestamp ? [{ key: `timestamp`, eval: `<=` }] : [];
   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
 
   return result.length ? result : undefined;

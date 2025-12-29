@@ -10,6 +10,7 @@ import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { hasValues } from "lib/std.util";
 import { Session } from "module/session";
+import { Summary } from "db/query.utils";
 
 import * as Account from "db/interfaces/account";
 import * as Instrument from "db/interfaces/instrument";
@@ -63,21 +64,24 @@ const merge = (instruments: Partial<IInstrumentAPI>[], leverages: ILeverageAPI[]
 //+--------------------------------------------------------------------------------------+
 const publish = async (props: Array<TInstrumentLeverage>) => {
   if (hasValues(props)) {
-    const promises = props.map(async (prop) => {
-      const promise = Instrument.Key({ symbol: prop.instId }) ?? Promise.resolve(undefined);
-      const instrument = await promise;
-      const instrument_position: Partial<IInstrumentPosition> = {
-        account: Session().account,
-        instrument,
-        position: prop.positionSide,
-        leverage: parseInt(prop.leverage),
-        update_time: new Date(),
-      };
-      return InstrumentPosition.Publish(instrument_position);
-    });
-    const results = await Promise.all(promises);
-
-    return results.filter((result) => result !== null && result !== undefined);
+    const results = await Promise.all(
+      props.map(async (prop) => {
+        const instrument = await Instrument.Key({ symbol: prop.instId });
+        if (instrument) {
+          const instrument_position: Partial<IInstrumentPosition> = {
+            account: Session().account,
+            instrument,
+            position: prop.positionSide,
+            leverage: parseInt(prop.leverage),
+            update_time: new Date(),
+          };
+          return InstrumentPosition.Publish(instrument_position);
+        }
+      })
+    );
+    return Summary(results.map(r => r?.response));
+  } else {
+    return { total_rows: 0 };
   }
 };
 
@@ -93,22 +97,15 @@ export const Import = async () => {
     console.log("-> Instrument.Position.Import [API]");
 
     const [{ margin_mode }] = (await Account.Fetch({ account: Session().account })) ?? [];
-    const batches = createBatches(instruments, 20);
-    const promises = batches.map(async (batch) => {
+    const batches = createBatches(instruments, Session().leverage_max_fetch);
+    const merged = batches.map(async (batch) => {
       const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
-      const api = ((await LeverageAPI.Fetch([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
-      const positions = merge(batch, api);
-      return positions;
+      const leverages = ((await LeverageAPI.Fetch([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
+      return merge(batch, leverages);
     });
 
-    const positions = await Promise.all(promises);
-    const merged = positions.flat() satisfies Array<TInstrumentLeverage>;
-    const result = (await publish(merged)) || [];
-    const success = result.filter((result) => result);
-    const fail = merged.length - success.length;
-
-    console.log(`   # [Info] Instrument.Position.Import: ${instruments.length} instruments published`);
-    success.length && console.log(`   # [Info] Instrument.Position.Import: ${success.length} positions published`);
-    fail && console.log(`   # [Error] Instrument.Position.Import: Errors: ${fail} position errors`);
+    const positions = await Promise.all(merged);
+    const results = await publish(positions.flat() satisfies Array<TInstrumentLeverage>);
+    return results;
   }
 };

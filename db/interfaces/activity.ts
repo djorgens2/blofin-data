@@ -5,8 +5,9 @@
 "use strict";
 
 import type { ISubjectArea } from "db/interfaces/subject_area";
+import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert } from "db/query.utils";
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -23,9 +24,6 @@ export interface IActivity extends ISubjectArea {
 export const Import = async () => {
   console.log("In Activity.Import:", new Date().toLocaleString());
 
-  const success: Array<Partial<IActivity>> = [];
-  const errors: Array<Partial<IActivity>> = [];
-
   const activities: Array<Partial<IActivity>> = [
     { title: "Instruments", task: "Manage Instruments" },
     { title: "Instruments", task: "View/Modify Contracts" },
@@ -37,29 +35,32 @@ export const Import = async () => {
     { title: "Jobs", task: "Monitor jobs" },
   ];
 
-  for (const activity of activities) {
-    const result = await Add(activity);
-    result ? success.push({ subject_area: result }) : errors.push({ task: activity.title });
-  }
-
-  success.length && console.log("   # Activity imports: ", success.length, "verified");
-  errors.length && console.log("   # Activity rejects: ", errors.length, { errors });
+  const result = await Promise.all(activities.map(async (activity) => Add(activity)));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> Activity.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new activities;` : `No new activities;`,
+    `${exists.length} activities verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Add an activity to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
-  if (props.activity === undefined) {
-    const subject_area = await SubjectArea.Key({ title: props.title });
+export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IActivity>> => {
+  if (props.activity) {
+    return { key: PrimaryKey(props, ["activity"]), response: { success: false, code: 200, category: `exists`, rows: 0 } };
+  }
+  
+  const subject_area = await SubjectArea.Key({ title: props.title });
 
-    if (subject_area === undefined) throw new Error("Unauthorized data import attempt; Subject Area not found;");
-    else {
-      const activity = hashKey(6);
-      const result = await Insert<IActivity>({ activity, subject_area, task: props.task }, { table: `activity`, ignore: true });
-      return result ? result.activity : undefined;
-    }
-  } else return props.activity;
+  if (subject_area) {
+    const activity = hashKey(6);
+    const result = await Insert<IActivity>({ activity, subject_area, task: props.task }, { table: `activity`, ignore: true });
+    return { key: PrimaryKey({ activity }, ["activity"]), response: result };
+  }
+  console.log("Unauthorized data import attempt; Subject Area not found;");
+  return { key: undefined, response: { success: false, code: 404, category: `not_found`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

@@ -4,48 +4,53 @@
 //+----------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Insert } from "db/query.utils";
+import type { IPublishResult } from "db/query.utils";
+
+import { Select, Insert, PrimaryKey, Update } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
 export interface IInstrumentType {
-  instrument_type: Uint8Array;
+  instrument_type: Uint8Array | string;
   source_ref: string;
   description: string;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Imports known instrument types seed data to the database;                            |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  console.log("In Instrument.Type.Import:", new Date().toLocaleString());
-
-  const success: Array<Partial<IInstrumentType>> = [];
-  const errors: Array<Partial<IInstrumentType>> = [];
-  const types: Array<string> = ["SWAP"];
-
-  for (const type of types) {
-    const result = await Publish({ source_ref: type, description: "Description pending;" });
-    result ? success.push({ instrument_type: result }) : errors.push({ source_ref: type });
-  }
-
-  success.length && console.log("   # Instrument Type imports: ", success.length, "verified");
-  errors.length && console.log("   # Instrument Type rejects: ", errors.length, { errors });
-};
-
 //+----------------------------------------------------------------------------------------+
 //| Adds all new instrument types recieved from Blofin to the database;                    |
 //+----------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
-  if (props.instrument_type === undefined) {
-    const instrument_type = await Key({ source_ref: props.source_ref });
+export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublishResult<IInstrumentType>> => {
+  if (hasValues(props)) {
+    const search = {
+      instrument_type: typeof props.instrument_type === "string" ? undefined : props.instrument_type,
+      source_ref: typeof props.instrument_type === "string" ? props.instrument_type : props.source_ref,
+    };
+    const exists = await Key(search);
 
-    if (instrument_type === undefined) {
-      Object.assign(props, { instrument_type: hashKey(6) });
-      const result = await Insert<IInstrumentType>(props, { table: `instrument_type` });
-      return result ? result.instrument_type : undefined;
-    } else return instrument_type;
+    if (exists) {
+      if (hasValues<Partial<IInstrumentType>>({ description: props.description })) {
+        const [current] = (await Fetch({ instrument_type: exists })) ?? [];
+        if (current) {
+          const revised = {
+            instrument_type: current.instrument_type,
+            description: props.description ? (props.description === current.description ? undefined : props.description) : undefined,
+          };
+          const result = await Update<IInstrumentType>(revised, { table: `instrument_type`, keys: [{ key: `instrument_type` }] });
+          return { key: PrimaryKey(current, ["instrument_type"]), response: result };
+        }
+      }
+      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 200, category: `exists`, rows: 0 } };
+    } else {
+      const missing = {
+        instrument_type: hashKey(6),
+        source_ref: search.source_ref,
+        description: props.description || "Description pending",
+      };
+      const result = await Insert<IInstrumentType>(missing, { table: `instrument_type` });
+      return { key: PrimaryKey(missing, ["instrument_type"]), response: result };
+    }
   }
+  return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

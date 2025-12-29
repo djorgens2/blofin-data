@@ -3,8 +3,9 @@
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
+import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert } from "db/query.utils";
+import { Select, Insert, PrimaryKey } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -39,9 +40,6 @@ export interface ISymbol extends IState {
 export const Import = async () => {
     console.log("In State.Import:", new Date().toLocaleString());
   
-    const success: Array<Partial<IState>> = [];
-    const errors: Array<Partial<IState>> = [];
-  
   const states: Array<Partial<IState>> = [
     { status: "Enabled", description: "Enabled for trading" },
     { status: "Disabled", description: "Disabled from trading" },
@@ -60,24 +58,22 @@ export const Import = async () => {
     { status: "Open", description: "Open; order/position is open;" },
   ];
 
-  for (const state of states) {
-    const result = await Add(state);
-    result ? success.push({ state: result }) : errors.push({ status: state.status });
-  }
-
-  success.length && console.log("   # State imports: ", success.length, "verified");
-  errors.length && console.log("   # State rejects: ", errors.length, { errors });
+  const result = await Promise.all(states.map(async (state) => Add(state)));
+  const exists = result.filter((r) => r.response.code === 200);
+  console.log(
+    `-> State.Import complete:`,
+    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new states;` : `No new states;`,
+    `${exists.length} states verified;`
+  );
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new States to local database;                                                   |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IState>): Promise<IState["state"] | undefined> => {
-  if (props.state === undefined) {
-    Object.assign(props, { state: hashKey(6) });
-    const result = await Insert<IState>(props, { table: `state`, ignore: true });
-    return result ? result.state : undefined;
-  } else return props.state;
+export const Add = async (props: Partial<IState>): Promise<IPublishResult<IState>> => {
+  Object.assign(props, { state: hashKey(6) });
+  const result = await Insert<IState>(props, { table: `state`, ignore: true });
+  return { key: PrimaryKey(props, ["state"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

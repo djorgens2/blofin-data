@@ -86,18 +86,20 @@ export const clear = (message: IMessage): IMessage => {
       close: 0,
     },
   };
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
 //+--------------------------------------------------------------------------------------+
-export const splitSymbol = (symbol: string | Array<string>) => {
-  const symbols: Array<string> = typeof symbol === "string" ? symbol.split("-") : typeof Array.isArray(symbol) ? symbol[0].split("-") : [];
+export const splitSymbol = (symbol: string) => {
+  const symbols = typeof symbol === "string" ? symbol.split("-") : undefined;
 
-  const base_symbol = symbols.length ? symbols[0] : ``;
-  const quote_symbol = symbols.length === 1 ? "USDT" : symbols.length > 1 ? symbols[1] : ``;
+  if (symbols) {
+    const base_symbol = symbols.length ? symbols[0] : ``;
+    const quote_symbol = symbols.length === 1 ? "USDT" : symbols.length > 1 ? symbols[1] : ``;
 
-  return [base_symbol, quote_symbol];
+    return [base_symbol, quote_symbol];
+  } else return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+

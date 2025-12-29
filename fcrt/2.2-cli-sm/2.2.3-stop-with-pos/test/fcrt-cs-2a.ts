@@ -2,7 +2,7 @@
 import type { TRefKey } from "db/interfaces/reference";
 import type { IRequest } from "db/interfaces/request";
 
-import { setSession, Session, ISession } from "module/session";
+import { Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { setExpiry } from "lib/std.util";
 
@@ -12,34 +12,8 @@ import * as IPos from "db/interfaces/instrument_position";
 import * as Orders from "db/interfaces/order";
 import * as Requests from "db/interfaces/request";
 import * as References from "db/interfaces/reference";
-import * as Accounts from "db/interfaces/account";
 
 const args = process.argv.slice(2); // get account id
-const config = async (props: Partial<Accounts.IAccount>) => {
-  const [search] = await Accounts.Fetch(props) ?? [undefined];
-
-  if (search) {
-    const keys: Array<ISession> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
-    const props = keys.find(({ alias }) => alias === search.alias);
-
-    if (props) {
-      const { api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = props;
-      setSession({
-        account: search.account,
-        state: "testing",
-        audit_order: "0",
-        audit_stops: "0",
-        api,
-        secret,
-        phrase,
-        rest_api_url,
-        private_wss_url,
-        public_wss_url,
-      });
-    }
-  }
-};
-
 const submit = async (request: Partial<IRequest>) => {
   await config({ account: hexify(args[0]) });
 

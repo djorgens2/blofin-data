@@ -130,12 +130,13 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["re
 
   if (orders) {
     const canceled = await States.Key<IRequestState>({ status: "Canceled" });
+    const closed = await States.Key<IRequestState>({ status: "Closed" });
     const cancels: Array<IRequest["request"]> = [];
 
     for (const order of orders) {
       const result = await publish(order, {
         ...props,
-        state: canceled,
+        state: isEqual(props.state!, canceled!) ? closed : canceled,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
       });
       result && cancels.push(result);

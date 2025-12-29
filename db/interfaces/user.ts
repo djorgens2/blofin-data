@@ -6,7 +6,7 @@
 
 import type { TAccess, IAccess } from "db/interfaces/state";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Select, Insert, Update, TResponse } from "db/query.utils";
 import { hashKey, hashPassword } from "lib/crypto.util";
 import { hasValues, isEqual } from "lib/std.util";
 
@@ -50,9 +50,8 @@ export const SetPassword = async (props: Partial<IUser>) => {
 //+--------------------------------------------------------------------------------------+
 //| Updates changes to User @ the local DB;                                              |
 //+--------------------------------------------------------------------------------------+
-export const Modify = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
-  if (props.user === undefined) throw new Error(`Unathorized user publication; user not found`);
-  else {
+export const Modify = async (props: Partial<IUser>): Promise<TResponse> => {
+  if (hasValues(props)) {
     const user = await Fetch({ username: props.username, email: props.email });
 
     if (user) {
@@ -65,10 +64,9 @@ export const Modify = async (props: Partial<IUser>): Promise<IUser["user"] | und
         state: state && isEqual(state, current.state!) ? undefined : state,
         image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
       };
-      const [result, updates] = await Update(revised, { table: `user`, keys: [{ key: `user` }] });
-      return result ? result.user : undefined;
-    }
-  }
+      return await Update(revised, { table: `user`, keys: [{ key: `user` }] });
+    } else return { success: false, code: 404, category: `not_found`, rows: 0 };
+  } else return { success: false, code: 400, category: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -80,7 +78,7 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
 
   if (user === undefined) {
     const { hash, password } = await SetPassword({ username, email, password: props.password });
-    const user: Partial<IUser> = {
+    const add: Partial<IUser> = {
       user: hashKey(6),
       role: props.role || (await Roles.Key({ title: props.title })) || (await Roles.Key({ title: "Viewer" })),
       username,
@@ -90,10 +88,10 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
       state: props.state || (await States.Key({ status: props.status })) || (await States.Key<IAccess>({ status: "Disabled" })),
       image_url: props.image_url || "./images/user/no-image.png",
     };
-    const result = await Insert<IUser>(user, { table: `user` });
-    await new Promise((r) => setTimeout(r, 15000));
+    const result = await Insert<IUser>(add, { table: `user` });
+    //    await new Promise((r) => setTimeout(r, 15000));
 
-    return result ? result.user : undefined;
+    return result.success ? add.user : undefined;
   } else return undefined;
 };
 

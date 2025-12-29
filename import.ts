@@ -37,9 +37,7 @@ export const Import = async () => {
   await Activity.Import();
   await Authority.Import();
   await Broker.Import();
-  await ContractType.Import();
   await Environment.Import();
-  await InstrumentType.Import();
   await Period.Import();
   await References.Import();
   await Roles.Import();

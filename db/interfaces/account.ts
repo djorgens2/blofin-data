@@ -6,8 +6,9 @@
 
 import type { ISession } from "module/session";
 import type { IAccess, TAccess } from "db/interfaces/state";
+import type { IPublishResult, TResponse } from "db/query.utils";
 
-import { Select, Insert, Update } from "db/query.utils";
+import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
 import { hashHmac } from "lib/crypto.util";
 import { isEqual } from "lib/std.util";
 import { Session } from "module/session";
@@ -29,7 +30,7 @@ export interface IAccount {
   status: TAccess;
   environment: Uint8Array;
   environ: string;
-  margin_mode: 'cross' | 'isolated';
+  margin_mode: "cross" | "isolated";
   hedging: boolean;
   broker_image_url: string;
   broker_website_url: string;
@@ -80,7 +81,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Adds all new accounts recieved from ui or any internal source to the database;       |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IAccount>, session: Partial<ISession>): Promise<IAccount["account"] | undefined> => {
+export const Add = async (props: Partial<IAccount>, session: Partial<ISession>): Promise<IPublishResult<IAccount>> => {
   const key = await Key(session);
 
   if (key === undefined) {
@@ -103,12 +104,13 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
         public_wss_url: props.public_wss_url,
       };
       const result = await Insert<IAccount>(account, { table: `account` });
-      return result ? result.account : undefined;
+      return { key: PrimaryKey({ account: hash }, ["account"]), response: result };
     }
     setUserToken({ error: 315, message: `Invalid session credentials.` });
+    return { key: undefined, response: { success: false, code: 315, category: `error`, rows: 0 } };
   }
   setUserToken({ error: 312, message: `Duplicate account ${props.alias} exists.` });
-  return undefined;
+  return { key: undefined, response: { success: false, code: 312, category: `error`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -151,7 +153,7 @@ export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAc
 //+--------------------------------------------------------------------------------------+
 //| Updates the account (master) from the API (select fields) or the UI;                 |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IAccount>): Promise<IAccount["account"] | undefined> => {
+export const Publish = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
   if (isEqual(Session().account!, props.account!)) {
     const account = await Fetch({ account: props.account });
 
@@ -163,8 +165,8 @@ export const Publish = async (props: Partial<IAccount>): Promise<IAccount["accou
         isolated_equity: isEqual(props.isolated_equity!, current.isolated_equity!) ? undefined : props.isolated_equity,
         update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
-      const [result, updates] = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
-      return result ? result.account : undefined;
+      const result: TResponse = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
+      return { key: PrimaryKey(current, ["account"]), response: result };
     } else {
       setUserToken({ error: 315, message: `Invalid session credentials.` });
       throw new Error(`Unauthorized account publication; invalid session account`);
@@ -178,7 +180,7 @@ export const Publish = async (props: Partial<IAccount>): Promise<IAccount["accou
 //+--------------------------------------------------------------------------------------+
 //| Updates the account (detail) from the API (select fields) or the UI;                 |
 //+--------------------------------------------------------------------------------------+
-export const PublishDetail = async (props: Partial<IAccount>) => {
+export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
   if (props.account && props.currency) {
     const account = await Fetch({ account: props.account, currency: props.currency });
 
@@ -204,13 +206,18 @@ export const PublishDetail = async (props: Partial<IAccount>) => {
         liability: isEqual(props.liability!, current.liability!) ? undefined : props.liability,
         update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
       };
-      const [result, updates] = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
-      updates && setUserToken({ error: 0, message: `Account update detail applied.` });
-      return result ? ({ account: result!.account, currency: result!.currency } as Partial<IAccount>) : undefined;
+      const result: TResponse = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
+
+      setUserToken({ error: result.code, message: result.success ? `Account update detail applied.` : `Account update detail failed.` });
+      return { key: PrimaryKey(current, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
     } else {
       const result = await Insert<IAccount>(props, { table: `account_detail` });
-      result && setUserToken({ error: 0, message: `New Account Currency details imported.` });
-      return result ? ({ account: result.account, currency: result.currency } as Partial<IAccount>) : undefined;
+
+      setUserToken({
+        error: result.code,
+        message: result.success ? `New Account Currency details imported.` : `Failed to import new account currency details.`,
+      });
+      return { key: PrimaryKey(props, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
     }
   } else {
     setUserToken({ error: 315, message: `Invalid session credentials.` });

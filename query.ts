@@ -31,7 +31,7 @@ import * as Stops from "db/interfaces/stops";
 import { parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { IAuthority } from "db/interfaces/authority";
-import { Select } from "db/query.utils";
+import { Select, TOptions } from "db/query.utils";
 import { IStops } from "db/interfaces/stops";
 import { IStopsAPI } from "api/stops";
 
@@ -216,22 +216,31 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Order: {
-      const props = parseJSON<Order.IOrder>(args);
-      Object.assign(props!, {
-        ...props,
-        account: hexify(props?.account!),
-        request: hexify(props?.request!),
-        order_id: hexify(props?.order_id!),
-        instrument: hexify(props?.instrument!),
-        instrument_position: hexify(props?.instrument_position!),
-        request_type: hexify(props?.request_type!),
-        order_state: hexify(props?.order_state!),
-        order_category: hexify(props?.order_category!),
-        cancel_source: hexify(props?.cancel_source!),
-      });
-      const key = await Order.Fetch(props!);
-      console.log(`Fetch Orders [ ${Object.keys(props!).length} ]:`, props, key);
-      return "ok";
+      const props = parseJSON<Order.IOrder & TOptions>(args);
+      if (props) {
+        const { limit, suffix, ...keys } = props;
+        const options = {
+          limit,
+          suffix
+        } as TOptions;
+
+        Object.assign(keys, {
+          ...keys,
+          account: hexify(keys.account),
+          request: hexify(keys.request),
+          order_id: hexify(keys.order_id),
+          instrument: hexify(keys.instrument),
+          instrument_position: hexify(keys.instrument_position),
+          request_type: hexify(keys.request_type),
+          order_state: hexify(keys.order_state),
+          order_category: hexify(keys.order_category),
+          cancel_source: hexify(keys.cancel_source),
+        });
+        const rows = await Order.Fetch(keys, options);
+        console.log(`Fetch Orders [ ${Object.keys(keys).length} ]:`, options, keys, rows);
+        return "ok";
+      }
+      console.log("[Error] Orders: Unauthorized fetch attempt")
     }
     case Subject.Reference: {
       const json = parseJSON<Reference.IReference>(args);
