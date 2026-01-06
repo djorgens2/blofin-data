@@ -49,7 +49,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IActivity>> => {
   if (props.activity) {
-    return { key: PrimaryKey(props, ["activity"]), response: { success: false, code: 200, category: `exists`, rows: 0 } };
+    return { key: PrimaryKey(props, ["activity"]), response: { success: false, code: 200, state: `exists`, rows: 0 } };
   }
   
   const subject_area = await SubjectArea.Key({ title: props.title });
@@ -60,7 +60,7 @@ export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IAc
     return { key: PrimaryKey({ activity }, ["activity"]), response: result };
   }
   console.log("Unauthorized data import attempt; Subject Area not found;");
-  return { key: undefined, response: { success: false, code: 404, category: `not_found`, rows: 0 } };
+  return { key: undefined, response: { success: false, code: 404, state: `not_found`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

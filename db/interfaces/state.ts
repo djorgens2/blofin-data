@@ -10,11 +10,11 @@ import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
-export type TRequest = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
+export type TRequestState = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
 export type TStatus = "Open" | "Closed";
 export type TAccess = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 export type TSymbol = "Enabled" | "Disabled" | "Suspended"
-export type TStates = TRequest | TSystem | TAccess | TStatus | TSymbol;
+export type TStates = TRequestState | TSystem | TAccess | TStatus | TSymbol;
 
 export type IState = {
   state: Uint8Array;
@@ -23,7 +23,7 @@ export type IState = {
 };
 
 export interface IRequestState extends IState {
-  status: TRequest;
+  status: TRequestState;
 }
 
 export interface IAccess extends IState {

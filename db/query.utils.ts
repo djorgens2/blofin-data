@@ -13,14 +13,18 @@ export const DB_SCHEMA = process.env.DB_SCHEMA || process.env.DB_DATABASE;
 
 export type TKey = { key: string; sign?: string };
 export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection };
-export type TCategory = `success` | `error` | `updated` | `inserted` | `not_found` | `no_update` | `exists` | `null_query`;
+export type TState = `success` | `error` | `updated` | `inserted` | `not_found` | `no_update` | `exists` | `null_query`;
+export type TOutcome = `requeued` | `expired` | `pending` | `canceled` | `submitted` | "rejected" | "expired" | "closed" | "hold" | "error";
 export type TSign = `=` | `!=` | `<` | `<=` | `>` | `>=` | `LIKE` | `IN` | `NOT IN`;
 export type TSearchKey = { key: string; sign: TSign };
 export type TResponse = {
   success: boolean;
+  state: TState;
   code: number;
-  category: TCategory;
   rows: number;
+  context?: string;
+  outcome?: TOutcome;
+  message?: string;
 };
 //export type CompositeKey<T> = { [K in keyof T]?: T[K] };
 export type TPrimaryKey<T> = Partial<T>;
@@ -43,24 +47,28 @@ export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
 };
 
 //+--------------------------------------------------------------------------------------+
-//| handles all errors;                                                                  |
+//| handles all SQL errors; rethrows handled error formatted as TResponse                |
 //+--------------------------------------------------------------------------------------+
 const error = (e: any, args: Array<any>): TResponse => {
   if (e && typeof e === "object" && "code" in e) {
     console.log(`-> [Error] ${e.errno}: ${e.message}`, { sql: e.sql, args });
-    throw { success: false, code: e.errno || -1, category: `error`, rows: 0 };
+    throw { success: false, code: e.errno || -1, state: `error`, rows: 0 } as TResponse;
   } else {
     console.log(e);
-    throw { success: false, code: -1, category: `error`, rows: 0 };
+    throw { success: false, code: -1, state: `error`, rows: 0 } as TResponse;
   }
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Executes prepared Select queries on the database;                                    |
 //+--------------------------------------------------------------------------------------+
-const select = async <T>(sql: string, args: Array<any>): Promise<Array<Partial<T>>> => {
-  const [results] = await pool.execute(sql, args);
-  return results as T[];
+const select = async <T>(sql: string, args: Array<any>): Promise<Array<Partial<T>> | TResponse> => {
+  try {
+    const [results] = await pool.execute(sql, args);
+    return results as T[];
+  } catch (e) {
+    return error(e, args);
+  }
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -70,7 +78,12 @@ const modify = async (sql: string, args: Array<any>): Promise<TResponse> => {
   try {
     const [results] = await pool.execute(sql, args);
     const rows = (results as ResultSetHeader).affectedRows ?? 0;
-    return { success: rows ? true : false, code: 0, category: `success`, rows };
+    return {
+      success: rows ? true : false,
+      code: rows ? 0 : 404,
+      state: rows ? `success` : `not_found`,
+      rows,
+    };
   } catch (e) {
     return error(e, args);
   }
@@ -83,7 +96,7 @@ const insert = async (sql: string, args: Array<any>): Promise<TResponse> => {
   try {
     const [results] = await pool.query(sql, args);
     const rows = (results as ResultSetHeader).affectedRows ?? 0;
-    return { success: true, code: 0, category: `success`, rows };
+    return { success: true, code: 0, state: `success`, rows };
   } catch (e) {
     return error(e, args);
   }
@@ -96,7 +109,7 @@ const transact = async (sql: string, args: Array<any>, connection: PoolConnectio
   try {
     const [results] = await connection.execute(sql, args);
     const rows = (results as ResultSetHeader).affectedRows ?? 0;
-    return { success: rows ? true : false, code: 0, category: `success`, rows };
+    return { success: rows ? true : false, code: 0, state: `success`, rows };
   } catch (e) {
     return error(e, args);
   }
@@ -157,8 +170,8 @@ const splitKeys = <T>(props: Partial<T>, filter: Array<string>) => {
 export const Summary = (results: (TResponse | undefined | null)[]): Record<string, number> => {
   return results.reduce((acc, sum) => {
     if (sum) {
-      const cat = sum.category;
-      acc[cat] = (acc[cat] || 0) + 1;
+      const state = sum.state;
+      acc[state] = (acc[state] || 0) + 1;
       acc.total_rows = (acc.total_rows || 0) + (sum.rows || 0);
     }
     return acc;
@@ -169,27 +182,31 @@ export const Summary = (results: (TResponse | undefined | null)[]): Record<strin
 //| Parses, prepares, and executes Insert statements;                                    |
 //+--------------------------------------------------------------------------------------+
 export const Insert = async <T>(props: Partial<T>, options: TOptions): Promise<TResponse> => {
+  if (!hasValues<Partial<T>>(props)) {
+    return { success: false, code: 400, state: `null_query`, rows: 0 };
+  }
+
   const { table, ignore } = options;
   const [fields, args] = parseColumns(props, "");
   const sql = `INSERT${ignore ? " IGNORE " : " "}INTO ${DB_SCHEMA}.${table} ( ${fields.join(", ")} ) VALUES (${Array(args.length).fill(" ?").join(", ")})`;
 
   try {
     const result = options.connection ? await transact(sql, args, options.connection) : await modify(sql, args);
-    const category = result.rows ? `inserted` : ignore ? `exists` : `error`;
+    const state = result.rows ? `inserted` : ignore ? `exists` : `error`;
     const code = ignore && result.rows === 0 ? 200 : result.code;
     result.rows && console.log(`-> [Info] ${table} inserted`, { fields, args });
-    return { success: result.rows ? true : false, code, category, rows: result.rows };
+    return { success: !!result.rows, code, state, rows: result.rows };
   } catch (e) {
     return e as TResponse;
-  }  
-};  
+  }
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Parses, prepares, and executes Update statements;                                    |
 //+--------------------------------------------------------------------------------------+
 export const Update = async <T>(props: Partial<T>, options: TOptions): Promise<TResponse> => {
   if (!hasValues<Partial<T>>(props)) {
-    return { success: false, code: 404, category: `null_query`, rows: 0 };
+    return { success: false, code: 401, state: `null_query`, rows: 0 };
   }
 
   const { table, suffix, limit } = options;
@@ -198,18 +215,19 @@ export const Update = async <T>(props: Partial<T>, options: TOptions): Promise<T
   const [fields, values] = parseColumns(columns);
 
   if (fields.length === 0) {
-    return { success: false, code: 402, category: `no_update`, rows: 0 };
+    return { success: false, code: 402, state: `no_update`, rows: 0 };
   }
-  
+
   const sql = `UPDATE ${DB_SCHEMA}.${table} SET ${fields.join(", ")}${fields.length ? " WHERE ".concat(keys.join(" AND ")) : ""} ${suffix ? suffix : ``}${
     limit ? `LIMIT ${limit}` : ``
   }`;
 
   try {
     const result = await modify(sql, [...values, ...args]);
-    const category = result.rows ? `updated` : `not_found`;
-    result.rows && console.log(category, `-> [Info] ${table} updated`, { filters, columns });
-    return { success: result.rows ? true : false, code: result.code, category, rows: result.rows };
+    const state = result.rows ? `updated` : result.code ? `error` : `not_found`;
+    const code = result.rows ? result.code : result.code ? result.code : 404;
+    result.rows && console.log(state, `-> [Info] ${table} updated`, { filters, columns });
+    return { success: result.rows ? true : false, code, state, rows: result.rows };
   } catch (e) {
     return e as TResponse;
   }
@@ -226,8 +244,7 @@ export const Select = async <T>(props: Partial<T>, options: TOptions): Promise<A
   }`;
 
   try {
-    const result = await select<T>(sql, args);
-    return result.length ? result : ([] as Array<Partial<T>>);
+    return (await select<T>(sql, args)) as Array<Partial<T>>;
   } catch (e) {
     return [] as Array<Partial<T>>;
   }
@@ -237,17 +254,16 @@ export const Select = async <T>(props: Partial<T>, options: TOptions): Promise<A
 //| Parses, prepares, and executes Distinct queries;                                     |
 //+--------------------------------------------------------------------------------------+
 export const Distinct = async <T>(props: Partial<T>, options: TOptions): Promise<Array<Partial<T>>> => {
-  const [columns, filters] = splitKeys<T>(props, options.keys ? options.keys.map((k) => k.key) : []);
   const { table } = options;
-  const fields = Object.keys(props).join(", ");
+  const [columns, filters] = splitKeys<T>(props, options.keys ? options.keys.map((k) => k.key) : []);
   const [keys, args] = parseKeys(filters, options?.keys);
+  const fields = Object.keys(props).join(", ");
   const sql = `SELECT DISTINCT ${fields} FROM ${DB_SCHEMA}.${table}${keys.length ? " WHERE ".concat(keys.join(" AND ")) : ""} ${
     options.suffix ? options.suffix : ``
   }`;
 
   try {
-    const result = await select(sql, args);
-    return result.length ? result : ([] as Array<Partial<T>>);
+    return (await select(sql, args)) as Array<Partial<T>>;
   } catch (e) {
     return [] as Array<Partial<T>>;
   }
@@ -257,18 +273,19 @@ export const Distinct = async <T>(props: Partial<T>, options: TOptions): Promise
 //| Parses, prepares, and executes bulk load statements;                                 |
 //+--------------------------------------------------------------------------------------+
 export const Load = async <T>(props: Array<Partial<T>>, options: TOptions): Promise<TResponse> => {
-  if (props.length) {
-    const { table, ignore } = options;
+  if (!hasValues(props)) {
+    return { success: false, code: 403, state: `null_query`, rows: 0 } as TResponse;
+  }
 
-    const args = props.map((obj) => Object.values(obj));
-    const fields = Object.keys(props[0]);
-    const sql = `INSERT${ignore ? " IGNORE " : " "}INTO ${DB_SCHEMA}.${table} ( ${fields.join(", ")} ) VALUES ?`;
+  const { table, ignore } = options;
+  const args = props.map((obj) => Object.values(obj));
+  const fields = Object.keys(props[0]);
+  const sql = `INSERT${ignore ? " IGNORE " : " "}INTO ${DB_SCHEMA}.${table} ( ${fields.join(", ")} ) VALUES ?`;
 
-    try {
-      const result = await insert(sql, [args]);
-      return { success: result.rows ? true : false, code: 0, category: `success`, rows: result.rows };
-    } catch (e) {
-      return e as TResponse;
-    }
-  } else return { success: false, code: 405, category: `null_query`, rows: 0 };
+  try {
+    const result = await insert(sql, [args]);
+    return { success: !!result.rows, code: 0, state: `success`, rows: result.rows } as TResponse;
+  } catch (e) {
+    return e as TResponse;
+  }
 };

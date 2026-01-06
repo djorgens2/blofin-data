@@ -71,7 +71,7 @@ export const Publish = async (props: Array<IPositionsAPI>) => {
           return await Positions.Publish(position);
         } else {
           console.log(`>> [Error] Position.Publish: Unable to locate instrument position for ${prop.instId} ${prop.positionSide}`);
-          return { key: undefined, response: { success: false, code: 409, category: `not_found`, rows: 0 } };
+          return { key: undefined, response: { success: false, state: `not_found`, code: 409, rows: 0 } };
         }
       })
     );
@@ -95,7 +95,7 @@ export const Publish = async (props: Array<IPositionsAPI>) => {
     } else return Summary(api.map((p) => p?.response));
   } else {
     console.log(`>> [Warning] Position.Publish: No positions to publish`);
-    const result = Summary([{ success: false, code: 400, category: `null_query`, rows: 0 }]);
+    const result = Summary([{ success: false, code: 400, state: `null_query`, rows: 0 }]);
     return result;
   }
 };

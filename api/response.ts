@@ -8,13 +8,11 @@ import type { IStopsAPI } from "api/stops";
 import type { IRequestAPI } from "api/requests";
 import type { ILeverageAPI } from "api/leverage";
 import type { IInstrumentAPI } from "api/instruments";
-import type { TRequest, IRequestState } from "db/interfaces/state";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { TRequestState, IRequestState } from "db/interfaces/state";
 import type { IStops } from "db/interfaces/stops";
 
 import { hexify } from "lib/crypto.util";
 import { Update } from "db/query.utils";
-import { Session } from "module/session";
 
 import * as States from "db/interfaces/state";
 import * as Orders from "db/interfaces/order";
@@ -37,7 +35,7 @@ export interface IResponse {
   request: Uint8Array;
   order_id: Uint8Array;
   state: Uint8Array;
-  status: TRequest;
+  status: TRequestState;
   memo: string;
   create_time: Date;
   update_time: Date;
@@ -46,44 +44,7 @@ export interface IResponse {
 //+--------------------------------------------------------------------------------------+
 //| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
-export const Request = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
-  const accept: Array<Partial<IResponse>> = [];
-  const reject: Array<Partial<IResponse>> = [];
-
-  if (Array.isArray(response.data)) {
-    const success = await States.Key<IRequestState>({ status: props.success });
-    const fail = await States.Key<IRequestState>({ status: props.fail });
-    const responses = response.data as Array<Partial<IRequestAPI & TResult>>;
-
-    for (const response of responses) {
-      const request = {
-        request: hexify(response.clientOrderId!, 6) || hexify(parseInt(response.orderId!), 6),
-        order_id: hexify(parseInt(response.orderId!), 6),
-        state: response.code === "0" ? success : fail,
-        memo:
-          response.code === "0"
-            ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Error] Response.Request: ${props.fail === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
-        update_time: new Date(),
-      };
-      const [result, updates] = await Update<Orders.IOrder>(request, { table: `request`, keys: [{ key: `request` }] });
-      result ? accept.push({ ...request, code: parseInt(response.code!) }) : reject.push({ ...request, code: parseInt(response.code!) });
-    }
-    return [accept, reject];
-  } else {
-    console.log(
-      `-> [Error] Response.Request: Request not processed; error returned:`,
-      response.code || -1,
-      `${response ? `response: `.concat(response.msg) : ``}`
-    );
-    return [accept, reject];
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Handles responses received from WSS/API or POST calls;                               |
-//+--------------------------------------------------------------------------------------+
-export const Stops = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
+export const Stops = async (response: TResponse, props: { success: TRequestState; fail: TRequestState }) => {
   const accept: Array<Partial<IStops>> = [];
   const reject: Array<Partial<IStops>> = [];
   const current = response.data ? (Array.isArray(response.data) ? response.data : [response.data]) : undefined;
@@ -118,40 +79,4 @@ export const Stops = async (response: TResponse, props: { success: TRequest; fai
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Sets leverage locally on success;                                                    |
-//+--------------------------------------------------------------------------------------+
-export const Leverage = async (response: TResponse) => {
-  if (response.code === "0") {
-    if (Array.isArray(response.data)) {
-      return response.data as Array<ILeverageAPI>;
-    }
-
-    const { instId, positionSide, leverage, marginMode } = response.data as ILeverageAPI & TResult;
-    const margin_mode = marginMode || Session().margin_mode;
-    const props = {
-      account: Session().account,
-      instrument: await Instrument.Key({ symbol: instId }),
-      position: margin_mode === "isolated" ? positionSide : positionSide || undefined,
-      leverage: parseInt(leverage),
-    };
-    const keys =
-      margin_mode === "isolated" || props.position
-        ? [{ key: `account` }, { key: `instrument` }, { key: `position` }]
-        : [{ key: `account` }, { key: `instrument` }];
-    const [result, updates] = await Update<IInstrumentPosition>(props, {
-      table: `instrument_position`,
-      keys,
-    });
-
-    return result ? (result as IInstrumentPosition) : undefined;
-  }
-
-  console.log(
-    `-> [Error] Response.Leverage: update not processed; error returned:`,
-    response.code || -1,
-    response.msg ? `response: `.concat(response.msg) : ``
-  );
-  return undefined;
-};
 

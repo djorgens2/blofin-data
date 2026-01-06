@@ -12,7 +12,7 @@ import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
 import { hashHmac } from "lib/crypto.util";
 import { isEqual } from "lib/std.util";
 import { Session } from "module/session";
-import { setUserToken } from "cli/interfaces/user";
+import UserToken, { setUserToken } from "cli/interfaces/user";
 
 import * as States from "db/interfaces/state";
 import * as Users from "db/interfaces/user";
@@ -65,52 +65,140 @@ export interface IAccount {
 }
 
 //+--------------------------------------------------------------------------------------+
-//| Returns an array of 'verified new' accounts from .env ready for publishing;          |
+//| Returns promises for all or 'verified new' accounts from .env;                       |
 //+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  const sessions: Array<Partial<ISession>> = process.env.APP_ACCOUNT ? JSON.parse(process.env.APP_ACCOUNT!) : [``];
-  const imports: Array<Partial<ISession>> = [];
+export const Available = async (filter: "New" | "All"): Promise<Array<Partial<ISession>>> => {
+  const accounts = process.env.APP_ACCOUNT;
+  if (!accounts) return [];
 
-  for (const session of sessions) {
-    const { api, secret, phrase } = session;
-    (await Key({ api, secret, phrase })) === undefined && imports.push(session);
+  let sessions: Array<Partial<ISession>>;
+  try {
+    sessions = JSON.parse(accounts);
+  } catch (e) {
+    console.error("-> [Error] Failed to parse account keys");
+    return [];
   }
-  return imports;
+
+  if (filter === "All") return sessions;
+
+  const missing = await Promise.all(
+    sessions.map(async (account) => {
+      const { api, secret, phrase } = account;
+      const isNew = (await Key({ api, secret, phrase })) === undefined;
+      return isNew ? account : undefined;
+    })
+  );
+
+  return missing.filter((acc): acc is Partial<ISession> => acc !== undefined);
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds all new accounts recieved from ui or any internal source to the database;       |
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IAccount>, session: Partial<ISession>): Promise<IPublishResult<IAccount>> => {
-  const key = await Key(session);
+  const exists = await Key(session);
 
-  if (key === undefined) {
-    const hmac = await hashHmac(session);
-
-    if (hmac) {
-      const slot = Math.floor(Math.random() * 82 + 1);
-      const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
-      const account: Partial<IAccount> = {
-        account: hash,
-        alias: props.alias,
-        owner: props.owner || (await Users.Key({ username: props.owner_name })) || undefined,
-        broker: props.broker || (await Brokers.Key({ name: props.broker_name })) || undefined,
-        state: props.state || (props.status ? await States.Key<IAccess>({ status: props.status }) : undefined) || undefined,
-        environment: props.environment || (await Environments.Key({ environ: props.environ })) || undefined,
-        total_equity: 0,
-        isolated_equity: 0,
-        rest_api_url: props.rest_api_url,
-        private_wss_url: props.private_wss_url,
-        public_wss_url: props.public_wss_url,
-      };
-      const result = await Insert<IAccount>(account, { table: `account` });
-      return { key: PrimaryKey({ account: hash }, ["account"]), response: result };
-    }
-    setUserToken({ error: 315, message: `Invalid session credentials.` });
-    return { key: undefined, response: { success: false, code: 315, category: `error`, rows: 0 } };
+  if (exists) {
+    setUserToken({ error: 312, message: `Duplicate account ${props.alias} exists.` });
+    return { key: undefined, response: { success: false, code: 312, state: `error`, rows: 0 } };
   }
-  setUserToken({ error: 312, message: `Duplicate account ${props.alias} exists.` });
-  return { key: undefined, response: { success: false, code: 312, category: `error`, rows: 0 } };
+
+  const hmac = await hashHmac(session);
+
+  if (hmac) {
+    const slot = Math.floor(Math.random() * 82 + 1);
+    const hash = Buffer.from([slot, hmac.charCodeAt(slot), hmac.charCodeAt(slot + 1)]);
+    const account: Partial<IAccount> = {
+      account: hash,
+      alias: props.alias,
+      owner: props.owner || (await Users.Key({ username: props.owner_name })) || undefined,
+      broker: props.broker || (await Brokers.Key({ name: props.broker_name })) || undefined,
+      state: props.state || (props.status ? await States.Key<IAccess>({ status: props.status }) : undefined) || undefined,
+      environment: props.environment || (await Environments.Key({ environ: props.environ })) || undefined,
+      total_equity: 0,
+      isolated_equity: 0,
+      rest_api_url: props.rest_api_url,
+      private_wss_url: props.private_wss_url,
+      public_wss_url: props.public_wss_url,
+    };
+    const result = await Insert<IAccount>(account, { table: `account` });
+    return { key: PrimaryKey({ account: hash }, ["account"]), response: result };
+  }
+  setUserToken({ error: 315, message: `Invalid session credentials.` });
+  return { key: undefined, response: { success: false, code: 315, state: `error`, rows: 0 } };
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Updates the account (master) from the API (select fields) or the UI;                 |
+//+--------------------------------------------------------------------------------------+
+export const Publish = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
+  if (!isEqual(Session().account!, props.account!)) {
+    setUserToken({ error: 315, message: `Unauthorized account publication; invalid session account` }, props);
+    throw new Error(UserToken().message);
+  }
+
+  const account = await Fetch({ account: props.account });
+
+  if (!account) {
+    setUserToken({ error: 315, message: `Unauthorized account publication; invalid session account` }, props);
+    throw new Error(UserToken().message);
+  }
+
+  const [current] = account;
+  const revised: Partial<IAccount> = {
+    account: current.account,
+    total_equity: isEqual(props.total_equity!, current.total_equity!) ? undefined : props.total_equity,
+    isolated_equity: isEqual(props.isolated_equity!, current.isolated_equity!) ? undefined : props.isolated_equity,
+    update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
+  };
+  const result: TResponse = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
+  return { key: PrimaryKey(current, ["account"]), response: result };
+};
+
+//+--------------------------------------------------------------------------------------+
+//| Updates the account (detail) from the API (select fields) or the UI;                 |
+//+--------------------------------------------------------------------------------------+
+export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
+  if (!props.account || !props.currency) {
+    setUserToken({ error: 315, message: `Unauthorized account publication; invalid session account` }, props);
+    throw new Error(UserToken().message);
+  }
+
+  const account = await Fetch({ account: props.account, currency: props.currency });
+
+  if (account) {
+    const [current] = account;
+    const revised: Partial<IAccount> = {
+      account: current.account,
+      currency: current.currency,
+      balance: isEqual(props.balance!, current.balance!) ? undefined : props.balance,
+      currency_equity: isEqual(props.currency_equity!, current.currency_equity!) ? undefined : props.currency_equity,
+      currency_isolated_equity: isEqual(props.currency_isolated_equity!, current.currency_isolated_equity!) ? undefined : props.currency_isolated_equity,
+      available: isEqual(props.available!, current.available!) ? undefined : props.available,
+      available_equity: isEqual(props.available_equity!, current.available_equity!) ? undefined : props.available_equity,
+      equity_usd: isEqual(props.equity_usd!, current.equity_usd!) ? undefined : props.equity_usd,
+      frozen: isEqual(props.frozen!, current.frozen!) ? undefined : props.frozen,
+      order_frozen: isEqual(props.order_frozen!, current.order_frozen!) ? undefined : props.order_frozen,
+      borrow_frozen: isEqual(props.borrow_frozen!, current.borrow_frozen!) ? undefined : props.borrow_frozen,
+      unrealized_pnl: isEqual(props.unrealized_pnl!, current.unrealized_pnl!) ? undefined : props.unrealized_pnl,
+      isolated_unrealized_pnl: isEqual(props.isolated_unrealized_pnl!, current.isolated_unrealized_pnl!) ? undefined : props.isolated_unrealized_pnl,
+      coin_usd_price: isEqual(props.coin_usd_price!, current.coin_usd_price!) ? undefined : props.coin_usd_price,
+      margin_ratio: isEqual(props.margin_ratio!, current.margin_ratio!) ? undefined : props.margin_ratio,
+      spot_available: isEqual(props.spot_available!, current.spot_available!) ? undefined : props.spot_available,
+      liability: isEqual(props.liability!, current.liability!) ? undefined : props.liability,
+      update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
+    };
+
+    const result: TResponse = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
+
+    setUserToken({ error: result.code, message: result.success ? `Account details update applied.` : `Account details update failed.` });
+    return { key: PrimaryKey(current, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
+  }
+
+  const result = await Insert<IAccount>(props, { table: `account_detail` });
+
+  setUserToken({ error: result.code, message: result.success ? `New Account details Imported.` : `Failed to import account details.` });
+  return { key: PrimaryKey(props, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -148,79 +236,4 @@ export const Key = async (props: Partial<ISession>): Promise<IAccount["account"]
 export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAccount>> | undefined> => {
   const result = await Select<IAccount>(props, { table: `vw_accounts` });
   return result.length ? result : undefined;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Updates the account (master) from the API (select fields) or the UI;                 |
-//+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
-  if (isEqual(Session().account!, props.account!)) {
-    const account = await Fetch({ account: props.account });
-
-    if (account) {
-      const [current] = account;
-      const revised: Partial<IAccount> = {
-        account: current.account,
-        total_equity: isEqual(props.total_equity!, current.total_equity!) ? undefined : props.total_equity,
-        isolated_equity: isEqual(props.isolated_equity!, current.isolated_equity!) ? undefined : props.isolated_equity,
-        update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
-      };
-      const result: TResponse = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
-      return { key: PrimaryKey(current, ["account"]), response: result };
-    } else {
-      setUserToken({ error: 315, message: `Invalid session credentials.` });
-      throw new Error(`Unauthorized account publication; invalid session account`);
-    }
-  } else {
-    setUserToken({ error: 315, message: `Invalid session credentials.` });
-    throw new Error(`Unauthorized account publication; invalid session account`);
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Updates the account (detail) from the API (select fields) or the UI;                 |
-//+--------------------------------------------------------------------------------------+
-export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishResult<IAccount>> => {
-  if (props.account && props.currency) {
-    const account = await Fetch({ account: props.account, currency: props.currency });
-
-    if (account) {
-      const [current] = account;
-      const revised: Partial<IAccount> = {
-        account: current.account,
-        currency: current.currency,
-        balance: isEqual(props.balance!, current.balance!) ? undefined : props.balance,
-        currency_equity: isEqual(props.currency_equity!, current.currency_equity!) ? undefined : props.currency_equity,
-        currency_isolated_equity: isEqual(props.currency_isolated_equity!, current.currency_isolated_equity!) ? undefined : props.currency_isolated_equity,
-        available: isEqual(props.available!, current.available!) ? undefined : props.available,
-        available_equity: isEqual(props.available_equity!, current.available_equity!) ? undefined : props.available_equity,
-        equity_usd: isEqual(props.equity_usd!, current.equity_usd!) ? undefined : props.equity_usd,
-        frozen: isEqual(props.frozen!, current.frozen!) ? undefined : props.frozen,
-        order_frozen: isEqual(props.order_frozen!, current.order_frozen!) ? undefined : props.order_frozen,
-        borrow_frozen: isEqual(props.borrow_frozen!, current.borrow_frozen!) ? undefined : props.borrow_frozen,
-        unrealized_pnl: isEqual(props.unrealized_pnl!, current.unrealized_pnl!) ? undefined : props.unrealized_pnl,
-        isolated_unrealized_pnl: isEqual(props.isolated_unrealized_pnl!, current.isolated_unrealized_pnl!) ? undefined : props.isolated_unrealized_pnl,
-        coin_usd_price: isEqual(props.coin_usd_price!, current.coin_usd_price!) ? undefined : props.coin_usd_price,
-        margin_ratio: isEqual(props.margin_ratio!, current.margin_ratio!) ? undefined : props.margin_ratio,
-        spot_available: isEqual(props.spot_available!, current.spot_available!) ? undefined : props.spot_available,
-        liability: isEqual(props.liability!, current.liability!) ? undefined : props.liability,
-        update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
-      };
-      const result: TResponse = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
-
-      setUserToken({ error: result.code, message: result.success ? `Account update detail applied.` : `Account update detail failed.` });
-      return { key: PrimaryKey(current, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
-    } else {
-      const result = await Insert<IAccount>(props, { table: `account_detail` });
-
-      setUserToken({
-        error: result.code,
-        message: result.success ? `New Account Currency details imported.` : `Failed to import new account currency details.`,
-      });
-      return { key: PrimaryKey(props, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
-    }
-  } else {
-    setUserToken({ error: 315, message: `Invalid session credentials.` });
-    throw new Error(`Unauthorized account publication; invalid session account`);
-  }
 };

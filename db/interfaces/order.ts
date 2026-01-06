@@ -7,7 +7,7 @@
 import type { IRequest } from "db/interfaces/request";
 import type { TRefKey } from "db/interfaces/reference";
 
-import { Select, Insert, Update, TOptions } from "db/query.utils";
+import { Select, Insert, Update, TOptions, IPublishResult, PrimaryKey } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
@@ -39,45 +39,48 @@ export interface IOrder extends IRequest {
 //+--------------------------------------------------------------------------------------+
 //| Publish - scrubs blofin api updates, applies keys, and executes merge to local db;   |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IOrder>) => {
-  if (props) {
-    const { order_id } = props;
-    const order = await Select<IOrder>({ order_id }, { table: `orders` });
+export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
+  if (!props) {
+    console.log(">> [Error] Order.Publish: No order properties provided; publishing rejected");
+    return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: `No order properties provided`, rows: 0 } };
+  }
+  const { order_id } = props;
+  const order = await Select<IOrder>({ order_id }, { table: `orders` });
 
-    if (order.length) {
-      const [current] = order;
-      const revised: Partial<IOrder> = {
-        order_id: props.order_id,
-        order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
-        order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
-        cancel_source: isEqual(props.cancel_source!, current.cancel_source!) ? undefined : props.cancel_source,
-        filled_size: isEqual(props.filled_size!, current.filled_size!) ? undefined : props.filled_size,
-        filled_amount: isEqual(props.filled_amount!, current.filled_amount!) ? undefined : props.filled_amount,
-        average_price: isEqual(props.average_price!, current.average_price!) ? undefined : props.average_price,
-        fee: isEqual(props.fee!, current.fee!) ? undefined : props.fee,
-        pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
-      };
+  if (order.length) {
+    const [current] = order;
+    const revised: Partial<IOrder> = {
+      order_id,
+      order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
+      order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
+      cancel_source: isEqual(props.cancel_source!, current.cancel_source!) ? undefined : props.cancel_source,
+      filled_size: isEqual(props.filled_size!, current.filled_size!) ? undefined : props.filled_size,
+      filled_amount: isEqual(props.filled_amount!, current.filled_amount!) ? undefined : props.filled_amount,
+      average_price: isEqual(props.average_price!, current.average_price!) ? undefined : props.average_price,
+      fee: isEqual(props.fee!, current.fee!) ? undefined : props.fee,
+      pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
+    };
 
-      return await Update(revised, { table: `orders`, keys: [{ key: `order_id` }] });
-    } else {
-      const order_category = props.order_category || (await References.Key<TRefKey>({ source_ref: "normal" }, { table: `order_category` }));
-      const order_state = props.order_state || (await References.Key({ source_ref: "accepted" }, { table: `order_state` }));
-      const cancel_source = props.cancel_source || (await References.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` }));
-      const order: Partial<IOrder> = {
-        order_id,
-        client_order_id: props.client_order_id!,
-        order_category,
-        order_state,
-        cancel_source,
-        filled_size: props.filled_size!,
-        filled_amount: props.filled_amount!,
-        average_price: props.average_price!,
-        fee: props.fee!,
-        pnl: props.pnl!,
-      };
-      const result = await Insert<IOrder>(order, { table: `orders` });
-      return result ? result.order_id : undefined;
-    }
+    const result = await Update<IOrder>(revised, { table: `orders`, keys: [{ key: `order_id` }] });
+    return { key: PrimaryKey({order_id}, ["order_id"]), response: result };
+  } else {
+    const order_category = props.order_category || (await References.Key<TRefKey>({ source_ref: "normal" }, { table: `order_category` }));
+    const order_state = props.order_state || (await References.Key({ source_ref: "accepted" }, { table: `order_state` }));
+    const cancel_source = props.cancel_source || (await References.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` }));
+    const order: Partial<IOrder> = {
+      order_id,
+      client_order_id: props.client_order_id!,
+      order_category,
+      order_state,
+      cancel_source,
+      filled_size: props.filled_size!,
+      filled_amount: props.filled_amount!,
+      average_price: props.average_price!,
+      fee: props.fee!,
+      pnl: props.pnl!,
+    };
+    const result = await Insert<IOrder>(order, { table: `orders` });
+    return { key: PrimaryKey({order_id}, ["order_id"]), response: result };
   }
 };
 

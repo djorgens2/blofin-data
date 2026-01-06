@@ -297,7 +297,7 @@ const setImports = async (imports: Array<Partial<ISession>>) => {
 //+--------------------------------------------------------------------------------------+
 export const menuCreateAccount = async () => {
   setHeader("Create Account");
-  const imports = await Accounts.Import();
+  const imports = await Accounts.Available(`New`);
 
   if (imports.length > 0) {
     const { choice } = await Prompt(["choice"], {

@@ -153,13 +153,13 @@ export const View = async () => {
 //+--------------------------------------------------------------------------------------+
 //| Presents the Imports view;                                                           |
 //+--------------------------------------------------------------------------------------+
-const setImports = async (imports: Array<Partial<ISession>>) => {
+const setAvailability = async (accounts: Array<Partial<ISession>>) => {
   let id = 1;
 
-  for (const key of imports) {
+  for (const key of accounts) {
     const { alias, api, secret, phrase, rest_api_url, private_wss_url, public_wss_url } = key;
 
-    console.log(`\n >>> ${green("Imports")}: ${bold(id++)} of ${bold(imports.length)}\n`);
+    console.log(`\n >>> ${green("Imports")}: ${bold(id++)} of ${bold(accounts.length)}\n`);
 
     alias && console.log(`      ${yellow("Alias")}: ${dim(alias)}`);
     api && console.log(`      ${yellow("API Key")}: ${dim(api)}`);
@@ -180,18 +180,18 @@ const setImports = async (imports: Array<Partial<ISession>>) => {
 //+--------------------------------------------------------------------------------------+
 export const menuCreateAccount = async () => {
   setHeader("Create Account");
-  const imports = await Accounts.Import();
+  const accounts = await Accounts.Available('New');
 
-  if (imports.length > 0) {
+  if (accounts.length > 0) {
     const { choice } = await Prompt(["choice"], {
-      message: `  New account${imports.length > 1 ? "s" : ``} detected; configure now?`,
+      message: `  New account${accounts.length > 1 ? "s" : ``} detected; configure now?`,
       active: "Yes",
       inactive: "No",
       initial: true,
     });
 
     if (choice) {
-      await setImports(imports);
+      await setAvailability(accounts);
     } else {
       await Pause("Really?");
     }

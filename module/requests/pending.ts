@@ -5,6 +5,7 @@
 "use strict";
 
 import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse } from "db/query.utils";
 
 import { Session } from "module/session";
 
@@ -12,25 +13,48 @@ import * as Request from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
 
 //-- [Process.Orders] Closes pending orders beyond expiry
-export const Pending = async () => {
-  const verify: Array<Partial<IRequest>> = [];
-  const expired: Array<Partial<IRequest>> = [];
+type Accumulator = { verify: Partial<IRequest>[]; expire: Partial<IRequest>[] };
 
+export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
   const expiry = new Date();
 
-  if (requests) for (const pending of requests) expiry < pending.expiry_time! ? verify.push(pending) : expired.push({ request: pending.request });
+  if (!requests) return [];
 
-  if (verify.length) {
-    const update_time = new Date();
-    const promises = verify.map((request) => Request.Submit({ ...request, update_time }));
-    await Promise.all(promises);
-    console.log(">> [Info] Trades.Pending: Requests pending:", verify.length);
-  }
+  const { verify, expire } = requests.reduce(
+    (acc: Accumulator, request) => {
+      expiry < request.expiry_time! ? acc.verify.push(request) : acc.expire.push(request);
+      return acc;
+    },
+    {
+      verify: [] as Array<Partial<IRequest>>,
+      expire: [] as Array<Partial<IRequest>>,
+    }
+  );
 
-  if (expired.length) {
-    const promises = expired.map(({ request }) => Request.Cancel({ request, memo: `[Expired]: Pending order state changed to Canceled` }));
-    await Promise.all(promises);
-    console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length);
-  }
+  const promises = [
+    ...verify.map(async (request) => {
+      const result = await Request.Submit({ ...request, update_time: expiry });
+      result.response.outcome = "pending";
+      return result;
+    }),
+
+    ...expire.map(async ({ request }) => {
+      const cancels = await Request.Cancel({
+        request,
+        memo: `[Expired]: Pending order changed to Canceled`,
+      });
+
+      return cancels.map((c) => ({
+        ...c,
+        response: {
+          ...c.response,
+          outcome: "expired",
+        } as TResponse,
+      }));
+    }),
+  ];
+
+  const result = await Promise.all(promises);
+  return result.flat();
 };

@@ -4,11 +4,10 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRequest } from "db/interfaces/state";
+import type { TRequestState } from "db/interfaces/state";
 import type { TOptions } from "db/query.utils";
-import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -24,7 +23,7 @@ export interface IReference {
   order_category: Uint8Array;
   source_ref: string;
   status: string;
-  map_ref: TRequest;
+  map_ref: TRequestState;
   [key: string]: unknown;
 }
 
@@ -125,7 +124,7 @@ export const Add = async (table: string, props: { [key: string]: any }) => {
     const result = await Insert<IReference>(props, { table, ignore: true });
     return result;
   }
-}
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns data;   |

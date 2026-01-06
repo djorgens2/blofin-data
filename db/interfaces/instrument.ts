@@ -11,7 +11,7 @@ import type { IPublishResult, TOptions } from "db/query.utils";
 import { Select, Insert, PrimaryKey, Distinct } from "db/query.utils";
 import { splitSymbol } from "lib/app.util";
 import { hashKey } from "lib/crypto.util";
-import { hasValues, isEqual } from "lib/std.util";
+import { hasValues } from "lib/std.util";
 
 import * as Currency from "db/interfaces/currency";
 
@@ -44,23 +44,25 @@ export interface IInstrument {
 //| Publishes new instruments to the database; returns Key                               |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResult<IInstrument>> => {
-  if (props.symbol) {
-    const instrument = await Key({ symbol: props.symbol });
+  if (!props.symbol) {
+    return { key: undefined, response: { success: false, code: 412, state: `null_query`, rows: 0 } };
+  }
 
-    if (instrument) {
-      return { key: PrimaryKey({ instrument }, [`instrument`]), response: { success: true, code: 200, category: `exists`, rows: 0 } };
-    } else {
-      const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
-      const missing: Partial<IInstrument> = {
-        instrument: hashKey(6),
-        base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })).key?.currency,
-        quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })).key?.currency,
-        create_time: new Date(),
-      };
-      const result = await Insert<IInstrument>(missing, { table: `instrument` });
-      return { key: PrimaryKey(missing, [`instrument`]), response: result };
-    }
-  } else return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
+  const instrument = await Key({ symbol: props.symbol });
+
+  if (instrument) {
+    return { key: PrimaryKey({ instrument }, [`instrument`]), response: { success: true, code: 201, state: `exists`, rows: 0 } };
+  }
+
+  const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
+  const missing: Partial<IInstrument> = {
+    instrument: hashKey(6),
+    base_currency: props.base_currency || (await Currency.Publish({ symbol: base_symbol })).key?.currency,
+    quote_currency: props.quote_currency || (await Currency.Publish({ symbol: quote_symbol })).key?.currency,
+    create_time: new Date(),
+  };
+  const result = await Insert<IInstrument>(missing, { table: `instrument` });
+  return { key: PrimaryKey(missing, [`instrument`]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -85,23 +87,25 @@ export const Fetch = async (props: Partial<IInstrument>, options?: TOptions): Pr
 //| Audits instrument records for discrepancies; returns array of corrected instruments; |
 //+--------------------------------------------------------------------------------------+
 export const Suspense = async (props: Array<Partial<IInstrument>>): Promise<Array<IPublishResult<ICurrency>>> => {
-  if (hasValues(props)) {
-    const current = await Distinct<IInstrument>(
-      { symbol: undefined, base_currency: undefined, status: `Suspended` },
-      { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] }
+  if (!hasValues(props)) {
+    return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, rows: 0 } }];
+  }
+  
+  const current = await Distinct<IInstrument>(
+    { symbol: undefined, base_currency: undefined, status: `Suspended` },
+    { table: `vw_instruments`, keys: [{ key: `status`, sign: "<>" }] }
+  );
+  const api = props.filter((p) => p.status === `Enabled`);
+  const suspense = current
+    .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
+    .map((instrument) =>
+      Currency.Publish({
+        currency: instrument.base_currency,
+        status: `Suspended`,
+      })
     );
-    const api = props.filter((p) => p.status === `Enabled`);
-    const suspense = current
-      .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
-      .map((instrument) =>
-        Currency.Publish({
-          currency: instrument.base_currency,
-          status: `Suspended`,
-        })
-      );
 
-    const results = await Promise.all(suspense);
-    console.log(`-> Instrument.Suspense: Found ${suspense.length} instruments to suspend`);
-    return results as Array<IPublishResult<ICurrency>>;
-  } else return [{key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 }}];
+  const results = await Promise.all(suspense);
+  console.log(`-> Instrument.Suspense: Found ${suspense.length} instruments to suspend`);
+  return results as Array<IPublishResult<ICurrency>>;
 };

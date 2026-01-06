@@ -19,39 +19,42 @@ export interface ICurrency {
   state: Uint8Array;
   status: string;
   image_url: string;
-  }
+}
 
 //+--------------------------------------------------------------------------------------+
 //| Adds all new currencies recieved from Blofin to the database; defaults image         |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<ICurrency>) => {
-  if (props && (props.symbol || props.currency)) {
-    const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
-    const state = props.state || await States.Key({ status: props.status ? "Suspended" : "Enabled" });
-
-    if (currency) {
-      const [current] = currency;
-      const result: TResponse = await Update<ICurrency>(
-        {
-          currency: current.currency,
-          state: isEqual(state!, current.state!) ? undefined : state,
-          image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
-        },
-        { table: `currency`, keys: [{ key: `currency` }] }
-      );
-      return { key: PrimaryKey(current, ["currency"]), response: result };
-    }
-    const missing = {
-      currency: hashKey(6),
-      symbol: props.symbol,
-      state: state || (await States.Key({ status: "Enabled" })),
-      image_url: `./public/images/currency/no-image.png`,
-    };
-    const result = await Insert<ICurrency>(missing, { table: `currency` });
-    return { key: PrimaryKey(missing, ["currency"]), response: result };
-  } else {
-    return { key: undefined, response: { success: false, code: 400, category: `null_query`, rows: 0 } };
+export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult<ICurrency>> => {
+  if (!props || !(props.symbol || props.currency)) {
+    return { key: undefined, response: { success: false, code: 411, state: `null_query`, rows: 0 } };
   }
+
+  const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
+  const state = props.state || (await States.Key({ status: props.status ? "Suspended" : "Enabled" }));
+
+  if (currency) {
+    const [current] = currency;
+    const result: TResponse = await Update<ICurrency>(
+      {
+        currency: current.currency,
+        state: isEqual(state!, current.state!) ? undefined : state,
+        image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
+      },
+      { table: `currency`, keys: [{ key: `currency` }] }
+    );
+
+    return { key: PrimaryKey(current, ["currency"]), response: result };
+  }
+
+  const missing = {
+    currency: hashKey(6),
+    symbol: props.symbol,
+    state: state || (await States.Key({ status: "Enabled" })),
+    image_url: `./public/images/currency/no-image.png`,
+  };
+  const result = await Insert<ICurrency>(missing, { table: `currency` });
+
+  return { key: PrimaryKey(missing, ["currency"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+

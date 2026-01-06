@@ -6,7 +6,6 @@
 
 import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { isEqual } from "lib/std.util";
-import { Session } from "module/session";
 
 export interface ICandle {
   instrument: Uint8Array;
@@ -94,7 +93,7 @@ export const Fetch = async (props: Partial<ICandle>, options?: TOptions): Promis
 //+--------------------------------------------------------------------------------------+
 //| Returns a specified limit-set of candles from the high (top) timestamp supplied;     |
 //+--------------------------------------------------------------------------------------+
-export const Batch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
+export const History = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
   const { limit, ...columns } = props;
   const suffix = `ORDER BY timestamp DESC LIMIT ${limit || 1}`;
   const keys = props.timestamp ? [{ key: `timestamp`, eval: `<=` }] : [];

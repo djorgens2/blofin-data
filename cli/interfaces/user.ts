@@ -5,7 +5,7 @@
 "use server";
 "use strict";
 
-import Prompt, { IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "cli/modules/Prompts";
 import type { IUser } from "db/interfaces/user";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
@@ -13,10 +13,11 @@ import { Answers } from "prompts";
 
 import { setState } from "cli/modules/State";
 import { setHeader } from "cli/modules/Header";
+import { getLengths } from "lib/std.util";
+import { Session } from "module/session";
 
 import * as Users from "db/interfaces/user";
 import * as Roles from "db/interfaces/role";
-import { getLengths } from "lib/std.util";
 
 interface IUserToken {
   username: string;
@@ -34,8 +35,9 @@ export const UserToken = () => {
 //+--------------------------------------------------------------------------------------+
 //| Sets logged user token values;                                                       |
 //+--------------------------------------------------------------------------------------+
-export const setUserToken = (token: Partial<IUserToken>) => {
+export const setUserToken = (token: Partial<IUserToken>, details?: any) => {
   Object.assign(userToken, { ...token });
+  details && console.error(token.message, details, Session());
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -170,7 +172,7 @@ export const setPassword = async <T extends Answers<string>>(props: T) => {
 //+--------------------------------------------------------------------------------------+
 export const menuViewUser = async () => {
   setHeader("View Users");
-  
+
   const users = await Users.Fetch({});
   const keylen = await getLengths<IUser>(
     {

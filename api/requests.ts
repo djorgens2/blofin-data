@@ -4,18 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRequest, IRequestState } from "db/interfaces/state";
+import type { IPublishResult, TOutcome, TResponse } from "db/query.utils";
+import type { TRequestState, IRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 
-import { Session, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { Update } from "db/query.utils";
+import { PrimaryKey, Update } from "db/query.utils";
+import { API_POST } from "api/api.util";
 
 import * as States from "db/interfaces/state";
 
 export interface IRequestAPI {
   account: Uint8Array;
-  status?: TRequest;
+  status?: States.TRequestState;
   orderId?: string;
   instId: string;
   marginMode: "cross" | "isolated";
@@ -38,151 +39,112 @@ export interface IRequestAPI {
   expiry_time?: Date;
 }
 
-type TData = {
+type TResponseAPI = {
   orderId: string;
   clientOrderId: string;
   msg: string;
   code: string;
 };
 
-type TResponse = {
-  code: string;
-  msg: string;
-  data: Array<TData>;
-};
+type TRequestResponse = Partial<IRequest> & TResponse;
 
-type Accumulator = { accepted: Partial<IRequest>[]; rejected: Partial<IRequest>[] };
+interface PublishConfig {
+  context: string;
+  states: { success: TRequestState; fail: TRequestState };
+  outcomes: { success: TOutcome; fail: TOutcome };
+  messages: { success: string; fail: string };
+}
 
-//+--------------------------------------------------------------------------------------+
-//| Handles responses received from WSS/API or POST calls;                               |
-//+--------------------------------------------------------------------------------------+
-const handleResponse = async (response: TResponse, props: { success: TRequest; fail: TRequest }) => {
-  if (Array.isArray(response.data)) {
-    const success = await States.Key<IRequestState>({ status: props.success });
-    const fail = await States.Key<IRequestState>({ status: props.fail });
-    const responses = response.data;
-
-    const { accepted, rejected } = responses.reduce(
-      (acc: Accumulator, order) => {
-        const ifSuccess = parseInt(order.code) || 0;
-        const request = {
-          request: hexify(order.clientOrderId!, 6) || hexify(parseInt(order.orderId!), 6),
-          order_id: hexify(parseInt(order.orderId!), 6),
-          state: ifSuccess ? success : fail,
-          memo: ifSuccess
-            ? `[Info] Response.Request: Order ${props.success === "Pending" ? `submitted` : `canceled`} successfully`
-            : `[Error] Response.Request: ${props.fail === "Rejected" ? `Order` : `Cancellation`} failed with code [${response.code}]: ${response.msg}`,
-          update_time: new Date(),
-        };
-
-        ifSuccess ? acc.accepted.push(request) : acc.rejected.push(request);
-        return acc;
-      },
-      { accepted: [] as IRequest[], rejected: [] as IRequest[] }
-    );
-
-    const results = await Promise.all([
-      Promise.all(accepted.map((a) => Update<IRequest>(a, { table: `request`, keys: [{ key: `request` }] }))),
-      Promise.all(rejected.map((r) => Update<IRequest>(r, { table: `request`, keys: [{ key: `request` }] }))),
-    ]);
-
-    return {
-      total: response.data.length,
-      accepted,
-      rejected,
-      updated: results.filter((r) => r),
-      errors: results.filter((r) => !r),
-    };
-  } else {
-    console.log(
-      `-> [Error] Response.Request: Request not processed; error returned:`,
-      response.code || -1,
-      `${response ? `response: `.concat(response.msg) : ``}`
-    );
-    return {
-      total: 0,
-      accepted: [] as Partial<IRequest>[],
-      rejected: [] as Partial<IRequest>[],
-      updated: [] as Partial<IRequest>[],
-      errors: [] as Partial<IRequest>[],
-    };
+/**
+ * Process the api result returned after a POST call
+ */
+const processResults = async (response: TResponseAPI, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
+  if (!Array.isArray(response) || !response.length) {
+    console.error(`-> [Error] ${config.context}: Invalid response format`, response);
+    return [];
   }
+
+  // 1. Fetch States in parallel
+  const [success, fail] = await Promise.all([
+    States.Key<IRequestState>({ status: config.states.success }),
+    States.Key<IRequestState>({ status: config.states.fail }),
+  ]);
+
+  // 2. Map and Categorize (Reduce)
+  const items = response.map((item) => {
+    const apiSuccess = (item.code || "0") === "0";
+    return {
+      apiSuccess,
+      data: {
+        request: hexify(item.clientOrderId!, 6) || hexify(parseInt(item.orderId!), 6),
+        order_id: hexify(parseInt(item.orderId!), 6),
+        state: apiSuccess ? success : fail,
+        memo: apiSuccess ? config.messages.success : `${config.messages.fail} [${item.code}]: ${item.msg}`,
+        update_time: new Date(),
+        code: parseInt(item.code) || 0,
+        message: item.msg,
+      } as TRequestResponse,
+    };
+  });
+
+  // 3. Database Updates and Result Formatting
+  return Promise.all(
+    items.map(async ({ apiSuccess, data }) => {
+      const { code, message, ...updates } = data;
+      const dbResult = await Update<IRequest>(updates, {
+        table: `request`,
+        keys: [{ key: `request` }],
+      });
+
+      return {
+        key: PrimaryKey(data, ["order_id", "request"]),
+        response: {
+          ...dbResult,
+          context: config.context,
+          outcome: apiSuccess ? config.outcomes.success : config.outcomes.fail,
+          message: apiSuccess ? data.memo : dbResult.success ? message : data.memo,
+          code: apiSuccess ? 0 : dbResult.success ? code || 0 : data.code || 0,
+        },
+      };
+    })
+  );
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Cancel - closes pending orders by batch;                                             |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Cancels open orders through the API
+ */
 export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
-  if (requests.length > 0) {
-    console.log(`-> Cancel [API]`);
+  if (requests.length === 0) return [];
 
-    const method = "POST";
-    const path = "/api/v1/trade/cancel-batch-orders";
-    const body = JSON.stringify(requests.map(({ instId, orderId }) => ({ instId, orderId })));
-    const { api, phrase, rest_api_url } = Session();
-    const { sign, timestamp, nonce } = await signRequest(method, path, body);
-    const headers = {
-      "ACCESS-KEY": api!,
-      "ACCESS-SIGN": sign!,
-      "ACCESS-TIMESTAMP": timestamp!,
-      "ACCESS-NONCE": nonce!,
-      "ACCESS-PASSPHRASE": phrase!,
-      "Content-Type": "application/json",
-    };
+  const data = requests.map(({ instId, orderId }) => ({ instId, orderId }));
+  const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", data, "Request.Cancel");
 
-    try {
-      const response = await fetch(rest_api_url!.concat(path), {
-        method,
-        headers,
-        body,
-      });
-      if (response.ok) {
-        const json = await response.json();
-        return await handleResponse(json, { success: "Closed", fail: "Canceled" });
-      } else throw new Error(`Order.Cancel: Response not ok: ${response.status} ${response.statusText}`);
-    } catch (error) {
-      console.log(">> [Error] Order.Cancel:", error, method, headers, body);
-      return undefined;
-    }
-  } else return undefined;
+  return await processResults(result, {
+    context: "Request.Publish.Cancel",
+    states: { success: "Closed", fail: "Canceled" },
+    outcomes: { success: "closed", fail: "error" },
+    messages: {
+      success: "[Info] Order canceled successfully",
+      fail: "[Error] Order Cancellation failed",
+    },
+  });
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Submits supplied requests to broker API;                                             |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Submits new requests through the API
+ */
 export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
-  if (requests.length > 0) {
-    console.log("In Requests.Submit [API]");
+  if (requests.length === 0) return [];
 
-    const method = "POST";
-    const path = "/api/v1/trade/batch-orders";
-    const body = JSON.stringify(requests);
-    const { api, phrase, rest_api_url } = Session();
-    const { sign, timestamp, nonce } = await signRequest(method, path, body);
+  const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
 
-    const headers = {
-      "ACCESS-KEY": api!,
-      "ACCESS-SIGN": sign!,
-      "ACCESS-TIMESTAMP": timestamp!,
-      "ACCESS-NONCE": nonce!,
-      "ACCESS-PASSPHRASE": phrase!,
-      "Content-Type": "application/json",
-    };
-
-    try {
-      const response = await fetch(rest_api_url!.concat(path), {
-        method,
-        headers,
-        body,
-      });
-
-      if (response.ok) {
-        const json = await response.json();
-        return await handleResponse(json, { success: "Pending", fail: "Rejected" });
-      } else throw new Error(`Order.Submit: Response not ok: ${response.status} ${response.statusText}`);
-    } catch (error) {
-      console.log(">> [Error] Order.Submit:", error, method, headers, body);
-      return undefined;
-    }
-  } else undefined;
+  return await processResults(result, {
+    context: "Request.Publish.Submit",
+    states: { success: "Pending", fail: "Rejected" },
+    outcomes: { success: "pending", fail: "rejected" },
+    messages: {
+      success: "[Info] Order submitted successfully",
+      fail: "[Error] Order submission failed",
+    },
+  });
 };

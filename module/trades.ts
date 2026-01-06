@@ -29,8 +29,8 @@ const processOrders = async () => {
 //+--------------------------------------------------------------------------------------+
 const processStops = async () => {
   await Stops.Rejected();
-  await Stops.Canceled();
   await Stops.Pending();
+  await Stops.Canceled();
   await Stops.Hold();
   const queue = await Stops.Queued();
   Stops.Report(queue);
@@ -44,7 +44,7 @@ const processStops = async () => {
 export const Trades = async () => {
   console.log("In Execute.Trades:", new Date().toLocaleString());
 
-  await Promise.all([PositionsAPI.Import(), OrderAPI.Import(), StopsAPI.Import()]);
+  await Promise.all([OrderAPI.Import(), PositionsAPI.Import(), StopsAPI.Import()]);
 
   await processOrders();
   await processStops();

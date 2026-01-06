@@ -6,9 +6,10 @@
 
 import type { IOrder } from "db/interfaces/order";
 import type { TRefKey } from "db/interfaces/reference";
-import type { IRequestState, TRequest } from "db/interfaces/state";
+import type { IRequestState, TRequestState } from "db/interfaces/state";
+import type { IPublishResult } from "db/query.utils";
 
-import { Insert, Update } from "db/query.utils";
+import { Insert, PrimaryKey, Update } from "db/query.utils";
 import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
@@ -26,9 +27,9 @@ export interface IRequest {
   instrument: Uint8Array;
   symbol: string;
   state: Uint8Array;
-  status: TRequest;
+  status: TRequestState;
   request_state: Uint8Array;
-  request_status: TRequest;
+  request_status: TRequestState;
   margin_mode: "cross" | "isolated";
   position: "short" | "long" | "net";
   action: "buy" | "sell";
@@ -51,14 +52,14 @@ export interface IRequest {
 //+--------------------------------------------------------------------------------------+
 //| Applies updates to request on select columns;                                        |
 //+--------------------------------------------------------------------------------------+
-const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  if (hasValues<Partial<IRequest>>(current)) {
-    if (hasValues<Partial<IRequest>>(props)) {
+const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
+  if (hasValues<Partial<IOrder>>(current)) {
+    if (hasValues<Partial<IOrder>>(props)) {
       const update_time = props.update_time || new Date();
       const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
 
       if (update_time > current.update_time!) {
-        const revised: Partial<IRequest> = {
+        const revised: Partial<IOrder> = {
           request: current.request,
           order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
           action: props.action === current.action ? undefined : props.action,
@@ -70,12 +71,12 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
           broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
         };
 
-        const [result, updates] = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
+        const result = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
 
-        if (updates || !isEqual(props.expiry_time!, current.expiry_time!)) {
-          const state = updates && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const memo = updates ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
-          const [result] = await Update(
+        if (result.success || !isEqual(props.expiry_time!, current.expiry_time!)) {
+          const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
+          const memo = result.success ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
+          const revised = await Update(
             {
               request: current.request,
               state,
@@ -86,14 +87,25 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
             { table: `request`, keys: [{ key: `request` }] }
           );
 
-          return result ? result.request : undefined;
-        } else return undefined;
-      } else return undefined;
-    } else {
-      console.log("[Error] Request.Publish: No properties to update");
-      return undefined;
+          return { key: PrimaryKey(current, [`request`]), response: revised };
+        }
+      }
+      return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 200, state: `exists`, message: `Request unchanged`, rows: 0 } };
     }
-  } else {
+    console.log(">> [Error] Request.Publish: No update properties provided; request unchanged");
+    return {
+      key: PrimaryKey(current, [`request`]),
+      response: {
+        success: false,
+        code: 400,
+        state: `null_query`,
+        message: "[Error] Request: No update properties provided; request unchanged",
+        rows: 0,
+      },
+    };
+  }
+
+  if (hasValues<Partial<IRequest>>(props)) {
     const process_time = new Date();
     const queued = await States.Key<IRequestState>({ status: "Queued" });
     const request_type = await References.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
@@ -116,8 +128,9 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
       update_time: props.update_time || process_time,
     };
     const result = await Insert<IRequest>(request, { table: `request` });
-    return result ? result.request : undefined;
+    return { key: PrimaryKey(request, [`request`]), response: result };
   }
+  return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Publish: Nothing to publish", rows: 0 } };
 };
 
 //-- Public functions
@@ -125,91 +138,99 @@ const publish = async (current: Partial<IRequest>, props: Partial<IRequest>): Pr
 //+--------------------------------------------------------------------------------------+
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
-export const Cancel = async (props: Partial<IOrder>): Promise<Array<IRequest["request"]>> => {
+export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResult<IRequest>>> => {
   const orders = await Orders.Fetch(props.request ? { request: props.request } : props);
 
-  if (orders) {
-    const canceled = await States.Key<IRequestState>({ status: "Canceled" });
-    const closed = await States.Key<IRequestState>({ status: "Closed" });
-    const cancels: Array<IRequest["request"]> = [];
+  if (!orders) {
+    console.log("[Error]: Unauthorized cancellation attempt");
+    return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Cancel: Nothing to cancel", rows: 0 } }];
+  }
 
-    for (const order of orders) {
+  const [canceled, closed] = await Promise.all([States.Key<IRequestState>({ status: "Canceled" }), States.Key<IRequestState>({ status: "Closed" })]);
+
+  const cancels = await Promise.all(
+    orders.map(async (order) => {
+      const state = isEqual(order.state!, canceled!) ? closed : canceled;
       const result = await publish(order, {
-        ...props,
-        state: isEqual(props.state!, canceled!) ? closed : canceled,
+        ...order,
+        state,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
       });
-      result && cancels.push(result);
-    }
-    return cancels;
-  } else {
-    console.error("[Error]: Unauthorized cancellation attempt");
-    return [];
-  }
+      return result;
+    })
+  );
+  return cancels;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Verify/Configure order requests locally prior to posting request to broker;          |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (props: Partial<IRequest>): Promise<IRequest["request"] | undefined> => {
-  if (hasValues(props)) {
-    const query = props.instrument_position
-      ? { instrument_position: props.instrument_position }
-      : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
-    const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
-    const { instrument_position, auto_status, leverage, margin_mode, open_request } = result;
-
-    if (instrument_position) {
-      const query = props.request
-        ? { request: props.request }
-        : ({ instrument_position, status: open_request ? "Pending" : "Queued" } satisfies Partial<IRequest>);
-      const [current] = (await Orders.Fetch(query, { suffix: `ORDER BY update_time DESC LIMIT 1` })) ?? [{ request: undefined }];
-
-      if (current.request) {
-        props.update_time === undefined && Object.assign(props, { update_time: Date() });
-
-        if (props.update_time! > current.update_time!) {
-          if (auto_status === "Enabled") {
-            const promise = Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` }) ?? [{}];
-            const queue = await promise;
-            if (queue) {
-              const cancels = queue.filter(({ request }) => !isEqual(request!, current.request!));
-              const promises = cancels.map(({ request }) =>
-                Cancel({ request, memo: `[Warning] Request.Submit: New request on open instrument/position auto-cancels existing` })
-              );
-              await Promise.all(promises);
-              props.status = current.status === "Pending" ? "Hold" : current.status;
-            }
-          }
-
-          if (props.status === "Hold") {
-            const result = await publish(current, {
-              ...props,
-              memo: props.memo || `[Info] Request.Submit: Request updated; was put on hold; awaiting cancel for resubmit`,
-            });
-            return result ? result : undefined;
-          } else {
-            await publish(current, { ...props, memo: props.memo || `[Info] Request.Submit: Request exists; updated locally` });
-            return current.request;
-          }
-        } else return current.request;
-      } else {
-        // Handle new request submission
-        const result = await publish(
-          {},
-          {
-            ...props,
-            instrument_position,
-            leverage: props.leverage || leverage,
-            margin_mode: props.margin_mode || margin_mode,
-            memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
-          }
-        );
-        return result ? result : undefined;
-      }
-    } else {
-      console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
-      return undefined;
-    }
+export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<IRequest>> => {
+  if (!hasValues(props)) {
+    console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
+    return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: `No request properties provided`, rows: 0 } };
   }
+
+  const query = props.instrument_position
+    ? { instrument_position: props.instrument_position }
+    : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
+  const exists = await InstrumentPosition.Fetch(query);
+
+  if (!exists) {
+    console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
+    return { key: undefined, response: { success: false, code: 404, state: `error`, message: `Instrument position not found`, rows: 0 } };
+  }
+
+  const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
+  const search = props.request
+    ? { request: props.request }
+    : ({ instrument_position, status: open_request ? "Pending" : "Queued" } satisfies Partial<IRequest>);
+  const found = await Orders.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
+
+  // Handle new request submission
+  if (!found) {
+    return await publish(
+      {},
+      {
+        ...props,
+        instrument_position,
+        leverage: props.leverage || leverage,
+        margin_mode: props.margin_mode || margin_mode,
+        memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
+      }
+    );
+  }
+
+  const [current] = found;
+  props.update_time === undefined && Object.assign(props, { update_time: Date() });
+
+  if (props.update_time! > current.update_time!) {
+    if (auto_status === "Enabled") {
+      const queue = await Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
+
+      if (queue) {
+        await Promise.all(
+          queue
+            .filter(({ request }) => !isEqual(request!, current.request!))
+            .map(async ({ request }) => {
+              Cancel({ request, memo: `[Warning] Request.Submit: New request on open instrument/position auto-cancels existing` });
+            })
+        );
+      }
+      props.status = current.status === "Pending" ? "Hold" : current.status;
+    }
+
+    if (props.status === "Hold") {
+      return await publish(current, {
+        ...props,
+        memo: props.memo || `[Info] Request.Submit: Request updated; was put on hold; awaiting cancel for resubmit`,
+      });
+    }
+    return await publish(current, { ...props, memo: props.memo || `[Info] Request.Submit: Request exists; updated locally` });
+  }
+
+  return {
+    key: undefined,
+    response: { success: true, code: 201, state: `exists`, message: `-> [Info] Request.Submit: Queued request verified`, rows: 0 },
+  };
 };

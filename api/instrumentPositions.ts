@@ -100,7 +100,7 @@ export const Import = async () => {
     const batches = createBatches(instruments, Session().leverage_max_fetch);
     const merged = batches.map(async (batch) => {
       const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
-      const leverages = ((await LeverageAPI.Fetch([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
+      const leverages = ((await LeverageAPI.Import([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
       return merge(batch, leverages);
     });
 

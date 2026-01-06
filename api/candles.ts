@@ -93,7 +93,7 @@ const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
       };
     });
 
-    const dbBatch = (await Candle.Batch({ ...props, timestamp: candles[0].timestamp, limit: Session().candle_max_fetch })) ?? [];
+    const dbBatch = (await Candle.History({ ...props, timestamp: candles[0].timestamp, limit: Session().candle_max_fetch })) ?? [];
     const dbCandleMap = new Map<number, Partial<ICandle>>();
 
     dbBatch.forEach((c) => dbCandleMap.set(c.timestamp!, c));

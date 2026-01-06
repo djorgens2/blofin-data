@@ -5,27 +5,23 @@
 "use strict";
 
 import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult } from "db/query.utils";
 
 import * as Request from "db/interfaces/request";
 
 //-- [Process.Orders] Expires requests beyond expiry
-export const Expired = async (expired: Array<Partial<IRequest>>) => {
-  if (expired.length) {
-    const accepted = [];
-    const rejected = [];
+export const Expired = async (expired: Array<Partial<IRequest>>): Promise<Array<IPublishResult<IRequest>>> => {
+  if (!expired.length) return [];
 
-    for (const request of expired) {
-      const result = await Request.Submit({
+  const result = Promise.all(
+    expired.map((request) =>
+      Request.Submit({
         ...request,
         status: "Expired",
         update_time: new Date(),
         memo: request.memo || `[Expired]: Request expired beyond set expiry time`,
-      });
-      result ? accepted.push(result) : rejected.push(result);
-    }
-
-    console.log("-> Pending expired requests:", expired.length);
-    accepted.length && console.log("   # [Info] Expired requests accepted:", accepted.length);
-    rejected.length && console.log("   # [Error] Expired requests rejected:", rejected.length);
-  }
+      })
+    )
+  );
+  return result;
 };

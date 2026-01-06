@@ -26,7 +26,7 @@ export interface IRoleAuthority {
 
 //+--------------------------------------------------------------------------------------+
 //| Imports all role access privileges with the supplied state; ** Admin Use Only;       |
-//| -- cartesian prod to create all *missing* role authorities; set initial state;       |
+//| -- cartesian view to create all *missing* role authorities; set initial state;       |
 //+--------------------------------------------------------------------------------------+
 export const Import = async (props: { status: TAccess }) => {
   const role_authority = await Select<IRoleAuthority>({}, { table: `vw_audit_role_authority` });
@@ -54,7 +54,7 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse
       state: await State.Key<IAccess>({ status: "Disabled" }),
     };
     return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-  } else return { success: false, code: 400, category: `null_query`, rows: 0 };
+  } else return { success: false, code: 400, state: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -71,7 +71,7 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse>
       state: await State.Key<IAccess>({ status: "Enabled" }),
     };
     return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-  } else return { success: false, code: 400, category: `null_query`, rows: 0 };
+  } else return { success: false, code: 400, state: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+
