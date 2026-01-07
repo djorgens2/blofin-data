@@ -2270,17 +2270,17 @@ import { parse } from "path";
 // run();
 
 //---------------------------------- ipos publish + summary test ----------------------------------------//
-import * as Activity from "db/interfaces/activity";
-import * as Authority from "db/interfaces/authority";
-import * as Broker from "db/interfaces/broker";
-import * as Environment from "db/interfaces/environment";
-import * as Period from "db/interfaces/period";
-import * as References from "db/interfaces/reference";
-import * as Role from "db/interfaces/role";
-import * as RoleAuthority from "db/interfaces/role_authority";
-import * as State from "db/interfaces/state";
-import * as SubjectArea from "db/interfaces/subject_area";
-import * as Positions from "api/positions";
+// import * as Activity from "db/interfaces/activity";
+// import * as Authority from "db/interfaces/authority";
+// import * as Broker from "db/interfaces/broker";
+// import * as Environment from "db/interfaces/environment";
+// import * as Period from "db/interfaces/period";
+// import * as References from "db/interfaces/reference";
+// import * as Role from "db/interfaces/role";
+// import * as RoleAuthority from "db/interfaces/role_authority";
+// import * as State from "db/interfaces/state";
+// import * as SubjectArea from "db/interfaces/subject_area";
+// import * as Positions from "api/positions";
 // import type { ICurrency } from "db/interfaces/currency";
 // import type { IInstrument } from "db/interfaces/instrument";
 
@@ -2288,29 +2288,29 @@ import * as Positions from "api/positions";
 // import * as InstrumentType from "db/interfaces/instrument_type";
 // import * as Instruments from "api/instruments";
 
-const args = process.argv.slice(2); // get account id
+// const args = process.argv.slice(2); // get account id
 
-const run = async () => {
-  await config({ account: hexify(args[0]) });
+// const run = async () => {
+//   await config({ account: hexify(args[0]) });
 
-  console.log("Session Configured for Account:", Session().account);
+//   console.log("Session Configured for Account:", Session().account);
 
-  //-- import positions --//
-  const results = await Positions.Import();
-  console.log("Import Results:", results);
+//   //-- import positions --//
+//   const results = await Positions.Import();
+//   console.log("Import Results:", results);
 
-  //-- import Seed Data --//
-  //const seed = await Promise.all([
-    await Activity.Import();
-    await Authority.Import();
-    await Broker.Import();
-    await Environment.Import();
-    await Period.Import();
-    await Role.Import();
-    await RoleAuthority.Import({status:`Enabled`});
-    await State.Import();
-    await SubjectArea.Import();
-    await References.Import();
+//   //-- import Seed Data --//
+//   //const seed = await Promise.all([
+//     await Activity.Import();
+//     await Authority.Import();
+//     await Broker.Import();
+//     await Environment.Import();
+//     await Period.Import();
+//     await Role.Import();
+//     await RoleAuthority.Import({status:`Enabled`});
+//     await State.Import();
+//     await SubjectArea.Import();
+//     await References.Import();
   //]);
 
   //const results = await InstrumentPositions.Import();
@@ -2329,10 +2329,10 @@ const run = async () => {
   //       ? result.key?.instrument_type
   //       : props.instrument_type;
   //   console.log("Instrument Publish Result:", instrument_type);
-  process.exit(0);
-};
+//   process.exit(0);
+// };
 
-run();
+// run();
 
 //---------------------------------- on one preprocessor (etl before the call) ----------------------------------------//
 // export interface IKeyTest {
@@ -2361,3 +2361,15 @@ run();
 // const check: CompositeKey<IKeyTest> = { instrument: hexify("0009802E", 4)!, detailid: hexify("0009802E", 4)! };
 // const check2: CompositeKey<IKeyTest> = ipos;
 // console.log(check2, compositeKey(check2, CPK_KEYS));
+
+//-------------------------------- candles History Import ---------------------------------------//
+//import { History } from "api/candles";
+import type { ICandle } from "db/interfaces/candle";
+import * as Candles from "db/interfaces/candle";
+
+const getHistory = async (props: Partial<ICandle>) => {
+  const history = await Candles.History(props)
+}
+
+getHistory({symbol: 'XRP-USDT'});
+

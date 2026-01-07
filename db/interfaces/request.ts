@@ -73,9 +73,9 @@ const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promis
 
         const result = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
 
-        if (result.success || !isEqual(props.expiry_time!, current.expiry_time!)) {
+        if (result.success || !isEqual(props.expiry_time! || current.expiry_time, current.expiry_time!)) {
           const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const memo = result.success ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
+          const memo = !result.success ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
           const revised = await Update(
             {
               request: current.request,
@@ -155,6 +155,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
         ...order,
         state,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
+        update_time: new Date(),
       });
       return result;
     })

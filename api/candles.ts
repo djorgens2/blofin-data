@@ -217,8 +217,7 @@ export const Import = async (message: IMessage, props: ILoaderProps) => {
             props.startTime = Math.min(...api.map((c) => parseInt(c.ts)));
 
             if (published.updates.length) {
-              const promises = published.updates.map((update) => Candle.Publish(update));
-              await Promise.all(promises);
+              await Promise.allSettled(published.updates.map((update) => Candle.Publish(update)));
               receipt.db.update += published.updates.length;
             }
             if (published.inserts.length) {

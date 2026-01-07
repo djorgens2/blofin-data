@@ -15,23 +15,26 @@
     'update_time'
   ],
   args: [
-    <Buffer 92 ac e0 92 71 9f>,
+    <Buffer 19 21 2b 97 67 fb>,
     <Buffer ed da 99 9d fb 4e>,
     'sell',
     <Buffer 62 57 cb>,
     2.95,
     100,
-    15,
+    40,
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/o expiry; w/o tpsl',
-    2025-12-15T11:27:30.867Z,
-    2025-12-15T19:27:30.868Z,
-    2025-12-15T11:27:30.867Z
+    2026-01-06T20:26:16.948Z,
+    2026-01-07T04:26:16.950Z,
+    2026-01-06T20:26:16.948Z
   ]
 }
 {
-  submitted: <Buffer 92 ac e0 92 71 9f>,
+  submitted: {
+    key: { request: <Buffer 19 21 2b 97 67 fb> },
+    response: { success: true, code: 0, state: 'inserted', rows: 1 }
+  },
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -41,53 +44,8 @@
     size: 100
   }
 }
-Test 2a: Request submitted, check db for results. <Buffer 92 ac e0 92 71 9f>
-Fetched order from DB: [
-  {
-    request: <Buffer 92 ac e0 92 71 9f>,
-    order_id: null,
-    account: <Buffer 24 59 7a>,
-    instrument: <Buffer a2 80 0a>,
-    instrument_position: <Buffer ed da 99 9d fb 4e>,
-    symbol: 'XRP-USDT',
-    base_currency: <Buffer 20 e0 67>,
-    base_symbol: 'XRP',
-    quote_currency: <Buffer b5 2b c7>,
-    quote_symbol: 'USDT',
-    state: <Buffer 62 57 cb>,
-    status: 'Queued',
-    request_state: <Buffer 62 57 cb>,
-    request_status: 'Queued',
-    order_state: null,
-    order_status: null,
-    position: 'short',
-    action: 'sell',
-    request_type: <Buffer b8 32 96>,
-    order_type: 'limit',
-    margin_mode: 'cross',
-    price: 2.95,
-    size: 100,
-    leverage: 15,
-    filled_size: null,
-    filled_amount: null,
-    average_price: null,
-    fee: null,
-    pnl: null,
-    digits: 4,
-    order_category: null,
-    category: null,
-    cancel_source: null,
-    canceled_by: null,
-    contract_type: <Buffer 9b 1a cc>,
-    instrument_type: <Buffer e1 a1 fa>,
-    reduce_only: 1,
-    broker_id: null,
-    trade_period: <Buffer 03 e8 0e>,
-    trade_timeframe: '15m',
-    timeframe_units: 15,
-    memo: 'Test 2a: request w/o expiry; w/o tpsl',
-    create_time: 2025-12-15T11:27:30.867Z,
-    expiry_time: 2025-12-15T19:27:30.868Z,
-    update_time: 2025-12-15T11:27:30.867Z
-  }
-]
+Test 2a: Request submitted, check db for results. {
+  key: { request: <Buffer 19 21 2b 97 67 fb> },
+  response: { success: true, code: 0, state: 'inserted', rows: 1 }
+}
+Fetched order from DB: undefined

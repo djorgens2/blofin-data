@@ -17,7 +17,7 @@ const cancel = async () => {
       process.exit(1);
     }
 
-    const [cancel] = cancels!;
+    const [cancel] = cancels;
     const canceled = await Requests.Cancel({ request: cancel.request, account: cancel.account, memo: "Test 3a: Success! Canceled pending request locally." });
     return canceled;
   } else {
@@ -31,7 +31,8 @@ if (args.length) {
   cancel()
     .then((canceled) => {
       if (canceled.length) {
-        console.log("[Info] Test 3a: Request canceled, check db for results.");
+        const [result] = canceled;
+        console.log(result.response.success ? "[Info] Test 3a: Request canceled, check db for results." : "[Error] Test 3a: Something choked up; check db/log");
         for (const request of canceled)
           console.log({
             account: Session().account,

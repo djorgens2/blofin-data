@@ -44,8 +44,8 @@ const processStops = async () => {
 export const Trades = async () => {
   console.log("In Execute.Trades:", new Date().toLocaleString());
 
-  await Promise.all([OrderAPI.Import(), PositionsAPI.Import(), StopsAPI.Import()]);
+  await Promise.all([OrderAPI.Import(), PositionsAPI.Import(), /*StopsAPI.Import()*/]);
 
   await processOrders();
-  await processStops();
+//  await processStops();
 };
