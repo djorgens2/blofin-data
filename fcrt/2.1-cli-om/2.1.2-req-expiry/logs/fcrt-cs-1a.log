@@ -6,8 +6,8 @@
   default_sma: 60,
   default_leverage: 10,
   alias: 'Blofin Demo',
-  api: '6e03ab69bdd646c1afbc92bc3725edaa',
-  secret: '66b55bde5057499bb8dd078f60d79cce',
+  api: '740ca668a6d34933b9534d805e18adc1',
+  secret: '732f894dd0f6476083dd7bd11bf04198',
   phrase: 'development_api_key',
   rest_api_url: 'https://demo-trading-openapi.blofin.com',
   private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
@@ -36,23 +36,26 @@
     'update_time'
   ],
   args: [
-    <Buffer c1 3c 2b 66 c2 0d>,
+    <Buffer 41 6a 06 10 e1 15>,
     <Buffer ed da 99 9d fb 4e>,
     'sell',
     <Buffer 62 57 cb>,
     2.85,
     100,
-    15,
+    40,
     <Buffer b8 32 96>,
     'cross',
     'Test 1a: request w/ expiry; w/o tpsl',
-    2025-12-15T13:07:16.953Z,
-    2025-12-15T13:12:16.922Z,
-    2025-12-15T13:07:16.953Z
+    2026-01-07T20:23:29.188Z,
+    2026-01-07T20:25:29.153Z,
+    2026-01-07T20:23:29.188Z
   ]
 }
 {
-  submitted: <Buffer c1 3c 2b 66 c2 0d>,
+  submitted: {
+    key: { request: <Buffer 41 6a 06 10 e1 15> },
+    response: { success: true, code: 0, state: 'inserted', rows: 1 }
+  },
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
@@ -60,14 +63,17 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2025-12-15T13:12:16.922Z,
+    expiry_time: 2026-01-07T20:25:29.153Z,
     memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }
-Test 1a: Request submitted, check db for results. <Buffer c1 3c 2b 66 c2 0d>
+Test 1a: Request submitted, check db for results. {
+  key: { request: <Buffer 41 6a 06 10 e1 15> },
+  response: { success: true, code: 0, state: 'inserted', rows: 1 }
+}
 Fetched order from DB: [
   {
-    request: <Buffer c1 3c 2b 66 c2 0d>,
+    request: <Buffer 41 6a 06 10 e1 15>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -90,7 +96,7 @@ Fetched order from DB: [
     margin_mode: 'cross',
     price: 2.85,
     size: 100,
-    leverage: 15,
+    leverage: 40,
     filled_size: null,
     filled_amount: null,
     average_price: null,
@@ -109,8 +115,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 1a: request w/ expiry; w/o tpsl',
-    create_time: 2025-12-15T13:07:16.953Z,
-    expiry_time: 2025-12-15T13:12:16.922Z,
-    update_time: 2025-12-15T13:07:16.953Z
+    create_time: 2026-01-07T20:23:29.188Z,
+    expiry_time: 2026-01-07T20:25:29.153Z,
+    update_time: 2026-01-07T20:23:29.188Z
   }
 ]

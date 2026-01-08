@@ -1,11 +1,10 @@
---- /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.base.csv	2025-11-05 11:51:55.578889573 -0800
-+++ /home/djorgenson/Projects/blofin-data/fcrt/2.1-cli-om/2.1.2-req-expiry/Documents/.comp.csv	2025-11-05 11:51:55.357882731 -0800
-@@ -13 +13 @@
--BA4FFDD8900E,,62451C331721,sell,6257CB,2.85,100,50,B83296,cross,0,"Test 1a: request w/ expiry; w/o tpsl",,"2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 01:05:17.369"
-+BA4FFDD8900E,,62451C331721,sell,19D388,2.85,100,50,B83296,cross,0,"[Expired]: Queued request changed to Expired",,"2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 11:09:24.662"
-@@ -671 +671 @@
--24597A,BA4FFDD8900E,,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,0,2.85,100,50,,,,,,4,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"Test 1a: request w/ expiry; w/o tpsl","2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 01:05:17.369"
-+24597A,BA4FFDD8900E,,62451C331721,54E75E,XRP-USDT,C235F3,XRP,CB6943,USDT,19D388,Expired,19D388,Expired,,,short,sell,B83296,limit,cross,0,2.85,100,50,,,,,,4,,,,,linear,SWAP,0,,03E80E,15m,15,5B34D5,Enabled,"[Expired]: Queued request changed to Expired","2025/11/05 01:05:17.369","2025/11/05 01:13:17.342","2025/11/05 11:09:24.662"
-@@ -973 +973 @@
--24597A,,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,BA4FFDD8900E,"Test 1a: request w/ expiry; w/o tpsl","2025/11/05 01:13:17.342"
-+24597A,,Expired,XRP-USDT,cross,short,sell,limit,2.85,100,50,false,,BA4FFDD8900E,"[Expired]: Queued request changed to Expired","2025/11/05 01:13:17.342"
+[1mdiff --git a/./.base.csv b/./.comp.csv[m
+[1mindex 8253fa0..9c4c423 100644[m
+[1m--- a/./.base.csv[m
+[1m+++ b/./.comp.csv[m
+[36m@@ -13 +13 @@[m [mTime"[m
+416A0610E115,,EDDA999DFB4E,sell,[31m6257CB[m[32m19D388[m,2.85,100,40,B83296,cross,1,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m",,"2026/01/07 12:23:29.188","2026/01/07 12:25:29.153","2026/01/07 1[31m2:2[m3:[32m10:[m2[31m9.[m1[31m88[m[32m.663[m"
+[36m@@ -637 +637 @@[m [mTime"[m
+416A0610E115,,24597A,A2800A,EDDA999DFB4E,XRP-USDT,20E067,XRP,B52BC7,USDT,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,,,short,sell,B83296,limit,cross,2.85,100,40,,,,,,4,,,,,9B1ACC,E1A1FA,1,,03E80E,15m,15,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026-01-07 12:23:29.188","2026/01/07 12:25:29.153","2026/01/07 1[31m2:2[m3:[32m10:[m2[31m9.[m1[31m88[m[32m.663[m"
+[36m@@ -901 +901 @@[m [maccount,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,[m
+24597A,,[31mQueu[m[32mExpir[med,XRP-USDT,cross,short,sell,limit,2.85,100,40,true,,416A0610E115,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026/01/07 12:25:29.153"

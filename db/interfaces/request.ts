@@ -55,10 +55,9 @@ export interface IRequest {
 const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (hasValues<Partial<IOrder>>(current)) {
     if (hasValues<Partial<IOrder>>(props)) {
-      const update_time = props.update_time || new Date();
       const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
 
-      if (update_time > current.update_time!) {
+      if (props.update_time! > current.update_time!) {
         const revised: Partial<IOrder> = {
           request: current.request,
           order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
@@ -82,7 +81,7 @@ const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promis
               state,
               memo: props.memo === current.memo ? memo : props.memo,
               expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
-              update_time,
+              update_time: props.update_time,
             },
             { table: `request`, keys: [{ key: `request` }] }
           );
@@ -203,9 +202,9 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
   }
 
   const [current] = found;
-  props.update_time === undefined && Object.assign(props, { update_time: Date() });
+  props.update_time ??= new Date();
 
-  if (props.update_time! > current.update_time!) {
+  if (props.update_time > current.update_time!) {
     if (auto_status === "Enabled") {
       const queue = await Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
 

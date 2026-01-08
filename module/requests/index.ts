@@ -8,7 +8,6 @@ import { Hold } from "module/requests/hold";
 import { Queued } from "module/requests/queued";
 import { Pending } from "module/requests/pending";
 import { Canceled } from "module/requests/canceled";
-import { Expired } from "module/requests/expired";
 import { Rejected } from "module/requests/rejected";
 import { Report } from "module/requests/report";
 
@@ -19,6 +18,5 @@ export const Requests = {
   Pending,
   Canceled,
   Rejected,
-  Expired,
   Report,
 };

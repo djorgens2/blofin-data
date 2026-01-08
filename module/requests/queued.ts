@@ -5,6 +5,7 @@
 "use strict";
 
 import type { IRequestAPI } from "api/requests";
+import type { IRequest } from "db/interfaces/request";
 
 import { hexify } from "lib/crypto.util";
 import { Select, Summary } from "db/query.utils";
@@ -15,7 +16,7 @@ import * as Request from "db/interfaces/request";
 import * as RequestAPI from "api/requests";
 
 //-- [Process.Orders] Submit local requests to the API
-type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequestAPI>[] };
+type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequest>[] };
 
 export const Queued = async () => {
   const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
@@ -26,14 +27,19 @@ export const Queued = async () => {
       (acc: Accumulator, request) => {
         expiry < request.expiry_time!
           ? acc.queue.push(request)
-          : acc.expire.push({ ...request, status: "Expired", memo: `[Expired]: Queued request changed to Expired` });
+          : acc.expire.push({
+              request: hexify(request.clientOrderId!, 6),
+              status: "Expired",
+              update_time: expiry,
+              memo: `[Expired]: Queued request changed to Expired`,
+            });
         return acc;
       },
       { queue: [], expire: [] }
     );
 
     const [expired, leverage] = await Promise.all([
-      Promise.all(expire.map(async (r) => Request.Submit({ request: hexify(r.clientOrderId!, 6), memo: r.memo }))),
+      Promise.all(expire.map(async (r) => Request.Submit(r))),
       Promise.all(
         queue.map(async (r) => {
           Leverage.Submit({ instId: r.instId, positionSide: r.positionSide, leverage: r.leverage, marginMode: r.marginMode });

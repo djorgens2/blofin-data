@@ -42,62 +42,60 @@ export interface IPositionsAPI {
 // | Format and publish position updates concurrently; returns [updates, errors] tuple      |
 // +----------------------------------------------------------------------------------------+
 export const Publish = async (props: Array<IPositionsAPI>) => {
-  if (hasValues(props)) {
-    const api: Array<IPublishResult<IPositions>> = await Promise.all(
-      props.map(async (prop) => {
-        const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: prop.instId, position: prop.positionSide });
+  if (!hasValues(props)) {
+    return Summary([{ success: false, code: 400, state: `null_query`, rows: 0 }]);
+  }
 
-        if (instrument_position) {
-          const position: Partial<IPositions> = {
-            positions: hexify(parseInt(prop.positionId), 6),
-            instrument_position,
-            size: format(prop.positions),
-            size_available: format(prop.availablePositions),
-            leverage: parseInt(prop.leverage!),
-            margin_mode: prop.marginMode,
-            margin_used: format(prop.margin),
-            margin_ratio: format(prop.marginRatio, 3),
-            margin_initial: format(prop.initialMargin),
-            margin_maint: format(prop.maintenanceMargin),
-            average_price: format(prop.averagePrice),
-            mark_price: format(prop.markPrice),
-            liquidation_price: format(prop.liquidationPrice),
-            unrealized_pnl: format(prop.unrealizedPnl),
-            unrealized_pnl_ratio: format(prop.unrealizedPnlRatio, 3),
-            adl: parseInt(prop.adl),
-            create_time: prop.createTime ? new Date(parseInt(prop.createTime)) : undefined,
-            update_time: prop.updateTime ? new Date(parseInt(prop.updateTime)) : undefined,
-          };
-          return await Positions.Publish(position);
-        } else {
-          console.log(`>> [Error] Position.Publish: Unable to locate instrument position for ${prop.instId} ${prop.positionSide}`);
-          return { key: undefined, response: { success: false, state: `not_found`, code: 409, rows: 0 } };
-        }
+  const api: Array<IPublishResult<IPositions>> = await Promise.all(
+    props.map(async (prop) => {
+      const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: prop.instId, position: prop.positionSide });
+
+      if (instrument_position) {
+        const position: Partial<IPositions> = {
+          positions: hexify(parseInt(prop.positionId), 6),
+          instrument_position,
+          size: format(prop.positions),
+          size_available: format(prop.availablePositions),
+          leverage: parseInt(prop.leverage!),
+          margin_mode: prop.marginMode,
+          margin_used: format(prop.margin),
+          margin_ratio: format(prop.marginRatio, 3),
+          margin_initial: format(prop.initialMargin),
+          margin_maint: format(prop.maintenanceMargin),
+          average_price: format(prop.averagePrice),
+          mark_price: format(prop.markPrice),
+          liquidation_price: format(prop.liquidationPrice),
+          unrealized_pnl: format(prop.unrealizedPnl),
+          unrealized_pnl_ratio: format(prop.unrealizedPnlRatio, 3),
+          adl: parseInt(prop.adl),
+          create_time: prop.createTime ? new Date(parseInt(prop.createTime)) : undefined,
+          update_time: prop.updateTime ? new Date(parseInt(prop.updateTime)) : undefined,
+        };
+        return await Positions.Publish(position);
+      } else {
+        console.log(`>> [Error] Position.Publish: Unable to locate instrument position for ${prop.instId} ${prop.positionSide}`);
+        return { key: undefined, response: { success: false, state: `not_found`, code: 409, rows: 0 } };
+      }
+    })
+  );
+  const active = await Promise.all(
+    api
+      .filter((p) => p?.response.success)
+      .map(async (p) => {
+        return InstrumentPositions.Publish({ instrument_position: p.key?.instrument_position, status: "Open" });
       })
-    );
-    const active = await Promise.all(
-      api
-        .filter((p) => p?.response.success)
-        .map(async (p) => {
-          return InstrumentPositions.Publish({ instrument_position: p.key?.instrument_position, status: "Open" });
+  );
+  const current = await Select<IInstrumentPosition>({ account: Session().account, status: `Open` }, { table: `vw_instrument_positions` });
+  if (current.length) {
+    const closed = await Promise.all(
+      current
+        .filter((local) => !active.some((p) => isEqual(p?.key?.instrument_position!, local.instrument_position!)))
+        .map(async (ipos) => {
+          return InstrumentPositions.Publish({ instrument_position: ipos.instrument_position, status: "Closed" });
         })
     );
-    const current = await Select<IInstrumentPosition>({ account: Session().account, status: `Open` }, { table: `vw_instrument_positions` });
-    if (current.length) {
-      const closed = await Promise.all(
-        current
-          .filter((local) => !active.some((p) => isEqual(p?.key?.instrument_position!, local.instrument_position!)))
-          .map(async (ipos) => {
-            return InstrumentPositions.Publish({ instrument_position: ipos.instrument_position, status: "Closed" });
-          })
-      );
-      return Summary(api.map((p) => p?.response).concat(closed.map((r) => r?.response)));
-    } else return Summary(api.map((p) => p?.response));
-  } else {
-    console.log(`>> [Warning] Position.Publish: No positions to publish`);
-    const result = Summary([{ success: false, code: 400, state: `null_query`, rows: 0 }]);
-    return result;
-  }
+    return Summary(api.map((p) => p?.response).concat(closed.map((r) => r?.response)));
+  } else return Summary(api.map((p) => p?.response));
 };
 
 //+--------------------------------------------------------------------------------------+
