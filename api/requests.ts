@@ -116,8 +116,8 @@ const processResults = async (response: TResponseAPI, config: PublishConfig): Pr
 export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
   if (requests.length === 0) return [];
 
-  const data = requests.map(({ instId, orderId }) => ({ instId, orderId }));
-  const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", data, "Request.Cancel");
+  const cancels = requests.map(({ instId, orderId }) => ({ instId, orderId }));
+  const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
 
   return await processResults(result, {
     context: "Request.Publish.Cancel",

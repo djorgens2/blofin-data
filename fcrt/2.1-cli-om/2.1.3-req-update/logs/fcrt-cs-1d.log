@@ -14,7 +14,7 @@ Test 1d: request reject on size, resub, then edit and resub
       quote_symbol: 'USDT',
       state: <Buffer e8 fc f7>,
       status: 'Closed',
-      occurs: 137
+      occurs: 145
     },
     {
       account: <Buffer 24 59 7a>,
@@ -28,7 +28,7 @@ Test 1d: request reject on size, resub, then edit and resub
       quote_symbol: 'USDT',
       state: <Buffer e1 cb 25>,
       status: 'Fulfilled',
-      occurs: 16
+      occurs: 17
     },
     {
       account: <Buffer 24 59 7a>,
@@ -62,12 +62,12 @@ Test 1d: request reject on size, resub, then edit and resub
     }
   ]
 }
--> [Info] request updated {
-  filters: { request: <Buffer 12 54 88 50 9e 1d> },
+updated -> [Info] request updated {
+  filters: { request: <Buffer f7 34 79 a1 f2 ba> },
   columns: {
     memo: 'Test 1d: Updating Order: setting expiry to 1m;',
-    expiry_time: 2025-12-17T00:11:20.910Z,
-    update_time: 2025-12-17T00:10:20.946Z
+    expiry_time: 2026-01-09T06:37:02.423Z,
+    update_time: 2026-01-09T06:36:02.457Z
   }
 }
 [Info] Starting Order: submitting request [Request.req_fcrt_1d] {
@@ -75,56 +75,11 @@ Test 1d: request reject on size, resub, then edit and resub
   instrument_position: <Buffer ed da 99 9d fb 4e>,
   symbol: 'XRP-USDT',
   position: 'short',
-  expiry_time: 2025-12-17T00:11:20.910Z,
+  expiry_time: 2026-01-09T06:37:02.423Z,
   memo: 'Test 1d: request reject on size, resub, then edit and resub'
 }
-Test 1d: Request submitted, check db for results. <Buffer 12 54 88 50 9e 1d>
-Fetched order from DB: [
-  {
-    request: <Buffer 12 54 88 50 9e 1d>,
-    order_id: <Buffer 00 e8 db ab 49 a4>,
-    account: <Buffer 24 59 7a>,
-    instrument: <Buffer a2 80 0a>,
-    instrument_position: <Buffer ed da 99 9d fb 4e>,
-    symbol: 'XRP-USDT',
-    base_currency: <Buffer 20 e0 67>,
-    base_symbol: 'XRP',
-    quote_currency: <Buffer b5 2b c7>,
-    quote_symbol: 'USDT',
-    state: <Buffer 4b c9 9c>,
-    status: 'Pending',
-    request_state: <Buffer 4b c9 9c>,
-    request_status: 'Pending',
-    order_state: <Buffer de 78 79>,
-    order_status: 'live',
-    position: 'short',
-    action: 'sell',
-    request_type: <Buffer b8 32 96>,
-    order_type: 'limit',
-    margin_mode: 'cross',
-    price: 2.55,
-    size: 100,
-    leverage: 50,
-    filled_size: 0,
-    filled_amount: 0,
-    average_price: 0,
-    fee: 0,
-    pnl: 0,
-    digits: 4,
-    order_category: <Buffer 4f ae 94>,
-    category: 'normal',
-    cancel_source: <Buffer 3d 66 8d>,
-    canceled_by: 'not_canceled',
-    contract_type: <Buffer 9b 1a cc>,
-    instrument_type: <Buffer e1 a1 fa>,
-    reduce_only: 1,
-    broker_id: null,
-    trade_period: <Buffer 03 e8 0e>,
-    trade_timeframe: '15m',
-    timeframe_units: 15,
-    memo: 'Test 1d: Updating Order: setting expiry to 1m;',
-    create_time: 2025-12-16T23:50:51.394Z,
-    expiry_time: 2025-12-17T00:11:20.910Z,
-    update_time: 2025-12-17T00:10:20.946Z
-  }
-]
+Test 1d: Request submitted, check db for results. {
+  key: { request: <Buffer f7 34 79 a1 f2 ba> },
+  response: { success: true, code: 0, state: 'updated', rows: 1 }
+}
+Fetched order from DB: undefined

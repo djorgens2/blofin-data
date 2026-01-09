@@ -14,7 +14,7 @@ Test 1b: request reject on size, resub, then edit and resub
       quote_symbol: 'USDT',
       state: <Buffer e8 fc f7>,
       status: 'Closed',
-      occurs: 137
+      occurs: 145
     },
     {
       account: <Buffer 24 59 7a>,
@@ -28,7 +28,7 @@ Test 1b: request reject on size, resub, then edit and resub
       quote_symbol: 'USDT',
       state: <Buffer e1 cb 25>,
       status: 'Fulfilled',
-      occurs: 16
+      occurs: 17
     },
     {
       account: <Buffer 24 59 7a>,
@@ -62,16 +62,16 @@ Test 1b: request reject on size, resub, then edit and resub
     }
   ]
 }
--> [Info] request updated {
-  filters: { request: <Buffer 12 54 88 50 9e 1d> },
+updated -> [Info] request updated {
+  filters: { request: <Buffer f7 34 79 a1 f2 ba> },
   columns: { size: 1000 }
 }
--> [Info] request updated {
-  filters: { request: <Buffer 12 54 88 50 9e 1d> },
+updated -> [Info] request updated {
+  filters: { request: <Buffer f7 34 79 a1 f2 ba> },
   columns: {
     memo: 'Test 1b: Correcting Order: Clears Rejected status; resubmitted',
-    expiry_time: 2025-12-17T08:00:13.844Z,
-    update_time: 2025-12-17T00:00:13.874Z
+    expiry_time: 2026-01-09T06:42:15.057Z,
+    update_time: 2026-01-08T22:42:15.090Z
   }
 }
 [Info] Starting Order: submitting request [Request.req_fcrt_1b] {
@@ -84,56 +84,11 @@ Test 1b: request reject on size, resub, then edit and resub
   price: 2.85,
   size: 1000,
   leverage: 50,
-  expiry_time: 2025-12-17T08:00:13.844Z,
+  expiry_time: 2026-01-09T06:42:15.057Z,
   memo: 'Test 1b: request reject on size, resub, then edit and resub'
 }
-Test 1b: Request submitted, check db for results. <Buffer 12 54 88 50 9e 1d>
-Fetched order from DB: [
-  {
-    request: <Buffer 12 54 88 50 9e 1d>,
-    order_id: null,
-    account: <Buffer 24 59 7a>,
-    instrument: <Buffer a2 80 0a>,
-    instrument_position: <Buffer ed da 99 9d fb 4e>,
-    symbol: 'XRP-USDT',
-    base_currency: <Buffer 20 e0 67>,
-    base_symbol: 'XRP',
-    quote_currency: <Buffer b5 2b c7>,
-    quote_symbol: 'USDT',
-    state: <Buffer b7 24 46>,
-    status: 'Rejected',
-    request_state: <Buffer b7 24 46>,
-    request_status: 'Rejected',
-    order_state: null,
-    order_status: null,
-    position: 'short',
-    action: 'sell',
-    request_type: <Buffer b8 32 96>,
-    order_type: 'limit',
-    margin_mode: 'cross',
-    price: 2.85,
-    size: 1000,
-    leverage: 50,
-    filled_size: null,
-    filled_amount: null,
-    average_price: null,
-    fee: null,
-    pnl: null,
-    digits: 4,
-    order_category: null,
-    category: null,
-    cancel_source: null,
-    canceled_by: null,
-    contract_type: <Buffer 9b 1a cc>,
-    instrument_type: <Buffer e1 a1 fa>,
-    reduce_only: 1,
-    broker_id: null,
-    trade_period: <Buffer 03 e8 0e>,
-    trade_timeframe: '15m',
-    timeframe_units: 15,
-    memo: 'Test 1b: Correcting Order: Clears Rejected status; resubmitted',
-    create_time: 2025-12-16T23:50:51.394Z,
-    expiry_time: 2025-12-17T08:00:13.844Z,
-    update_time: 2025-12-17T00:00:13.874Z
-  }
-]
+Test 1b: Request submitted, check db for results. {
+  key: { request: <Buffer f7 34 79 a1 f2 ba> },
+  response: { success: true, code: 0, state: 'updated', rows: 1 }
+}
+Fetched order from DB: undefined

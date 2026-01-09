@@ -55,7 +55,7 @@ export interface IRequest {
 const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (hasValues<Partial<IOrder>>(current)) {
     if (hasValues<Partial<IOrder>>(props)) {
-      const state = props.status === "Hold" ? undefined : props.state || (await States.Key<IRequestState>({ status: props.status }));
+      const state = props.status === "Hold" ? undefined : (await States.Key<IRequestState>({ status: props.status })) || props.state || current.state;
 
       if (props.update_time! > current.update_time!) {
         const revised: Partial<IOrder> = {
@@ -145,14 +145,11 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
     return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Cancel: Nothing to cancel", rows: 0 } }];
   }
 
-  const [canceled, closed] = await Promise.all([States.Key<IRequestState>({ status: "Canceled" }), States.Key<IRequestState>({ status: "Closed" })]);
-
   const cancels = await Promise.all(
     orders.map(async (order) => {
-      const state = isEqual(order.state!, canceled!) ? closed : canceled;
       const result = await publish(order, {
         ...order,
-        state,
+        status: order.status === `Pending` ? `Canceled` : `Closed`,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
         update_time: new Date(),
       });
@@ -200,10 +197,9 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
       }
     );
   }
-
   const [current] = found;
   props.update_time ??= new Date();
-
+  
   if (props.update_time > current.update_time!) {
     if (auto_status === "Enabled") {
       const queue = await Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
@@ -217,7 +213,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
             })
         );
       }
-      props.status = current.status === "Pending" ? "Hold" : current.status;
+      props.status = current.status === "Pending" ? "Hold" : props.status || current.status;
     }
 
     if (props.status === "Hold") {
@@ -226,6 +222,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
         memo: props.memo || `[Info] Request.Submit: Request updated; was put on hold; awaiting cancel for resubmit`,
       });
     }
+    current.status === 'Rejected' && console.log('reject props to be published:', props)
     return await publish(current, { ...props, memo: props.memo || `[Info] Request.Submit: Request exists; updated locally` });
   }
 

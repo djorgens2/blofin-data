@@ -40,7 +40,8 @@ export const API_POST = async <T>(path: string, data: unknown, context: string):
 
     const result = await response.json();
     if (result.code !== "0") {
-      throw new Error(`API Error ${result.code}: ${result.msg ?? "Unknown error"}`);
+      console.log(`-> [Error]`,result)
+//      throw new Error(`API Error ${result.code}: ${result.msg ?? "Unknown error"}`);
     }
 
     return result.data as T;

@@ -17,10 +17,10 @@ type Accumulator = { verify: Partial<IRequest>[]; expire: Partial<IRequest>[] };
 
 export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
-  const expiry = new Date();
-
+  
   if (!requests) return [];
-
+  
+  const expiry = new Date();
   const { verify, expire } = requests.reduce(
     (acc: Accumulator, request) => {
       expiry < request.expiry_time! ? acc.verify.push(request) : acc.expire.push(request);

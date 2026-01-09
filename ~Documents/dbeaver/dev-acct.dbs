@@ -449,7 +449,7 @@ Extension]]></comment>
 				<defo><![CDATA[0]]></defo>
 			</column>
 			<column name="size" type="DOUBLE" mandatory="y" />
-			<column name="leverage" type="INT" mandatory="y" />
+			<column name="leverage" type="SMALLINT" mandatory="y" unsigned="y" />
 			<column name="request_type" type="BINARY" length="3" mandatory="y" />
 			<column name="margin_mode" type="VARCHAR" length="10" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
@@ -516,7 +516,7 @@ Extension]]></comment>
 			<column name="instrument_type" type="BINARY" length="3" mandatory="y" />
 			<column name="contract_type" type="BINARY" length="3" mandatory="y" />
 			<column name="contract_value" type="DECIMAL" length="17" decimal="5" mandatory="y" />
-			<column name="max_leverage" type="INT" mandatory="y" />
+			<column name="max_leverage" type="SMALLINT" mandatory="y" unsigned="y" />
 			<column name="min_size" type="DECIMAL" length="5" decimal="3" mandatory="y" />
 			<column name="lot_size" type="DECIMAL" length="5" decimal="3" mandatory="y" />
 			<column name="tick_size" type="DOUBLE" mandatory="y" />
@@ -798,9 +798,7 @@ Close]]></comment>
 			<column name="instrument_position" type="BINARY" length="6" mandatory="y" />
 			<column name="size" type="DOUBLE" mandatory="y" />
 			<column name="size_available" type="DOUBLE" mandatory="y" />
-			<column name="leverage" type="INT" mandatory="y" >
-				<defo><![CDATA[0]]></defo>
-			</column>
+			<column name="leverage" type="SMALLINT" mandatory="y" unsigned="y" />
 			<column name="margin_mode" type="VARCHAR" length="10" mandatory="y" >
 				<column_options><![CDATA[COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
@@ -869,7 +867,7 @@ mark: mark price]]></comment>
 				<defo><![CDATA[0]]></defo>
 			</column>
 			<column name="size" type="DOUBLE" mandatory="y" />
-			<column name="leverage" type="INT" mandatory="y" />
+			<column name="leverage" type="SMALLINT" mandatory="y" unsigned="y" />
 			<column name="request_type" type="BINARY" length="3" mandatory="y" />
 			<column name="margin_mode" type="VARCHAR" length="10" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
