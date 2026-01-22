@@ -5,14 +5,16 @@
 "use strict";
 
 import type { IPublishResult, TOutcome, TResponse } from "db/query.utils";
-import type { TRequestState, IRequestState } from "db/interfaces/state";
+import type { TRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 
-import { hexify } from "lib/crypto.util";
-import { PrimaryKey, Update } from "db/query.utils";
 import { API_POST } from "api/api.util";
+import { PrimaryKey } from "db/query.utils";
+import { hexify } from "lib/crypto.util";
 
 import * as States from "db/interfaces/state";
+import * as Request from "db/interfaces/request";
+import * as Orders from "db/interfaces/order";
 
 export interface IRequestAPI {
   account: Uint8Array;
@@ -56,54 +58,54 @@ interface PublishConfig {
 }
 
 /**
- * Process the api result returned after a POST call
+ * Process the api response returned after a POST call
  */
-const processResults = async (response: TResponseAPI, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
+const publish = async (response: TResponseAPI, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
   if (!Array.isArray(response) || !response.length) {
     console.error(`-> [Error] ${config.context}: Invalid response format`, response);
     return [];
   }
 
-  // 1. Fetch States in parallel
-  const [success, fail] = await Promise.all([
-    States.Key<IRequestState>({ status: config.states.success }),
-    States.Key<IRequestState>({ status: config.states.fail }),
-  ]);
+  const orders = await Promise.all(
+    response.map(async (request) => {
+      const exists = await Orders.Fetch({ request: hexify(request.clientOrderId! || parseInt(request.orderId!), 6) });
 
-  // 2. Map and Categorize (Reduce)
-  const items = response.map((item) => {
-    const apiSuccess = (item.code || "0") === "0";
-    return {
-      apiSuccess,
-      data: {
-        request: hexify(item.clientOrderId!, 6) || hexify(parseInt(item.orderId!), 6),
-        order_id: hexify(parseInt(item.orderId!), 6),
-        state: apiSuccess ? success : fail,
-        memo: apiSuccess ? config.messages.success : `${config.messages.fail} [${item.code}]: ${item.msg}`,
-        update_time: new Date(),
-        code: parseInt(item.code) || 0,
-        message: item.msg,
-      } as TRequestResponse,
-    };
-  });
+      if (!exists) {
+        console.error("Order not found:", request);
+        throw new Error(`couldn't find an order???`);
+      }
 
-  // 3. Database Updates and Result Formatting
-  return Promise.all(
-    items.map(async ({ apiSuccess, data }) => {
-      const { code, message, ...updates } = data;
-      const dbResult = await Update<IRequest>(updates, {
-        table: `request`,
-        keys: [{ key: `request` }],
-      });
+      const success = (request.code || "0") === "0";
+      const [current] = exists;
 
       return {
-        key: PrimaryKey(data, ["order_id", "request"]),
+        success,
+        request: {
+          request: current.request,
+          instrument_position: current.instrument_position,
+          status: success ? config.states.success : config.states.fail,
+          memo: success ? config.messages.success : `${config.messages.fail} [${request.code}]: ${request.msg}`,
+          update_time: new Date(),
+          code: parseInt(request.code) || 0,
+          message: request.msg,
+        } as TRequestResponse,
+      };
+    })
+  );
+
+  return Promise.all(
+    orders.map(async ({ success, request }) => {
+      const { code, message, ...updates } = request;
+      const result = await Request.Submit(updates);
+
+      return {
+        key: PrimaryKey(request, ["request"]),
         response: {
-          ...dbResult,
+          ...result.response,
           context: config.context,
-          outcome: apiSuccess ? config.outcomes.success : config.outcomes.fail,
-          message: apiSuccess ? data.memo : dbResult.success ? message : data.memo,
-          code: apiSuccess ? 0 : dbResult.success ? code || 0 : data.code || 0,
+          outcome: success ? config.outcomes.success : config.outcomes.fail,
+          message: success ? request.memo : result.response.success ? message : request.memo,
+          code: success ? 0 : result.response.success ? code || 0 : request.code || 0,
         },
       };
     })
@@ -119,13 +121,13 @@ export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
   const cancels = requests.map(({ instId, orderId }) => ({ instId, orderId }));
   const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
 
-  return await processResults(result, {
+  return await publish(result, {
     context: "Request.Publish.Cancel",
     states: { success: "Closed", fail: "Canceled" },
     outcomes: { success: "closed", fail: "error" },
     messages: {
       success: "[Info] Order canceled successfully",
-      fail: "[Error] Order Cancellation failed",
+      fail: "[Error] Order cancellation failed",
     },
   });
 };
@@ -138,7 +140,7 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
 
   const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
 
-  return await processResults(result, {
+  return await publish(result, {
     context: "Request.Publish.Submit",
     states: { success: "Pending", fail: "Rejected" },
     outcomes: { success: "pending", fail: "rejected" },

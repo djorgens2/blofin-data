@@ -200,18 +200,45 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
 export const hasValues = <T extends object>(props: T) => Object.keys(props).length && !Object.values(props).every((value) => value === undefined);
 
 //+--------------------------------------------------------------------------------------+
+//| Delay timer used predominantly for api throttle control;                             |
+//+--------------------------------------------------------------------------------------+
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+//+--------------------------------------------------------------------------------------+
 //| Writes arrays of any type to the supplied file                                       |
 //+--------------------------------------------------------------------------------------+
 import * as fs from "node:fs";
 
-export const fileWrite = (filePath: string, array: any[]): void => {
-  if (typeof Array.isArray(array) && array.length > 0) {
-    try {
-      const text = array.join("\n");
-      fs.writeFileSync(filePath, text);
-      console.log(`Array successfully written to ${filePath}`);
-    } catch (error: any) {
-      console.error(`Error writing to ${filePath}:`, error.message);
+/**
+ * Optimized 2026 CSV/Text Writer
+ * @param filePath Destination path
+ * @param array Data to write (Array of Objects or Strings)
+ */
+export const fileWrite = <T extends object | string>(filePath: string, array: T[]): void => {
+  // Guard 1: Use Array.isArray directly (typeof Array.isArray is a common 2024 typo)
+  if (!Array.isArray(array) || array.length === 0) return;
+
+  try {
+    let text: string;
+
+    // Type Guard: Check first element to determine if we need CSV conversion
+    if (typeof array[0] === "object") {
+      const headers = Object.keys(array[0] as object).join(",");
+      const rows = (array as object[]).map((obj) => 
+        Object.values(obj).map(val => `"${val}"`).join(",")
+      );
+      text = [headers, ...rows].join("\n");
+    } else {
+      // It's a simple array of strings/primitives
+      text = array.join("\n");
     }
+
+    fs.writeFileSync(filePath, text, "utf8");
+    console.log(`-> [Success] fileWrite: ${array.length} records written to ${filePath}`);
+    
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown file error";
+    console.error(`-> [Error] fileWrite to ${filePath}:`, msg);
   }
 };
+

@@ -5,8 +5,8 @@
 "use strict";
 
 import type { IRequest } from "db/interfaces/request";
-import type { IRequestState } from "db/interfaces/state";
 import type { IPublishResult, TResponse } from "db/query.utils";
+import type { IRequestAPI } from "api/requests";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
@@ -14,40 +14,64 @@ import { Session } from "module/session";
 import * as RequestAPI from "api/requests";
 import * as Request from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
-import * as States from "db/interfaces/state";
 
 //-- [Process.Orders] Resubmit requests canceled by modification to the API for orders in hold state
+type Accumulator = { requests: Partial<IRequestAPI>[]; closures: Partial<IRequest>[] };
+
 export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const orders = await Orders.Fetch({ status: "Hold", account: Session().account });
   if (!orders) return [];
 
-  const queued = await States.Key<IRequestState>({ status: "Queued" });
+  // 1. Prepare API cancel batch and corrective closures for non-pending orders
+  const { requests, closures } = orders.reduce(
+    (acc: Accumulator, order) => {
+      order.request_status === `Pending`
+        ? acc.requests.push({
+            instId: order.symbol,
+            orderId: BigInt(hexString(order.order_id!, 10)).toString(),
+            clientOrderId: hexString(order.request!, 12),
+          })
+        : acc.closures.push({
+            ...order,
+            status: order.request_status,
+            memo: `[Info] Requests.Hold: Hold request set to ${order.request_status}`,
+            update_time: new Date(),
+          });
+      return acc;
+    },
+    {
+      requests: [] as Array<Partial<IRequestAPI>>,
+      closures: [] as Array<Partial<IRequest>>,
+    }
+  );
 
-  // 1. Execute Bulk Cancel
-  const cancelPayload = orders.map(({ symbol, order_id }) => ({
-    instId: symbol,
-    orderId: BigInt(hexString(order_id!, 10)).toString(),
-  }));
-
-  const cancels = await RequestAPI.Cancel(cancelPayload);
+  const cancels = await RequestAPI.Cancel(requests);
 
   // 2. Process results (Parallel resubmission for successes)
-  const results = await Promise.all(
-    cancels.map(async (c) => {
+  const results = await Promise.all([
+    ...closures.map(async (closed) => {
+      const resub = await Request.Submit(closed);
+
+      return {
+        ...resub,
+        response: { ...resub.response, outcome: "closed" } as TResponse,
+      };
+    }),
+    ...cancels.map(async (cancel) => {
       // If the cancel failed, return the "hold" state immediately
-      if (!c.response.success) {
+      if (!cancel.response.success) {
         return {
-          ...c,
-          response: { ...c.response, outcome: "hold" } as TResponse,
+          ...cancel,
+          response: { ...cancel.response, outcome: "hold" } as TResponse,
         };
       }
 
       // If cancel succeeded, resubmit the request
       try {
         const resub = await Request.Submit({
-          request: c.key?.request,
-          state: queued,
-          memo: `[Info] Trades.Hold: Hold request successfully resubmitted`,
+          request: cancel.key?.request,
+          status: `Queued`,
+          memo: `[Info] Requests.Hold: Hold request successfully resubmitted`,
           update_time: new Date(),
         });
 
@@ -58,17 +82,17 @@ export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
       } catch (error) {
         // If resubmit fails after a successful cancel
         return {
-          ...c,
-          response: { 
-            ...c.response, 
-            success: false, 
-            outcome: "error", 
-            message: "Cancel succeeded, but Resubmit failed." 
+          ...cancel,
+          response: {
+            ...cancel.response,
+            success: false,
+            outcome: "error",
+            message: "Cancel succeeded, but Resubmit failed.",
           } as TResponse,
         };
       }
-    })
-  );
+    }),
+  ]);
 
   return results;
 };

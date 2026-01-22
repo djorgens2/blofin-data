@@ -7,12 +7,11 @@
 import type { IInstrumentPosition, TPosition } from "db/interfaces/instrument_position";
 import type { IPublishResult } from "db/query.utils";
 
-import { PrimaryKey } from "db/query.utils";
 import { Session, signRequest } from "module/session";
 import { hasValues } from "lib/std.util";
+import { ApiError } from "./api.util";
 
 import * as InstrumentPosition from "db/interfaces/instrument_position";
-import { ApiError } from "./api.util";
 
 export interface ILeverageAPI {
   instId: string;

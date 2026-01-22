@@ -12,9 +12,10 @@ import * as IPos from "db/interfaces/instrument_position";
 import * as Orders from "db/interfaces/order";
 import * as Requests from "db/interfaces/request";
 import * as References from "db/interfaces/reference";
+import { IPublishResult } from "db/query.utils";
 
 const args = process.argv.slice(2); // get account id
-const submit = async (request: Partial<IRequest>, testId: string) => {
+const submit = async (request: Partial<IRequest>, testId: string): Promise<[IPublishResult<IRequest>, Partial<IRequest>]> => {
   await config({ account: hexify(args[0]) });
 
   const expiry_time = setExpiry(`1d`); // 1 day from now
@@ -44,7 +45,7 @@ if (args.length) {
           console.error(`Exiting process with code 1 for test ${testId}.`);
           process.exit(1);
         }
-        await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+        await Orders.Fetch({ request: submitted.key?.request } as Partial<IRequest>).then((order) => {
           console.log(`Test ${testId}: Request submitted, check db for results.`, submitted);
           console.log("Fetched order from DB:", order);
         });

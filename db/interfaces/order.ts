@@ -7,13 +7,14 @@
 import type { IRequest } from "db/interfaces/request";
 import type { TRefKey } from "db/interfaces/reference";
 
-import { Select, Insert, Update, TOptions, IPublishResult, PrimaryKey } from "db/query.utils";
+import { Select, Insert, Update, TOptions, IPublishResult, PrimaryKey, TKey } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
 import * as References from "db/interfaces/reference";
 
 export interface IOrder extends IRequest {
+  order_id: Uint8Array;
   client_order_id: Uint8Array;
   base_currency: Uint8Array;
   base_symbol: string;
@@ -42,13 +43,23 @@ export interface IOrder extends IRequest {
 export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (!props) {
     console.log(">> [Error] Order.Publish: No order properties provided; publishing rejected");
-    return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: `No order properties provided`, rows: 0 } };
+    return {
+      key: undefined,
+      response: {
+        success: false,
+        code: 400,
+        state: `null_query`,
+        rows: 0,
+        context: "Orders.Publish",
+        message: "No order properties provided; publishing rejected",
+      },
+    };
   }
   const { order_id } = props;
-  const order = await Select<IOrder>({ order_id }, { table: `orders` });
+  const exists = await Select<IOrder>({ order_id }, { table: `orders` });
 
-  if (order.length) {
-    const [current] = order;
+  if (exists.length) {
+    const [current] = exists;
     const revised: Partial<IOrder> = {
       order_id,
       order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
@@ -62,26 +73,28 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
     };
 
     const result = await Update<IOrder>(revised, { table: `orders`, keys: [{ key: `order_id` }] });
-    return { key: PrimaryKey({order_id}, ["order_id"]), response: result };
-  } else {
-    const order_category = props.order_category || (await References.Key<TRefKey>({ source_ref: "normal" }, { table: `order_category` }));
-    const order_state = props.order_state || (await References.Key({ source_ref: "accepted" }, { table: `order_state` }));
-    const cancel_source = props.cancel_source || (await References.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` }));
-    const order: Partial<IOrder> = {
-      order_id,
-      client_order_id: props.client_order_id!,
-      order_category,
-      order_state,
-      cancel_source,
-      filled_size: props.filled_size!,
-      filled_amount: props.filled_amount!,
-      average_price: props.average_price!,
-      fee: props.fee!,
-      pnl: props.pnl!,
-    };
-    const result = await Insert<IOrder>(order, { table: `orders` });
-    return { key: PrimaryKey({order_id}, ["order_id"]), response: result };
+    return { key: PrimaryKey({ order_id }, ["order_id"]), response: { ...result, context: "Orders.Publish" } };
   }
+
+  const [order_category, order_state, cancel_source] = await Promise.all([
+    props.order_category ? Promise.resolve(props.order_category) : References.Key<TRefKey>({ source_ref: "normal" }, { table: `order_category` }),
+    props.order_state ? Promise.resolve(props.order_state) : References.Key<TRefKey>({ source_ref: props.order_status }, { table: `order_state` }),
+    props.cancel_source ? Promise.resolve(props.cancel_source) : References.Key<TRefKey>({ source_ref: "not_canceled" }, { table: `cancel_source` }),
+  ]);
+  const order: Partial<IOrder> = {
+    order_id,
+    client_order_id: props.client_order_id!,
+    order_category,
+    order_state,
+    cancel_source,
+    filled_size: props.filled_size!,
+    filled_amount: props.filled_amount!,
+    average_price: props.average_price!,
+    fee: props.fee!,
+    pnl: props.pnl!,
+  };
+  const result = await Insert<IOrder>(order, { table: `orders` });
+  return { key: PrimaryKey({ order_id }, ["order_id"]), response: { ...result, context: "Orders.Publish" } };
 };
 
 //+--------------------------------------------------------------------------------------+

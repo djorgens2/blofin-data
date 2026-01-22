@@ -7,12 +7,12 @@
 import { Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { CMain } from "app/main";
-import { importCandles, importInstruments, importSeed } from "app/import";
+import { importCandles, importInstruments, importSeed, importOrders } from "app/import";
 
 const initialize = async () => {
   await importSeed();
   await importInstruments();
-  await importCandles();
+  await Promise.allSettled([ importCandles(), importOrders()]);
 
   setTimeout(async () => {
     console.log(">> [Info] Application.Initialization finished:", new Date().toLocaleString());

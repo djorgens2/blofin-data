@@ -22,7 +22,6 @@ import * as InstrumentPosition from "db/interfaces/instrument_position";
 export interface IRequest {
   request: Uint8Array;
   instrument_position: Uint8Array;
-  order_id: Uint8Array;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
@@ -47,12 +46,10 @@ export interface IRequest {
   update_time: Date;
 }
 
-//-- Private functions
-
 //+--------------------------------------------------------------------------------------+
 //| Applies updates to request on select columns;                                        |
 //+--------------------------------------------------------------------------------------+
-const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
+export const Publish = async (source: string, current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (hasValues<Partial<IOrder>>(current)) {
     if (hasValues<Partial<IOrder>>(props)) {
       const state = props.status === "Hold" ? undefined : (await States.Key<IRequestState>({ status: props.status })) || props.state || current.state;
@@ -67,7 +64,7 @@ const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promis
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
           reduce_only: props.reduce_only ? (!!props.reduce_only === !!current.reduce_only ? undefined : !!props.reduce_only) : undefined,
-          broker_id: props.broker_id === current.broker_id ? undefined : props.broker_id,
+          broker_id: props.broker_id?.length ? (props.broker_id === current.broker_id ? undefined : props.broker_id) : undefined,
         };
 
         const result = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
@@ -110,7 +107,6 @@ const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promis
     const request_type = await References.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
     const request: Partial<IRequest> = {
       request: props.request || hashKey(12),
-      order_id: props.order_id,
       instrument_position: props.instrument_position,
       action: props.action,
       state: props.request ? props.state || queued : queued,
@@ -132,8 +128,6 @@ const publish = async (current: Partial<IOrder>, props: Partial<IOrder>): Promis
   return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Publish: Nothing to publish", rows: 0 } };
 };
 
-//-- Public functions
-
 //+--------------------------------------------------------------------------------------+
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
@@ -147,7 +141,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
 
   const cancels = await Promise.all(
     orders.map(async (order) => {
-      const result = await publish(order, {
+      const result = await Publish(`Cancel`, order, {
         ...order,
         status: order.status === `Pending` ? `Canceled` : `Closed`,
         memo: props.memo || `[Cancel]: Request ${props.request} canceled by user/system`,
@@ -186,7 +180,8 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   // Handle new request submission
   if (!found) {
-    return await publish(
+    return await Publish(
+      `Submit`,
       {},
       {
         ...props,
@@ -199,7 +194,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
   }
   const [current] = found;
   props.update_time ??= new Date();
-  
+
   if (props.update_time > current.update_time!) {
     if (auto_status === "Enabled") {
       const queue = await Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
@@ -217,13 +212,12 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     }
 
     if (props.status === "Hold") {
-      return await publish(current, {
+      return await Publish(`Hold`, current, {
         ...props,
         memo: props.memo || `[Info] Request.Submit: Request updated; was put on hold; awaiting cancel for resubmit`,
       });
     }
-    current.status === 'Rejected' && console.log('reject props to be published:', props)
-    return await publish(current, { ...props, memo: props.memo || `[Info] Request.Submit: Request exists; updated locally` });
+    return await Publish(`Submit`, current, { ...props, memo: props.memo || `[Info] Request.Submit: Request exists; updated locally` });
   }
 
   return {

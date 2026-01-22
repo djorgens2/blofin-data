@@ -431,7 +431,6 @@ CREATE INDEX fk_p_instrument_position ON devel.positions ( instrument_position )
 
 CREATE  TABLE devel.request ( 
 	request              BINARY(6)    NOT NULL   PRIMARY KEY,
-	order_id             BINARY(6)       ,
 	instrument_position  BINARY(6)    NOT NULL   ,
 	action               CHAR(4)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
@@ -446,7 +445,6 @@ CREATE  TABLE devel.request (
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	expiry_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
-	CONSTRAINT uk_r_order_id UNIQUE ( order_id ) ,
 	CONSTRAINT fk_r_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_r_request_type FOREIGN KEY ( request_type ) REFERENCES devel.request_type( request_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -734,9 +732,28 @@ select
 	r.memo AS memo,
 	r.expiry_time AS expiry_time
 from
-	(((((((((devel.request r
+	((((((((((devel.request r
+left join (
+	select
+		max(devel.orders.order_id) AS order_id,
+		devel.orders.client_order_id AS client_order_id
+	from
+		devel.orders
+	where
+		(devel.orders.client_order_id is not null)
+	group by
+		devel.orders.client_order_id
+union
+	select
+		devel.orders.order_id AS order_id,
+		devel.orders.order_id AS client_order_id
+	from
+		devel.orders
+	where
+		(devel.orders.client_order_id is null)) oreq on
+	((oreq.client_order_id = r.request)))
 left join devel.orders o on
-	((r.order_id = o.order_id)))
+	((o.order_id = oreq.order_id)))
 left join devel.order_state os on
 	((o.order_state = os.order_state)))
 join devel.instrument_position ipos on
@@ -1292,7 +1309,26 @@ select
 	r.expiry_time AS expiry_time,
 	r.update_time AS update_time
 from
-	(((((((((((((devel.request r
+	((((((((((((((devel.request r
+left join (
+	select
+		max(devel.orders.order_id) AS order_id,
+		devel.orders.client_order_id AS client_order_id
+	from
+		devel.orders
+	where
+		(devel.orders.client_order_id is not null)
+	group by
+		devel.orders.client_order_id
+union
+	select
+		devel.orders.order_id AS order_id,
+		devel.orders.order_id AS client_order_id
+	from
+		devel.orders
+	where
+		(devel.orders.client_order_id is null)) oreq on
+	((oreq.client_order_id = r.request)))
 join devel.instrument_position ipos on
 	((ipos.instrument_position = r.instrument_position)))
 join devel.instrument i on
@@ -1310,7 +1346,7 @@ join devel.request_type rt on
 left join devel.period p on
 	((p.period = ipos.period)))
 left join devel.orders o on
-	((o.order_id = r.order_id)))
+	((o.order_id = oreq.order_id)))
 left join devel.order_state os on
 	((o.order_state = os.order_state)))
 left join devel.state rs on

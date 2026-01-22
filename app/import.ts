@@ -23,9 +23,20 @@ import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Roles from "db/interfaces/role";
 
 import * as CandleAPI from "api/candles";
+import * as OrderAPI from "api/orders";
 import * as InstrumentAPI from "api/instruments";
 import * as InstrumentPositionAPI from "api/instrumentPositions";
 import * as PositionsAPI from "api/positions";
+
+//+--------------------------------------------------------------------------------------+
+//| Imports full-order/stops history; follows up with a order/stops refresh;             |
+//+--------------------------------------------------------------------------------------+
+export const importOrders = async () => {
+  console.log(`In Import Orders for account ${Session().alias}`);
+
+  const results = await OrderAPI.Import();
+
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Imports full-candle history; follows up with a candle refresh;                       |

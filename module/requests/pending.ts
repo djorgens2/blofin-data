@@ -33,8 +33,8 @@ export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   );
 
   const promises = [
-    ...verify.map(async (request) => {
-      const result = await Request.Submit({ ...request, update_time: expiry });
+    ...verify.map(async (order) => {
+      const result = await Request.Submit({ ...order, status: order.request_status, update_time: expiry });
       result.response.outcome = "pending";
       return result;
     }),
@@ -45,10 +45,10 @@ export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
         memo: `[Expired]: Pending order changed to Canceled`,
       });
 
-      return cancels.map((c) => ({
-        ...c,
+      return cancels.map((cancel) => ({
+        ...cancel,
         response: {
-          ...c.response,
+          ...cancel.response,
           outcome: "expired",
         } as TResponse,
       }));

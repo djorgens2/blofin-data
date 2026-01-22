@@ -8,7 +8,7 @@ import { ILeverageAPI } from "api/leverage";
 import { TPosition } from "db/interfaces/instrument_position";
 import { Distinct, IPublishResult, PrimaryKey } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
-import { bufferString, hexString, isEqual, setExpiry } from "lib/std.util";
+import { bufferString, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
 import { config, Session } from "module/session";
 import { parse } from "path";
 
@@ -2311,24 +2311,24 @@ import { parse } from "path";
 //     await State.Import();
 //     await SubjectArea.Import();
 //     await References.Import();
-  //]);
+//]);
 
-  //const results = await InstrumentPositions.Import();
-  //  const bc: IPublishResult<ICurrency> = (await Currency.Publish({ symbol: undefined }));
-  //  console.log("Currency Publish Result:", bc);
-  //  console.log("Import Results:", results);
-  //  const instrument = await InstrumentType.Publish({ symbol: undefined });
-  //   const props: Partial<InstrumentType.IInstrumentType> = {
-  //     instrument_type: "NEVER",
-  //     description: "This is a test instrument type",
-  //   };
-  //   const instrument = await InstrumentType.Publish(props);
-  //   const result = await InstrumentType.Publish(props);
-  //   console.log("InstrumentType Publish Result:", result, result.key?.instrument_type);
-  //   const instrument_type = result.key?.instrument_type
-  //       ? result.key?.instrument_type
-  //       : props.instrument_type;
-  //   console.log("Instrument Publish Result:", instrument_type);
+//const results = await InstrumentPositions.Import();
+//  const bc: IPublishResult<ICurrency> = (await Currency.Publish({ symbol: undefined }));
+//  console.log("Currency Publish Result:", bc);
+//  console.log("Import Results:", results);
+//  const instrument = await InstrumentType.Publish({ symbol: undefined });
+//   const props: Partial<InstrumentType.IInstrumentType> = {
+//     instrument_type: "NEVER",
+//     description: "This is a test instrument type",
+//   };
+//   const instrument = await InstrumentType.Publish(props);
+//   const result = await InstrumentType.Publish(props);
+//   console.log("InstrumentType Publish Result:", result, result.key?.instrument_type);
+//   const instrument_type = result.key?.instrument_type
+//       ? result.key?.instrument_type
+//       : props.instrument_type;
+//   console.log("Instrument Publish Result:", instrument_type);
 //   process.exit(0);
 // };
 
@@ -2364,12 +2364,39 @@ import { parse } from "path";
 
 //-------------------------------- candles History Import ---------------------------------------//
 //import { History } from "api/candles";
-import type { ICandle } from "db/interfaces/candle";
-import * as Candles from "db/interfaces/candle";
+// import type { ICandle } from "db/interfaces/candle";
+// import * as Candles from "db/interfaces/candle";
 
-const getHistory = async (props: Partial<ICandle>) => {
-  const history = await Candles.History(props)
-}
+// const getHistory = async (props: Partial<ICandle>) => {
+//   const history = await Candles.History(props)
+// }
 
-getHistory({symbol: 'XRP-USDT'});
+// getHistory({symbol: 'XRP-USDT'});
 
+//-------------------------------- candles History Import ---------------------------------------//
+import * as app from "module/session";
+import * as OrderAPI from "api/orders";
+
+const getHistory = async () => {
+  const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
+  await app.config({ account });
+  console.log(Session());
+  const orders = await OrderAPI.Import();
+
+  if (orders) {
+    const count402 = orders.filter((req) => req.response.code === 402);
+    const count200 = orders.filter((req) => req.response.code === 200);
+//    console.log(orders.filter((req) => req.response.code != 452 && req.response.code != 402));
+    //   console.log(history.filter((req) => req.response.code != 452 ));
+    console.log("History size:", orders.length, "402s processed:", count402.length, "200s processed:", count200.length);
+    console.log();
+    //  fileWrite('./response.log', history);
+    process.exit(0);
+  }
+};
+const args = process.argv.slice(2); // get account id
+
+// if (args.length) {
+//   setSession({ account: hexify(args[0]) });
+
+getHistory();

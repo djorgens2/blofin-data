@@ -6,12 +6,14 @@
 
 import type { ILeverageAPI } from "api/leverage";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position"
+import type { IPublishResult } from "db/query.utils";
+
 import { Session } from "module/session";
+import { PrimaryKey } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 
 import * as LeverageAPI from "api/leverage";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
-import { IPublishResult, PrimaryKey } from "db/query.utils";
 
 //------------------ Public functions ---------------------//
 
@@ -40,6 +42,6 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
       key: PrimaryKey(current, ["instrument_position"]),
       response: { success: false, code: 402, state: `no_update`, message: `Leverage unchanged; no change detected`, rows: 0 },
     };
-
+console.log('Sending to Leverage API', 'Props:', props.leverage, 'Current:' , current.leverage!);
   return await LeverageAPI.Submit(props);
 };
