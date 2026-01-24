@@ -26,7 +26,7 @@ export interface ICurrency {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult<ICurrency>> => {
   if (!props || !(props.symbol || props.currency)) {
-    return { key: undefined, response: { success: false, code: 411, state: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0 } };
   }
 
   const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });

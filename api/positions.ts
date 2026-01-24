@@ -4,13 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IPublishResult } from "db/query.utils"
 import type { IPositions } from "db/interfaces/positions";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { Session, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { format, hasValues, isEqual } from "lib/std.util";
-import { IPublishResult, Select, Summary, TResponse } from "db/query.utils";
+import { Select, Summary } from "db/query.utils";
 
 import * as Positions from "db/interfaces/positions";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
@@ -43,7 +44,7 @@ export interface IPositionsAPI {
 // +----------------------------------------------------------------------------------------+
 export const Publish = async (props: Array<IPositionsAPI>) => {
   if (!hasValues(props)) {
-    return Summary([{ success: false, code: 400, state: `null_query`, rows: 0 }]);
+    return Summary([{ success: false, code: 400, response: `null_query`, rows: 0 }]);
   }
 
   const api: Array<IPublishResult<IPositions>> = await Promise.all(
@@ -74,7 +75,7 @@ export const Publish = async (props: Array<IPositionsAPI>) => {
         return await Positions.Publish(position);
       } else {
         console.log(`>> [Error] Position.Publish: Unable to locate instrument position for ${prop.instId} ${prop.positionSide}`);
-        return { key: undefined, response: { success: false, state: `not_found`, code: 409, rows: 0 } };
+        return { key: undefined, response: { success: false, response: `not_found`, code: 409, rows: 0 } };
       }
     })
   );

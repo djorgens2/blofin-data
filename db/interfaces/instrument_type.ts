@@ -39,7 +39,7 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
           return { key: PrimaryKey(current, ["instrument_type"]), response: result };
         }
       }
-      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 201, state: `exists`, rows: 0 } };
+      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 201, response: `exists`, rows: 0 } };
     } else {
       const missing = {
         instrument_type: hashKey(6),
@@ -50,7 +50,7 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
       return { key: PrimaryKey(missing, ["instrument_type"]), response: result };
     }
   }
-  return { key: undefined, response: { success: false, code: 411, state: `null_query`, rows: 0 } };
+  return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

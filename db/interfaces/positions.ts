@@ -46,7 +46,7 @@ export interface IPositions {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IPositions>): Promise<IPublishResult<IPositions>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 415, state: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 415, response: `null_query`, rows: 0 } };
   }
 
   const exists = await Fetch({ account: Session().account, positions: props.positions });

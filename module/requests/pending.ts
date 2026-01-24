@@ -19,6 +19,7 @@ export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
   
   if (!requests) return [];
+  console.log(`-> Requests.Pending: Processing ${requests.length} pending orders`);
   
   const expiry = new Date();
   const { verify, expire } = requests.reduce(

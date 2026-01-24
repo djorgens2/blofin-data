@@ -4,21 +4,20 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TOutcome, TResponse } from "db/query.utils";
+import type { IPublishResult, TResponse } from "db/query.utils";
 import type { TRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 
-import { API_POST } from "api/api.util";
+import { API_POST, ApiError } from "api/api.util";
 import { PrimaryKey } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 
-import * as States from "db/interfaces/state";
 import * as Request from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
 
 export interface IRequestAPI {
   account: Uint8Array;
-  status?: States.TRequestState;
+  status?: TRequestState;
   orderId?: string;
   instId: string;
   marginMode: "cross" | "isolated";
@@ -52,8 +51,8 @@ type TRequestResponse = Partial<IRequest> & TResponse;
 
 interface PublishConfig {
   context: string;
-  states: { success: TRequestState; fail: TRequestState };
-  outcomes: { success: TOutcome; fail: TOutcome };
+  states: { success: string; fail: string };
+  outcomes: { success: string; fail: string };
   messages: { success: string; fail: string };
 }
 
@@ -71,8 +70,7 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
       const exists = await Orders.Fetch({ request: hexify(request.clientOrderId! || parseInt(request.orderId!), 6) });
 
       if (!exists) {
-        console.error("Order not found:", request);
-        throw new Error(`couldn't find an order???`);
+        throw new ApiError(454, `Order not found for Request: ${request.clientOrderId || request.orderId}`);
       }
 
       const success = (request.code || "0") === "0";
@@ -80,9 +78,9 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
 
       return {
         success,
+        current,
         request: {
           request: current.request,
-          instrument_position: current.instrument_position,
           status: success ? config.states.success : config.states.fail,
           memo: success ? config.messages.success : `${config.messages.fail} [${request.code}]: ${request.msg}`,
           update_time: new Date(),
@@ -94,9 +92,9 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
   );
 
   return Promise.all(
-    orders.map(async ({ success, request }) => {
+    orders.map(async ({ success, current, request }) => {
       const { code, message, ...updates } = request;
-      const result = await Request.Submit(updates);
+      const result = await Request.Publish('Api', current, updates);
 
       return {
         key: PrimaryKey(request, ["request"]),
@@ -116,7 +114,7 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
  * Cancels open orders through the API
  */
 export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
-  if (requests.length === 0) return [];
+  if (!requests.length) return [];
 
   const cancels = requests.map(({ instId, orderId }) => ({ instId, orderId }));
   const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
@@ -136,7 +134,7 @@ export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
  * Submits new requests through the API
  */
 export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
-  if (requests.length === 0) return [];
+  if (!requests.length) return [];
 
   const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
 

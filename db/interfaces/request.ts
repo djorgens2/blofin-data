@@ -9,8 +9,8 @@ import type { TRefKey } from "db/interfaces/reference";
 import type { IRequestState, TRequestState } from "db/interfaces/state";
 import type { IPublishResult } from "db/query.utils";
 
-import { Insert, PrimaryKey, Update } from "db/query.utils";
-import { hasValues, isEqual, setExpiry } from "lib/std.util";
+import { Insert, Update, PrimaryKey } from "db/query.utils";
+import { bufferString, hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
 
@@ -59,7 +59,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
           request: current.request,
           order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
           action: props.action === current.action ? undefined : props.action,
-          state: isEqual(state!, current.state!) ? undefined : state,
+          state: state ? isEqual(state!, current.state!) ? undefined : state : undefined,
           price: isEqual(props.price!, current.price!) ? undefined : props.price,
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
@@ -86,16 +86,16 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
           return { key: PrimaryKey(current, [`request`]), response: revised };
         }
       }
-      return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 200, state: `exists`, message: `Request unchanged`, rows: 0 } };
+      return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 200, response: `exists`, message: `Request unchanged`, rows: 0 } };
     }
-    console.log(">> [Error] Request.Publish: No update properties provided; request unchanged");
+
     return {
       key: PrimaryKey(current, [`request`]),
       response: {
         success: false,
         code: 400,
-        state: `null_query`,
-        message: "[Error] Request: No update properties provided; request unchanged",
+        response: `null_query`,
+        message: `[Error] Request: No update properties provided from ${source}; request unchanged`,
         rows: 0,
       },
     };
@@ -125,7 +125,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
     const result = await Insert<IRequest>(request, { table: `request` });
     return { key: PrimaryKey(request, [`request`]), response: result };
   }
-  return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Publish: Nothing to publish", rows: 0 } };
+  return { key: undefined, response: { success: false, code: 400, response: `null_query`, message: "[Error] Request.Publish: Nothing to publish", rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -136,7 +136,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
 
   if (!orders) {
     console.log("[Error]: Unauthorized cancellation attempt");
-    return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, message: "[Error] Request.Cancel: Nothing to cancel", rows: 0 } }];
+    return [{ key: undefined, response: { success: false, code: 400, response: `null_query`, message: "[Error] Request.Cancel: Nothing to cancel", rows: 0 } }];
   }
 
   const cancels = await Promise.all(
@@ -159,7 +159,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
 export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<IRequest>> => {
   if (!hasValues(props)) {
     console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
-    return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: `No request properties provided`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 400, response: `null_query`, message: `No request properties provided`, rows: 0 } };
   }
 
   const query = props.instrument_position
@@ -169,7 +169,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   if (!exists) {
     console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
-    return { key: undefined, response: { success: false, code: 404, state: `error`, message: `Instrument position not found`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 404, response: `error`, message: `Instrument position not found`, rows: 0 } };
   }
 
   const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
@@ -222,6 +222,6 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   return {
     key: undefined,
-    response: { success: true, code: 201, state: `exists`, message: `-> [Info] Request.Submit: Queued request verified`, rows: 0 },
+    response: { success: true, code: 201, response: `exists`, message: `-> [Info] Request.Submit: Queued request verified`, rows: 0 },
   };
 };

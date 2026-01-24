@@ -20,7 +20,7 @@ export interface IContractType {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IContractType>): Promise<IPublishResult<IContractType>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 410, state: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 410, response: `null_query`, rows: 0 } };
   }
 
   const search = {
@@ -42,7 +42,7 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
         return { key: PrimaryKey(current, ["contract_type"]), response: result };
       }
     }
-    return { key: PrimaryKey({ contract_type: exists }, ["contract_type"]), response: { success: true, code: 201, state: `exists`, rows: 0 } };
+    return { key: PrimaryKey({ contract_type: exists }, ["contract_type"]), response: { success: true, code: 201, response: `exists`, rows: 0 } };
   }
   
   const missing = {

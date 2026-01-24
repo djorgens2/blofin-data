@@ -100,7 +100,7 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
 
   if (exists) {
     setUserToken({ error: 312, message: `Duplicate account ${props.alias} exists.` });
-    return { key: undefined, response: { success: false, code: 312, state: `error`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 312, response: `error`, rows: 0 } };
   }
 
   const hmac = await hashHmac(session);
@@ -125,7 +125,7 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
     return { key: PrimaryKey({ account: hash }, ["account"]), response: result };
   }
   setUserToken({ error: 315, message: `Invalid session credentials.` });
-  return { key: undefined, response: { success: false, code: 315, state: `error`, rows: 0 } };
+  return { key: undefined, response: { success: false, code: 315, response: `error`, rows: 0 } };
 };
 
 //+--------------------------------------------------------------------------------------+

@@ -1,20 +1,20 @@
 updated -> [Info] request updated {
-  filters: { request: <Buffer 19 21 2b 97 67 fb> },
+  filters: { request: <Buffer 82 99 2c 88 64 97> },
   columns: { state: <Buffer 1b 0c b1> }
 }
 updated -> [Info] request updated {
-  filters: { request: <Buffer 19 21 2b 97 67 fb> },
+  filters: { request: <Buffer 82 99 2c 88 64 97> },
   columns: {
     memo: 'Test 3a: Success! Canceled pending request locally.',
-    update_time: 2026-01-07T01:52:23.959Z
+    update_time: 2026-01-23T21:33:50.787Z
   }
 }
 [Info] Test 3a: Request canceled, check db for results.
 {
   account: <Buffer 24 59 7a>,
   request: {
-    key: { request: <Buffer 19 21 2b 97 67 fb> },
-    response: { success: true, code: 0, state: 'updated', rows: 1 }
+    key: { request: <Buffer 82 99 2c 88 64 97> },
+    response: { success: true, code: 0, response: 'updated', rows: 1 }
   },
   symbol: 'XRP-USDT',
   status: 'Canceled'

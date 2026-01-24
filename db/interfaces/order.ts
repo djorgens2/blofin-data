@@ -48,7 +48,7 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
       response: {
         success: false,
         code: 400,
-        state: `null_query`,
+        response: `null_query`,
         rows: 0,
         context: "Orders.Publish",
         message: "No order properties provided; publishing rejected",

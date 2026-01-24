@@ -4,7 +4,7 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestState, TRequest, TStatus } from "db/interfaces/state";
+import type { IRequestState, TRequestState, TStatus } from "db/interfaces/state";
 
 import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { hexify, uniqueKey } from "lib/crypto.util";
@@ -19,7 +19,7 @@ export interface IStopRequest {
   stop_request: Uint8Array;
   tpsl_id: Uint8Array;
   state: Uint8Array;
-  status: TRequest;
+  status: TRequestState;
   stop_type: "tp" | "sl";
   action: "buy" | "sell";
   margin_mode: "cross" | "isolated";
@@ -51,7 +51,7 @@ export interface IStops extends IStopOrder {
   position_state: Uint8Array;
   position_status: TStatus;
   request_state: Uint8Array;
-  request_status: TRequest;
+  request_status: TStatus;
 }
 
 //+--------------------------------------------------------------------------------------+

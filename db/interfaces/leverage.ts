@@ -22,7 +22,7 @@ import * as InstrumentPosition from "db/interfaces/instrument_position";
 //+--------------------------------------------------------------------------------------+
 export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IInstrumentPosition>> => {
   if (!hasValues(props) || !props.instId || !props.positionSide || !props.leverage) {
-    return { key: undefined, response: { success: false, code: 400, state: `null_query`, message: `Undefined leverage data provided`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 400, response: `null_query`, message: `Undefined leverage data provided`, rows: 0 } };
   }
 
   const instrument_position = await InstrumentPosition.Fetch({
@@ -33,14 +33,14 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
   });
 
   if (!instrument_position) {
-    return { key: undefined, response: { success: false, code: 404, state: `not_found`, message: `Missing Instrument Position`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 404, response: `not_found`, message: `Missing Instrument Position`, rows: 0 } };
   }
   const [current] = instrument_position;
 
   if (isEqual(props.leverage, current.leverage!))
     return {
       key: PrimaryKey(current, ["instrument_position"]),
-      response: { success: false, code: 402, state: `no_update`, message: `Leverage unchanged; no change detected`, rows: 0 },
+      response: { success: false, code: 402, response: `no_update`, message: `Leverage unchanged; no change detected`, rows: 0 },
     };
 console.log('Sending to Leverage API', 'Props:', props.leverage, 'Current:' , current.leverage!);
   return await LeverageAPI.Submit(props);

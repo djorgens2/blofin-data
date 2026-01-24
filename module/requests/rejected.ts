@@ -18,40 +18,39 @@ type Accumulator = { requeue: Partial<IRequest>[]; expire: Partial<IRequest>[] }
 export const Rejected = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const rejects = await Orders.Fetch({ status: "Rejected", account: Session().account });
 
-  if (rejects) {
-    const expiry = new Date();
-    const { requeue, expire } = rejects.reduce(
-      (acc: Accumulator, reject) => {
-        expiry < reject.expiry_time!
-          ? acc.requeue.push({ ...reject, status: `Queued`, update_time: expiry, memo: `[Retry]: Rejected request state changed to Queued and resubmitted` })
-          : acc.expire.push({
-              request: reject.request,
-              status: `Expired`,
-              update_time: expiry,
-              memo: `[Expired]: Queued and Rejected request changed to Expired`,
-            });
-        return acc;
-      },
-      {
-        requeue: [] as Array<Partial<IRequest>>,
-        expire: [] as Array<Partial<IRequest>>,
-      }
-    );
-    const results = await Promise.all([
-      ...requeue.map(async (req) => {
-        const result = await Request.Submit(req);
-        result.response.outcome = "requeued";
-        return result;
-      }),
-      ...expire.map(async (req) => {
-        const result = await Request.Submit(req)
-        result.response.outcome = "expired"
-        return result;
-      }),
-    ]);
+  if (!rejects) return [];
+  console.log(`-> Requests.Rejected: Processing ${rejects.length} rejected orders`);
 
-    return results;
-  }
+  const expiry = new Date();
+  const { requeue, expire } = rejects.reduce(
+    (acc: Accumulator, reject) => {
+      expiry < reject.expiry_time!
+        ? acc.requeue.push({ ...reject, status: `Queued`, update_time: expiry, memo: `[Retry]: Rejected request state changed to Queued and resubmitted` })
+        : acc.expire.push({
+            request: reject.request,
+            status: `Expired`,
+            update_time: expiry,
+            memo: `[Expired]: Queued and Rejected request changed to Expired`,
+          });
+      return acc;
+    },
+    {
+      requeue: [] as Array<Partial<IRequest>>,
+      expire: [] as Array<Partial<IRequest>>,
+    }
+  );
+  const results = await Promise.all([
+    ...requeue.map(async (req) => {
+      const result = await Request.Submit(req);
+      result.response.outcome = "requeued";
+      return result;
+    }),
+    ...expire.map(async (req) => {
+      const result = await Request.Submit(req);
+      result.response.outcome = "expired";
+      return result;
+    }),
+  ]);
 
-  return [];
+  return results;
 };

@@ -45,13 +45,13 @@ export interface IInstrument {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResult<IInstrument>> => {
   if (!props.symbol) {
-    return { key: undefined, response: { success: false, code: 412, state: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 412, response: `null_query`, rows: 0 } };
   }
 
   const instrument = await Key({ symbol: props.symbol });
 
   if (instrument) {
-    return { key: PrimaryKey({ instrument }, [`instrument`]), response: { success: true, code: 201, state: `exists`, rows: 0 } };
+    return { key: PrimaryKey({ instrument }, [`instrument`]), response: { success: true, code: 201, response: `exists`, rows: 0 } };
   }
 
   const [base_symbol, quote_symbol] = splitSymbol(props.symbol!) || [props.base_symbol, props.quote_symbol || `USDT`];
@@ -88,7 +88,7 @@ export const Fetch = async (props: Partial<IInstrument>, options?: TOptions): Pr
 //+--------------------------------------------------------------------------------------+
 export const Suspense = async (props: Array<Partial<IInstrument>>): Promise<Array<IPublishResult<ICurrency>>> => {
   if (!hasValues(props)) {
-    return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, rows: 0 } }];
+    return [{ key: undefined, response: { success: false, code: 400, response: `null_query`, rows: 0 } }];
   }
   
   const current = await Distinct<IInstrument>(

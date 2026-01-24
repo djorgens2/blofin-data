@@ -36,7 +36,7 @@
     'update_time'
   ],
   args: [
-    <Buffer de bb 3e 75 d4 61>,
+    <Buffer 52 8d f4 97 67 89>,
     <Buffer ed da 99 9d fb 4e>,
     'sell',
     <Buffer 62 57 cb>,
@@ -46,15 +46,15 @@
     <Buffer b8 32 96>,
     'cross',
     'Test 2a: request w/ expiry; w/o tpsl',
-    2026-01-08T03:58:19.732Z,
-    2026-01-08T04:03:19.694Z,
-    2026-01-08T03:58:19.732Z
+    2026-01-24T00:33:15.237Z,
+    2026-01-24T00:38:15.203Z,
+    2026-01-24T00:33:15.237Z
   ]
 }
 {
   submitted: {
-    key: { request: <Buffer de bb 3e 75 d4 61> },
-    response: { success: true, code: 0, state: 'inserted', rows: 1 }
+    key: { request: <Buffer 52 8d f4 97 67 89> },
+    response: { success: true, code: 0, response: 'inserted', rows: 1 }
   },
   request: {
     symbol: 'XRP-USDT',
@@ -63,17 +63,17 @@
     order_type: 'limit',
     price: 2.85,
     size: 100,
-    expiry_time: 2026-01-08T04:03:19.694Z,
+    expiry_time: 2026-01-24T00:38:15.203Z,
     memo: 'Test 2a: request w/ expiry; w/o tpsl'
   }
 }
 Test 2a: Request submitted, check db for results. {
-  key: { request: <Buffer de bb 3e 75 d4 61> },
-  response: { success: true, code: 0, state: 'inserted', rows: 1 }
+  key: { request: <Buffer 52 8d f4 97 67 89> },
+  response: { success: true, code: 0, response: 'inserted', rows: 1 }
 }
 Fetched order from DB: [
   {
-    request: <Buffer de bb 3e 75 d4 61>,
+    request: <Buffer 52 8d f4 97 67 89>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -115,8 +115,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/ expiry; w/o tpsl',
-    create_time: 2026-01-08T03:58:19.732Z,
-    expiry_time: 2026-01-08T04:03:19.694Z,
-    update_time: 2026-01-08T03:58:19.732Z
+    create_time: 2026-01-24T00:33:15.237Z,
+    expiry_time: 2026-01-24T00:38:15.203Z,
+    update_time: 2026-01-24T00:33:15.237Z
   }
 ]

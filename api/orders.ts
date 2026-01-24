@@ -4,7 +4,6 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestState } from "db/interfaces/state";
 import type { TRefKey } from "db/interfaces/reference";
 import type { IOrder } from "db/interfaces/order";
 import type { IPublishResult } from "db/query.utils";
@@ -15,7 +14,6 @@ import { delay, format, hexString } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { API_GET, ApiError } from "api/api.util";
 
-import * as States from "db/interfaces/state";
 import * as Requests from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
 import * as Reference from "db/interfaces/reference";
@@ -65,25 +63,19 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
 
         if (!order_id || !request) throw new ApiError(451, `Invalid Order ID ${order.orderId} or Request ${order.clientOrderId}; order not processed`);
 
-        const [exists, instrument_position, cancel_source, order_category, request_type, order_states, expired, hold] = await Promise.all([
+        const [exists, instrument_position, cancel_source, order_category, request_type, order_states] = await Promise.all([
           Orders.Fetch({ request }),
           InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide }),
           Reference.Key<TRefKey>({ source_ref: order.cancelSource || "not_canceled" }, { table: `cancel_source` }),
           Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` }),
           Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` }),
           Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` }),
-          States.Key<IRequestState>({ status: "Expired" }),
-          States.Key<IRequestState>({ status: "Hold" }),
         ]);
 
         if (!instrument_position)
           throw new ApiError(452, `Unauthorized Instrument Position [${order.instId}:${order.positionSide}] request from logged account ${Session().alias}`);
 
-        if (!order_states) throw new ApiError(453, `Invalid Order State [${order.state}}] on Order: ${request}`);
-
-        if (!expired || !hold) {
-          throw new ApiError(601, "Critical System Error: Required states (Expired/Hold) are missing from cache");
-        }
+        if (!order_states) throw new ApiError(453, `Invalid Order State metadata; unable to resolve state [${order.state}}] on Order: ${request}`);
 
         const [mapped] = order_states;
         const [current] = exists ?? [{}];
@@ -91,11 +83,11 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
         const history = source === "History";
         const create_time = new Date(parseInt(order.createTime!));
         const update_time = new Date(parseInt(order.updateTime!));
-      
-        const isChanged = current.update_time ? update_time > current.update_time : false;
+
+        const isChanged = current.update_time && update_time > current.update_time ? true : false;
         const isExpired = history && mapped.status === "Pending";
-        const isNewer = !history && isChanged;
-        const state:TRefKey = isExpired ? expired : isNewer ? hold : mapped.state!;
+        const isNewer = !history && isChanged && mapped.status === "Pending";
+        const status = isExpired ? `Expired` : isNewer ? `Hold` : mapped.status;
 
         const orderResult = await Orders.Publish({
           order_id,
@@ -118,7 +110,8 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
             request,
             instrument_position,
             action: order.side,
-            state,
+            state: mapped.state,
+            status,
             price: format(order.price!),
             size: format(order.size!),
             leverage: format(order.leverage!),
@@ -126,11 +119,13 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
             margin_mode: order.marginMode,
             reduce_only: order.reduceOnly === "true",
             memo:
-              source === `History`
+              source === "WSS"
+                ? current.memo || `[Info] Orders.Publish: WSS message received; order updated`
+                : source === `History`
                 ? "[Info] Orders.Publish: History updated; order imported"
                 : "[Info] Orders.Publish: New Order received; submitted and processed",
             broker_id: order.brokerId,
-            create_time: new Date(parseInt(order.createTime!)),
+            create_time,
             update_time,
           });
         }
@@ -141,12 +136,12 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
           if (error instanceof ApiError) {
             return {
               key: undefined,
-              response: { success: false, code: error.code, state: `error`, message: error.message, rows: 0, context: `Order.Publish.${source}` },
+              response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0, context: `Order.Publish.${source}` },
             } as IPublishResult<IOrder>;
           }
           return {
             key: undefined,
-            response: { success: false, code: -1, state: `error`, message: "Network or System failure", rows: 0, context: `Order.Publish.${source}` },
+            response: { success: false, code: -1, response: `error`, message: "Network or System failure", rows: 0, context: `Order.Publish.${source}` },
           } as IPublishResult<IOrder>;
         }
       }
@@ -164,7 +159,6 @@ export const Pending = async (): Promise<Array<Partial<IOrderAPI>>> => {
 
   let afterId = "0";
 
-  console.log("-> [Info] Pending Order Processing");
   while (true) {
     const path = `/api/v1/trade/orders-pending?after=${afterId}&limit=${limit}`;
 
@@ -174,7 +168,6 @@ export const Pending = async (): Promise<Array<Partial<IOrderAPI>>> => {
       if (result && result.length > 0) {
         pending.push(...result);
         afterId = Math.max(...result.map((o) => parseInt(o.orderId!))).toString();
-        if (result.length < limit) break;
       } else break;
 
       await delay(1500);
@@ -184,7 +177,6 @@ export const Pending = async (): Promise<Array<Partial<IOrderAPI>>> => {
     }
   }
 
-  console.log(`-> Fetch:Pending [API] Completed. Total: ${pending.length}`);
   return pending;
 };
 
@@ -196,14 +188,15 @@ const History = async (): Promise<Array<Partial<IOrderAPI>>> => {
   const history: Array<Partial<IOrderAPI>> = [];
 
   while (true) {
+    console.error("-> [Info] Fetching Order History from ID:", Session().audit_order);
     const path = `/api/v1/trade/orders-history?before=${Session().audit_order}&limit=${limit}`;
     const result = await API_GET<Array<Partial<IOrderAPI>>>(path, "Order.History");
 
     if (result && result.length > 0) {
       history.push(...result);
       setSession({ audit_order: Math.max(...result.map((api) => parseInt(api.orderId!))).toString() });
-      if (result.length < limit) break;
-    }
+    } else break;
+
     await delay(1500);
   }
 

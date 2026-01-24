@@ -21,6 +21,7 @@ type Accumulator = { requests: Partial<IRequestAPI>[]; closures: Partial<IReques
 export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const orders = await Orders.Fetch({ status: "Hold", account: Session().account });
   if (!orders) return [];
+  console.log(`-> Requests.Hold: Processing ${orders.length} hold orders`);
 
   // 1. Prepare API cancel batch and corrective closures for non-pending orders
   const { requests, closures } = orders.reduce(
@@ -28,7 +29,7 @@ export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
       order.request_status === `Pending`
         ? acc.requests.push({
             instId: order.symbol,
-            orderId: BigInt(hexString(order.order_id!, 10)).toString(),
+            orderId: parseInt(hexString(order.order_id!, 10)).toString(),
             clientOrderId: hexString(order.request!, 12),
           })
         : acc.closures.push({

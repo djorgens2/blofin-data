@@ -22,7 +22,7 @@ export interface IReference {
   cancel_source: Uint8Array;
   order_category: Uint8Array;
   source_ref: string;
-  status: string;
+  status: TRequestState;
   map_ref: TRequestState;
   [key: string]: unknown;
 }

@@ -33,7 +33,7 @@ const publish = async (props: IResult): Promise<IPublishResult<IInstrumentPositi
   if (!!parseInt(props.code)) {
     return {
       key: undefined,
-      response: { success: false, code: parseInt(props.code), state: `error`, message: props.msg, rows: 0 },
+      response: { success: false, code: parseInt(props.code), response: `error`, message: props.msg, rows: 0 },
     };
   }
 
@@ -84,13 +84,13 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
       console.log("-> [Error] Leverage.Publish:", error, method, headers, body);
       return {
         key: undefined,
-        response: { success: false, code: error.code, state: `error`, message: error.message, rows: 0 },
+        response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0 },
       };
     }
     console.error("-> [System Error] Leverage.Publish:", error);
     return {
       key: undefined,
-      response: { success: false, code: -1, state: "error", message: "Network or System failure", rows: 0 },
+      response: { success: false, code: -1, response: "error", message: "Network or System failure", rows: 0 },
     };
   }
 };

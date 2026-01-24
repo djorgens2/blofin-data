@@ -65,7 +65,7 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPublishResult<IInstrumentPosition>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 413, state: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 413, response: `null_query`, rows: 0 } };
   }
 
   const exists = await Fetch({

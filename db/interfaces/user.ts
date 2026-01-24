@@ -65,8 +65,8 @@ export const Modify = async (props: Partial<IUser>): Promise<TResponse> => {
         image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
       };
       return await Update(revised, { table: `user`, keys: [{ key: `user` }] });
-    } else return { success: false, code: 404, state: `not_found`, rows: 0 };
-  } else return { success: false, code: 400, state: `null_query`, rows: 0 };
+    } else return { success: false, code: 404, response: `not_found`, rows: 0 };
+  } else return { success: false, code: 400, response: `null_query`, rows: 0 };
 };
 
 //+--------------------------------------------------------------------------------------+

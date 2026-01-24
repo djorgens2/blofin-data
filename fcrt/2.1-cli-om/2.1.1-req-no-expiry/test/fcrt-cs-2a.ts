@@ -21,20 +21,20 @@ if (args.length) {
     const request_type = await References.Key<TRefKey>({ source_ref: req_fcrt_2a.order_type }, { table: `request_type` });
     const submitted = await Requests.Submit({ ...request, instrument_position, request_type, memo: "Test 2a: request w/o expiry; w/o tpsl" });
     console.log({ submitted, request });
-    return [submitted, request];
+    return submitted;
   };
   
   submit(req_fcrt_2a)
-  .then(async ([submitted, request]) => {
+  .then(async (submitted) => {
     if (submitted === undefined) {
         console.error(Session());
         console.error("Test 2a: Request submission failed.");
         console.error("Check if the request was already submitted or if there was an error in the submission process.");
-        console.error("Request details:", request);
+//        console.error("Request details:", request);
         console.error("Exiting process with code 1.");
         process.exit(1);
       }
-      await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
+      await Orders.Fetch({ request: submitted.key?.request }).then((order) => {
         console.log("Test 2a: Request submitted, check db for results.", submitted);
         console.log("Fetched order from DB:", order);
       });

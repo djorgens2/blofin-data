@@ -23,36 +23,36 @@ export const Canceled = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const orders = await Orders.Fetch({ status: "Canceled", account: Session().account });
 
   if (!orders) return [];
+  console.log(`-> Requests.Canceled: Processing ${orders.length} canceled orders`);
 
-    const { cancel, closure } = orders.reduce(
-      (acc: Accumulator, order) => {
-        const orderId = BigInt(hexString(order.order_id!, 10)).toString();
-        const isPending = order.order_id && order.request_status === "Pending";
-        isPending ? acc.cancel.push({ instId: order.symbol, orderId }) : acc.closure.push(order);
-        return acc;
-      },
-      { cancel: [] as IOrderAPI[], closure: [] as IOrder[] }
-    );
+  const { cancel, closure } = orders.reduce(
+    (acc: Accumulator, order) => {
+      const orderId = parseInt(hexString(order.order_id!, 10)).toString();
+      const isPending = order.order_id && order.request_status === "Pending";
+      isPending ? acc.cancel.push({ instId: order.symbol, orderId }) : acc.closure.push(order);
+      return acc;
+    },
+    { cancel: [] as IOrderAPI[], closure: [] as IOrder[] }
+  );
 
-    const promises = [
-      ...closure.map(async (request) => {
-        const result = await Requests.Submit({ ...request, update_time: new Date() });
-        result.response.outcome = "closed";
-        return result;
-      }),
+  const promises = [
+    ...closure.map(async (request) => {
+      const result = await Requests.Submit({ ...request, update_time: new Date() });
+      result.response.outcome = "closed";
+      return result;
+    }),
 
-      (async () => {
-        if (cancel.length === 0) return [];
-        const cancels = await RequestAPI.Cancel(cancel);
+    (async () => {
+      if (cancel.length === 0) return [];
+      const cancels = await RequestAPI.Cancel(cancel);
 
-        return cancels.map((c) => ({
-          ...c,
-          response: { ...c.response, outcome: "expired" } as TResponse,
-        }));
-      })(),
-    ];
+      return cancels.map((c) => ({
+        ...c,
+        response: { ...c.response, outcome: "expired" } as TResponse,
+      }));
+    })(),
+  ];
 
-    const results = await Promise.all(promises);
-    return results.flat();
-  }
-
+  const results = await Promise.all(promises);
+  return results.flat();
+};

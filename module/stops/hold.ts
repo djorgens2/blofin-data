@@ -25,8 +25,8 @@ export const Hold = async () => {
   if (holds) {
     const cancels: Array<Partial<IStopsAPI>> = holds.map(({ symbol, tpsl_id, client_order_id }) => ({
       instId: symbol,
-      tpslId: BigInt(hexString(tpsl_id!, 8)).toString(10),
-      clientOrderId: BigInt(hexString(client_order_id!, 10)).toString(10),
+      tpslId: parseInt(hexString(tpsl_id!, 8)).toString(10),
+      clientOrderId: parseInt(hexString(client_order_id!, 10)).toString(10),
     }));
 
     const [processed, errors] = (await StopsAPI.Cancel(cancels)) ?? [[], []];

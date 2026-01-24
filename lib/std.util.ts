@@ -103,7 +103,7 @@ export const isEqual = (source: ComparableValue, benchmark: ComparableValue, dig
     return true;
   }
 
-  if (source == null  || benchmark == null) {
+  if (source == null || benchmark == null) {
     return false;
   }
 
