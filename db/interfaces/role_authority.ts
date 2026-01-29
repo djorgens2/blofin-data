@@ -53,8 +53,8 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse
       activity,
       state: await State.Key<IAccess>({ status: "Disabled" }),
     };
-    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-  } else return { success: false, code: 400, response: `null_query`, rows: 0 };
+    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }], context: "Role.Authority.Disable" });
+  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Disable" };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -70,8 +70,8 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse>
       activity,
       state: await State.Key<IAccess>({ status: "Enabled" }),
     };
-    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }] });
-  } else return { success: false, code: 400, response: `null_query`, rows: 0 };
+    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }], context: "Role.Authority.Enable" });
+  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Enable" };
 };
 
 //+--------------------------------------------------------------------------------------+

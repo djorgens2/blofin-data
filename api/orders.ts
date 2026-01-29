@@ -4,8 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRefKey } from "db/interfaces/reference";
 import type { IOrder } from "db/interfaces/order";
+import type { IRequest } from "db/interfaces/request";
+import type { TRefKey } from "db/interfaces/reference";
 import type { IPublishResult } from "db/query.utils";
 import type { IRequestAPI } from "api/requests";
 
@@ -40,7 +41,7 @@ export interface IOrderAPI extends IRequestAPI {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>): Promise<Array<IPublishResult<IOrder>>> => {
   if (!props?.length) return [];
-  console.log(`-> Orders.Publish.${source} [API]`);
+  console.log(`-> Orders.Publish.${source}`);
 
   // 1. PRE-FILTER (de-dup map): Identify the latest order for each unique Request ID
   const requests = new Map<string, { order: Partial<IOrderAPI>; key: string }>();
@@ -63,31 +64,20 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
 
         if (!order_id || !request) throw new ApiError(451, `Invalid Order ID ${order.orderId} or Request ${order.clientOrderId}; order not processed`);
 
-        const [exists, instrument_position, cancel_source, order_category, request_type, order_states] = await Promise.all([
-          Orders.Fetch({ request }),
-          InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide }),
+        const [required, cancel_source, order_category, request_type, order_states] = await Promise.all([
+          InstrumentPositions.Fetch({ account: Session().account, symbol: order.instId, position: order.positionSide }),
           Reference.Key<TRefKey>({ source_ref: order.cancelSource || "not_canceled" }, { table: `cancel_source` }),
           Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` }),
           Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` }),
           Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` }),
         ]);
 
-        if (!instrument_position)
+        if (!required)
           throw new ApiError(452, `Unauthorized Instrument Position [${order.instId}:${order.positionSide}] request from logged account ${Session().alias}`);
 
         if (!order_states) throw new ApiError(453, `Invalid Order State metadata; unable to resolve state [${order.state}}] on Order: ${request}`);
 
         const [mapped] = order_states;
-        const [current] = exists ?? [{}];
-
-        const history = source === "History";
-        const create_time = new Date(parseInt(order.createTime!));
-        const update_time = new Date(parseInt(order.updateTime!));
-
-        const isChanged = current.update_time && update_time > current.update_time ? true : false;
-        const isExpired = history && mapped.status === "Pending";
-        const isNewer = !history && isChanged && mapped.status === "Pending";
-        const status = isExpired ? `Expired` : isNewer ? `Hold` : mapped.status;
 
         const orderResult = await Orders.Publish({
           order_id,
@@ -100,35 +90,54 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
           average_price: format(order.averagePrice!),
           fee: format(order.fee!),
           pnl: format(order.pnl!),
-          create_time,
-          update_time,
         });
 
+        const [{ instrument_position, auto_status }] = required;
+        const [current] = (await Orders.Fetch({ request })) ?? [{}];
+
+        const create_time = new Date(parseInt(order.createTime!));
+        const update_time = new Date(parseInt(order.updateTime!));
+
+        const pending = mapped.status === "Pending";
+        const auto = auto_status === "Enabled";
+        const history = source === "History";
+
         let requestResult: IPublishResult<IOrder> | undefined;
-        if (requests.get(key)?.order.orderId === order.orderId) {
-          requestResult = await Requests.Publish(source, current, {
-            request,
-            instrument_position,
-            action: order.side,
-            state: mapped.state,
-            status,
-            price: format(order.price!),
-            size: format(order.size!),
-            leverage: format(order.leverage!),
-            request_type: request_type ?? undefined,
-            margin_mode: order.marginMode,
-            reduce_only: order.reduceOnly === "true",
-            memo:
-              source === "WSS"
-                ? current.memo || `[Info] Orders.Publish: WSS message received; order updated`
-                : source === `History`
+        let revised: Partial<IRequest> = {
+          request,
+          instrument_position,
+          action: order.side,
+          state: mapped.state,
+          price: format(order.price!),
+          size: format(order.size!),
+          leverage: format(order.leverage!),
+          request_type,
+          margin_mode: order.marginMode,
+          reduce_only: order.reduceOnly === "true",
+          memo:
+            source === "WSS"
+              ? current.memo || `[Info] Orders.Publish: WSS message received; order updated`
+              : source === `History`
                 ? "[Info] Orders.Publish: History updated; order imported"
                 : "[Info] Orders.Publish: New Order received; submitted and processed",
-            broker_id: order.brokerId,
-            create_time,
-            update_time,
-          });
+          broker_id: order.brokerId,
+          create_time,
+          update_time,
+        };
+
+        if (requests.get(key)?.order.orderId === order.orderId) {
+          if (history) {
+            revised.status = mapped.status === "Pending" ? "Expired" : mapped.status;
+          } else if (auto) {
+            revised.price = current.price;
+            revised.size = current.size;
+            revised.leverage = current.leverage;
+            revised.status = pending ? "Hold" : mapped.status;
+          } else revised.status = mapped.status;
+
+          requestResult = await Requests.Publish(source, current, revised);
         }
+
         return requestResult ? [orderResult, requestResult] : [orderResult];
       } catch (error) {
         {
@@ -145,7 +154,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
           } as IPublishResult<IOrder>;
         }
       }
-    })
+    }),
   );
   return results.flat();
 };

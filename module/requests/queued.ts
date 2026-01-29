@@ -37,18 +37,21 @@ export const Queued = async () => {
           });
       return acc;
     },
-    { queue: [], expire: [] }
+    { queue: [], expire: [] },
   );
 
   const [expired, leverage] = await Promise.all([
-    Promise.all(expire.map(async (r) => Request.Submit(r))),
+    Promise.all(expire.map(async (request) => Request.Submit(request))),
     Promise.all(
-      queue.map(async (r) => {
-        Leverage.Submit({ instId: r.instId, positionSide: r.positionSide, leverage: r.leverage, marginMode: r.marginMode });
-      })
+      queue.map(async (request) => {
+        console.log(`-> Requests.Queued: Processing leverage for request ${request.clientOrderId}`);
+        return Leverage.Submit({ instId: request.instId, positionSide: request.positionSide, leverage: request.leverage, marginMode: request.marginMode });
+      }),
     ),
   ]);
-  
+  console.log(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
+  console.error(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
+
   const submitted = await RequestAPI.Submit(queue);
   return Summary([...expired, ...leverage, ...submitted].map((r) => r?.response));
 };

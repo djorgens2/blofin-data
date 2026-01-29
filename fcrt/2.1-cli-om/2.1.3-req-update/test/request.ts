@@ -35,8 +35,7 @@ export const req_fcrt_1c: Partial<IRequest> = {
   order_type: "limit",
   price: 2.55,
   size: 100,
-  leverage: 50,
-  status: "Hold",
+  leverage: 25,
   expiry_time: setExpiry("1h"),
   memo: 'Test 1c: request reject on size, resub, then edit and resub'
 };

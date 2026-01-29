@@ -29,7 +29,7 @@ export const Publish = async (props: Partial<IInstrument>) => {
   ]);
 
   if (!exists) {
-    const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail` });
+    const result = await Insert({ ...props, instrument_type, contract_type }, { table: `instrument_detail`, context: "Instrument.Detail.Publish" });
     return { key: PrimaryKey({ instrument: props.instrument }, ["instrument"]), response: result };
   }
 
@@ -48,13 +48,13 @@ export const Publish = async (props: Partial<IInstrument>) => {
     list_time: isEqual(props.list_time!, current.list_time!) ? undefined : props.list_time,
     expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
   };
-  const result: TResponse = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }] });
+  const result = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }], context: "Instrument.Detail.Publish" });
   if (result.success) {
     const confirm = await Update(
       { instrument: current.instrument, update_time: props.update_time || new Date() },
-      { table: `instrument_detail`, keys: [{ key: `instrument` }] }
+      { table: `instrument_detail`, keys: [{ key: `instrument` }], context: "Instrument.Detail.Publish" }
     );
     return { key: PrimaryKey(revised, ["instrument"]), response: confirm };
-  } 
+  }
   return { key: PrimaryKey(revised, ["instrument"]), response: result };
 };

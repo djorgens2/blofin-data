@@ -46,7 +46,7 @@ export interface IPositions {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IPositions>): Promise<IPublishResult<IPositions>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 415, response: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 415, response: `null_query`, rows: 0, context: "Positions.Publish" } };
   }
 
   const exists = await Fetch({ account: Session().account, positions: props.positions });
@@ -72,14 +72,14 @@ export const Publish = async (props: Partial<IPositions>): Promise<IPublishResul
       create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
     };
-    const result = await Update(revised, { table: `positions`, keys: [{ key: `positions` }] });
+    const result = await Update(revised, { table: `positions`, keys: [{ key: `positions` }], context: "Positions.Publish" });
     return {
       key: PrimaryKey(current, ["positions", "instrument_position"]),
       response: result,
     };
   }
 
-  const result = await Insert<IPositions>(props, { table: `positions` });
+  const result = await Insert<IPositions>(props, { table: `positions`, context: "Positions.Publish" });
   return {
     key: PrimaryKey(props, ["positions", "instrument_position"]),
     response: result,

@@ -36,7 +36,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IEnvironment>): Promise<IPublishResult<IEnvironment>> => {
   Object.assign(props, { environment: hashKey(6) });
-  const result = await Insert<IEnvironment>(props, { table: `environment`, ignore: true });
+  const result = await Insert<IEnvironment>(props, { table: `environment`, ignore: true, context: "Environment.Add" });
   return { key: PrimaryKey(props, ["environment"]), response: result };
 };
 

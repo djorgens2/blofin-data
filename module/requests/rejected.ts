@@ -37,16 +37,16 @@ export const Rejected = async (): Promise<Array<IPublishResult<IRequest>>> => {
     {
       requeue: [] as Array<Partial<IRequest>>,
       expire: [] as Array<Partial<IRequest>>,
-    }
+    },
   );
   const results = await Promise.all([
-    ...requeue.map(async (req) => {
-      const result = await Request.Submit(req);
+    ...requeue.map(async (request) => {
+      const result = await Request.Submit(request);
       result.response.outcome = "requeued";
       return result;
     }),
-    ...expire.map(async (req) => {
-      const result = await Request.Submit(req);
+    ...expire.map(async (request) => {
+      const result = await Request.Submit(request);
       result.response.outcome = "expired";
       return result;
     }),

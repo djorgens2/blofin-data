@@ -51,7 +51,11 @@ export const Publish = async (props: Partial<ICandle>) => {
       vol_currency_quote: isEqual(props.vol_currency_quote!, candle.vol_currency_quote!, 5) ? undefined : props.vol_currency_quote,
       completed: !!props.completed === !!candle.completed! ? undefined : props.completed,
     };
-    return await Update<ICandle>(revised, { table: `candle`, keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }] });
+    return await Update<ICandle>(revised, {
+      table: `candle`,
+      keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }],
+      context: "Candle.Publish",
+    });
   } else {
     await Insert<ICandle>(
       {
@@ -67,20 +71,10 @@ export const Publish = async (props: Partial<ICandle>) => {
         vol_currency_quote: props.vol_currency_quote,
         completed: props.completed,
       },
-      { table: `candle` }
+      { table: `candle`, context: "Candle.Publish" },
     );
   }
 };
-
-//export const Fetch = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
-//   const { limit, ...columns } = props;
-//   const suffix = `ORDER BY timestamp DESC${limit ? ` LIMIT ${limit || 1}` : ``}`;
-//   const keys = props.timestamp ? [{ key: `timestamp`, sign: `>=` }] : [];
-//   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
-
-//   return result.length ? result : undefined;
-// };
-
 
 //+--------------------------------------------------------------------------------------+
 //| Returns all candles meeting the mandatory instrument/period requirements;            |

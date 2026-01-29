@@ -39,18 +39,18 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
           return { key: PrimaryKey(current, ["instrument_type"]), response: result };
         }
       }
-      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 201, response: `exists`, rows: 0 } };
+      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 201, response: `exists`, rows: 0, context: "Instrument.Type.Publish" } };
     } else {
       const missing = {
         instrument_type: hashKey(6),
         source_ref: search.source_ref,
         description: props.description || "Description pending",
       };
-      const result = await Insert<IInstrumentType>(missing, { table: `instrument_type` });
+      const result = await Insert<IInstrumentType>(missing, { table: `instrument_type`, context: "Instrument.Type.Publish" });
       return { key: PrimaryKey(missing, ["instrument_type"]), response: result };
     }
   }
-  return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0 } };
+  return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context: "Instrument.Type.Publish" } };
 };
 
 //+--------------------------------------------------------------------------------------+

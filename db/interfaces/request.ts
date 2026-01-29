@@ -10,7 +10,7 @@ import type { IRequestState, TRequestState } from "db/interfaces/state";
 import type { IPublishResult } from "db/query.utils";
 
 import { Insert, Update, PrimaryKey } from "db/query.utils";
-import { bufferString, hasValues, isEqual, setExpiry } from "lib/std.util";
+import { bufferString, hasValues, isEqual, setExpiry, timeString } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
 
@@ -59,7 +59,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
           request: current.request,
           order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
           action: props.action === current.action ? undefined : props.action,
-          state: state ? isEqual(state!, current.state!) ? undefined : state : undefined,
+          state: state ? (isEqual(state!, current.state!) ? undefined : state) : undefined,
           price: isEqual(props.price!, current.price!) ? undefined : props.price,
           size: isEqual(props.size!, current.size!) ? undefined : props.size,
           leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
@@ -67,7 +67,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
           broker_id: props.broker_id?.length ? (props.broker_id === current.broker_id ? undefined : props.broker_id) : undefined,
         };
 
-        const result = await Update(revised, { table: `request`, keys: [{ key: `request` }] });
+        const result = await Update(revised, { table: `request`, keys: [{ key: `request` }], context: `Request.Publish.${source}` });
 
         if (result.success || !isEqual(props.expiry_time! || current.expiry_time, current.expiry_time!)) {
           const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
@@ -80,13 +80,16 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
               expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
               update_time: props.update_time,
             },
-            { table: `request`, keys: [{ key: `request` }] }
+            { table: `request`, keys: [{ key: `request` }], context: `Request.Publish.${source}` },
           );
 
           return { key: PrimaryKey(current, [`request`]), response: revised };
         }
       }
-      return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 200, response: `exists`, message: `Request unchanged`, rows: 0 } };
+      return {
+        key: PrimaryKey(current, [`request`]),
+        response: { success: false, code: 200, response: `exists`, message: `Request unchanged`, rows: 0, context: `Request.Publish.${source}` },
+      };
     }
 
     return {
@@ -97,6 +100,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
         response: `null_query`,
         message: `[Error] Request: No update properties provided from ${source}; request unchanged`,
         rows: 0,
+        context: `Request.Publish.${source}`,
       },
     };
   }
@@ -122,10 +126,20 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
       expiry_time: props.expiry_time || setExpiry("8h", props.create_time || new Date()),
       update_time: props.update_time || process_time,
     };
-    const result = await Insert<IRequest>(request, { table: `request` });
+    const result = await Insert<IRequest>(request, { table: `request`, context: `Request.Publish.${source}` });
     return { key: PrimaryKey(request, [`request`]), response: result };
   }
-  return { key: undefined, response: { success: false, code: 400, response: `null_query`, message: "[Error] Request.Publish: Nothing to publish", rows: 0 } };
+  return {
+    key: undefined,
+    response: {
+      success: false,
+      code: 400,
+      response: `null_query`,
+      message: "[Error] Request.Publish: Nothing to publish",
+      rows: 0,
+      context: `Request.Publish.${source}`,
+    },
+  };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -136,7 +150,19 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
 
   if (!orders) {
     console.log("[Error]: Unauthorized cancellation attempt");
-    return [{ key: undefined, response: { success: false, code: 400, response: `null_query`, message: "[Error] Request.Cancel: Nothing to cancel", rows: 0 } }];
+    return [
+      {
+        key: undefined,
+        response: {
+          success: false,
+          code: 400,
+          response: `null_query`,
+          message: "[Error] Request.Cancel: Nothing to cancel",
+          rows: 0,
+          context: "Request.Cancel",
+        },
+      },
+    ];
   }
 
   const cancels = await Promise.all(
@@ -148,7 +174,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
         update_time: new Date(),
       });
       return result;
-    })
+    }),
   );
   return cancels;
 };
@@ -159,7 +185,10 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
 export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<IRequest>> => {
   if (!hasValues(props)) {
     console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
-    return { key: undefined, response: { success: false, code: 400, response: `null_query`, message: `No request properties provided`, rows: 0 } };
+    return {
+      key: undefined,
+      response: { success: false, code: 400, response: `null_query`, message: `No request properties provided`, rows: 0, context: "Request.Submit" },
+    };
   }
 
   const query = props.instrument_position
@@ -169,7 +198,10 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   if (!exists) {
     console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
-    return { key: undefined, response: { success: false, code: 404, response: `error`, message: `Instrument position not found`, rows: 0 } };
+    return {
+      key: undefined,
+      response: { success: false, code: 404, response: `error`, message: `Instrument position not found`, rows: 0, context: "Request.Submit" },
+    };
   }
 
   const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
@@ -178,7 +210,6 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     : ({ instrument_position, status: open_request ? "Pending" : "Queued" } satisfies Partial<IRequest>);
   const found = await Orders.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
 
-  // Handle new request submission
   if (!found) {
     return await Publish(
       `Submit`,
@@ -189,7 +220,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
         leverage: props.leverage || leverage,
         margin_mode: props.margin_mode || margin_mode,
         memo: props.memo || `[Warning] Request.Submit: Request missing; was added locally; updated and settled`,
-      }
+      },
     );
   }
   const [current] = found;
@@ -205,7 +236,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
             .filter(({ request }) => !isEqual(request!, current.request!))
             .map(async ({ request }) => {
               Cancel({ request, memo: `[Warning] Request.Submit: New request on open instrument/position auto-cancels existing` });
-            })
+            }),
         );
       }
       props.status = current.status === "Pending" ? "Hold" : props.status || current.status;
@@ -222,6 +253,13 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   return {
     key: undefined,
-    response: { success: true, code: 201, response: `exists`, message: `-> [Info] Request.Submit: Queued request verified`, rows: 0 },
+    response: {
+      success: true,
+      code: 201,
+      response: `exists`,
+      message: `-> [Info] Request.Submit: Queued request verified`,
+      rows: 0,
+      context: "Request.Submit",
+    },
   };
 };

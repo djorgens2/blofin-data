@@ -26,7 +26,7 @@ export interface ICurrency {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult<ICurrency>> => {
   if (!props || !(props.symbol || props.currency)) {
-    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context: "Currency.Publish" } };
   }
 
   const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
@@ -40,7 +40,7 @@ export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult
         state: isEqual(state!, current.state!) ? undefined : state,
         image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
       },
-      { table: `currency`, keys: [{ key: `currency` }] }
+      { table: `currency`, keys: [{ key: `currency` }], context: "Currency.Publish" },
     );
 
     return { key: PrimaryKey(current, ["currency"]), response: result };
@@ -52,7 +52,7 @@ export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult
     state: state || (await States.Key({ status: "Enabled" })),
     image_url: `./public/images/currency/no-image.png`,
   };
-  const result = await Insert<ICurrency>(missing, { table: `currency` });
+  const result = await Insert<ICurrency>(missing, { table: `currency`, context: "Currency.Publish" });
 
   return { key: PrimaryKey(missing, ["currency"]), response: result };
 };
@@ -75,35 +75,48 @@ export const Fetch = async (props: Partial<ICurrency>): Promise<Array<Partial<IC
   return result.length ? result : undefined;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Suspends currency on receipt of an 'unalive' state from Blofin;                      |
-//+--------------------------------------------------------------------------------------+
-export const Suspend = async (props: Array<Partial<ICurrency>>) => {
-  if (props.length) {
-    console.log(`-> Currency:Suspend: ${props.length} currencies to suspend`);
+/**
+ * Suspends currencies/symbols and returns standardized IPublishResult objects
+ */
+export const Suspend = async (props: Array<Partial<ICurrency>>): Promise<Array<IPublishResult<ICurrency>>> => {
+  if (!props.length) return [];
 
-    const state = await States.Key<ISymbol>({ status: "Suspended" });
-    const counts = {
-      success: 0,
-      errors: 0,
-    };
+  console.log(`-> Currency:Suspend [API] Processing ${props.length} items`);
 
-    for (const suspense of props) {
-      const { currency, symbol } = suspense;
-      const keys = [];
-      const columns = {
-        currency: currency || undefined,
-        symbol: symbol || undefined,
-        state,
-      };
+  const suspended = await States.Key<ISymbol>({ status: "Suspended" });
 
-      currency && keys.push({ key: `currency` });
-      symbol && keys.push({ key: `symbol` });
+  return await Promise.all(
+    props.map(async (suspense): Promise<IPublishResult<ICurrency>> => {
+      try {
+        const { currency, symbol } = suspense;
+        const keys: Array<{ key: string }> = [];
 
-      const result = await Update(columns, { table: `currency`, keys });
-      result.success ? counts.success++ : counts.errors++;
-    }
+        currency && keys.push({ key: "currency" });
+        symbol && keys.push({ key: "symbol" });
 
-    console.log(`   # Suspensions processed [${props.length}]:  ${counts.success} ok${counts.errors ? `; errors: ${counts.errors}` : ``}`);
-  }
+        if (keys.length === 0) {
+          throw new Error("Missing identifying keys (currency/symbol)");
+        }
+
+        const result = await Update({ currency, symbol, state: suspended }, { table: "currency", keys, context: "Currency.Suspend" });
+
+        return {
+          key: PrimaryKey(suspense, ["currency"]),
+          response: result,
+        };
+      } catch (error) {
+        return {
+          key: undefined,
+          response: {
+            success: false,
+            code: -1,
+            response: "error",
+            message: error instanceof Error ? error.message : "Suspension failure",
+            rows: 0,
+            context: "Currency.Suspend",
+          },
+        };
+      }
+    }),
+  );
 };

@@ -12,7 +12,7 @@ import pool from "db/db.config";
 export const DB_SCHEMA = process.env.DB_SCHEMA || process.env.DB_DATABASE;
 
 export type TKey = { key: string; sign?: string };
-export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection };
+export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection, context?: string };
 export type TSign = `=` | `!=` | `<` | `<=` | `>` | `>=` | `LIKE` | `IN` | `NOT IN`;
 export type TSearchKey = { key: string; sign: TSign };
 export type TResponse = {
@@ -20,7 +20,7 @@ export type TResponse = {
   response: string;
   code: number;
   rows: number;
-  context?: string;
+  context: string;
   outcome?: string;
   message?: string;
 };
@@ -81,6 +81,7 @@ const modify = async (sql: string, args: Array<any>): Promise<TResponse> => {
       code: rows ? 0 : 404,
       response: rows ? `success` : `not_found`,
       rows,
+      context: `Query.Utils.Modify`,
     };
   } catch (e) {
     return error(e, args);
@@ -94,7 +95,7 @@ const insert = async (sql: string, args: Array<any>): Promise<TResponse> => {
   try {
     const [results] = await pool.query(sql, args);
     const rows = (results as ResultSetHeader).affectedRows ?? 0;
-    return { success: true, code: 0, response: `success`, rows };
+    return { success: true, code: 0, response: `success`, rows, context: `Query.Utils.Insert` };
   } catch (e) {
     return error(e, args);
   }
@@ -107,7 +108,7 @@ const transact = async (sql: string, args: Array<any>, connection: PoolConnectio
   try {
     const [results] = await connection.execute(sql, args);
     const rows = (results as ResultSetHeader).affectedRows ?? 0;
-    return { success: rows ? true : false, code: 0, response: `success`, rows };
+    return { success: rows ? true : false, code: 0, response: `success`, rows , context: `Query.Utils.Transact` };
   } catch (e) {
     return error(e, args);
   }
@@ -181,7 +182,7 @@ export const Summary = (results: (TResponse | undefined | null)[]): Record<strin
 //+--------------------------------------------------------------------------------------+
 export const Insert = async <T>(props: Partial<T>, options: TOptions): Promise<TResponse> => {
   if (!hasValues<Partial<T>>(props)) {
-    return { success: false, code: 400, response: `null_query`, rows: 0 };
+    return { success: false, code: 400, response: `null_query`, rows: 0, context: options.context || `Query.Utils.Insert`  };
   }
 
   const { table, ignore } = options;
@@ -193,7 +194,7 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions): Promise<T
     const response = result.rows ? `inserted` : ignore ? `exists` : `error`;
     const code = ignore && result.rows === 0 ? 200 : result.code;
     result.rows && console.log(`-> [Info] ${table} inserted`, { fields, args });
-    return { success: !!result.rows, code, response, rows: result.rows };
+    return { success: !!result.rows, code, response, rows: result.rows, context: options.context || `Query.Utils.Insert` };
   } catch (e) {
     return e as TResponse;
   }
@@ -204,16 +205,15 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions): Promise<T
 //+--------------------------------------------------------------------------------------+
 export const Update = async <T>(props: Partial<T>, options: TOptions): Promise<TResponse> => {
   if (!hasValues<Partial<T>>(props)) {
-    return { success: false, code: 401, response: `null_query`, rows: 0 };
+    return { success: false, code: 401, response: `null_query`, rows: 0, context: options.context || `Query.Utils.Update` };
   }
-
   const { table, suffix, limit } = options;
   const [columns, filters] = splitKeys<T>(props, options.keys ? options.keys.map((k) => k.key) : []);
   const [keys, args] = parseKeys(filters, options.keys);
   const [fields, values] = parseColumns(columns);
 
   if (fields.length === 0) {
-    return { success: false, code: 402, response: `no_update`, rows: 0 };
+    return { success: false, code: 402, response: `no_update`, rows: 0, context: options.context || `Query.Utils.Update` };
   }
 
   const sql = `UPDATE ${DB_SCHEMA}.${table} SET ${fields.join(", ")}${fields.length ? " WHERE ".concat(keys.join(" AND ")) : ""} ${suffix ? suffix : ``}${
@@ -225,7 +225,7 @@ export const Update = async <T>(props: Partial<T>, options: TOptions): Promise<T
     const response = result.rows ? `updated` : result.code ? `error` : `not_found`;
     const code = result.rows ? result.code : result.code ? result.code : 404;
     result.rows && console.log(response, `-> [Info] ${table} updated`, { filters, columns });
-    return { success: result.rows ? true : false, code, response, rows: result.rows };
+    return { success: result.rows ? true : false, code, response, rows: result.rows, context: options.context || `Query.Utils.Update` };
   } catch (e) {
     return e as TResponse;
   }

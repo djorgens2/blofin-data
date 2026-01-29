@@ -94,7 +94,7 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
   return Promise.all(
     orders.map(async ({ success, current, request }) => {
       const { code, message, ...updates } = request;
-      const result = await Request.Publish('Api', current, updates);
+      const result = await Request.Publish('API', current, updates);
 
       return {
         key: PrimaryKey(request, ["request"]),

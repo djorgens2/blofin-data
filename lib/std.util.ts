@@ -81,6 +81,12 @@ export const setExpiry = (period: string, from?: Date) => {
   return new Date(expiry.getTime() + units);
 };
 
+export const timeString = () => {
+  const now = new Date();
+  const time = now.toLocaleTimeString("en-US", { hour12: false }) + "." + String(now.getMilliseconds()).padStart(3, "0");
+  return time;
+};
+
 //+--------------------------------------------------------------------------------------+
 //| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
 //+--------------------------------------------------------------------------------------+
@@ -190,7 +196,7 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
 
       return maxLengthObj;
     },
-    { ...keylens } as Record<string, number>
+    { ...keylens } as Record<string, number>,
   );
 };
 
@@ -224,8 +230,10 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
     // Type Guard: Check first element to determine if we need CSV conversion
     if (typeof array[0] === "object") {
       const headers = Object.keys(array[0] as object).join(",");
-      const rows = (array as object[]).map((obj) => 
-        Object.values(obj).map(val => `"${val}"`).join(",")
+      const rows = (array as object[]).map((obj) =>
+        Object.values(obj)
+          .map((val) => `"${val}"`)
+          .join(","),
       );
       text = [headers, ...rows].join("\n");
     } else {
@@ -235,10 +243,8 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
 
     fs.writeFileSync(filePath, text, "utf8");
     console.log(`-> [Success] fileWrite: ${array.length} records written to ${filePath}`);
-    
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Unknown file error";
     console.error(`-> [Error] fileWrite to ${filePath}:`, msg);
   }
 };
-

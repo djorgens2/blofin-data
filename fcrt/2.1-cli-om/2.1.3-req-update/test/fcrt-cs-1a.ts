@@ -68,10 +68,10 @@ if (cli_account && cli_test) {
           const submitted = await Requests.Submit({
             ...current,
             ...Request.req_fcrt_1c,
-            memo: `Test ${cli_test}: Updating Order: Updates to hold;`,
+            memo: `Test ${cli_test}: Reduction Order: Updated to hold;`,
             update_time: new Date(),
           });
-          console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1c]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1c });
+          console.log(`[Info] Request.Submit: submitting request [Request.req_fcrt_1c]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1c });
           return [submitted, Request.req_fcrt_1c];
         }
         throw new Error(`[Error] No Order: Test ${cli_test} failed; request does not exist for this instrument;`);

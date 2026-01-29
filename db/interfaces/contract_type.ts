@@ -20,7 +20,7 @@ export interface IContractType {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IContractType>): Promise<IPublishResult<IContractType>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 410, response: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 410, response: `null_query`, rows: 0, context: "Contract.Type.Publish" } };
   }
 
   const search = {
@@ -38,11 +38,11 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
           contract_type: current.contract_type,
           description: props.description ? (props.description === current.description ? undefined : props.description) : undefined,
         };
-        const result = await Update<IContractType>(revised, { table: `contract_type`, keys: [{ key: `contract_type` }] });
+        const result = await Update<IContractType>(revised, { table: `contract_type`, keys: [{ key: `contract_type` }], context: "Contract.Type.Publish" });
         return { key: PrimaryKey(current, ["contract_type"]), response: result };
       }
     }
-    return { key: PrimaryKey({ contract_type: exists }, ["contract_type"]), response: { success: true, code: 201, response: `exists`, rows: 0 } };
+    return { key: PrimaryKey({ contract_type: exists }, ["contract_type"]), response: { success: true, code: 201, response: `exists`, rows: 0, context: "Contract.Type.Publish" } };
   }
   
   const missing = {
@@ -50,7 +50,7 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
     source_ref: search.source_ref,
     description: props.description || "Description pending",
   };
-  const result = await Insert<IContractType>(missing, { table: `contract_type` });
+  const result = await Insert<IContractType>(missing, { table: `contract_type`, context: "Contract.Type.Publish" });
 
   return { key: PrimaryKey(missing, ["contract_type"]), response: result };
 };

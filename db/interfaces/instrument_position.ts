@@ -65,7 +65,7 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPublishResult<IInstrumentPosition>> => {
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 413, response: `null_query`, rows: 0 } };
+    return { key: undefined, response: { success: false, code: 413, response: `null_query`, rows: 0, context: "Instrument.Position.Publish" } };
   }
 
   const exists = await Fetch({
@@ -91,12 +91,12 @@ export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPub
       strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
       close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
     };
-    const result: TResponse = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+    const result = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" });
 
     if (result.success) {
-      const confirm: TResponse = await Update(
+      const confirm = await Update(
         { instrument_position: current.instrument_position, update_time: props.update_time || new Date() },
-        { table: `instrument_position`, keys: [{ key: `instrument_position` }] }
+        { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" }
       );
       return { key: PrimaryKey(revised, ["instrument_position"]), response: confirm };
     }
@@ -123,7 +123,7 @@ export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPub
     update_time: props.update_time || new Date(),
     close_time: props.close_time || new Date(),
   };
-  const result: TResponse = await Insert(missing, { table: `instrument_position`, keys: [{ key: `instrument_position` }] });
+  const result = await Insert(missing, { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" });
   return { key: PrimaryKey(missing, ["instrument_position"]), response: result };
 };
 

@@ -39,7 +39,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IBroker>): Promise<IPublishResult<IBroker>> => {
   Object.assign(props, { broker: hashKey(6) });
-  const result = await Insert<IBroker>(props, { table: `broker`, ignore: true });
+  const result = await Insert<IBroker>(props, { table: `broker`, ignore: true, context: "Broker.Add" });
   return { key: PrimaryKey(props, ["broker"]), response: result };
 };
 

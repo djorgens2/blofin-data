@@ -1,0 +1,55 @@
+import type { IPublishResult, TResponse } from "db/query.utils";
+
+import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import { isEqual } from "lib/std.util";
+
+//+--------------------------------------------------------------------------------------+
+//| Generic Publish function to handle inserts/updates for any model;                    |
+//+--------------------------------------------------------------------------------------+
+export const Publish = async <T>(
+  data: Partial<T>, 
+  config: { table: string; keys: Array<{ key: keyof T }> }
+): Promise<IPublishResult<T>> => {
+  try {
+    // 1. Check if record exists using provided keys
+    const exists = await Select<T>(data, { table: config.table, keys: config.keys });
+    const [current] = exists ?? [];
+
+    if (current) {
+      // 2. Perform Update if record found
+      const result = await Update<T>(data, { ...config, context: `Publish.${config.table}` });
+      return {
+        key: PrimaryKey(data, config.keys.map(k => k.key as string)),
+        response: { 
+          ...result, 
+          response: result.rows > 0 ? "updated" : "exists", 
+          context: `Publish.${config.table}` 
+        }
+      };
+    }
+
+    // 3. Perform Insert if record not found
+    const result = await Insert<T>(data, { table: config.table });
+    return {
+      key: PrimaryKey(data, config.keys.map(k => k.key as string)),
+      response: { 
+        ...result, 
+        response: "inserted", 
+        context: `Publish.${config.table}` 
+      }
+    };
+
+  } catch (error) {
+    return {
+      key: undefined,
+      response: {
+        success: false,
+        code: -1,
+        response: "error",
+        message: error instanceof Error ? error.message : "System failure",
+        rows: 0,
+        context: `Publish.${config.table}`
+      }
+    };
+  }
+};

@@ -7,9 +7,8 @@
 import type { IInstrumentPosition, TPosition } from "db/interfaces/instrument_position";
 import type { IPublishResult } from "db/query.utils";
 
-import { Session, signRequest } from "module/session";
 import { hasValues } from "lib/std.util";
-import { ApiError } from "./api.util";
+import { API_GET, API_POST, ApiError } from "api/api.util";
 
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
@@ -20,117 +19,89 @@ export interface ILeverageAPI {
   leverage: string;
 }
 
-interface IResult {
-  code: string;
-  msg: string;
-  data: Array<ILeverageAPI>;
-}
-
 //+--------------------------------------------------------------------------------------+
 //| Updates leverage locally on success;                                                 |
 //+--------------------------------------------------------------------------------------+
-const publish = async (props: IResult): Promise<IPublishResult<IInstrumentPosition>> => {
-  if (!!parseInt(props.code)) {
+const publish = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IInstrumentPosition>> => {
+  if (!hasValues(props) || !props.instId || !props.positionSide || !props.leverage) {
     return {
       key: undefined,
-      response: { success: false, code: parseInt(props.code), response: `error`, message: props.msg, rows: 0 },
+      response: { success: false, code: 400, response: `null_query`, message: `Undefined leverage data provided`, rows: 0, context: "Leverage.Publish.API" },
     };
   }
-
-  const revised = Array.isArray(props.data) ? props.data[0] : props.data;
-
-  return await InstrumentPosition.Publish({ symbol: revised.instId, position: revised.positionSide, leverage: parseInt(revised.leverage) });
+  console.log("-> Leverage.Publish.API");
+  return await InstrumentPosition.Publish({ symbol: props.instId, position: props.positionSide, leverage: parseInt(props.leverage) });
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Sets Leverage for a trading instrument;                                              |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Sets Leverage for a trading instrument position
+ */
 export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IInstrumentPosition>> => {
-  console.log("-> Leverage.Submit [API]");
+  console.log("-> Leverage.Submit.API:", props);
 
-  const method = "POST";
   const path = "/api/v1/account/set-leverage";
-  const body = JSON.stringify(props);
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
-
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
+  const context = "Leverage.Submit";
 
   try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-      body,
-    });
-
-    if (!response.ok) {
-      throw new ApiError(response.status, `HTTP ${response.statusText}`);
-    }
-
-    const result = await response.json();
-
-    if (result.code !== "0") throw new ApiError(parseInt(result.code), result.msg);
-
-    return publish(result.data);
+    const data = await API_POST<ILeverageAPI>(path, props, context);
+    return await publish(data);
   } catch (error) {
     if (error instanceof ApiError) {
-      console.log("-> [Error] Leverage.Publish:", error, method, headers, body);
       return {
         key: undefined,
-        response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0 },
+        response: {
+          success: false,
+          code: error.code,
+          response: `error`,
+          message: error.msg,
+          rows: 0,
+          context,
+        },
       };
     }
-    console.error("-> [System Error] Leverage.Publish:", error);
+
+    console.error(`-> [System Error] ${context}:`, error);
     return {
       key: undefined,
-      response: { success: false, code: -1, response: "error", message: "Network or System failure", rows: 0 },
+      response: {
+        success: false,
+        code: error instanceof ApiError ? error.code : -1,
+        response: "error",
+        message: error instanceof ApiError ? error.message : "Network or System failure",
+        rows: 0,
+        context,
+      },
     };
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Retrieves leverages by symbol (max:20) from broker api for currently logged account; |
-//+--------------------------------------------------------------------------------------+
-export const Import = async (props: Array<Partial<IInstrumentPosition>>) => {
-  if (hasValues(props)) {
-    const { margin_mode } = props[0];
-    const method = "GET";
-    const path = `/api/v1/account/batch-leverage-info?instId=${props.map((i) => i.symbol).join(",")}&marginMode=${margin_mode}`;
-    const { api, phrase, rest_api_url } = Session();
-    const { sign, timestamp, nonce } = await signRequest(method, path);
-    const headers = {
-      "ACCESS-KEY": api!,
-      "ACCESS-SIGN": sign!,
-      "ACCESS-TIMESTAMP": timestamp!,
-      "ACCESS-NONCE": nonce!,
-      "ACCESS-PASSPHRASE": phrase!,
-      "Content-Type": "application/json",
-    };
+/**
+ * Imports batch leverage information for the provided instrument positions
+ */
+export const Import = async (props: Array<Partial<IInstrumentPosition>>): Promise<Array<ILeverageAPI>> => {
+  if (!hasValues(props)) return [];
+  console.log("-> Leverage.Submit [API]");
 
-    try {
-      const response = await fetch(rest_api_url!.concat(path), {
-        method,
-        headers,
-      });
+  const { margin_mode } = props[0];
+  const symbols = props.map((i) => i.symbol).join(",");
+  const path = `/api/v1/account/batch-leverage-info?instId=${symbols}&marginMode=${margin_mode}`;
+  const context = "Leverage.Import";
 
-      if (response.ok) {
-        const result: IResult = await response.json();
-        const json = result.data;
+  try {
+    const data = await API_GET<Array<ILeverageAPI>>(path, context);
 
-        if (result.code === "0" && Array.isArray(json)) {
-          return json as Array<ILeverageAPI>;
-        } else throw new Error(`-> [Error] Instrument.Leverage: Malformed Leverage data received: ${response.status} ${response.statusText}`);
-      } else throw new Error(`-> [Error] Instrument.Leverage: Response not ok: ${response.status} ${response.statusText}`);
-    } catch (error) {
-      console.log("-> [Error] Instrument.Leverage:", error, method, path, headers);
-      return [];
+    if (!Array.isArray(data)) {
+      throw new ApiError(422, "Malformed Leverage data: Expected an array.");
     }
+
+    return data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`-> [API Error] ${context}:`, error.msg);
+    } else {
+      console.error(`-> [System Error] ${context}:`, error);
+    }
+
+    return [];
   }
 };

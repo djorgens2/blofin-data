@@ -75,20 +75,18 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
           create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
         };
 
-        const [result, updates] = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }] });
+        const result = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }], context: "Stop.Publish" });
 
-        if (result && updates) {
+        if (result.success) {
           const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const [result, updates] = await Update(
-            {
-              stop_request: props.stop_request,
-              state,
-              memo: props.memo === current.memo ? undefined : props.memo,
-              update_time: props.update_time || new Date(),
-            },
-            { table: `stop_request`, keys: [{ key: `stop_request` }] }
-          );
-          return result ? result.stop_request : undefined;
+          const revised: Partial<IStopRequest> = {
+            stop_request: props.stop_request,
+            state,
+            memo: props.memo === current.memo ? undefined : props.memo,
+            update_time: props.update_time || new Date(),
+          };
+          const confirm = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }], context: "Stop.Publish" });
+          return confirm.success ? revised.stop_request : undefined;
         } else return undefined;
       } else return undefined;
     } else {
@@ -114,15 +112,15 @@ const publish = async (current: Partial<IStopRequest>, props: Partial<IStopReque
       update_time: new Date(),
     };
 
-    const result = await Insert<Partial<IStopRequest>>(request, { table: "stop_request" });
-    return result ? result.stop_request : undefined;
+    const result = await Insert<Partial<IStopRequest>>(request, { table: "stop_request", context: "Stop.Publish" });
+    return result.success ? request.stop_request : undefined;
   }
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IStops>, options?: TOptions ): Promise<Array<Partial<IStops>> | undefined> => {
+export const Fetch = async (props: Partial<IStops>, options?: TOptions): Promise<Array<Partial<IStops>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
   const result = await Select<IStopOrder>(props, { ...options, table: `vw_stop_orders` });
   return result.length ? result : undefined;
@@ -149,32 +147,29 @@ export const Publish = async (props: Partial<IStopOrder>) => {
     const [current] = order;
 
     if (isEqual(props.tpsl_id!, current.tpsl_id!)) {
-      const [result] = await Update(
-        {
-          stop_order: props.stop_order,
-          order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
-          actual_size: isEqual(props.actual_size!, current.actual_size!) ? undefined : props.actual_size,
-        },
-        { table: `stop_order`, keys: [{ key: `stop_order` }] }
-      );
-      return result ? result.stop_order : undefined;
+      const revised: Partial<IStopOrder> = {
+        stop_order: props.stop_order,
+        order_state: isEqual(props.order_state!, current.order_state!) ? undefined : props.order_state,
+        actual_size: isEqual(props.actual_size!, current.actual_size!) ? undefined : props.actual_size,
+      };
+
+      const result = await Update(revised, { table: `stop_order`, keys: [{ key: `stop_order` }], context: "Stops.Publish" });
+      return result.success ? revised.stop_order : undefined;
     }
     console.log(">> [Error] Stops.Submit: TP/SL ID mismatch; unauthorized resubmission; stop request rejected");
   } else {
-    const result = await Insert(
-      {
-        stop_order: props.stop_order,
-        tpsl_id: props.tpsl_id,
-        stop_type: props.stop_type,
-        client_order_id: props.client_order_id,
-        order_state: props.order_state,
-        order_category: props.order_category,
-        price_type: props.price_type,
-        actual_size: props.actual_size,
-      },
-      { table: `stop_order`, keys: [{ key: `stop_order` }] }
-    );
-    return result ? result.tpsl_id : undefined;
+    const request: Partial<IStopOrder> = {
+      stop_order: props.stop_order,
+      tpsl_id: props.tpsl_id,
+      stop_type: props.stop_type,
+      client_order_id: props.client_order_id,
+      order_state: props.order_state,
+      order_category: props.order_category,
+      price_type: props.price_type,
+      actual_size: props.actual_size,
+    };
+    const result = await Insert(request, { table: `stop_order`, keys: [{ key: `stop_order` }], context: "Stops.Publish" });
+    return result.success ? request.tpsl_id : undefined;
   }
 };
 

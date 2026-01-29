@@ -37,7 +37,7 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IAuthority>): Promise<IPublishResult<IAuthority>> => {
   Object.assign(props, { authority: hashKey(6) });
-  const result = await Insert<IAuthority>(props, { table: `authority`, ignore: true });
+  const result = await Insert<IAuthority>(props, { table: `authority`, ignore: true, context: "Authority.Add" });
   return { key: PrimaryKey(props, ["authority"]), response: result };
 };
 

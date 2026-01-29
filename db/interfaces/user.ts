@@ -64,9 +64,9 @@ export const Modify = async (props: Partial<IUser>): Promise<TResponse> => {
         state: state && isEqual(state, current.state!) ? undefined : state,
         image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
       };
-      return await Update(revised, { table: `user`, keys: [{ key: `user` }] });
-    } else return { success: false, code: 404, response: `not_found`, rows: 0 };
-  } else return { success: false, code: 400, response: `null_query`, rows: 0 };
+      return await Update(revised, { table: `user`, keys: [{ key: `user` }], context: "User.Modify" });
+    } else return { success: false, code: 404, response: `not_found`, rows: 0, context: "User.Modify" };
+  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "User.Modify" };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -88,8 +88,7 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
       state: props.state || (await States.Key({ status: props.status })) || (await States.Key<IAccess>({ status: "Disabled" })),
       image_url: props.image_url || "./images/user/no-image.png",
     };
-    const result = await Insert<IUser>(add, { table: `user` });
-    //    await new Promise((r) => setTimeout(r, 15000));
+    const result = await Insert<IUser>(add, { table: `user`, context: "User.Add"  });
 
     return result.success ? add.user : undefined;
   } else return undefined;

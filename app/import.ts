@@ -97,7 +97,8 @@ export const importCandles = async () => {
 export const importInstruments = async () => {
   await InstrumentAPI.Import();
   await InstrumentPositionAPI.Import();
-  await PositionsAPI.Import();
+  const res = await PositionsAPI.Import();
+  console.log(res);
 };
 
 //+--------------------------------------------------------------------------------------+
