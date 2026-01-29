@@ -1,22 +1,31 @@
 [Info] Session.Config: Blofin Demo configured successfully
--> [Info] request updated {
-  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+updated -> [Info] request updated {
+  filters: { request: <Buffer 13 9b 69 01 4c 3a> },
   columns: { leverage: 40 }
 }
--> [Info] request updated {
-  filters: { request: <Buffer 56 ee 23 cb d1 96> },
+updated -> [Info] request updated {
+  filters: { request: <Buffer 13 9b 69 01 4c 3a> },
   columns: {
     state: <Buffer 15 3e 21>,
     memo: 'Test 2c: update pending order with revised leverage (quiesced app)',
-    expiry_time: 2025-12-19T03:42:26.699Z,
-    update_time: 2025-12-18T03:42:26.672Z
+    expiry_time: 2026-01-30T16:02:03.684Z,
+    update_time: 2026-01-29T16:02:03.657Z
   }
 }
-Test 2c: Request submitted, check db for results. <Buffer 56 ee 23 cb d1 96>
+Test 2c: Request submitted, check db for results. {
+  key: { request: <Buffer 13 9b 69 01 4c 3a> },
+  response: {
+    success: true,
+    code: 0,
+    response: 'updated',
+    rows: 1,
+    context: 'Request.Publish.Hold'
+  }
+}
 Fetched order from DB: [
   {
-    request: <Buffer 56 ee 23 cb d1 96>,
-    order_id: <Buffer 00 e8 db ac 3a 7f>,
+    request: <Buffer 13 9b 69 01 4c 3a>,
+    order_id: <Buffer 00 e8 db c6 f0 d9>,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
     instrument_position: <Buffer ed da 99 9d fb 4e>,
@@ -57,8 +66,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2c: update pending order with revised leverage (quiesced app)',
-    create_time: 2025-12-18T03:16:56.653Z,
-    expiry_time: 2025-12-19T03:42:26.699Z,
-    update_time: 2025-12-18T03:42:26.672Z
+    create_time: 2026-01-29T15:32:52.027Z,
+    expiry_time: 2026-01-30T16:02:03.684Z,
+    update_time: 2026-01-29T16:02:03.657Z
   }
 ]
