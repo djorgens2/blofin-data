@@ -4,228 +4,238 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStops, IStopOrder } from "db/interfaces/stops";
+import type { TRequestState } from "db/interfaces/state";
+import type { IStopOrder } from "db/interfaces/stops";
 import type { TRefKey } from "db/interfaces/reference";
-import type { TRequest, TStatus } from "db/interfaces/state";
+import type { IPublishResult } from "db/query.utils";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { format, isEqual } from "lib/std.util";
+import { delay, format, hexString, isEqual } from "lib/std.util";
+import { API_GET, ApiError } from "api/api.util";
 
 import * as Response from "api/response";
 import * as Stops from "db/interfaces/stops";
+import * as StopRequests from "db/interfaces/stop_request";
 import * as States from "db/interfaces/state";
 import * as Reference from "db/interfaces/reference";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IStopsAPI {
-  instrument_position: Uint8Array;
   account: Uint8Array;
-  position_state: Uint8Array;
-  position_status: TStatus;
-  status: TRequest;
+  status: TRequestState;
   tpslId: string;
   instId: string;
-  marginMode: "cross" | "isolated";
   positionSide: "short" | "long" | "net";
+  marginMode: "cross" | "isolated";
   side: "buy" | "sell";
-  orderCategory: string;
-  priceType: string;
+  size: string;
+  state: string;
   tpTriggerPrice: string;
   tpOrderPrice: string;
   slTriggerPrice: string;
   slOrderPrice: string;
-  size: string;
-  state: string;
-  leverage: string;
-  reduceOnly: string;
+  orderCategory: string;
+  priceType: string;
   actualSize: string;
+  reduceOnly: string;
   clientOrderId: string;
-  createTime: string;
   brokerId: string;
   memo: string;
+  createTime: string;
   update_time: Date;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Updates active stops from the blofin api;                                            |
-//+--------------------------------------------------------------------------------------+
-const publish = async (source: string, props: Array<Partial<IStopsAPI>>) => {
-  console.log(`-> ${source}.Publish.Stops [API]`);
+/**
+ * Stops.Publish: Flattens TP/SL pairs into normalized, parallel IPublishResult streams.
+ */
+export const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promise<Array<IPublishResult<IStopOrder>>> => {
+  if (!props?.length) return [];
+  console.log(`-> Stop.Orders.Publish.${source}`);
 
-  const processed: Array<IStopOrder["stop_request"]> = [];
-  const published: Array<IStopOrder["stop_request"]> = [];
-  const rejected: Array<Partial<IStops>> = [];
+  // 1. Flatten the API objects: One incoming order can become two independent DB records (TP and SL)
+  // Parallel Reference Lookups
+  const [tp, sl] = await Promise.all([
+    Reference.Key<TRefKey>({ source_ref: "tp" }, { table: `stop_type` }),
+    Reference.Key<TRefKey>({ source_ref: "sl" }, { table: `stop_type` }),
+  ]);
 
-  for (const order of props) {
-    const tp_id = order.tpTriggerPrice == null && order.tpOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `e4`);
-    const sl_id = order.slTriggerPrice == null && order.slOrderPrice == null ? undefined : hexify(parseInt(order.tpslId!), 4, `df`);
-    const tpsl_id = hexify(parseInt(order.tpslId!), 4);
-    const client_order_id = hexify(order.clientOrderId!, 5);
-    const instrument_position = await InstrumentPositions.Key({ account: Session().account, symbol: order.instId, position: order.positionSide });
+  if (!tp || !sl) {
+    throw new ApiError(602, `Invalid stop type references for Stops.Publish`);
+  }
 
-    if (instrument_position === undefined) {
-      const common = {
-        tpsl_id,
-        client_order_id,
-        symbol: order.instId,
-        position: order.positionSide,
-        memo: `[Error] Stops.Publish: Invalid instrument position; stop order rejected`,
-      };
-      tp_id &&
-        rejected.push({
-          ...common,
-          stop_order: tp_id,
-          stop_type: "tp",
-        });
-      sl_id &&
-        rejected.push({
-          ...common,
-          stop_order: sl_id,
-          stop_type: "sl",
-        });
-    } else {
-      const order_category = await Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` });
-      const order_states = await Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` });
-      const expired = await States.Key({ status: "Expired" });
-      const [{ state, order_state }] = order_states ? order_states : [{ state: undefined, order_state: undefined }];
+  const stops = props.flatMap((order) => {
+    const tpsl_id = order.clientOrderId && order.clientOrderId.length > 2 ? order.clientOrderId.slice(2) : parseInt(order.tpslId || "0").toString(16);
+    const tp_id = (order.tpTriggerPrice ?? order.tpOrderPrice) != null ? hexify(tpsl_id, 4) : undefined;
+    const sl_id = (order.slTriggerPrice ?? order.slOrderPrice) != null ? hexify(tpsl_id, 4) : undefined;
 
-      const common: Partial<IStopOrder> = {
-        tpsl_id,
-        client_order_id,
-        instrument_position,
-        state: source === "History" && (order.state === "effective" || order.state === "live") ? expired : state,
-        order_state,
-        order_category,
-        price_type: order.priceType,
-        action: order.side,
-        margin_mode: order.marginMode,
-        size: format(order.size!),
-        actual_size: format(order.actualSize!),
-        reduce_only: order.reduceOnly === "true",
-        broker_id: order.brokerId === "" ? undefined : order.brokerId,
-        create_time: new Date(parseInt(order.createTime!)),
-        update_time: new Date(),
-      };
+    const items = [];
 
-      if (tp_id) {
-        processed.push(tp_id);
+    tp_id && items.push({ ...order, stop_request: tp_id, stop_type: tp });
+    sl_id && items.push({ ...order, stop_request: sl_id, stop_type: sl });
 
-        const request: Partial<IStops> = {
-          ...common,
-          stop_request: client_order_id || tp_id,
-          stop_order: tp_id,
-          stop_type: "tp",
-          trigger_price: order.tpTriggerPrice == null ? undefined : format(order.tpTriggerPrice),
-          order_price: order.tpOrderPrice == null ? -1 : format(order.tpOrderPrice),
-        };
-        const submit = await Stops.Submit(request);
-        if (isEqual(submit!, request.stop_request!)) {
-          const result = await Stops.Publish(request);
-          result
-            ? published.push(result)
-            : rejected.push({
-                ...common,
-                stop_order: tp_id,
-                memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-              });
-        }
-      }
+    return items;
+  });
 
-      if (sl_id) {
-        processed.push(sl_id);
-
-        const request: Partial<IStops> = {
-          ...common,
-          stop_request: client_order_id || sl_id,
-          stop_order: sl_id,
-          stop_type: "sl",
-          trigger_price: order.slTriggerPrice == null ? undefined : format(order.slTriggerPrice),
-          order_price: order.slOrderPrice == null ? -1 : format(order.slOrderPrice),
-        };
-        const submit = await Stops.Submit(request);
-        if (isEqual(submit!, request.stop_request!)) {
-          const result = await Stops.Publish(request);
-          result
-            ? published.push(result)
-            : rejected.push({
-                ...common,
-                stop_order: sl_id,
-                memo: `[Error] Stop.Orders.Publish: Error publishing stop order; stop order rejected; check log for details`,
-              });
-        }
-      }
+  // 2. Pre-filter Latest Wins (Deduplication)
+  const requests = new Map<string, (typeof stops)[0]>();
+  for (const item of stops) {
+    const key = hexString(item.stop_type, 2) + hexString(item.stop_request, 8);
+    const existing = requests.get(key);
+    if (!existing || BigInt(item.tpslId || "0") > BigInt(existing.tpslId || "0")) {
+      requests.set(key, item);
     }
   }
-  return [published, rejected];
+
+  // 3. Process all normalized stops in parallel
+  const results = await Promise.all(
+    stops.map(async (order): Promise<Array<IPublishResult<IStopOrder>>> => {
+      try {
+        const client_order_id = hexify(order.clientOrderId!.slice(2), 4);
+        const tpsl_id = hexify(parseInt(order.tpslId!), 4);
+
+        // Parallel Reference Lookups
+        const [required, order_category, order_states, expiredState] = await Promise.all([
+          InstrumentPositions.Fetch({ account: Session().account, symbol: order.instId, position: order.positionSide }),
+          Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` }),
+          Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` }),
+          States.Key({ status: "Expired" }),
+        ]);
+
+        if (!required) {
+          throw new ApiError(452, `Invalid instrument position for ${order.tpslId}; stop order rejected`);
+        }
+
+        if (!order_states) throw new ApiError(453, `Invalid Order State metadata; unable to resolve state [${order.state}] on Order: ${order.tpslId}`);
+
+        // Determine State Logic (Zombie Protection)
+        const [mapped] = order_states;
+        const [{ instrument_position, auto_status }] = required;
+
+        const request: Partial<IStopOrder> = {
+          tpsl_id,
+          stop_type: order.stop_type,
+          client_order_id,
+          instrument_position,
+          margin_mode: order.marginMode || Session().margin_mode || `cross`,
+          state: mapped.state,
+          order_state: mapped.order_state,
+          order_category,
+          stop_request: order.stop_request,
+          action: order.side,
+          size: format(order.size!),
+          actual_size: format(order.actualSize!),
+          trigger_price: isEqual(order.stop_type, tp) ? format(order.tpTriggerPrice!) : format(order.slTriggerPrice!),
+          order_price: isEqual(order.stop_type, tp) ? format(order.tpOrderPrice ?? "-1") : format(order.slOrderPrice ?? "-1"),
+          update_time: new Date(),
+        };
+
+        // Standardized Multi-Table Publish
+        const orderResult = await Stops.Publish(request);
+        const [current] = (await Stops.Fetch({ stop_request: order.stop_request, stop_type: order.stop_type })) ?? [{}];
+
+        const pending = mapped.status === "Pending";
+        const auto = auto_status === "Enabled";
+        const history = source === "History";
+
+        const key = hexString(order.stop_type, 2) + hexString(order.stop_request, 8);
+
+        let requestResult: IPublishResult<IStopOrder> | undefined;
+
+        if (requests.get(key)?.tpslId === order.tpslId) {
+          if (history) {
+            request.status = order.state === "effective" || order.state === "live" ? "Expired" : mapped.status;
+          } else if (auto) {
+            request.trigger_price = current.trigger_price;
+            request.order_price = current.order_price;
+            request.size = current.size;
+            request.status = pending ? "Hold" : mapped.status;
+          } else request.status = mapped.status;
+
+          requestResult = await StopRequests.Publish(source, current, request);
+        }
+
+        return requestResult ? [orderResult, requestResult] : [orderResult];
+      } catch (error) {
+        //        console.log(`-> [Error] Stop.Orders.Publish.${source}`, error);
+        const errBody: IPublishResult<IStopOrder> =
+          error instanceof ApiError
+            ? {
+                key: undefined,
+                response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0, context: `Stop.Order.Publish.${source}` },
+              }
+            : {
+                key: undefined,
+                response: {
+                  success: false,
+                  code: -1,
+                  response: `error`,
+                  message: "Network or System failure",
+                  rows: 0,
+                  context: `Stop.Order.Publish.${source}`,
+                },
+              };
+
+        return [errBody];
+      }
+    }),
+  );
+
+  return results.flat();
 };
 
-//+--------------------------------------------------------------------------------------+
-//| History - retrieves active stops from history; reconciles/merges with local db;      |
-//+--------------------------------------------------------------------------------------+
-export const History = async (): Promise<Array<Partial<IStopsAPI>> | undefined> => {
-  console.log(`-> Fetch:History [API]`);
+/**
+ * Fetches history recursively until no more data is found or limit is reached
+ */
+const History = async (): Promise<Array<Partial<IStopsAPI>>> => {
+  const limit = Session().orders_max_fetch || 20;
+  const history: Array<Partial<IStopsAPI>> = [];
 
-  const method = "GET";
-  const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}`;
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path);
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
+  while (true) {
+    console.error("-> [Info] Fetching Stops History from ID:", Session().audit_stops);
+    const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}&limit=${limit}`;
+    const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stops.History");
 
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return json.data;
-    }
-  } catch (error) {
-    console.log(error);
-    return [];
+    if (result && result.length > 0) {
+      history.push(...result);
+      setSession({ audit_stops: Math.max(...result.map((api) => parseInt(api.tpslId!))).toString() });
+    } else break;
+
+    await delay(1500);
   }
+
+  console.log(`-> [Info] Stops.History: fetched ${history.length} records from API`);
+  //  fileWrite<Partial<IStopsAPI>>(`log/stops_history_${new Date().toISOString()}.csv`, history );
+  return history;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Pending - retrieves active stops; reconciles with local db;                          |
-//+--------------------------------------------------------------------------------------+
-export const Pending = async (): Promise<Array<Partial<IStopsAPI>> | undefined> => {
-  console.log(`-> Fetch:Pending [API]`);
+/**
+ * Pending - retrieves all active orders, paginating if count > 100
+ */
+export const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
+  const pending: Array<Partial<IStopsAPI>> = [];
+  const limit = Session().orders_max_fetch || 20;
 
-  const method = "GET";
-  const path = "/api/v1/trade/orders-tpsl-pending";
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path);
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
+  let afterId = "0";
 
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return json.data;
+  while (true) {
+    const path = `/api/v1/trade/orders-tpsl-pending?after=${afterId}&limit=${limit}`;
+
+    try {
+      const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stops.Pending");
+      if (result && result.length > 0) {
+        pending.push(...result);
+        afterId = Math.max(...result.map((o) => parseInt(o.tpslId!))).toString();
+      } else break;
+
+      await delay(1500);
+    } catch (error) {
+      console.error(">> [Error] Stops.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
+      break;
     }
-  } catch (error) {
-    console.log(error);
-    return [];
   }
+
+  return pending;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -298,28 +308,29 @@ export const Submit = async (request: Partial<IStopsAPI>) => {
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Scrubs positions on api/wss-timer, sets status, reconciles history, updates locally; |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Completes full audit of broker Stops (aka TPSL) API data, loads missing, updates existing
+ */
 export const Import = async () => {
-  console.log(`In Stop.Orders.Import [API]`);
+  console.log("In Orders.Import [API]");
 
-  const history = await History();
-  const pending = await Pending();
+  try {
+    const [history, pending] = await Promise.all([History(), Pending()]);
+    const result: Array<IPublishResult<IStopOrder>> = [];
 
-  if (history && history.length) {
-    const [published, rejected] = await publish("History", history);
+    if (history.length > 0) {
+      const historyResult = await Publish("History", history);
+      result.push(...historyResult);
+    }
 
-    setSession({ audit_stops: history[0].tpslId! });
+    if (pending.length > 0) {
+      const pendingResult = await Publish("Pending", pending);
+      result.push(...pendingResult);
+    }
 
-    published && published.length && console.log(`   # History Stop Orders Processed [${history.length * 2}]:  ${published.length} published`);
-    rejected && rejected.length && console.log(`   # History Stop Orders Rejected: `, rejected.length);
-  }
-
-  if (pending && pending.length) {
-    const [published, rejected] = await publish("Pending", pending);
-
-    published && published.length && console.log(`   # Pending Stop Orders Processed [${pending.length}]:  ${published.length} published`);
-    rejected && rejected.length && console.log("   # Pending Stop Orders Rejected: ", rejected.length);
+    console.log(`-> Stops.Import complete; history stops processed: ${history.length}; open stops processed: ${pending.length};`);
+    return result;
+  } catch (error) {
+    console.error(">> [Error] Stops.Import: Operation failure", error);
   }
 };

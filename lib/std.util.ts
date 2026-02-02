@@ -205,10 +205,34 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
 //+--------------------------------------------------------------------------------------+
 export const hasValues = <T extends object>(props: T) => Object.keys(props).length && !Object.values(props).every((value) => value === undefined);
 
-//+--------------------------------------------------------------------------------------+
-//| Delay timer used predominantly for api throttle control;                             |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Delay timer used predominantly for api throttle control;
+ * 
+ */
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+/**
+ * Formats a value for CSV output, handling strings, numbers, booleans, and dates appropriately.
+ * 
+ */
+const formatValue = (val: unknown): string => {
+  if (val === null || val === undefined) return '""';
+  
+  if (val instanceof Uint8Array) return `"${Buffer.from(val).toString("hex")}"`;
+
+  // Handle Dates (Standard for Trading History)
+  if (val instanceof Date) return `"${val.toISOString()}"`;
+  
+  // Handle Numbers (Avoid quotes if you want them as numeric in Excel/CSV)
+  if (typeof val === "number") return val.toString();
+  
+  // Handle Booleans
+  if (typeof val === "boolean") return val ? "true" : "false";
+
+  // Default: Escape quotes and wrap in quotes
+  const cleaned = String(val).replace(/"/g, '""');
+  return `"${cleaned}"`;
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Writes arrays of any type to the supplied file                                       |
@@ -232,7 +256,7 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
       const headers = Object.keys(array[0] as object).join(",");
       const rows = (array as object[]).map((obj) =>
         Object.values(obj)
-          .map((val) => `"${val}"`)
+          .map(formatValue)
           .join(","),
       );
       text = [headers, ...rows].join("\n");

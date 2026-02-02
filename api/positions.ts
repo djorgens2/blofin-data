@@ -58,7 +58,7 @@ export const Publish = async (props: Array<Partial<IPositionsAPI>>) => {
         size: format(prop.positions!),
         size_available: format(prop.availablePositions!),
         leverage: parseInt(prop.leverage!!),
-        margin_mode: prop.marginMode,
+        margin_mode: prop.marginMode || Session().margin_mode || `cross`,
         margin_used: format(prop.margin!),
         margin_ratio: format(prop.marginRatio!, 3),
         margin_initial: format(prop.initialMargin!),

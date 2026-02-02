@@ -9,7 +9,8 @@ import type { IRequestState } from "db/interfaces/state";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
-import { Fetch, Submit } from "db/interfaces/stops";
+import { Fetch } from "db/interfaces/stops";
+import { Submit } from "db/interfaces/stop_request";
 
 import * as StopsAPI from "api/stops";
 import * as States from "db/interfaces/state";

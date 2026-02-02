@@ -57,7 +57,6 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
       if (props.update_time! > current.update_time!) {
         const revised: Partial<IOrder> = {
           request: current.request,
-          order_id: isEqual(props.order_id!, current.order_id!) ? undefined : props.order_id,
           action: props.action === current.action ? undefined : props.action,
           state: state ? (isEqual(state!, current.state!) ? undefined : state) : undefined,
           price: isEqual(props.price!, current.price!) ? undefined : props.price,
@@ -72,7 +71,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
         if (result.success || !isEqual(props.expiry_time! || current.expiry_time, current.expiry_time!)) {
           const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
           const memo = !result.success ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
-          const revised = await Update(
+          const confirmed = await Update(
             {
               request: current.request,
               state,
@@ -83,7 +82,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
             { table: `request`, keys: [{ key: `request` }], context: `Request.Publish.${source}` },
           );
 
-          return { key: PrimaryKey(current, [`request`]), response: revised };
+          return { key: PrimaryKey(current, [`request`]), response: confirmed };
         }
       }
       return {
@@ -118,7 +117,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
       size: props.size,
       leverage: props.leverage,
       request_type,
-      margin_mode: props.margin_mode,
+      margin_mode: props.margin_mode || Session().margin_mode || `cross`,
       reduce_only: props.reduce_only ? !!props.reduce_only : undefined,
       broker_id: props.broker_id || undefined,
       memo: props.memo || "[Info] Request.Publish: Request does not exist; proceeding with submission",

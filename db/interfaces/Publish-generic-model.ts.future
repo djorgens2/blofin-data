@@ -53,3 +53,14 @@ export const Publish = async <T>(
     };
   }
 };
+
+
+// If you ever need to slow it down for the DB's sake:
+const results = [];
+const CHUNK_SIZE = 50;
+
+for (let i = 0; i < stops.length; i += CHUNK_SIZE) {
+  const chunk = stops.slice(i, i + CHUNK_SIZE);
+  const chunkResults = await Promise.all(chunk.map(processOrder)); 
+  results.push(...chunkResults.flat());
+}

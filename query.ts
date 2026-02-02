@@ -32,7 +32,7 @@ import { parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { IAuthority } from "db/interfaces/authority";
 import { Select, TOptions } from "db/query.utils";
-import { IStops } from "db/interfaces/stops";
+import { IStopOrder } from "db/interfaces/stops";
 import { IStopsAPI } from "api/stops";
 
 enum Subject {
@@ -287,15 +287,18 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Stops: {
-      const props = parseJSON<IStops>(args);
+      const props = parseJSON<IStopOrder>(args);
       Object.assign(props!, {
         ...props,
+        account: hexify(props?.account!),
         instrument_position: hexify(props?.instrument_position!),
         instrument: hexify(props?.instrument!),
-        position_state: hexify(props?.state!),
-        request_state: hexify(props?.state!),
-        order_state: hexify(props?.state!),
+        state: hexify(props?.state!),
+        position_state: hexify(props?.position_state!),
+        request_state: hexify(props?.request_state!),
+        order_state: hexify(props?.order_state!),
         stop_request: hexify(props?.stop_request!),
+        tpsl_id: hexify(props?.tpsl_id!),
       });
       const key = await Stops.Fetch(props!);
       console.log(`Fetch Stop Orders [ ${Object.keys(props!).length} ]:`, props, key);

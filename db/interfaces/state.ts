@@ -11,10 +11,10 @@ import { hasValues } from "lib/std.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequestState = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
-export type TStatus = "Open" | "Closed";
+export type TPositionState = "Open" | "Closed";
 export type TAccess = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
 export type TSymbol = "Enabled" | "Disabled" | "Suspended"
-export type TStates = TRequestState | TSystem | TAccess | TStatus | TSymbol;
+export type TStates = TRequestState | TSystem | TAccess | TPositionState | TSymbol;
 
 export type IState = {
   state: Uint8Array;

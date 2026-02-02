@@ -4,13 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStops } from "db/interfaces/stops";
+import type { IStopOrder } from "db/interfaces/stops";
 
 import { Session } from "module/session";
-import { Fetch, Submit } from "db/interfaces/stops";
+import { Fetch } from "db/interfaces/stops";
+import { Submit } from "db/interfaces/stop_request";
 
 //-- [Process.Stops] Closes pending stop orders on closed positions
-type Accumulator = { pending: Partial<IStops>[]; expired: Partial<IStops>[] };
+type Accumulator = { pending: Partial<IStopOrder>[]; expired: Partial<IStopOrder>[] };
 
 export const Pending = async () => {
   const requests = await Fetch({ status: "Pending", account: Session().account });
@@ -24,12 +25,12 @@ export const Pending = async () => {
           status: isOpen ? "Pending" : "Expired",
           memo: isOpen ? request.memo : `[Expired]: Pending order state changed to Expired`,
           update_time: new Date(),
-        } as Partial<IStops>;
+        } as Partial<IStopOrder>;
 
         isOpen ? acc.pending.push(verify) : acc.expired.push(verify);
         return acc;
       },
-      { pending: [] as Partial<IStops>[], expired: [] as Partial<IStops>[] }
+      { pending: [] as Partial<IStopOrder>[], expired: [] as Partial<IStopOrder>[] }
     );
 
     const [verified, expiring] = await Promise.all([Promise.all(pending.map((p) => Submit(p))), Promise.all(expired.map((e) => Submit(e)))]);

@@ -8,7 +8,7 @@ import type { TRequestState } from "db/interfaces/state";
 import type { TOptions } from "db/query.utils";
 
 import { Select, Insert } from "db/query.utils";
-import { hashKey } from "lib/crypto.util";
+import { hashKey, hexify } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
 export type TRefKey = Uint8Array;
@@ -54,7 +54,7 @@ export const Import = async () => {
     { order_state: 0, source_ref: "partially_canceled", status: "Closed", description: "Partially Canceled" },
     { order_state: 0, source_ref: "partially_filled", status: "Pending", description: "Partially Filled" },
   ].forEach((state) => {
-    Add("order_state", state), counts.orderState++;
+    (Add("order_state", state), counts.orderState++);
   });
   [
     { request_type: 0, source_ref: "market", description: "Market order" },
@@ -64,32 +64,35 @@ export const Import = async () => {
     { request_type: 0, source_ref: "ioc", description: "Immediate-or-cancel order" },
     { request_type: 0, source_ref: "trigger", description: "Trigger or algo order" },
   ].forEach((type) => {
-    Add("request_type", type), counts.requestType++;
+    (Add("request_type", type), counts.requestType++);
   });
   [
     { cancel_source: 0, source_ref: "not_canceled", source: "None" },
     { cancel_source: 0, source_ref: "user_canceled", source: "User" },
     { cancel_source: 0, source_ref: "system_canceled", source: "System" },
   ].forEach((type) => {
-    Add("cancel_source", type), counts.cancelSource++;
+    (Add("cancel_source", type), counts.cancelSource++);
   });
   ["last", "index", "mark"].forEach((price_type) => {
-    Add("price_type", { price_type }), counts.priceType++;
+    (Add("price_type", { price_type }), counts.priceType++);
   });
   [
     { hedging: true, source_ref: "long_short_mode", description: "Hedged" },
     { hedging: false, source_ref: "net_mode", description: "Unhedged" },
   ].forEach((mode) => {
-    Add("hedging", mode), counts.hedging++;
+    (Add("hedging", mode), counts.hedging++);
   });
   ["cross", "isolated"].forEach((margin_mode) => {
-    Add("margin_mode", { margin_mode }), counts.marginMode++;
+    (Add("margin_mode", { margin_mode }), counts.marginMode++);
   });
-  ["tp", "sl"].forEach((stop_type) => {
-    Add("stop_type", { stop_type }), counts.stopType++;
+  [
+    { stop_type: hexify("e4"), source_ref: "tp", prefix: "e4", description: "Take Profit" },
+    { stop_type: hexify("df"), source_ref: "sl", prefix: "df", description: "Stop Loss" },
+  ].forEach((stop_type) => {
+    (Add("stop_type", { stop_type }), counts.stopType++);
   });
   ["long", "short", "net"].forEach((position) => {
-    Add("position", { position }), counts.position++;
+    (Add("position", { position }), counts.position++);
   });
   [
     { order_category: 0, source_ref: "normal", description: "Normal" },
@@ -99,7 +102,7 @@ export const Import = async () => {
     { order_category: 0, source_ref: "tp", description: "Take Profit" },
     { order_category: 0, source_ref: "sl", description: "Stop Loss" },
   ].forEach((category) => {
-    Add("order_category", category), counts.orderCategory++;
+    (Add("order_category", category), counts.orderCategory++);
   });
 
   Object.entries(counts).forEach(([Key, value]) =>
@@ -110,8 +113,8 @@ export const Import = async () => {
           .replace(/([a-z])([A-Z])/g, "$1 $2")
           .split(" ")
           .join(" ")
-      } imports:  ${value} verified`
-    )
+      } imports:  ${value} verified`,
+    ),
   );
 };
 

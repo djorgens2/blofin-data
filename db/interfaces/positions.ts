@@ -4,7 +4,7 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TStatus } from "db/interfaces/state";
+import type { TPositionState } from "db/interfaces/state";
 import type { IPublishResult } from "db/query.utils";
 
 import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
@@ -19,7 +19,7 @@ export interface IPositions {
   symbol: string;
   position: "short" | "long" | "net";
   state: Uint8Array;
-  status: TStatus;
+  status: TPositionState;
   instrument_type: Uint8Array;
   action: "buy" | "sell";
   counter_action: "buy" | "sell";

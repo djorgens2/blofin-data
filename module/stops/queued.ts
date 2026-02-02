@@ -11,9 +11,10 @@ import { format } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { Session } from "module/session";
 import { Select, Update } from "db/query.utils";
+import { Submit } from "db/interfaces/stop_request";
 
 import * as StopsAPI from "api/stops";
-import * as Stops from "db/interfaces/stops";
+import * as StopRequest from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
@@ -49,7 +50,7 @@ const handleVerifications = async (requests: Partial<IStopsAPI>[]) => {
           })) ?? [];
 
         if (pos?.open_request) {
-          const success = await Stops.Submit({
+          const success = await Submit({
             stop_request: hexify(v.clientOrderId!, 5),
             instrument_position: pos.instrument_position,
             trigger_price: format(v.tpTriggerPrice ?? v.slTriggerPrice!),
@@ -69,11 +70,11 @@ const handleVerifications = async (requests: Partial<IStopsAPI>[]) => {
             memo: `[Info] Trades.Queued: Stop order on closed position; Expired`,
             update_time: new Date(),
           },
-          { table: `stop_request`, keys: [{ key: `stop_request` }] }
+          { table: `stop_request`, keys: [{ key: `stop_request` }] },
         );
 
         return "expired";
-      })
+      }),
     );
 
     return {
@@ -108,7 +109,7 @@ export const Queued = async () => {
         else acc.verify.push(request);
         return acc;
       },
-      { queued: [] as IStopsAPI[], verify: [] as IStopsAPI[], error: [] as IStopsAPI[] }
+      { queued: [] as IStopsAPI[], verify: [] as IStopsAPI[], error: [] as IStopsAPI[] },
     );
 
     const [submitted, verified, errors] = await Promise.all([handleSubmits(queued), handleVerifications(verify), handleErrors(error)]);

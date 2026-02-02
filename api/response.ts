@@ -44,6 +44,7 @@ export interface IResponse {
 //+--------------------------------------------------------------------------------------+
 //| Handles responses received from WSS/API or POST calls;                               |
 //+--------------------------------------------------------------------------------------+
+
 export const Stops = async (response: TResponse, props: { success: TRequestState; fail: TRequestState }) => {
   const accept: Array<Partial<IStops>> = [];
   const reject: Array<Partial<IStops>> = [];

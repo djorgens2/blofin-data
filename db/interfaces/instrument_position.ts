@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TStatus, TSystem } from "db/interfaces/state";
+import type { TPositionState, TSystem } from "db/interfaces/state";
 import type { IPublishResult, TResponse } from "db/query.utils";
 
 import { Select, Update, Insert, TOptions, PrimaryKey } from "db/query.utils";
@@ -33,7 +33,7 @@ export interface IInstrumentPosition {
   position: TPosition;
   hedging: boolean;
   state: Uint8Array;
-  status: TStatus;
+  status: TPositionState;
   auto_state: Uint8Array;
   auto_status: TSystem;
   period: Uint8Array;

@@ -37,9 +37,9 @@ export interface IOrder extends IRequest {
   trade_timeframe: string;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Publish - scrubs blofin api updates, applies keys, and executes merge to local db;   |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Orders.Publish: Scrubs blofin api data, applies keys, and merges with local db.
+ */
 export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (!props) {
     console.log(">> [Error] Order.Publish: No order properties provided; publishing rejected");
