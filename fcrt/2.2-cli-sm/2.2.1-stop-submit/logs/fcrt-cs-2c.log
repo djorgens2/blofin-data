@@ -1,0 +1,30 @@
+[Info] Session.Config: Blofin Demo configured successfully
+[Info] App.Config: {
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
+  alias: 'Blofin Demo',
+  api: '740c****adc1',
+  secret: '********',
+  phrase: '****',
+  rest_api_url: 'https://demo-trading-openapi.blofin.com',
+  private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
+  public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
+  account: <Buffer 24 59 7a>,
+  margin_mode: 'cross',
+  hedging: 1,
+  state: 'disconnected',
+  audit_order: '0',
+  audit_stops: '0'
+}
+-> Test 2c: Submitting stop loss request without order for account 24597a
+-> [Error] Stop.Request.Submit: ApiError: [API] Code 456: Stop Request Submission Denied: No open position or existing stop request
+    at Object.Submit (/home/djorgenson/Projects/blofin-data/db/interfaces/stop_request.ts:253:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async submit (/home/djorgenson/Projects/blofin-data/fcrt/2.2-cli-sm/2.2.1-stop-submit/test/fcrt-cs-stop.ts:25:23)
+    at async <anonymous> (/home/djorgenson/Projects/blofin-data/fcrt/2.2-cli-sm/2.2.1-stop-submit/test/fcrt-cs-stop.ts:31:5) {
+  code: 456,
+  msg: 'Stop Request Submission Denied: No open position or existing stop request'
+}

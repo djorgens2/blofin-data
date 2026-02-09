@@ -8,7 +8,7 @@ import { ILeverageAPI } from "api/leverage";
 import { TPosition } from "db/interfaces/instrument_position";
 import { Distinct, IPublishResult, PrimaryKey } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
-import { bufferString, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
+import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
 import { config, Session } from "module/session";
 import { parse } from "path";
 
@@ -2374,29 +2374,110 @@ import { parse } from "path";
 // getHistory({symbol: 'XRP-USDT'});
 
 //-------------------------------- candles History Import ---------------------------------------//
-import * as app from "module/session";
-import * as OrderAPI from "api/orders";
+// import * as app from "module/session";
+// import * as OrderAPI from "api/orders";
 
-const getHistory = async () => {
+// const getHistory = async () => {
+//   const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
+//   await app.config({ account });
+//   console.log(Session());
+//   const orders = await OrderAPI.Import();
+
+//   if (orders) {
+//     const count402 = orders.filter((req) => req.response.code === 402);
+//     const count200 = orders.filter((req) => req.response.code === 200);
+// //    console.log(orders.filter((req) => req.response.code != 452 && req.response.code != 402));
+//     //   console.log(history.filter((req) => req.response.code != 452 ));
+//     console.log("History size:", orders.length, "402s processed:", count402.length, "200s processed:", count200.length);
+//     console.log();
+//     //  fileWrite('./response.log', history);
+//     process.exit(0);
+//   }
+// };
+// const args = process.argv.slice(2); // get account id
+
+// // if (args.length) {
+// //   setSession({ account: hexify(args[0]) });
+
+// getHistory();
+
+// import { ApiError } from "api/api.util";
+// import { Select } from "db/query.utils";
+
+// export interface IStopType {
+//   stoop_type: Uint8Array;
+//   source_ref: string;
+//   prefix: string;
+//   description: string;
+// }
+
+// const Types = async (props: ["tp", "sl"]): Promise<Array<Partial<IStopType>> > => {
+//   const types = props
+//     ? (
+//         await Promise.all(
+//           props.map((p) => {
+//             return Select<IStopType>({ source_ref: p }, { table: `stop_type` });
+//           }),
+//         )
+//       )
+//     : [];
+//   return types.flat();
+// };
+
+// const run = async () => {
+//   const types = await Types(["tp", "sl"]);
+//   const typeMap = new Map(types.map((t) => [t.source_ref, t]));
+
+//   const tp = typeMap.get("tp");
+//   const sl = typeMap.get("sl");
+
+//   console.log(types);
+// };
+
+// run();
+
+/**
+ * Pending - retrieves all active orders, paginating if count > Session().orders_max_fetch;
+ */
+import { IStopsAPI } from "api/stops";
+import { API_GET } from "api/api.util";
+import * as app from "module/session";
+
+const args = process.argv.slice(2); // get account id
+
+const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
+  const pending: Array<Partial<IStopsAPI>> = [];
+  const limit = Session().orders_max_fetch || 20;
+
+  let afterId = "0";
+
+  while (true) {
+    const path = `/api/v1/trade/orders-tpsl-pending?before=${afterId}&limit=${limit}`;
+
+    try {
+      const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stops.Pending");
+      if (result && result.length > 0) {
+        pending.push(...result);
+        afterId = Math.max(...result.map((o) => parseInt(o.tpslId!))).toString();
+      } else break;
+
+      await delay(1500);
+    } catch (error) {
+      console.error(">> [Error] Stops.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
+      break;
+    }
+  }
+
+  return pending;
+};
+
+const run = async () => {
   const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
   await app.config({ account });
   console.log(Session());
-  const orders = await OrderAPI.Import();
-
-  if (orders) {
-    const count402 = orders.filter((req) => req.response.code === 402);
-    const count200 = orders.filter((req) => req.response.code === 200);
-//    console.log(orders.filter((req) => req.response.code != 452 && req.response.code != 402));
-    //   console.log(history.filter((req) => req.response.code != 452 ));
-    console.log("History size:", orders.length, "402s processed:", count402.length, "200s processed:", count200.length);
-    console.log();
-    //  fileWrite('./response.log', history);
-    process.exit(0);
-  }
+  const pending = await Pending();
+  console.log(pending);
+  process.exit(1);
 };
-const args = process.argv.slice(2); // get account id
 
-// if (args.length) {
-//   setSession({ account: hexify(args[0]) });
-
-getHistory();
+run();

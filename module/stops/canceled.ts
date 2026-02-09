@@ -5,75 +5,56 @@
 "use strict";
 
 import type { IStopsAPI } from "api/stops";
-import type { IRequestState } from "db/interfaces/state";
+import type { IPublishResult } from "db/query.utils";
+import type { IStopRequest } from "db/interfaces/stop_request";
 
-import { hexify } from "lib/crypto.util";
+import { hexString } from "lib/std.util";
 import { Session } from "module/session";
-import { Select, Update } from "db/query.utils";
 
-import * as OrderAPI from "api/stops";
-import * as States from "db/interfaces/state";
-
-//------------------ Private functions ---------------------//
-
-const handleClosures = async (requests: Partial<IStopsAPI>[]) => {
-  if (requests.length) {
-    const closed = await States.Key<IRequestState>({ status: "Closed" });
-
-    const results = await Promise.all(
-      requests.map(async (c) => {
-        const tpsl_id = hexify(c.clientOrderId!.slice(2), 4);
-        const stop_request = {
-          tpsl_id,
-          state: closed,
-          memo: `[Info] Trades.Canceled: Stop order on closed position; state changed to Closed`,
-          update_time: new Date(),
-        };
-        const [result, updates] = await Update(stop_request, { table: `stop_request`, keys: [{ key: `tpsl_id` }] });
-        return result ? (updates ? "success" : "confirmed") : "failed";
-      })
-    );
-    return {
-      success: results.filter((r) => r === "success").length,
-      confirmed: results.filter((r) => r === "confirmed").length,
-      failed: results.filter((r) => r === "failed").length,
-    };
-  }
-  return { success: 0, confirmed: 0, failed: 0 };
-};
-
-const handleCanceled = async (cancels: Partial<IStopsAPI>[]) => {
-  if (cancels.length) {
-    const [accepted, rejected] = (await OrderAPI.Cancel(cancels)) ?? [[], []];
-    return { accepted: accepted.length, rejected: rejected.length };
-  } else return { accepted: 0, rejected: 0 };
-};
-
-const handleRejected = async (rejected: Partial<IStopsAPI>[]) => {
-  return rejected.length;
-};
-
-//------------------ Public functions ---------------------//
+import * as StopRequestAPI from "api/stop_requests";
+import * as Requests from "db/interfaces/stop_request";
+import * as Orders from "db/interfaces/stops";
 
 //+----------------------------------------------------------------------------------------+
 //| [Process.Stops] Submit Cancel requests to the API for orders in canceled state;        |
 //+----------------------------------------------------------------------------------------+
-type Accumulator = { cancels: Partial<IStopsAPI>[]; closures: Partial<IStopsAPI>[]; rejected: Partial<IStopsAPI>[] };
+type Accumulator = { cancels: Partial<IStopsAPI>[]; closures: Partial<IStopRequest>[] };
 
-export const Canceled = async () => {
-  const requests = await Select<IStopsAPI>({ status: "Canceled", account: Session().account }, { table: `vw_api_stop_requests` });
+export const Canceled = async (): Promise<Array<IPublishResult<IStopRequest>>> => {
+  const orders = await Orders.Fetch({ status: "Canceled", account: Session().account });
 
-  if (requests.length) {
-    const { cancels, closures, rejected } = requests.reduce(
-      (acc: Accumulator, request) => {
-        const { tpslId, instId, clientOrderId } = request;
-        request.tpslId ? cancels.push({ tpslId, instId, clientOrderId }) : clientOrderId ? closures.push({ clientOrderId }) : rejected.push(request);
-        return acc;
-      },
-      { cancels: [] as IStopsAPI[], closures: [] as IStopsAPI[], rejected: [] as IStopsAPI[] }
-    );
+  if (!orders) return [];
+  console.log(`-> Requests.Canceled: Processing ${orders.length} canceled orders`);
 
-    const [canceled, closed, errors] = await Promise.all([handleCanceled(cancels), handleClosures(closures), handleRejected(rejected)]);
-    return { total: requests.length, canceled, closed, errors };
-  } else return undefined;
+  const { cancels, closures } = orders.reduce(
+    (acc: Accumulator, request) => {
+      const instId = request.symbol;
+      const tpslId = parseInt(hexString(request.tpsl_id!, 10)).toString(10);
+      const isPending = request.request_status === "Pending";
+      isPending ? cancels.push({ tpslId, instId}) : closures.push({ stop_request: request.stop_request }) 
+      return acc;
+    },
+    { cancels: [] as IStopsAPI[], closures: [] as IStopRequest[] },
+  );
+
+  const promises = [
+    ...closures.map(async (request) => {
+      const result = await Requests.Submit({ ...request, update_time: new Date() });
+      result.response.outcome = "closed";
+      return result;
+    }),
+
+    (async () => {
+      if (cancels.length === 0) return [];
+      const results = await StopRequestAPI.Cancel(cancels);
+
+      return results.map((cancel) => ({
+        ...cancel,
+        response: { ...cancel.response, outcome: "expired" },
+      }));
+    })(),
+  ];
+
+  const results = await Promise.all(promises);
+  return results.flat();
 };

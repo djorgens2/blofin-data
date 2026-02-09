@@ -7,15 +7,18 @@
 import type { IRequestState, TRequestState } from "db/interfaces/state";
 import type { IStopOrder } from "db/interfaces/stops";
 import type { IPublishResult } from "db/query.utils";
+import type { TRefKey } from "./reference";
 
-import { Select, Insert, Update, TOptions, PrimaryKey } from "db/query.utils";
+import { Insert, Update, PrimaryKey } from "db/query.utils";
 import { hexify, uniqueKey } from "lib/crypto.util";
 import { Session } from "module/session";
 import { hasValues, isEqual } from "lib/std.util";
+import { ApiError } from "api/api.util";
 
-import * as InstrumentPosition from "db/interfaces/instrument_position";
 import * as Stops from "db/interfaces/stops";
 import * as States from "db/interfaces/state";
+import * as Reference from "db/interfaces/reference";
+import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 export interface IStopRequest {
   account: Uint8Array;
@@ -24,6 +27,7 @@ export interface IStopRequest {
   symbol: string;
   stop_request: Uint8Array;
   stop_type: Uint8Array;
+  stop_request_type: string;
   state: Uint8Array;
   status: TRequestState;
   position: "short" | "long" | "net";
@@ -46,38 +50,54 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
   if (hasValues<Partial<IStopOrder>>(current)) {
     if (hasValues<Partial<IStopOrder>>(props)) {
       const update_time = props.update_time || new Date();
-      const state = props.status === "Hold" ? undefined : (await States.Key<IRequestState>({ status: props.status })) || props.state || current.state;
+      const state = (await States.Key<IRequestState>({ status: props.status })) ?? props.state;
 
       if (update_time > current.update_time!) {
-        const revised: Partial<IStopOrder> = {
-          stop_request: props.stop_request,
-          stop_type: props.stop_type,
-          state: isEqual(state!, current.state!) ? undefined : state,
-          size: isEqual(props.size!, current.size!) ? undefined : props.size,
-          trigger_price: isEqual(props.trigger_price!, current.trigger_price!) ? undefined : props.trigger_price,
-          order_price: isEqual(props.order_price!, current.order_price!) ? undefined : props.order_price,
-          reduce_only: props.reduce_only ? (!!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only) : undefined,
-          create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
-        };
+        // 1. Build the core diff
+        const revised: Partial<IStopOrder> = {};
 
-        const result = await Update(revised, { table: `stop_request`, keys: [{ key: `stop_request` }, { key: `stop_type` }], context: "Stop.Request.Publish" });
+        if (!isEqual(props.size!, current.size!)) revised.size = props.size;
+        if (!isEqual(props.trigger_price!, current.trigger_price!)) revised.trigger_price = props.trigger_price;
+        if (!isEqual(props.order_price!, current.order_price!)) revised.order_price = props.order_price;
+        if (state && props.status !== "Hold" && !isEqual(state, current.state!)) revised.state = state;
 
-        if (result.success) {
-          const state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
-          const confirm = await Update(
-            { stop_request: props.stop_request, stop_type: props.stop_type, state, memo: props.memo === current.memo ? undefined : props.memo, update_time },
-            {
-              table: `stop_request`,
-              keys: [{ key: `stop_request` }, { key: `stop_type` }],
-              context: "Stop.Request.Publish",
-            },
-          );
-          return { key: PrimaryKey(current, [`stop_request`, `stop_type`]), response: confirm };
+        // Handle boolean specifically to avoid undefined vs false confusion
+        if (props.reduce_only !== undefined && !!props.reduce_only !== !!current.reduce_only) {
+          revised.reduce_only = !!props.reduce_only;
+        }
+
+        // 2. ONLY if a core field changed, attach the metadata and fire the update
+        if (Object.keys(revised).length > 0) {
+          revised.stop_request = props.stop_request; // Required for PKey
+          revised.stop_type = props.stop_type; // Required for PKey
+          revised.update_time = update_time; // Stamp the change
+          revised.memo = props.memo || current.memo || "[Info] Stop.Request.Publish: Updated stop request";
+          revised.state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : state; // Special Case: Auto-correction for 'Hold'
+
+          const result = await Update(revised, {
+            table: `stop_request`,
+            keys: [{ key: `stop_request` }, { key: `stop_type` }],
+            context: "Stop.Request.Publish",
+          });
+
+          return {
+            key: PrimaryKey(current, [`stop_request`, `stop_type`]),
+            response: result,
+          };
         }
       }
+
+      // 3. If we reached here, it was either stale (update_time) or a non-op (no core diff)
       return {
         key: PrimaryKey(current, [`stop_request`, `stop_type`]),
-        response: { success: false, code: 200, response: `exists`, message: `Stop request unchanged`, rows: 0, context: `Stop.Request.Publish` },
+        response: {
+          success: true,
+          code: 200,
+          response: `exists`,
+          message: `Stop request unchanged`,
+          rows: 0,
+          context: "Stop.Request.Publish",
+        },
       };
     }
 
@@ -95,24 +115,31 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
   }
 
   if (hasValues<Partial<IStopRequest>>(props)) {
-    const queued = await States.Key<IRequestState>({ status: "Queued" });
+    const query: Partial<IRequestState> = props.status ? { status: props.status } : props.state ? { state: props.state } : { status: "Queued" };
+    const state = await States.Key<IRequestState>(query);
     const request: Partial<IStopRequest> = {
-      stop_request: props.stop_request || hexify(uniqueKey(8), 4),
+      stop_request: props.stop_request || hexify(uniqueKey(10), 5),
       stop_type: props.stop_type,
       instrument_position: props.instrument_position,
-      state: props.state || queued,
+      state,
       margin_mode: props.margin_mode || Session().margin_mode || `cross`,
       action: props.action,
       size: props.size,
       trigger_price: props.trigger_price,
       order_price: props.order_price,
-      reduce_only: props.reduce_only ? (!!props.reduce_only! === !!current.reduce_only! ? undefined : !!props.reduce_only) : undefined,
-      memo: props.memo || "[Info] Stop.Request.Publish: Stop request does not exist; proceeding with submission",
-      create_time: props.create_time || new Date(),
+      reduce_only: props.reduce_only !== undefined ? !!props.reduce_only : undefined,
+      memo: props.memo || "[Info] Stop.Request.Publish: Initialized",
+      create_time: props.create_time,
     };
 
-    const result = await Insert<Partial<IStopRequest>>({...request, update_time: request.create_time}, { table: "stop_request", context: "Stop.Request.Publish" });
-    return { key: PrimaryKey(request, [`stop_request`, `stop_type`]), response: result };
+    const result = await Insert<Partial<IStopRequest>>(
+      { ...request, update_time: request.create_time },
+      { table: "stop_request", context: "Stop.Request.Publish" },
+    );
+    return {
+      key: PrimaryKey(request, [`stop_request`, `stop_type`]),
+      response: result,
+    };
   }
 
   return {
@@ -167,67 +194,90 @@ export const Cancel = async (props: Partial<IStopRequest>): Promise<Array<IPubli
 //+--------------------------------------------------------------------------------------+
 //| Submits application (auto) stop requests locally on Open positions;                  |
 //+--------------------------------------------------------------------------------------+
-export const Submit = async (props: Partial<IStopOrder>): Promise<IPublishResult<IStopRequest>> => {
-  if (hasValues(props)) {
+export const Submit = async (props: Partial<IStopRequest>): Promise<IPublishResult<IStopRequest>> => {
+  if (!props.instrument_position || !((props.account || Session().account) && props.symbol && props.position)) {
+    throw new ApiError(455, "Malformed Stop Request: Missing required identification details");
+  }
+
+  try {
     const query = props.instrument_position
       ? { instrument_position: props.instrument_position }
       : { account: props.account || Session().account, symbol: props.symbol, position: props.position };
-    const [result] = (await InstrumentPosition.Fetch(query)) ?? [];
-    const { instrument_position, auto_status, margin_mode, open_take_profit, open_stop_loss } = result;
 
-    if (instrument_position) {
-      const query = props.stop_request
-        ? { stop_request: props.stop_request }
-        : ({
-            instrument_position,
-            status: props.stop_type === "tp" && open_take_profit ? "Pending" : props.stop_type === "sl" && open_stop_loss ? "Pending" : "Queued",
-          } satisfies Partial<IStopOrder>);
-      const [current] = (await Fetch(query, { suffix: `ORDER BY update_time DESC LIMIT 1` })) ?? [{ stop_request: undefined }];
+    const [stop_position, stop_type] = await Promise.all([
+      InstrumentPosition.Fetch(query),
+      Reference.Key<TRefKey>({ source_ref: props.stop_request_type }, { table: `stop_type` }),
+    ]);
 
-      if (current.stop_request) {
-        props.update_time === undefined && Object.assign(props, { update_time: Date() });
+    if (!stop_position || !stop_type) throw new ApiError(604, `System Configuration: Authorization or configuration failure`);
 
-        if (props.update_time! > current.update_time!) {
-          if (auto_status === "Enabled") {
-            const promise = Fetch({ instrument_position, stop_type: current.stop_type }, { suffix: `AND status IN ("Pending", "Queued")` }) ?? [{}];
-            const queue = await promise;
-            if (queue) {
-              const cancels = queue.filter(({ stop_request }) => !isEqual(stop_request!, current.stop_request!));
-              const promises = cancels.map(({ stop_request }) =>
-                Cancel({ stop_request, memo: `[Warning] Stop.Request.Submit: New TPSL request on open instrument/position auto-cancels existing` }),
-              );
-              await Promise.all(promises);
-              props.status = current.status === "Pending" ? "Hold" : current.status;
-            }
-          }
+    const [{ instrument_position, open_request, open_take_profit, open_stop_loss }] = stop_position;
+    const requests = await Stops.Fetch(
+      { instrument_position, stop_type },
+      { suffix: `AND status IN ("Pending", "Queued", "Rejected") ORDER BY status, update_time DESC` },
+    );
 
-          if (props.status === "Hold") {
-            const result = await publish(current, {
-              ...props,
-              memo: props.memo || `[Info] Stops.Submit: Stop request updated; put on hold; pending cancel and resubmit`,
-            });
-            return result ? result : undefined;
-          } else {
-            await publish(current, { ...props, memo: props.memo || `[Info] Stops.Submit: Stop request exists; updated locally` });
-            return current.stop_request;
-          }
-        } else return current.stop_request;
-      } else {
-        // Handle new request submission
-        const result = await publish(
-          {},
-          {
-            ...props,
-            instrument_position,
-            margin_mode: props.margin_mode || margin_mode,
-            memo: props.memo || `[Warning] Stops.Submit: Stop Request missing; was added locally; updated and settled`,
-          },
-        );
-        return result ? result : undefined;
-      }
-    } else {
-      console.log(">> [Error] Stops.Submit: Invalid stop request; missing instrument position; request rejected");
-      return undefined;
+    const submittable = stop_position.some((pos) => pos.status === "Open" && pos.auto_status === "Enabled");
+    const latest = requests?.[0];
+    const getBacklog = () => {
+      if (submittable) {
+        return requests || [];
+      } 
+      return requests?.slice(1) || [];
     }
+
+    // --- CRITICAL BUSINESS RULES: BACKLOG PURGE ---
+    const backlog = getBacklog();
+    if (backlog.length > 0) {
+      await Promise.all(
+        backlog.map(async (r) => {
+          if (r.status === "Pending") {
+            return Cancel({ stop_request: r.stop_request, memo: "[Auto] Purged Pending: Replaced by new request" });
+          }
+          if (r.status === "Queued") {
+            // Move to Canceled state locally (assuming your 'Cancel' helper handles local-only if no broker ID)
+            return Publish("Submit", r, { status: "Closed", memo: "[Auto] Closed Queued: Replaced by new request" });
+          }
+          if (r.status === "Rejected") {
+            // Mark as Expired to clear the UI/Audit
+            return Publish("Submit", r, { status: "Expired", memo: "[Auto] Expired Rejected: Cleanup" });
+          }
+        }),
+      );
+    }
+
+
+    // If the new request is not submittable, we still want to update the existing request(s) to reflect the current state and inform the user
+    // Need to handle results of backlog purge before deciding to throw error or proceed with submission
+    if (!submittable) {
+      throw new ApiError(456, `Stop Request Submission Denied: No open position or existing stop request`);
+    }
+
+    if (!latest) {
+      return await Publish(
+        "Submit",
+        {},
+        {
+          ...props,
+          instrument_position,
+          stop_type,
+          status: "Queued",
+          memo: props.memo || `[Info] Stops.Submit: Stop Request submitted`,
+        },
+      );
+    }
+
+    const status = latest.status === "Pending" ? "Hold" : "Queued";
+
+    return await Publish("Submit", latest, {
+      ...props,
+      instrument_position,
+      stop_type,
+      status,
+      memo: props.memo || `[Warning] Stops.Submit: Stop Request exists; updated and resubmitted`,
+    });
+  } catch (error) {
+    console.log("-> [Error] Stop.Request.Submit:", error);
+    throw error;
   }
 };

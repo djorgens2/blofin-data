@@ -6,6 +6,7 @@
 
 import { ResultSetHeader, PoolConnection } from "mysql2/promise";
 import { hasValues } from "lib/std.util";
+import { Log } from "module/session";
 
 import pool from "db/db.config";
 
@@ -193,7 +194,7 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions): Promise<T
     const result = options.connection ? await transact(sql, args, options.connection) : await modify(sql, args);
     const response = result.rows ? `inserted` : ignore ? `exists` : `error`;
     const code = ignore && result.rows === 0 ? 200 : result.code;
-    result.rows && console.log(`-> [Info] ${table} inserted`, { fields, args });
+    Log().insert && result.rows && console.log(`-> [Info] ${table} inserted`, { fields, args });
     return { success: !!result.rows, code, response, rows: result.rows, context: options.context || `Query.Utils.Insert` };
   } catch (e) {
     return e as TResponse;
@@ -224,7 +225,7 @@ export const Update = async <T>(props: Partial<T>, options: TOptions): Promise<T
     const result = await modify(sql, [...values, ...args]);
     const response = result.rows ? `updated` : result.code ? `error` : `not_found`;
     const code = result.rows ? result.code : result.code ? result.code : 404;
-    result.rows && console.log(response, `-> [Info] ${table} updated`, { filters, columns });
+    Log().update && result.rows && console.log(response, `-> [Info] ${table} updated`, { filters, columns });
     return { success: result.rows ? true : false, code, response, rows: result.rows, context: options.context || `Query.Utils.Update` };
   } catch (e) {
     return e as TResponse;
@@ -242,6 +243,7 @@ export const Select = async <T>(props: Partial<T>, options: TOptions): Promise<A
   }`;
 
   try {
+    Log().select && console.log(`-> [Info] Executing Select on ${DB_SCHEMA}.${table}`, { fields, args });
     return (await select<T>(sql, args)) as Array<Partial<T>>;
   } catch (e) {
     return [] as Array<Partial<T>>;
@@ -261,6 +263,7 @@ export const Distinct = async <T>(props: Partial<T>, options: TOptions): Promise
   }`;
 
   try {
+    Log().select && console.log(`-> [Info] Executing Distinct Select on ${DB_SCHEMA}.${table}`, { keys, args });
     return (await select(sql, args)) as Array<Partial<T>>;
   } catch (e) {
     return [] as Array<Partial<T>>;

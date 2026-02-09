@@ -87,7 +87,7 @@ export const importCandles = async () => {
     }
   };
 
-//  await loadCandles();
+  await loadCandles();
   await refreshCandles();
 };
 

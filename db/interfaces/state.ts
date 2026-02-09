@@ -81,7 +81,7 @@ export const Add = async (props: Partial<IState>): Promise<IPublishResult<IState
 //+--------------------------------------------------------------------------------------+
 export const Key = async <T extends IState>(props: Partial<T>): Promise<T["state"] | undefined> => {
   if (hasValues<Partial<T>>(props)) {
-    const [key] = await Select<IState>(props, { table: `state` });
+    const [key] = await Select<T>(props, { table: `state` });
     return key ? key.state : undefined;
   } else return undefined;
 };

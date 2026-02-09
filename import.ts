@@ -107,7 +107,8 @@ export const Import = async () => {
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account }).then(() => {
-  console.log(Session());
+  console.log(Session().Log(true));
 
+}).finally(() => {
   Import();
 });

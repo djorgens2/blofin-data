@@ -4,18 +4,22 @@
 //+------------------------------------------------------------------+
 "use strict";
 
-import { Session, config } from "module/session";
+import { Log, Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { CMain } from "app/main";
 import { importCandles, importInstruments, importSeed } from "app/import";
 
+import * as PositionsAPI from "api/positions";
+import * as OrderAPI from "api/orders";
+import * as StopsAPI from "api/stops";
+
 const initialize = async () => {
   await importSeed();
-  await importInstruments();
-  await importCandles();
+
+  const results = await Promise.all([importInstruments(), importCandles(), PositionsAPI.Import(), OrderAPI.Import(), StopsAPI.Import()]);
 
   setTimeout(async () => {
-    console.log(">> [Info] Application.Initialization finished:", new Date().toLocaleString());
+    console.log("[Info] Application.Initialization finished:", new Date().toLocaleString());
 
     const app = new CMain();
     app.Start();
@@ -24,8 +28,9 @@ const initialize = async () => {
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account }).then(() => {
-  console.log(">> [Info] Application.Initialization start:", new Date().toLocaleString());
-  console.log(`-> Active Session:`, Session());
+  console.log("[Info] Application.Initialization start:", new Date().toLocaleString());
+  console.log(`-> Active.Session:`, Session().Log());
+  console.log(`-> Log.Config:`, Log());
 
   initialize();
 });

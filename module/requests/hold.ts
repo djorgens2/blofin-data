@@ -10,16 +10,16 @@ import type { IRequestAPI } from "api/requests";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
+import { Fetch } from "db/interfaces/order";
 
 import * as RequestAPI from "api/requests";
 import * as Request from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
 
 //-- [Process.Orders] Resubmit requests canceled by modification to the API for orders in hold state
 type Accumulator = { requests: Partial<IRequestAPI>[]; closures: Partial<IRequest>[] };
 
 export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
-  const orders = await Orders.Fetch({ status: "Hold", account: Session().account });
+  const orders = await Fetch({ status: "Hold", account: Session().account });
   if (!orders) return [];
   console.log(`-> Requests.Hold: Processing ${orders.length} hold orders`);
 

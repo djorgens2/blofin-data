@@ -298,6 +298,7 @@ const show = async (subject: string, args: string): Promise<string> => {
         request_state: hexify(props?.request_state!),
         order_state: hexify(props?.order_state!),
         stop_request: hexify(props?.stop_request!),
+        stop_type: hexify(props?.stop_type!),
         tpsl_id: hexify(props?.tpsl_id!),
       });
       const key = await Stops.Fetch(props!);

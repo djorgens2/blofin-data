@@ -34,7 +34,7 @@ const processStops = async () => {
   await Stops.Canceled();
   await Stops.Hold();
   const queue = await Stops.Queued();
-  Stops.Report(queue);
+//  Stops.Report(queue);
 };
 
 //------------------ Public functions ---------------------//
@@ -45,10 +45,14 @@ const processStops = async () => {
 export const Trades = async () => {
   console.log("In Execute.Trades:", new Date().toLocaleString());
 
-  const [ipos, orders, stops] = await Promise.all([PositionsAPI.Import(), OrderAPI.Import(), StopsAPI.Import()]);
+  const [ipos, orders, stops] = await Promise.all([
+    PositionsAPI.Import(),
+    OrderAPI.Import(),
+    StopsAPI.Import(),
+  ]);
   //ipos.length && console.log({ instrument_positions: ipos });
   //stops.length && console.log({ stops });
 
   await processOrders();
-  //  await processStops();
+  await processStops();
 };

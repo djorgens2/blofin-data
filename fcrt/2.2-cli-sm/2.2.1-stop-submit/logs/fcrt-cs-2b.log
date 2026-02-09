@@ -1,0 +1,111 @@
+-> [Info] request inserted {
+  fields: [
+    'request',
+    'instrument_position',
+    'action',
+    'state',
+    'price',
+    'size',
+    'leverage',
+    'request_type',
+    'margin_mode',
+    'memo',
+    'create_time',
+    'expiry_time',
+    'update_time'
+  ],
+  args: [
+    <Buffer b0 2f 46 89 d7 d0>,
+    <Buffer ed da 99 9d fb 4e>,
+    'sell',
+    <Buffer 62 57 cb>,
+    2.95,
+    100,
+    40,
+    <Buffer b8 32 96>,
+    'cross',
+    'Test 2a: request w/o expiry; w/o tpsl',
+    2026-02-07T23:38:56.678Z,
+    2026-02-08T07:38:56.680Z,
+    2026-02-07T23:38:56.678Z
+  ]
+}
+{
+  submitted: {
+    key: { request: <Buffer b0 2f 46 89 d7 d0> },
+    response: {
+      success: true,
+      code: 0,
+      response: 'inserted',
+      rows: 1,
+      context: 'Request.Publish.Submit'
+    }
+  },
+  request: {
+    symbol: 'XRP-USDT',
+    position: 'short',
+    action: 'sell',
+    order_type: 'limit',
+    price: 2.95,
+    size: 100
+  }
+}
+Test 2b: Request submitted, check db for results. {
+  key: { request: <Buffer b0 2f 46 89 d7 d0> },
+  response: {
+    success: true,
+    code: 0,
+    response: 'inserted',
+    rows: 1,
+    context: 'Request.Publish.Submit'
+  }
+}
+Fetched order from DB: [
+  {
+    request: <Buffer b0 2f 46 89 d7 d0>,
+    order_id: null,
+    account: <Buffer 24 59 7a>,
+    instrument: <Buffer a2 80 0a>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
+    symbol: 'XRP-USDT',
+    base_currency: <Buffer 20 e0 67>,
+    base_symbol: 'XRP',
+    quote_currency: <Buffer b5 2b c7>,
+    quote_symbol: 'USDT',
+    state: <Buffer 62 57 cb>,
+    status: 'Queued',
+    request_state: <Buffer 62 57 cb>,
+    request_status: 'Queued',
+    order_state: null,
+    order_status: null,
+    position: 'short',
+    action: 'sell',
+    request_type: <Buffer b8 32 96>,
+    order_type: 'limit',
+    margin_mode: 'cross',
+    price: 2.95,
+    size: 100,
+    leverage: 40,
+    filled_size: null,
+    filled_amount: null,
+    average_price: null,
+    fee: null,
+    pnl: null,
+    digits: 4,
+    order_category: null,
+    category: null,
+    cancel_source: null,
+    canceled_by: null,
+    contract_type: <Buffer 9b 1a cc>,
+    instrument_type: <Buffer e1 a1 fa>,
+    reduce_only: 1,
+    broker_id: null,
+    trade_period: <Buffer 03 e8 0e>,
+    trade_timeframe: '15m',
+    timeframe_units: 15,
+    memo: 'Test 2a: request w/o expiry; w/o tpsl',
+    create_time: 2026-02-07T23:38:56.678Z,
+    expiry_time: 2026-02-08T07:38:56.680Z,
+    update_time: 2026-02-07T23:38:56.678Z
+  }
+]

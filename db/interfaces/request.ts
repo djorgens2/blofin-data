@@ -204,9 +204,9 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
   }
 
   const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
-  const search = props.request
+  const search:Partial<IRequest> = props.request
     ? { request: props.request }
-    : ({ instrument_position, status: open_request ? "Pending" : "Queued" } satisfies Partial<IRequest>);
+    : ({ instrument_position, status: open_request ? "Pending" : "Queued" } );
   const found = await Orders.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
 
   if (!found) {

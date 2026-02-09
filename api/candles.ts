@@ -182,6 +182,7 @@ export const Import = async (message: IMessage, props: ILoaderProps) => {
 
   if (instrument && period) {
     console.log(`Loader start for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
+    console.log(`-> [Info] Session.Config:`, { account: Session().account, alias: Session().alias, candle_max_fetch: Session().candle_max_fetch });
 
     const receipt = { ...message, db: { insert: 0, update: 0 } };
     const limit = Session().candle_max_fetch || 100;

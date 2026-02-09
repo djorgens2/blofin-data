@@ -10,13 +10,22 @@ import { parseJSON } from "lib/std.util";
 import { uniqueKey } from "lib/crypto.util";
 import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
+import { Select } from "db/query.utils";
 
 import * as PositionsAPI from "api/positions";
 import * as AccountAPI from "api/accounts";
 import * as OrderAPI from "api/orders";
 import * as Accounts from "db/interfaces/account";
 import * as Execute from "module/trades";
-import { Select } from "db/query.utils";
+
+interface ILogConfig {
+  select: boolean;
+  update: boolean;
+  insert: boolean;
+  delete: boolean;
+  account: boolean;
+  errors: boolean;
+}
 
 export type IResponseProps = {
   event: string;
@@ -54,10 +63,49 @@ export interface ISession {
 const session: Partial<ISession> = {};
 
 export const Session = () => {
-  return session;
+  return {
+    ...session,
+    /**
+     * Returns an obfuscated version of the session for safe logging
+     * @param isAdmin If true, returns cleartext; if false, masks secrets
+     */
+    Log: (isAdmin = false) => {
+      if (Log().account === false) return { account: "****" };
+      if (isAdmin) return { ...session };
+
+      const mask = (val?: string) => (val ? `${val.substring(0, 4)}****${val.substring(val.length - 4)}` : "undefined");
+
+      return {
+        ...session,
+        api: mask(session.api),
+        secret: "********", // Never log the secret, even masked
+        phrase: "****", // Phrase is usually short, better to hide completely
+        // Keep everything else cleartext for debugging
+      };
+    },
+  };
 };
 
 export const setSession = (props: Partial<ISession>) => Object.assign(session, { ...session, ...props });
+
+// Default state: Log everything unless specified otherwise
+const DEFAULT_LOGGING: ILogConfig = {
+  select: true,
+  update: true,
+  insert: true,
+  delete: true,
+  account: true,
+  errors: true,
+};
+
+export const Log = (): ILogConfig => {
+  try {
+    return process.env.APP_LOGGING ? { ...DEFAULT_LOGGING, ...JSON.parse(process.env.APP_LOGGING) } : DEFAULT_LOGGING;
+  } catch (e) {
+    console.error("-> [Error] LogConfig: Malformed APP_LOGGING JSON in .env");
+    return DEFAULT_LOGGING;
+  }
+};
 
 //+--------------------------------------------------------------------------------------+
 //| Helper function to safely parse the environment variable JSON                        |
@@ -77,38 +125,35 @@ const parseEnvAccounts = (envVar: string | undefined): Array<ISession> => {
 //| configures environment/application/globals on session opened with supplied keys;     |
 //+--------------------------------------------------------------------------------------+
 export const config = async (props: Partial<IAccount>) => {
-  const promiseAccount = Accounts.Fetch(props);
-  const promiseAppConfig = Select<ISession>({}, { table: "app_config" });
-  const sessionKeys: Array<ISession> = parseEnvAccounts(process.env.APP_ACCOUNT);
-  const [config, search] = await Promise.all([promiseAppConfig, promiseAccount]);
+  const [accountConfig, sessionConfig] = await Promise.all([await Accounts.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
+console.error(props, accountConfig, sessionConfig);
 
-  if (search) {
-    const [appConfig] = config;
-    const [{ account, alias, margin_mode, hedging }] = search;
-    const sessionKey = sessionKeys.find((key) => key.alias === alias);
-
-    if (sessionKey) {
-      setSession({
-        ...appConfig,
-        ...sessionKey,
-        account,
-        margin_mode,
-        hedging,
-        state: "disconnected",
-        audit_order: "0",
-        audit_stops: "0",
-      });
-      console.log(`[Info] Session.Config: ${alias} configured successfully`);
-    } else {
-      console.warn(`[Error] Session.Config: Configuration failed; ${alias} not found`);
-      process.exit(1);
-    }
-  } else {
+  if (!accountConfig || !sessionConfig?.length) {
     console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");
     process.exit(1);
   }
-};
 
+  const [{ account, alias, margin_mode, hedging }] = accountConfig;
+  const sessionKeys: Array<ISession> = parseEnvAccounts(process.env.APP_ACCOUNT);
+  const sessionKey = sessionKeys.find((key) => key.alias === alias);
+
+  if (sessionKey) {
+    setSession({
+      ...sessionConfig[0],
+      ...sessionKey,
+      account,
+      margin_mode,
+      hedging,
+      state: "disconnected",
+      audit_order: "0",
+      audit_stops: "0",
+    });
+    console.log(`[Info] Session.Config: ${alias} configured successfully`);
+  } else {
+    console.warn(`[Error] Session.Config: Configuration failed; ${alias} not found`);
+    process.exit(1);
+  }
+};
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
 //+--------------------------------------------------------------------------------------+
@@ -158,7 +203,7 @@ export const openWebSocket = () => {
         JSON.stringify({
           op: "login",
           args: [{ apiKey: api, passphrase: phrase, timestamp, sign, nonce }],
-        })
+        }),
       );
     };
 
@@ -188,7 +233,7 @@ export const openWebSocket = () => {
           JSON.stringify({
             op: "subscribe",
             args: [{ channel: "account" }, { channel: "positions" }, { channel: "orders" }],
-          })
+          }),
         );
         setSession({ account, state: "connected", api, secret, phrase, rest_api_url, private_wss_url, public_wss_url });
       } else setSession({ state: "error" });

@@ -6,8 +6,10 @@ import * as Import from "app/import";
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account })
-  .then( async () => {
-    console.log(Session());
+  .then(async () => {
+    console.log(Session().Log(true));
+  })
+  .finally(async () => {
     await Import.importCandles()
       .then(() => {
         console.log("[Info] Import.Candles: Successfully completed");

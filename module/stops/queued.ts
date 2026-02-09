@@ -5,115 +5,78 @@
 "use strict";
 
 import type { IStopsAPI } from "api/stops";
-import type { IRequestState } from "db/interfaces/state";
 
-import { format } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
-import { Session } from "module/session";
-import { Select, Update } from "db/query.utils";
-import { Submit } from "db/interfaces/stop_request";
+import { ApiError } from "api/api.util";
 
-import * as StopsAPI from "api/stops";
-import * as StopRequest from "db/interfaces/stops";
-import * as States from "db/interfaces/state";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
-
-//------------------ Private functions ---------------------//
-
-//+--------------------------------------------------------------------------------------+
-//| handles the submit processing for TP/SL requests                                     |
-//+--------------------------------------------------------------------------------------+
-const handleSubmits = async (requests: Partial<IStopsAPI>[]) => {
-  if (requests.length) {
-    const results = await Promise.all(requests.map((q) => StopsAPI.Submit(q)));
-    return {
-      success: results.filter((r) => r?.[0]?.length).length,
-      rejected: results.filter((r) => r?.[1]?.length).length,
-    };
-  } else return { success: 0, rejected: 0 };
-};
-
-//+--------------------------------------------------------------------------------------+
-//| handles the verification and revalidation of existing TP/SL requests                 |
-//+--------------------------------------------------------------------------------------+
-const handleVerifications = async (requests: Partial<IStopsAPI>[]) => {
-  if (requests.length) {
-    const expired = await States.Key<IRequestState>({ status: "Expired" });
-
-    const results = await Promise.all(
-      requests.map(async (v) => {
-        const [pos] =
-          (await InstrumentPosition.Fetch({
-            symbol: v.instId,
-            position: v.positionSide,
-            account: Session().account,
-          })) ?? [];
-
-        if (pos?.open_request) {
-          const success = await Submit({
-            stop_request: hexify(v.clientOrderId!, 5),
-            instrument_position: pos.instrument_position,
-            trigger_price: format(v.tpTriggerPrice ?? v.slTriggerPrice!),
-            order_price: format(v.tpOrderPrice ?? v.slOrderPrice!),
-            size: format(v.size!),
-            reduce_only: v.reduceOnly === "true",
-            broker_id: v.brokerId ?? undefined,
-            update_time: new Date(),
-          });
-          return success ? "processed" : "error";
-        }
-
-        await Update(
-          {
-            stop_request: hexify(v.clientOrderId!, 5),
-            state: expired,
-            memo: `[Info] Trades.Queued: Stop order on closed position; Expired`,
-            update_time: new Date(),
-          },
-          { table: `stop_request`, keys: [{ key: `stop_request` }] },
-        );
-
-        return "expired";
-      }),
-    );
-
-    return {
-      processed: results.filter((r) => r === "processed").length,
-      expired: results.filter((r) => r === "expired").length,
-    };
-  } else return { processed: 0, expired: 0 };
-};
-
-//+--------------------------------------------------------------------------------------+
-//| handles error processing for existing TP/SL requests; case by case anylysis continues|
-//+--------------------------------------------------------------------------------------+
-const handleErrors = async (errors: Partial<IStopsAPI>[]) => {
-  return errors.length;
-};
-
-//------------------ Private functions ---------------------//
+import * as RequestAPI from "api/stop_requests";
+import * as Queue from "db/interfaces/stops";
+import * as Request from "db/interfaces/stop_request";
+import { hexString } from "lib/std.util";
 
 //+----------------------------------------------------------------------------------------+
 //| Handle processing related to Queued stops; TP/SL;                                      |
 //+----------------------------------------------------------------------------------------+
-type Accumulator = { queued: Partial<IStopsAPI>[]; verify: Partial<IStopsAPI>[]; error: Partial<IStopsAPI>[] };
-
 export const Queued = async () => {
-  const requests = await Select<IStopsAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_stop_requests` });
+  const requests = await Queue.API(`Queued`);
 
-  if (requests.length) {
-    const { queued, verify, error } = requests.reduce(
-      (acc: Accumulator, request) => {
-        if (request.tpslId) acc.error.push(request);
-        else if (request.position_status === "Open") acc.queued.push(request);
-        else acc.verify.push(request);
-        return acc;
-      },
-      { queued: [] as IStopsAPI[], verify: [] as IStopsAPI[], error: [] as IStopsAPI[] },
-    );
+  if (!requests || requests.length === 0) return [];
+  console.log(`-> Stop.Requests.Queued: Processing ${requests.length} stop requests`);
 
-    const [submitted, verified, errors] = await Promise.all([handleSubmits(queued), handleVerifications(verify), handleErrors(error)]);
+  const queuePromises = requests.map(async (request) => {
+    try {
+      if (!request.clientOrderId && !request.stop_request) {
+        throw new ApiError(400, "Missing Client Order ID");
+      }
 
-    return { total: requests.length, submitted, verified, errors };
-  } else return { total: 0, submitted: { success: 0, rejected: 0 }, verified: { processed: 0, expired: 0 }, errors: 0 };
+      // 1. Singleton/Zombie Guard: If position is already closed, kill the request
+      if (request.position_status === "Closed") {
+        return await Request.Submit({
+          stop_request: request.stop_request,
+          status: "Closed",
+          memo: `[Info]: Queued request on closed position; local state Closed`,
+        });
+      }
+
+      // 2. Map View data to API Interface
+      // Use the 'request' value to decide if we populate the 'api' field
+      const api: Partial<IStopsAPI> = {
+        instId: request.instId,
+        marginMode: request.marginMode,
+        positionSide: request.positionSide,
+        side: request.side,
+        size: request.size,
+        clientOrderId: request.clientOrderId || hexString(request.stop_request!, 10),
+        brokerId: request.brokerId || "",
+        // Handle logic for Reduce Only / Hedge Mode
+        reduceOnly: request.reduceOnly?.toLowerCase() === "true" ? "true" : "false",
+      };
+
+      if (request.tpTriggerPrice) api.tpTriggerPrice = request.tpTriggerPrice;
+      if (request.tpOrderPrice) api.tpOrderPrice = request.tpOrderPrice;
+      if (request.slTriggerPrice) api.slTriggerPrice = request.slTriggerPrice;
+      if (request.slOrderPrice) api.slOrderPrice = request.slOrderPrice;
+
+      // 3. Fire to Broker
+      return await RequestAPI.Submit(api);
+    } catch (error) {
+      console.error(`-> [Error] Stop.Order.Queue:`, error);
+      return [
+        {
+          key: undefined,
+          response: {
+            success: false,
+            code: error instanceof ApiError ? error.code : -1,
+            state: `error`,
+            message: error instanceof Error ? error.message : "System failure",
+            rows: 0,
+            context: `Stop.Order.Queue`,
+          },
+        },
+      ];
+    }
+  });
+
+  const results = await Promise.all(queuePromises);
+  return results.flat();
 };

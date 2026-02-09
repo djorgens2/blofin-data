@@ -5,25 +5,26 @@
 "use strict";
 
 import type { TRequestState } from "db/interfaces/state";
+import type { TPositionState } from "db/interfaces/state";
 import type { IStopOrder } from "db/interfaces/stops";
 import type { TRefKey } from "db/interfaces/reference";
 import type { IPublishResult } from "db/query.utils";
 
 import { Session, setSession, signRequest } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { delay, format, hexString, isEqual } from "lib/std.util";
+import { delay, fileWrite, format, hexString, isEqual } from "lib/std.util";
 import { API_GET, ApiError } from "api/api.util";
 
-import * as Response from "api/response";
 import * as Stops from "db/interfaces/stops";
 import * as StopRequests from "db/interfaces/stop_request";
-import * as States from "db/interfaces/state";
 import * as Reference from "db/interfaces/reference";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
 
 export interface IStopsAPI {
   account: Uint8Array;
+  stop_request: Uint8Array;
   status: TRequestState;
+  position_status: TPositionState;
   tpslId: string;
   instId: string;
   positionSide: "short" | "long" | "net";
@@ -37,6 +38,7 @@ export interface IStopsAPI {
   slOrderPrice: string;
   orderCategory: string;
   priceType: string;
+  leverage: string;
   actualSize: string;
   reduceOnly: string;
   clientOrderId: string;
@@ -53,85 +55,101 @@ export const Publish = async (source: string, props: Array<Partial<IStopsAPI>>):
   if (!props?.length) return [];
   console.log(`-> Stop.Orders.Publish.${source}`);
 
-  // 1. Flatten the API objects: One incoming order can become two independent DB records (TP and SL)
-  // Parallel Reference Lookups
-  const [tp, sl] = await Promise.all([
-    Reference.Key<TRefKey>({ source_ref: "tp" }, { table: `stop_type` }),
-    Reference.Key<TRefKey>({ source_ref: "sl" }, { table: `stop_type` }),
-  ]);
+  const types = await Stops.Types(["tp", "sl"]);
+  const typeMap = new Map(types.map((t) => [t.source_ref, t]));
+
+  const tp = typeMap.get("tp");
+  const sl = typeMap.get("sl");
 
   if (!tp || !sl) {
-    throw new ApiError(602, `Invalid stop type references for Stops.Publish`);
+    throw new ApiError(602, `Invalid stop type references requoired for TPSL publishing`);
   }
 
-  const stops = props.flatMap((order) => {
-    const tpsl_id = order.clientOrderId && order.clientOrderId.length > 2 ? order.clientOrderId.slice(2) : parseInt(order.tpslId || "0").toString(16);
-    const tp_id = (order.tpTriggerPrice ?? order.tpOrderPrice) != null ? hexify(tpsl_id, 4) : undefined;
-    const sl_id = (order.slTriggerPrice ?? order.slOrderPrice) != null ? hexify(tpsl_id, 4) : undefined;
-
-    const items = [];
-
-    tp_id && items.push({ ...order, stop_request: tp_id, stop_type: tp });
-    sl_id && items.push({ ...order, stop_request: sl_id, stop_type: sl });
-
-    return items;
-  });
-
-  // 2. Pre-filter Latest Wins (Deduplication)
-  const requests = new Map<string, (typeof stops)[0]>();
-  for (const item of stops) {
-    const key = hexString(item.stop_type, 2) + hexString(item.stop_request, 8);
-    const existing = requests.get(key);
-    if (!existing || BigInt(item.tpslId || "0") > BigInt(existing.tpslId || "0")) {
-      requests.set(key, item);
+  // Build de-duplication map to pre-filter latest orders
+  const orders = new Map<string, Partial<IStopsAPI>>();
+  for (const order of props) {
+    const existing = orders.get(order.tpslId!);
+    if (!existing || BigInt(order.tpslId || "0") > BigInt(existing.tpslId || "0")) {
+      orders.set(order.tpslId!, order);
     }
   }
 
   // 3. Process all normalized stops in parallel
   const results = await Promise.all(
-    stops.map(async (order): Promise<Array<IPublishResult<IStopOrder>>> => {
+    props.map(async (order): Promise<Array<IPublishResult<IStopOrder>>> => {
       try {
-        const client_order_id = hexify(order.clientOrderId!.slice(2), 4);
-        const tpsl_id = hexify(parseInt(order.tpslId!), 4);
+        const client_order_id = hexify(order.clientOrderId!, 5);
+        const tpsl_id = hexify(parseInt(order.tpslId!), 5);
+        const stop_request = hexify(order.clientOrderId && order.clientOrderId.length > 2 ? order.clientOrderId : parseInt(order.tpslId!).toString(16), 5);
 
+        
         // Parallel Reference Lookups
-        const [required, order_category, order_states, expiredState] = await Promise.all([
+        const [required, order_category, order_states] = await Promise.all([
           InstrumentPositions.Fetch({ account: Session().account, symbol: order.instId, position: order.positionSide }),
           Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` }),
           Reference.Fetch({ source_ref: order.state }, { table: `vw_order_states` }),
-          States.Key({ status: "Expired" }),
         ]);
-
-        if (!required) {
-          throw new ApiError(452, `Invalid instrument position for ${order.tpslId}; stop order rejected`);
-        }
-
+        
+        if (!tpsl_id || !stop_request) throw new ApiError(455, `Malformed stop request; order rejected`);
+        if (!required) throw new ApiError(452, `Invalid instrument position for ${order.tpslId}; stop order rejected`);
         if (!order_states) throw new ApiError(453, `Invalid Order State metadata; unable to resolve state [${order.state}] on Order: ${order.tpslId}`);
 
+        //   const tp_price = (order.tpTriggerPrice ?? order.tpOrderPrice) != null ? true : false;
+        //   const sl_price = (order.slTriggerPrice ?? order.slOrderPrice) != null ? true : false;
+
+        //   const orders = [];
+        //   const stop_price = [];
+
+        //   orders.push({...order, stop_request});
+
+        //   tp_price &&
+        //     stop_price.push({
+        //       stop_request,
+        //       stop_type: tp.stop_type,
+        //       trigger_price: format(order.tpTriggerPrice || -1),
+        //       order_price: format(order.tpOrderPrice || -1),
+        //     });
+
+        //     sl_price &&
+        //     stop_price.push({
+        //       stop_request,
+        //       stop_type: sl.stop_type,
+        //       trigger_price: format(order.slTriggerPrice || -1),
+        //       order_price: format(order.slOrderPrice || -1),
+        //     });
+
+        //   return [orders, stop_price];
+        // });
         // Determine State Logic (Zombie Protection)
         const [mapped] = order_states;
         const [{ instrument_position, auto_status }] = required;
 
         const request: Partial<IStopOrder> = {
           tpsl_id,
-          stop_type: order.stop_type,
           client_order_id,
           instrument_position,
           margin_mode: order.marginMode || Session().margin_mode || `cross`,
           state: mapped.state,
           order_state: mapped.order_state,
           order_category,
-          stop_request: order.stop_request,
           action: order.side,
           size: format(order.size!),
+          leverage: parseInt(order.leverage!),
           actual_size: format(order.actualSize!),
-          trigger_price: isEqual(order.stop_type, tp) ? format(order.tpTriggerPrice!) : format(order.slTriggerPrice!),
-          order_price: isEqual(order.stop_type, tp) ? format(order.tpOrderPrice ?? "-1") : format(order.slOrderPrice ?? "-1"),
-          update_time: new Date(),
+          memo:
+          source === `History`
+          ? "[Info] Orders.Publish: History updated; order imported"
+          : "[Info] Orders.Publish: New Order received; submitted and processed",
+          reduce_only: order.reduceOnly === "true",
+          broker_id: order.brokerId,
+          create_time: new Date(parseInt(order.createTime!)),
         };
-
-        // Standardized Multi-Table Publish
+        
         const orderResult = await Stops.Publish(request);
+
+        trigger_price: isEqual(order.stop_type, tp) ? format(order.tpTriggerPrice!) : format(order.slTriggerPrice!),
+        order_price: isEqual(order.stop_type, tp) ? format(order.tpOrderPrice ?? "-1") : format(order.slOrderPrice ?? "-1"),
+        // Standardized Multi-Table Publish
         const [current] = (await Stops.Fetch({ stop_request: order.stop_request, stop_type: order.stop_type })) ?? [{}];
 
         const pending = mapped.status === "Pending";
@@ -205,21 +223,21 @@ const History = async (): Promise<Array<Partial<IStopsAPI>>> => {
   }
 
   console.log(`-> [Info] Stops.History: fetched ${history.length} records from API`);
-  //  fileWrite<Partial<IStopsAPI>>(`log/stops_history_${new Date().toISOString()}.csv`, history );
+  fileWrite<Partial<IStopsAPI>>(`log/stops_history_${new Date().toISOString()}.csv`, history);
   return history;
 };
 
 /**
- * Pending - retrieves all active orders, paginating if count > 100
+ * Pending - retrieves all active orders, paginating if count > Session().orders_max_fetch;
  */
-export const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
+const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
   const pending: Array<Partial<IStopsAPI>> = [];
   const limit = Session().orders_max_fetch || 20;
 
   let afterId = "0";
 
   while (true) {
-    const path = `/api/v1/trade/orders-tpsl-pending?after=${afterId}&limit=${limit}`;
+    const path = `/api/v1/trade/orders-tpsl-pending?before=${afterId}&limit=${limit}`;
 
     try {
       const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stops.Pending");
@@ -236,76 +254,6 @@ export const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
   }
 
   return pending;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Cancel - closes a pending TP/SL order;                                               |
-//+--------------------------------------------------------------------------------------+
-export const Cancel = async (cancels: Array<Partial<IStopsAPI>>) => {
-  console.log(`-> Cancel [API]`);
-
-  const method = "POST";
-  const path = "/api/v1/trade/cancel-tpsl";
-  const body = JSON.stringify(cancels);
-
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
-
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      return await Response.Stops(json, { success: "Closed", fail: "Canceled" });
-    } else throw new Error(`Stops.Cancel: Response not ok: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Submit - submits a pending TP/SL order;                                              |
-//+--------------------------------------------------------------------------------------+
-export const Submit = async (request: Partial<IStopsAPI>) => {
-  const method = "POST";
-  const path = "/api/v1/trade/order-tpsl";
-  const body = JSON.stringify(request);
-  const { api, phrase, rest_api_url } = Session();
-  const { sign, timestamp, nonce } = await signRequest(method, path, body);
-  const headers = {
-    "ACCESS-KEY": api!,
-    "ACCESS-SIGN": sign!,
-    "ACCESS-TIMESTAMP": timestamp!,
-    "ACCESS-NONCE": nonce!,
-    "ACCESS-PASSPHRASE": phrase!,
-    "Content-Type": "application/json",
-  };
-
-  try {
-    const response = await fetch(rest_api_url!.concat(path), {
-      method,
-      headers,
-      body,
-    });
-
-    if (response.ok) {
-      const json = await response.json();
-      return await Response.Stops(json, { success: "Pending", fail: "Rejected" });
-    } else throw new Error(`Stops.Submit: Response not ok: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 /**

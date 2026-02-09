@@ -17,7 +17,7 @@ export class ApiError extends Error {
   public readonly msg: string;
 
   constructor(code: number, msg: string) {
-    super(`[API Error] Code ${code}: ${msg}`);
+    super(`[API] Code ${code}: ${msg}`);
 
     this.name = "ApiError";
     this.code = code;
@@ -60,7 +60,8 @@ export const API_POST = async <T>(path: string, data: unknown, context: string):
 
     const result = await response.json();
     if (result.code !== "0") {
-      console.log(`-> [Error]`, result);
+      console.log('[Error]', result);
+      throw new ApiError(result.code, result.msg );
     }
 
     return result.data as T;
