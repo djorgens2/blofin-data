@@ -1822,8 +1822,8 @@ END]]></string>
 		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3154" y="1596" />
 		<entity schema="devel" name="vw_stop_orders" color="666666" x="3135" y="380" />
 		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="437" y="1197" />
-		<entity schema="devel" name="stop_order" color="FFFF00" x="684" y="95" />
 		<entity schema="devel" name="activity" color="C7F4BE" x="1387" y="95" />
+		<entity schema="devel" name="stop_order" color="FFFF00" x="684" y="95" />
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="user" />

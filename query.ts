@@ -28,7 +28,7 @@ import * as InstrumentPeriods from "db/interfaces/instrument_period";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 import * as Stops from "db/interfaces/stops";
 
-import { parseJSON } from "lib/std.util";
+import { NormalizeHex, parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
 import { IAuthority } from "db/interfaces/authority";
 import { Select, TOptions } from "db/query.utils";
@@ -216,32 +216,19 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Order: {
-      const props = parseJSON<Order.IOrder & TOptions>(args);
+      const props = parseJSON<Order.IOrder & TOptions<Order.IOrder>>(args);
       if (props) {
-        const { limit, suffix, ...keys } = props;
-        const options = {
-          limit,
-          suffix
-        } as TOptions;
-
-        Object.assign(keys, {
-          ...keys,
-          account: hexify(keys.account),
-          request: hexify(keys.request),
-          order_id: hexify(keys.order_id),
-          instrument: hexify(keys.instrument),
-          instrument_position: hexify(keys.instrument_position),
-          request_type: hexify(keys.request_type),
-          order_state: hexify(keys.order_state),
-          order_category: hexify(keys.order_category),
-          cancel_source: hexify(keys.cancel_source),
-        });
+        const { limit, suffix, ...rawKeys } = props;
+        const options: TOptions<Order.IOrder> = { limit, suffix };
+        const keys = NormalizeHex(rawKeys);
         const rows = await Order.Fetch(keys, options);
-        console.log(`Fetch Orders [ ${Object.keys(keys).length} ]:`, options, keys, rows);
+
+        console.log(`Fetch Orders [ ${Object.keys(keys).length} ]:`, { options, keys, rows });
         return "ok";
       }
-      console.log("[Error] Orders: Unauthorized fetch attempt")
+      console.log("[Error] Orders: Unauthorized fetch attempt");
     }
+
     case Subject.Reference: {
       const json = parseJSON<Reference.IReference>(args);
       if (!json || typeof json.table === "undefined") {

@@ -3,6 +3,7 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
+import type { TKey } from "db/query.utils";
 
 import { Select, Insert, Update, TOptions } from "db/query.utils";
 import { isEqual } from "lib/std.util";
@@ -53,7 +54,7 @@ export const Publish = async (props: Partial<ICandle>) => {
     };
     return await Update<ICandle>(revised, {
       table: `candle`,
-      keys: [{ key: `instrument` }, { key: `period` }, { key: `timestamp` }],
+      keys: [[`instrument`], [`period`], [`timestamp`]],
       context: "Candle.Publish",
     });
   } else {
@@ -79,7 +80,7 @@ export const Publish = async (props: Partial<ICandle>) => {
 //+--------------------------------------------------------------------------------------+
 //| Returns all candles meeting the mandatory instrument/period requirements;            |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<ICandle>, options?: TOptions): Promise<Array<Partial<ICandle>> | undefined> => {
+export const Fetch = async (props: Partial<ICandle>, options?: TOptions<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
   const result = await Select<ICandle>(props, { table: options?.table || `vw_candles`, suffix: options?.suffix });
   return result.length ? result : undefined;
 };
@@ -90,7 +91,9 @@ export const Fetch = async (props: Partial<ICandle>, options?: TOptions): Promis
 export const History = async (props: Partial<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
   const { limit, ...columns } = props;
   const suffix = `ORDER BY timestamp DESC LIMIT ${limit || 1}`;
-  const keys = props.timestamp ? [{ key: `timestamp`, sign: `<=` }] : [];
+  //  const keys: Array<TKey<ICandle>> = [...(props.timestamp ? [["timestamp", "<="] as TKey<ICandle>] : [])];
+  const keys: Array<TKey<ICandle>> = [];
+  props.timestamp && keys.push(["timestamp", "<="]);
   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
 
   return result.length ? result : undefined;

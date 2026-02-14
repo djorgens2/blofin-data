@@ -4,9 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api/api.util";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -30,7 +31,7 @@ export const Import = async () => {
   console.log(
     `-> Broker.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new brokers;` : `No new brokers;`,
-    `${exists.length} brokers verified;`
+    `${exists.length} brokers verified;`,
   );
 };
 

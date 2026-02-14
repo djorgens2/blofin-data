@@ -4,9 +4,10 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api/api.util";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 

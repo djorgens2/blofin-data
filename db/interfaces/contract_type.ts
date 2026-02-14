@@ -3,9 +3,11 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-import type { IPublishResult } from "db/query.utils";
 
-import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import type { IPublishResult, TResponse } from "api/api.util";
+
+import { Select, Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -19,8 +21,17 @@ export interface IContractType {
 //| Adds contract types to local database;                                               |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<IContractType>): Promise<IPublishResult<IContractType>> => {
+  const context = "Contract.Type.Publish";
+  const publishResult: TResponse = {
+    success: false,
+    response: "error",
+    code: -1,
+    rows: 0,
+    context,
+  };
+
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 410, response: `null_query`, rows: 0, context: "Contract.Type.Publish" } };
+    return { key: undefined, response: { ...publishResult, code: 410, response: `null_query` } };
   }
 
   const search = {
@@ -38,19 +49,22 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
           contract_type: current.contract_type,
           description: props.description ? (props.description === current.description ? undefined : props.description) : undefined,
         };
-        const result = await Update<IContractType>(revised, { table: `contract_type`, keys: [{ key: `contract_type` }], context: "Contract.Type.Publish" });
+        const result = await Update<IContractType>(revised, { table: `contract_type`, keys: [[`contract_type`]], context });
         return { key: PrimaryKey(current, ["contract_type"]), response: result };
       }
     }
-    return { key: PrimaryKey({ contract_type: exists }, ["contract_type"]), response: { success: true, code: 201, response: `exists`, rows: 0, context: "Contract.Type.Publish" } };
+    return {
+      key: PrimaryKey({ contract_type: exists }, ["contract_type"]),
+      response: { ...publishResult, success: true, code: 201, response: `exists` },
+    };
   }
-  
+
   const missing = {
     contract_type: hashKey(6),
     source_ref: search.source_ref,
     description: props.description || "Description pending",
   };
-  const result = await Insert<IContractType>(missing, { table: `contract_type`, context: "Contract.Type.Publish" });
+  const result = await Insert<IContractType>(missing, { table: `contract_type`, context });
 
   return { key: PrimaryKey(missing, ["contract_type"]), response: result };
 };

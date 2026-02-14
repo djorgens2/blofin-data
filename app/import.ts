@@ -33,7 +33,7 @@ import * as PositionsAPI from "api/positions";
 export const importCandles = async () => {
   const authorized: Array<Partial<IInstrumentPosition>> = await Distinct<IInstrumentPosition>(
     { account: Session().account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
-    { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+    { table: `vw_instrument_positions`, keys: [[`account`, `auto_status`]] },
   );
 
   console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));

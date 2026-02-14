@@ -6,7 +6,8 @@
 // import { IInstrument } from "db/interfaces/instrument";
 import { ILeverageAPI } from "api/leverage";
 import { TPosition } from "db/interfaces/instrument_position";
-import { Distinct, IPublishResult, PrimaryKey } from "db/query.utils";
+import { IPublishResult, PrimaryKey } from "api/api.util";
+import { Distinct } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
 import { config, Session } from "module/session";
@@ -2480,10 +2481,10 @@ import { parse } from "path";
 //   process.exit(1);
 // };
 
- import * as app from "module/session";
+import * as app from "module/session";
 const args = process.argv.slice(2); // get account id
 const run = async () => {
   const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
-  await app.config({ account}, 'XRP-USDT' );
+  await app.config({ account }, "XRP-USDT");
 };
 run();

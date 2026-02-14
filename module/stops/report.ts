@@ -4,11 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult, TResponse } from "api/api.util";
 import type { IStopOrder } from "db/interfaces/stops";
-import type { TResponse } from "db/query.utils";
-
-//import { Summary } from "db/query.utils";
 
 /**
  * Returns aggregated TResponses grouped by {context, response, success}

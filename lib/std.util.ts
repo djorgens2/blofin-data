@@ -4,6 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import { hexify } from "./crypto.util";
+
 import Prompt from "cli/modules/Prompts";
 import Decimal from "decimal.js";
 
@@ -44,6 +46,29 @@ export const bufferString = (uint8Array: Uint8Array): string => {
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join(" ");
   return `<Buffer ${hex}>`;
+};
+
+/**
+ * std.util.ts: Runtime data-type normalization
+ */
+
+// Define the keys that should always be hexified across the system
+const HEX_FIELD_PATTERN = /(_id|account|request|instrument|state|category|source|position)$/i;
+
+export const NormalizeHex = <T extends object>(props: T): T => {
+  const output = { ...props };
+
+  (Object.keys(output) as Array<keyof T>).forEach((key) => {
+    const val = output[key];
+    const keyStr = String(key);
+    if (typeof val === 'string' && val.length > 0) {
+      if (HEX_FIELD_PATTERN.test(keyStr) || val.startsWith('0x')) {
+        output[key] = hexify(val) as any;
+      }
+    }
+  });
+
+  return output;
 };
 
 //+--------------------------------------------------------------------------------------+

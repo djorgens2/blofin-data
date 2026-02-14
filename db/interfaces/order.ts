@@ -6,8 +6,10 @@
 
 import type { IRequest } from "db/interfaces/request";
 import type { TRefKey } from "db/interfaces/reference";
+import type { IPublishResult } from "api/api.util";
 
-import { Select, Insert, Update, TOptions, IPublishResult, PrimaryKey, TKey } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
+import { Select, Insert, Update, TOptions, TKey } from "db/query.utils";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
@@ -72,7 +74,7 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
       pnl: isEqual(props.pnl!, current.pnl!) ? undefined : props.pnl,
     };
 
-    const result = await Update<IOrder>(revised, { table: `orders`, keys: [{ key: `order_id` }] });
+    const result = await Update<IOrder>(revised, { table: `orders`, keys: [[`order_id`]] });
     return { key: PrimaryKey({ order_id }, ["order_id"]), response: { ...result, context: "Orders.Publish" } };
   }
 
@@ -100,7 +102,7 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IOrder>, options?: TOptions): Promise<Array<Partial<IOrder>> | undefined> => {
+export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
   const result = await Select<IOrder>(props, { ...options, table: `vw_orders` });
   return result.length ? result : undefined;

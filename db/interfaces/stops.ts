@@ -6,10 +6,11 @@
 
 import type { TRequestState, TPositionState } from "db/interfaces/state";
 import type { IStopRequest } from "db/interfaces/stop_request";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api/api.util";
 import type { IStopsAPI } from "api/stops";
 
-import { Select, Insert, Update, TOptions, PrimaryKey } from "db/query.utils";
+import { Select, Insert, Update, TOptions } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { Session } from "module/session";
 import { hasValues, isEqual } from "lib/std.util";
 
@@ -40,7 +41,7 @@ export const API = async (status: TRequestState): Promise<Array<Partial<IStopsAP
 //+--------------------------------------------------------------------------------------+
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IStopOrder>, options?: TOptions): Promise<Array<Partial<IStopOrder>> | undefined> => {
+export const Fetch = async (props: Partial<IStopOrder>, options?: TOptions<IStopOrder>): Promise<Array<Partial<IStopOrder>> | undefined> => {
   Object.assign(props, { account: props.account || Session().account });
   const result = await Select<IStopOrder>(props, { ...options, table: `vw_stop_orders` });
   return result.length ? result : undefined;
@@ -49,7 +50,7 @@ export const Fetch = async (props: Partial<IStopOrder>, options?: TOptions): Pro
 //+--------------------------------------------------------------------------------------+
 //| Fetches a request key from local db that meet props criteria; notfound returns undef |
 //+--------------------------------------------------------------------------------------+
-export const Key = async (props: Partial<IStopOrder>, options?: TOptions): Promise<IStopOrder["stop_request"] | undefined> => {
+export const Key = async (props: Partial<IStopOrder>, options?: TOptions<IStopOrder>): Promise<IStopOrder["stop_request"] | undefined> => {
   if (hasValues<Partial<IStopOrder>>(props)) {
     Object.assign(props, { account: props.account || Session().account });
     const [result] = await Select<IStopOrder>(props, { ...options, table: `vw_stop_orders` });
@@ -86,7 +87,7 @@ export const Publish = async (props: Partial<IStopOrder>): Promise<IPublishResul
       actual_size: isEqual(props.actual_size!, current.actual_size!) ? undefined : props.actual_size,
     };
 
-    const result = await Update<IStopOrder>(revised, { table: `stop_order`, keys: [{ key: `tpsl_id` }], context: "Stops.Publish" });
+    const result = await Update<IStopOrder>(revised, { table: `stop_order`, keys: [[`tpsl_id`]], context: "Stops.Publish" });
     return { key: PrimaryKey(revised, ["tpsl_id"]), response: result };
   }
 
@@ -101,6 +102,6 @@ export const Publish = async (props: Partial<IStopOrder>): Promise<IPublishResul
     leverage: props.leverage,
   };
 
-  const result = await Insert(request, { table: `stop_order`, keys: [{ key: `tpsl_id` }], context: "Stops.Publish" });
+  const result = await Insert(request, { table: `stop_order`, keys: [[`tpsl_id` ]], context: "Stops.Publish" });
   return { key: PrimaryKey(request, ["tpsl_id", "stop_type"]), response: { ...result, context: "Stops.Publish" } };
 };

@@ -5,9 +5,9 @@
 "use strict";
 
 import type { IInstrument } from "db/interfaces/instrument";
-import type { TResponse } from "db/query.utils";
 
-import { Insert, Update, PrimaryKey } from "db/query.utils";
+import { Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { isEqual } from "lib/std.util";
 
 import * as Instrument from "db/interfaces/instrument";
@@ -48,11 +48,11 @@ export const Publish = async (props: Partial<IInstrument>) => {
     list_time: isEqual(props.list_time!, current.list_time!) ? undefined : props.list_time,
     expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
   };
-  const result = await Update(revised, { table: `instrument_detail`, keys: [{ key: `instrument` }], context: "Instrument.Detail.Publish" });
+  const result = await Update(revised, { table: `instrument_detail`, keys: [[`instrument`]], context: "Instrument.Detail.Publish" });
   if (result.success) {
     const confirm = await Update(
       { instrument: current.instrument, update_time: props.update_time || new Date() },
-      { table: `instrument_detail`, keys: [{ key: `instrument` }], context: "Instrument.Detail.Publish" }
+      { table: `instrument_detail`, keys: [[`instrument`]], context: "Instrument.Detail.Publish" },
     );
     return { key: PrimaryKey(revised, ["instrument"]), response: confirm };
   }

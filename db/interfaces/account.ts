@@ -6,9 +6,10 @@
 
 import type { ISession } from "module/session";
 import type { IAccess, TAccess } from "db/interfaces/state";
-import type { IPublishResult, TResponse } from "db/query.utils";
+import type { IPublishResult, TResponse } from "api/api.util";
+import { PrimaryKey } from "api/api.util";
 
-import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { hashHmac } from "lib/crypto.util";
 import { isEqual } from "lib/std.util";
 import { Session } from "module/session";
@@ -86,7 +87,7 @@ export const Available = async (filter: "New" | "All"): Promise<Array<Partial<IS
       const { api, secret, phrase } = account;
       const isNew = (await Key({ api, secret, phrase })) === undefined;
       return isNew ? account : undefined;
-    })
+    }),
   );
 
   return missing.filter((acc): acc is Partial<ISession> => acc !== undefined);
@@ -151,7 +152,7 @@ export const Publish = async (props: Partial<IAccount>): Promise<IPublishResult<
     isolated_equity: isEqual(props.isolated_equity!, current.isolated_equity!) ? undefined : props.isolated_equity,
     update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
   };
-  const result: TResponse = await Update(revised, { table: `account`, keys: [{ key: `account` }] });
+  const result: TResponse = await Update(revised, { table: `account`, keys: [[`account`]] });
   return { key: PrimaryKey(current, ["account"]), response: result };
 };
 
@@ -189,7 +190,7 @@ export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishR
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
     };
 
-    const result: TResponse = await Update(revised, { table: `account_detail`, keys: [{ key: `account` }, { key: `currency` }] });
+    const result: TResponse = await Update(revised, { table: `account_detail`, keys: [[`account`], [`currency`]] });
 
     setUserToken({ error: result.code, message: result.success ? `Account details update applied.` : `Account details update failed.` });
     return { key: PrimaryKey(current, ["account", "currency"]), response: result } as IPublishResult<IAccount>;

@@ -5,9 +5,10 @@
 "use strict";
 
 import type { ISubjectArea } from "db/interfaces/subject_area";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api/api.util";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
+import { PrimaryKey } from "api/api.util";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -40,7 +41,7 @@ export const Import = async () => {
   console.log(
     `-> Activity.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new activities;` : `No new activities;`,
-    `${exists.length} activities verified;`
+    `${exists.length} activities verified;`,
   );
 };
 
@@ -51,7 +52,7 @@ export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IAc
   if (props.activity) {
     return { key: PrimaryKey(props, ["activity"]), response: { success: false, code: 200, response: `exists`, rows: 0, context: "Activity.Add" } };
   }
-  
+
   const subject_area = await SubjectArea.Key({ title: props.title });
 
   if (subject_area) {
