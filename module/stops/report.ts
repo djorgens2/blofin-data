@@ -4,43 +4,85 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-export interface TStatistics {
-  total: number;
-  submitted: {
-    success: number;
-    rejected: number;
-  };
-  verified: {
-    processed: number;
-    expired: number;
-  };
-  errors: number;
-}
+import type { IPublishResult } from "db/query.utils";
+import type { IStopOrder } from "db/interfaces/stops";
+import type { TResponse } from "db/query.utils";
 
-// console.log(">> Trades.Canceled: Cancel requests submitted:", cancels.length);
-// accepted.length && console.log("   # [Info] Canceled requests accepted:", accepted.length);
-// rejected.length && console.log("   # [Error] Canceled requests rejected:", rejected.length);
-// closures.length && console.log("   # [Warning] Canceled requests previously closed ():", closures.length);
+//import { Summary } from "db/query.utils";
 
-// console.log(">> [Info] Trades.Rejected: Request retries:", rejects.length);
-// accepted.length && console.log("   # [Info] Rejected requests requeued:", accepted.length);
-// closures.length && console.log("   # [Warning] Rejected requests closed:", closures.length);
-// rejected.length && console.log("   # [Error] Resubmitted requests rejected:", rejected.length);
+/**
+ * Returns aggregated TResponses grouped by {context, response, success}
+ */
+export const Summary = (results: (TResponse | undefined | null)[]) => {
+  console.error(
+    "In Report",
+    results.map((r) => console.error(r)),
+  );
 
-// console.log(`In Stops.Pending[${requests.length}]`);
-// console.log(">> [Info] Trades.Rejected: Request retries:", requests.length);
-// pending.length && console.log(">> [Info] Trades.Pending: Requests pending:", pending.length);
-// expired.length && console.log(">> [Warning] Trades.Pending: Requests canceled:", expired.length, expired);
-//+--------------------------------------------------------------------------------------+
-//| handles reporting and statistical output. ***new, may grow this approach             |
-//+--------------------------------------------------------------------------------------+
-export const Report = (stat: TStatistics) => {
-  if (stat.total) {
-    console.log(`-> Trades.Queued: Total Requests: ${stat.total}`);
-    stat.submitted.success && console.log(`   # [Info] Submitted: ${stat.submitted.success}`);
-    stat.submitted.rejected && console.log(`   # [Error] Rejected: ${stat.submitted.rejected}`);
-    stat.verified.processed && console.log(`   # [Info] Waiting: ${stat.verified.processed}`);
-    stat.verified.expired && console.log(`   # [Warning] Expired: ${stat.verified.expired}`);
-    stat.errors && console.log(`   # [Critical] Malformed: ${stat.errors}`);
-  }
+  const aggregated = results.reduce(
+    (acc, curr) => {
+      if (!curr) return acc;
+
+      // Create a composite key to group by
+      const key = `${curr.context}|${curr.response}|${curr.success}`;
+
+      if (!acc[key]) {
+        acc[key] = {
+          ...curr, // Use the first occurrence as the template
+          rows: curr.rows || 0,
+          message: `Aggregated result for ${curr.context}`,
+        };
+      } else {
+        // Aggregate the metrics
+        acc[key].rows += curr.rows || 0;
+        // We can also append or count outcomes here if needed
+      }
+
+      return acc;
+    },
+    {} as Record<string, TResponse>,
+  );
+
+  console.error({aggregated})
+  return Object.values(aggregated);
+  //  return aggregated;
 };
+
+/**
+ *
+ * Stop Operations Report
+ *
+ */
+export const Report = (results: Array<IPublishResult<IStopOrder>>) => {
+  if (!results.length) return;
+  console.error("In Stops.Report");
+
+  //--- Import History stats
+  const reportHistory = () => {
+    const context = "Stops.Import.History";
+    const header = results.filter((r) => r.response.context === context);
+
+    if (header.length === 0) return;
+
+    const total = header[0].response;
+    const response = results.map((r) => {
+      return r.response;
+    });
+
+    console.error('History Details', response.length, Object.keys(response[0]))
+    const summary = Summary(response);
+
+    console.error(`-> Stops.API: Total Stops retreived: ${total.rows}`);
+    console.error(`-> Summary:`, summary);
+    // const errors = total.rows - historyPublished;
+
+    // historyPublished && console.log(`   # [Info] Submitted: ${historyPublished}`);
+    // historyErrors && console.log(`   # [Error] Rejected: ${historyErrors}`);
+  };
+
+  reportHistory();
+};
+
+// stat.verified.processed && console.log(`   # [Info] Waiting: ${stat.verified.processed}`);
+// stat.verified.expired && console.log(`   # [Warning] Expired: ${stat.verified.expired}`);
+// stat.errors && console.log(`   # [Critical] Malformed: ${stat.errors}`);

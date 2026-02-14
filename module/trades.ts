@@ -50,8 +50,8 @@ export const Trades = async () => {
     OrderAPI.Import(),
     StopsAPI.Import(),
   ]);
-  //ipos.length && console.log({ instrument_positions: ipos });
-  //stops.length && console.log({ stops });
+
+  stops && Stops.Report(stops);
 
   await processOrders();
   await processStops();

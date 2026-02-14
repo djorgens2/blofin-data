@@ -13,10 +13,8 @@ import { Session, config } from "module/session";
 import * as Activity from "db/interfaces/activity";
 import * as Authority from "db/interfaces/authority";
 import * as Broker from "db/interfaces/broker";
-import * as ContractType from "db/interfaces/contract_type";
 import * as Environment from "db/interfaces/environment";
 import * as InstrumentPeriod from "db/interfaces/instrument_period";
-import * as InstrumentType from "db/interfaces/instrument_type";
 import * as Period from "db/interfaces/period";
 import * as References from "db/interfaces/reference";
 import * as RoleAuthority from "db/interfaces/role_authority";
@@ -108,7 +106,5 @@ export const Import = async () => {
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account }).then(() => {
   console.log(Session().Log(true));
-
-}).finally(() => {
   Import();
 });

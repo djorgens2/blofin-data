@@ -42,7 +42,7 @@ export interface IAccount {
   total_equity: number;
   isolated_equity: number;
   currency: Uint8Array;
-  symbol: string;
+  account_currency: string;
   currency_image_url: string;
   currency_state: Uint8Array;
   currency_status: string;

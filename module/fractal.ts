@@ -151,7 +151,7 @@ export const CFractal = async (message: Partial<IMessage>, instrument: Partial<I
     timeframe: instrument.timeframe!,
   };
   const candles = await Candle.Fetch(props, { suffix: `ORDER BY timestamp DESC LIMIT 10000` });
-  console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0 });
+  //console.error("-> CFractal: candles:", { props, instrument, candles: candles?.length || 0 });
   const start: Partial<ICandle> = { ...(candles![candles!.length - 1] || 0) }; // -- oldest candle
 
   if (!start.timestamp) throw new Error("CFractal: Unable to initialize; no candle data");

@@ -107,7 +107,7 @@ export const View = async () => {
       owner_name: 24,
       environ: 20,
       status: 16,
-      symbol: 12,
+      account_currency: 12,
       balance: 20,
       available: 20,
       colBuffer: 5,
@@ -121,14 +121,14 @@ export const View = async () => {
     `${bold("Account Holder".padEnd(keylen.owner_name, " "))}`,
     `${bold("Environment".padEnd(keylen.environ, " "))}`,
     `${bold("Status".padEnd(keylen.status, " "))}`,
-    `${bold("Currency".padEnd(keylen.symbol, " "))}`,
+    `${bold("Currency".padEnd(keylen.account_currency, " "))}`,
     `${bold("Balance".padStart(keylen.balance, " "))}`,
     `${bold("Available".padStart(keylen.available, " "))}`
   );
 
   if (accounts)
     for (const account of accounts) {
-      const { alias, owner_name, environ, status, symbol, balance, available } = account;
+      const { alias, owner_name, environ, status, account_currency, balance, available } = account;
       console.log(
         `${status! === "Enabled" ? "🔹" : "🔸"} `,
         `${gray(alias!.padEnd(keylen.alias, " "))}`,
@@ -141,7 +141,7 @@ export const View = async () => {
             ? red(status!.padEnd(keylen.status, " "))
             : yellow(status!.padEnd(keylen.status, " "))
         }`,
-        `${gray((symbol ? symbol : "Pending").padEnd(keylen.symbol, " "))}`,
+        `${gray((account_currency ? account_currency : "Pending").padEnd(keylen.account_currency, " "))}`,
         `${gray(formatterUSD.format(balance || 0).padStart(keylen.balance, " "))}`,
         `${gray(formatterUSD.format(available || 0).padStart(keylen.available, " "))}`
       );

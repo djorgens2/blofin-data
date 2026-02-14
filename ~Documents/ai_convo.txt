@@ -1,0 +1,10 @@
+ts, you showed me a construct earlier I found very useful (pristine):  is there a way I can achieve this:
+
+snippet: export type TOptions = { table?: string; ignore?: boolean; keys: [(keyof T), sign:string]; limit?: number; suffix?: string; connection?: PoolConnection, context?: string }; 
+
+from this current snippet: 
+
+export type TKey = { key: string; sign?: string };
+export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection, context?: string };
+
+--> I'd need a method to associate the {key, sign} pair and a way to pass in the generic type...

@@ -7,6 +7,54 @@
 
 import { Session, signRequest } from "module/session";
 
+export type TResponse = {
+  success: boolean;
+  response: string;
+  code: number;
+  rows: number;
+  context: string;
+  outcome?: string;
+  message?: string;
+};
+//export type CompositeKey<T> = { [K in keyof T]?: T[K] };
+export type TPrimaryKey<T> = Partial<T>;
+export interface IPublishResult<T, K = TPrimaryKey<T>> {
+  key?: K;
+  response: TResponse;
+}
+
+/**
+ * PrimaryKey
+ *
+ * Builds and formats the TResponse pkey for a all db Primary Keys including composites
+ */
+export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
+  const cpk: TPrimaryKey<T> = {};
+  keys.forEach((key) => {
+    if (obj[key] !== undefined) {
+      cpk[key] = obj[key] as any;
+    }
+  });
+  return cpk;
+};
+
+/**
+ * ApiResult
+ *
+ * Uniformly formats the canonical the IPublish object;
+ */
+export const ApiResult = <T>(context: string, data: any[], code = 200, message?: string): IPublishResult<T> => ({
+  key: undefined,
+  response: {
+    success: data.length > 0,
+    code,
+    response: `total`,
+    rows: data.length,
+    context,
+    message: message ? message : data.length ? `[Info] ${context} successful` : `[Warning] ${context} no data found`,
+  },
+});
+
 /**
  * ApiError
  *
@@ -60,8 +108,8 @@ export const API_POST = async <T>(path: string, data: unknown, context: string):
 
     const result = await response.json();
     if (result.code !== "0") {
-      console.log('[Error]', result);
-      throw new ApiError(result.code, result.msg );
+      console.log("[Error]", result);
+      throw new ApiError(result.code, result.msg);
     }
 
     return result.data as T;

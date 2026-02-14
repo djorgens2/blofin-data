@@ -42,6 +42,7 @@ export type IResponseProps = {
 export interface ISession {
   account: Uint8Array;
   alias: string;
+  symbol: string;
   margin_mode: "cross" | "isolated";
   hedging: boolean;
   state: "disconnected" | "connected" | "connecting" | "error" | "closed";
@@ -110,7 +111,7 @@ export const Log = (): ILogConfig => {
 //+--------------------------------------------------------------------------------------+
 //| Helper function to safely parse the environment variable JSON                        |
 //+--------------------------------------------------------------------------------------+
-const parseEnvAccounts = (envVar: string | undefined): Array<ISession> => {
+const parseEnvAccounts = (envVar: string | undefined): Array<Partial<ISession>> => {
   if (!envVar) return [];
   try {
     const keys = JSON.parse(envVar);
@@ -124,9 +125,8 @@ const parseEnvAccounts = (envVar: string | undefined): Array<ISession> => {
 //+--------------------------------------------------------------------------------------+
 //| configures environment/application/globals on session opened with supplied keys;     |
 //+--------------------------------------------------------------------------------------+
-export const config = async (props: Partial<IAccount>) => {
+export const config = async (props: Partial<IAccount>, symbol: string) => {
   const [accountConfig, sessionConfig] = await Promise.all([await Accounts.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
-console.error(props, accountConfig, sessionConfig);
 
   if (!accountConfig || !sessionConfig?.length) {
     console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");
@@ -134,26 +134,29 @@ console.error(props, accountConfig, sessionConfig);
   }
 
   const [{ account, alias, margin_mode, hedging }] = accountConfig;
-  const sessionKeys: Array<ISession> = parseEnvAccounts(process.env.APP_ACCOUNT);
+  const sessionKeys = parseEnvAccounts(process.env.APP_ACCOUNT);
   const sessionKey = sessionKeys.find((key) => key.alias === alias);
 
   if (sessionKey) {
     setSession({
-      ...sessionConfig[0],
-      ...sessionKey,
       account,
+      symbol,
+      ...sessionKey,
+      ...sessionConfig[0],
       margin_mode,
       hedging,
       state: "disconnected",
       audit_order: "0",
       audit_stops: "0",
     });
-    console.log(`[Info] Session.Config: ${alias} configured successfully`);
+    console.log(`[Info] Session.Config: ${alias}/${symbol} configured successfully`);
+    console.error("Session:",Session().Log());
   } else {
-    console.warn(`[Error] Session.Config: Configuration failed; ${alias} not found`);
+    console.warn(`[Error] Session.Config: Configuration failed; ${alias}/${symbol} not found`);
     process.exit(1);
   }
 };
+
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin requests;       |
 //+--------------------------------------------------------------------------------------+

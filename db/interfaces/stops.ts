@@ -29,31 +29,8 @@ export interface IStopOrder extends IStopRequest {
   leverage: number;
 }
 
-export interface IStopType {
-  stop_type: Uint8Array;
-  source_ref: string;
-  prefix: string;
-  description: string;
-}
-
 //+--------------------------------------------------------------------------------------+
-//| Fetches stop types from local db;                                                    |
-//+--------------------------------------------------------------------------------------+
-export const Types = async (props: ["tp", "sl"]): Promise<Array<Partial<IStopType>>> => {
-  const types = props
-    ? (
-        await Promise.all(
-          props.map((p) => {
-            return Select<IStopType>({ source_ref: p }, { table: `stop_type` });
-          }),
-        )
-      ).flat()
-    : [];
-  return types;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Fetches requests from local db that meet props criteria;                             |
+//| Fetches requests from API view that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
 export const API = async (status: TRequestState): Promise<Array<Partial<IStopsAPI>> | undefined> => {
   const result = await Select<IStopsAPI>({ status, account: Session().account }, { table: `vw_api_stop_requests` });
@@ -93,7 +70,7 @@ export const Publish = async (props: Partial<IStopOrder>): Promise<IPublishResul
         code: 400,
         response: `null_query`,
         rows: 0,
-        context: "Stop.Orders.Publish",
+        context: "Stop.Order.Publish",
         message: "No order properties provided; publishing rejected",
       },
     };

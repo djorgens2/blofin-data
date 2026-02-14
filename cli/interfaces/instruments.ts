@@ -111,7 +111,7 @@ export const accountSelect = async () => {
       owner_name: 24,
       environ: 20,
       status: 16,
-      symbol: 12,
+      account_currency: 12,
       balance: 20,
       available: 20,
       colBuffer: 5,
@@ -125,7 +125,7 @@ export const accountSelect = async () => {
       `${bold("Account Holder".padEnd(keylen.owner_name, " "))}` +
       `${bold("Environment".padEnd(keylen.environ, " "))}` +
       `${bold("Status".padEnd(keylen.status, " "))}` +
-      `${bold("Currency".padEnd(keylen.symbol, " "))}` +
+      `${bold("Currency".padEnd(keylen.account_currency, " "))}` +
       `${bold("Balance".padStart(keylen.balance, " "))}` +
       `${bold("Available".padStart(keylen.available, " "))}`
   );
@@ -144,7 +144,7 @@ export const accountSelect = async () => {
             ? red(account.status!.padEnd(keylen.status, " "))
             : yellow(account.status!.padEnd(keylen.status, " "))
         }` +
-        `${gray((account.symbol ? account.symbol : "Pending").padEnd(keylen.symbol, " "))}` +
+        `${gray((account.account_currency ? account.account_currency : "Pending").padEnd(keylen.account_currency, " "))}` +
         `${gray(formatterUSD.format(account.balance || 0).padStart(keylen.balance, " "))}` +
         `${gray(formatterUSD.format(account.available || 0).padStart(keylen.available, " "))}`,
       value: account.alias,

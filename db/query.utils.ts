@@ -4,6 +4,8 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
+import type { TResponse } from "api/api.util";
+
 import { ResultSetHeader, PoolConnection } from "mysql2/promise";
 import { hasValues } from "lib/std.util";
 import { Log } from "module/session";
@@ -16,34 +18,6 @@ export type TKey = { key: string; sign?: string };
 export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection, context?: string };
 export type TSign = `=` | `!=` | `<` | `<=` | `>` | `>=` | `LIKE` | `IN` | `NOT IN`;
 export type TSearchKey = { key: string; sign: TSign };
-export type TResponse = {
-  success: boolean;
-  response: string;
-  code: number;
-  rows: number;
-  context: string;
-  outcome?: string;
-  message?: string;
-};
-//export type CompositeKey<T> = { [K in keyof T]?: T[K] };
-export type TPrimaryKey<T> = Partial<T>;
-export interface IPublishResult<T, K = TPrimaryKey<T>> {
-  key?: K;
-  response: TResponse;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Builds the pkey for a composite key                                                  |
-//+--------------------------------------------------------------------------------------+
-export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
-  const cpk: TPrimaryKey<T> = {};
-  keys.forEach((key) => {
-    if (obj[key] !== undefined) {
-      cpk[key] = obj[key] as any;
-    }
-  });
-  return cpk;
-};
 
 //+--------------------------------------------------------------------------------------+
 //| handles all SQL errors; rethrows handled error formatted as TResponse                |

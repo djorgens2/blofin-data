@@ -72,7 +72,7 @@
 			<fk name="fk_a_margin_mode" to_schema="devel" to_table="margin_mode" >
 				<fk_column name="margin_mode" pk="margin_mode" />
 			</fk>
-			<fk name="fk_a_hedging" to_schema="devel" to_table="hedging" >
+			<fk name="fk_account_hedging" to_schema="devel" to_table="hedging" >
 				<fk_column name="hedging" pk="hedging" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
@@ -155,7 +155,7 @@
 			<index name="ak_activity" unique="UNIQUE_KEY" >
 				<column name="task" />
 			</index>
-			<index name="fk_a_subject" unique="NORMAL" >
+			<index name="fk_a_subject_area" unique="NORMAL" >
 				<column name="subject_area" />
 			</index>
 			<fk name="fk_a_subject_area" to_schema="devel" to_table="subject_area" >
@@ -1130,7 +1130,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="description" prior="area" type="VARCHAR" length="200" mandatory="y" >
 				<column_options><![CDATA[CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs]]></column_options>
 			</column>
-			<index name="pk_subject" unique="PRIMARY_KEY" >
+			<index name="pk_subject_area" unique="PRIMARY_KEY" >
 				<column name="subject_area" />
 			</index>
 			<index name="ak_subject_area" unique="UNIQUE_KEY" >
@@ -1258,6 +1258,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `ipos`.`account` AS `account`,conv(hex(`o`.`order_id`),16,10) AS `orderId`,if((`rs`.`status` = 'Queued'),'Queued',ifnull(`os`.`status`,`rs`.`status`)) AS `status`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,`r`.`margin_mode` AS `marginMode`,`ipos`.`position` AS `positionSide`,`r`.`action` AS `side`,`rt`.`source_ref` AS `orderType`,replace(format(`r`.`price`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0)),',','') AS `price`,replace(format(`r`.`size`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0)),',','') AS `size`,cast(`r`.`leverage` as char charset utf8mb4) AS `leverage`,if((`r`.`reduce_only` = 0),'false','true') AS `reduceOnly`,`r`.`broker_id` AS `brokerId`,cast(hex(`r`.`request`) as char charset utf8mb4) AS `clientOrderId`,`r`.`memo` AS `memo`,`r`.`expiry_time` AS `expiry_time` from ((((((((((`devel`.`request` `r` left join (select max(`devel`.`orders`.`order_id`) AS `order_id`,`devel`.`orders`.`client_order_id` AS `client_order_id` from `devel`.`orders` where (`devel`.`orders`.`client_order_id` is not null) group by `devel`.`orders`.`client_order_id` union select `devel`.`orders`.`order_id` AS `order_id`,`devel`.`orders`.`order_id` AS `client_order_id` from `devel`.`orders` where (`devel`.`orders`.`client_order_id` is null)) `oreq` on((`oreq`.`client_order_id` = `r`.`request`))) left join `devel`.`orders` `o` on((`o`.`order_id` = `oreq`.`order_id`))) left join `devel`.`order_state` `os` on((`o`.`order_state` = `os`.`order_state`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `r`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`instrument_detail` `id` on((`i`.`instrument` = `id`.`instrument`))) join `devel`.`currency` `b` on((`i`.`base_currency` = `b`.`currency`))) join `devel`.`currency` `q` on((`i`.`quote_currency` = `q`.`currency`))) join `devel`.`request_type` `rt` on((`r`.`request_type` = `rt`.`request_type`))) join `devel`.`state` `rs` on((`r`.`state` = `rs`.`state`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="status" type="VARCHAR" />
+			<column name="orderId" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="marginMode" type="VARCHAR" />
 			<column name="positionSide" type="CHAR" />
@@ -1271,30 +1272,29 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="clientOrderId" type="VARCHAR" />
 			<column name="memo" type="VARCHAR" />
 			<column name="expiry_time" type="DATETIME" />
-			<column name="orderId" type="VARCHAR" />
 		</view>
 		<view name="vw_api_stop_requests" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS with `Instruments` as (select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0) AS `digits` from (((`devel`.`instrument` `i` join `devel`.`instrument_detail` `id` on((`id`.`instrument` = `i`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`)))), `StopPrice` as (select `ipos`.`instrument_position` AS `instrument_position`,`i`.`symbol` AS `symbol`,`sr`.`stop_request` AS `stop_request`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_trigger_price`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_order_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_trigger_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_order_price` from ((((`devel`.`stop_request` `sr` join `devel`.`stop_price` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `Instruments` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`stop_type` `st` on((`st`.`stop_type` = `sp`.`stop_type`))) group by `ipos`.`instrument_position`,`sr`.`stop_request`), `StopOrderKeys` as (select coalesce(`so`.`client_order_id`,max(`so`.`tpsl_id`)) AS `stop_request`,max(`so`.`tpsl_id`) AS `tpsl_id` from `devel`.`stop_order` `so` group by `so`.`client_order_id`) select `ipos`.`account` AS `account`,`sr`.`stop_request` AS `stop_request`,conv(hex(`so`.`tpsl_id`),16,10) AS `tpslId`,`ps`.`status` AS `position_status`,`s`.`status` AS `order_status`,`sp`.`symbol` AS `instId`,`ipos`.`position` AS `positionSide`,`sr`.`margin_mode` AS `marginMode`,`sr`.`action` AS `side`,`sr`.`size` AS `size`,`sp`.`sl_trigger_price` AS `slTriggerPrice`,`sp`.`sl_order_price` AS `slOrderPrice`,`sp`.`tp_trigger_price` AS `tpTriggerPrice`,`sp`.`tp_order_price` AS `tpOrderPrice`,if((`sr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,conv(hex(`so`.`client_order_id`),16,10) AS `clientOrderId`,`sr`.`broker_id` AS `brokerId`,`sr`.`memo` AS `memo`,`sr`.`update_time` AS `update_time` from ((((((`devel`.`stop_request` `sr` join `StopPrice` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) left join `StopOrderKeys` `sok` on((`sok`.`stop_request` = `sr`.`stop_request`))) left join `devel`.`stop_order` `so` on((`so`.`tpsl_id` = `sok`.`tpsl_id`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS with `Instruments` as (select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0) AS `digits` from (((`devel`.`instrument` `i` join `devel`.`instrument_detail` `id` on((`id`.`instrument` = `i`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`)))), `StopPrice` as (select `ipos`.`instrument_position` AS `instrument_position`,`i`.`symbol` AS `symbol`,`sr`.`stop_request` AS `stop_request`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_trigger_price`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_order_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_trigger_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_order_price` from ((((`devel`.`stop_request` `sr` join `devel`.`stop_price` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `Instruments` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`stop_type` `st` on((`st`.`stop_type` = `sp`.`stop_type`))) group by `ipos`.`instrument_position`,`sr`.`stop_request`), `StopOrderKeys` as (select coalesce(`so`.`client_order_id`,max(`so`.`tpsl_id`)) AS `stop_request`,max(`so`.`tpsl_id`) AS `tpsl_id` from `devel`.`stop_order` `so` group by `so`.`client_order_id`) select `ipos`.`account` AS `account`,`sr`.`stop_request` AS `stop_request`,conv(hex(`so`.`tpsl_id`),16,10) AS `tpslId`,`ps`.`status` AS `position_status`,`s`.`status` AS `status`,`sp`.`symbol` AS `instId`,`ipos`.`position` AS `positionSide`,`sr`.`margin_mode` AS `marginMode`,`sr`.`action` AS `side`,`sr`.`size` AS `size`,`sp`.`sl_trigger_price` AS `slTriggerPrice`,`sp`.`sl_order_price` AS `slOrderPrice`,`sp`.`tp_trigger_price` AS `tpTriggerPrice`,`sp`.`tp_order_price` AS `tpOrderPrice`,if((`sr`.`reduce_only` = 0),'false','true') AS `reduceOnly`,conv(hex(`so`.`client_order_id`),16,10) AS `clientOrderId`,`sr`.`broker_id` AS `brokerId`,`sr`.`memo` AS `memo`,`sr`.`update_time` AS `update_time` from ((((((`devel`.`stop_request` `sr` join `StopPrice` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) left join `StopOrderKeys` `sok` on((`sok`.`stop_request` = `sr`.`stop_request`))) left join `devel`.`stop_order` `so` on((`so`.`tpsl_id` = `sok`.`tpsl_id`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="stop_request" type="BINARY" />
+			<column name="tpslId" type="VARCHAR" />
 			<column name="position_status" type="VARCHAR" />
 			<column name="instId" type="VARCHAR" />
 			<column name="positionSide" type="CHAR" />
+			<column name="marginMode" type="VARCHAR" />
 			<column name="side" type="CHAR" />
 			<column name="size" type="DOUBLE" />
-			<column name="tpTriggerPrice" type="VARCHAR" />
-			<column name="tpOrderPrice" type="VARCHAR" />
 			<column name="slTriggerPrice" type="VARCHAR" />
 			<column name="slOrderPrice" type="VARCHAR" />
+			<column name="tpTriggerPrice" type="VARCHAR" />
+			<column name="tpOrderPrice" type="VARCHAR" />
 			<column name="reduceOnly" type="VARCHAR" />
+			<column name="clientOrderId" type="VARCHAR" />
 			<column name="brokerId" type="VARCHAR" />
 			<column name="memo" type="VARCHAR" />
-			<column name="marginMode" type="VARCHAR" />
 			<column name="update_time" type="DATETIME" />
-			<column name="tpslId" type="VARCHAR" />
-			<column name="clientOrderId" type="VARCHAR" />
-			<column name="order_status" type="VARCHAR" />
+			<column name="status" type="VARCHAR" />
 		</view>
 		<view name="vw_audit_candles" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1416,40 +1416,40 @@ ioc: Immediate-or-cancel order]]></comment>
 			<comment><![CDATA[VIEW]]></comment>
 			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `a`.`account` AS `account`,`a`.`alias` AS `alias`,`ipos`.`instrument_position` AS `instrument_position`,`i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`ipos`.`position` AS `position`,`e`.`environment` AS `environment`,`e`.`environ` AS `environ`,`a`.`hedging` AS `hedging`,coalesce(`ipos`.`state`,`disabled`.`state`) AS `state`,coalesce(`s`.`status`,`disabled`.`status`) AS `status`,if((`ipos`.`period` is null),`disabled`.`state`,if((`qs`.`status` = 'Suspended'),`qs`.`state`,`bs`.`state`)) AS `auto_state`,if((`ipos`.`period` is null),`disabled`.`status`,if((`qs`.`status` = 'Suspended'),`qs`.`status`,`bs`.`status`)) AS `auto_status`,`p`.`period` AS `period`,`p`.`timeframe` AS `timeframe`,`p`.`timeframe_units` AS `timeframe_units`,`a`.`margin_mode` AS `margin_mode`,if((`ipos`.`leverage` = 0),`cfg`.`default_leverage`,`ipos`.`leverage`) AS `leverage`,`id`.`max_leverage` AS `max_leverage`,coalesce(`ipos`.`lot_scale`,0) AS `lot_scale`,coalesce(`ipos`.`martingale`,0) AS `martingale`,if((`ipos`.`sma` = 0),`cfg`.`default_sma`,`ipos`.`sma`) AS `sma`,coalesce(`ipos`.`strict_stops`,0) AS `strict_stops`,coalesce(`ipos`.`strict_targets`,0) AS `strict_targets`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0) AS `digits`,coalesce(`r`.`open_request`,0) AS `open_request`,coalesce(`tpsl`.`open_take_profit`,0) AS `open_take_profit`,coalesce(`tpsl`.`open_stop_loss`,0) AS `open_stop_loss`,`r`.`create_time` AS `create_time`,`ipos`.`close_time` AS `close_time`,`ipos`.`update_time` AS `update_time` from ((((((((((((((`devel`.`account` `a` join `devel`.`app_config` `cfg`) join `devel`.`instrument_position` `ipos` on((`ipos`.`account` = `a`.`account`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`environment` `e` on((`e`.`environment` = `a`.`environment`))) join `devel`.`instrument_detail` `id` on((`id`.`instrument` = `i`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) left join `devel`.`state` `s` on((`ipos`.`state` = `s`.`state`))) join `devel`.`state` `bs` on((`bs`.`state` = `b`.`state`))) join `devel`.`state` `qs` on((`qs`.`state` = `q`.`state`))) left join `devel`.`period` `p` on((`p`.`period` = `ipos`.`period`))) join `devel`.`state` `disabled` on((`disabled`.`status` = 'Disabled'))) left join (select `r`.`instrument_position` AS `instrument_position`,max(`r`.`create_time`) AS `create_time`,count(0) AS `open_request` from (`devel`.`state` `s` join `devel`.`request` `r` on(((`r`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) group by `r`.`instrument_position`) `r` on((`r`.`instrument_position` = `ipos`.`instrument_position`))) left join (select `sr`.`instrument_position` AS `instrument_position`,count(`tp`.`stop_type`) AS `open_take_profit`,count(`sl`.`stop_type`) AS `open_stop_loss` from (((((`devel`.`state` `s` join `devel`.`stop_request` `sr` on(((`sr`.`state` = `s`.`state`) and (`s`.`status` in ('Pending','Queued'))))) join `devel`.`stop_type` `ttp` on((`ttp`.`source_ref` = 'tp'))) join `devel`.`stop_type` `tsl` on((`tsl`.`source_ref` = 'sl'))) left join `devel`.`stop_price` `tp` on(((`tp`.`stop_request` = `sr`.`stop_request`) and (`tp`.`stop_type` = `ttp`.`stop_type`)))) left join `devel`.`stop_price` `sl` on(((`sl`.`stop_request` = `sr`.`stop_request`) and (`sl`.`stop_type` = `tsl`.`stop_type`)))) group by `sr`.`instrument_position`) `tpsl` on((`tpsl`.`instrument_position` = `ipos`.`instrument_position`)))]]></view_script>
 			<column name="account" type="BINARY" />
+			<column name="alias" type="VARCHAR" />
 			<column name="instrument_position" type="BINARY" />
 			<column name="instrument" type="BINARY" />
-			<column name="position" type="CHAR" />
 			<column name="symbol" type="VARCHAR" />
-			<column name="state" type="VARBINARY" />
-			<column name="status" type="VARCHAR" />
-			<column name="auto_status" type="VARCHAR" />
-			<column name="strict_stops" type="INT" />
-			<column name="strict_targets" type="INT" />
-			<column name="open_request" type="BIGINT" />
-			<column name="open_take_profit" type="BIGINT" />
-			<column name="open_stop_loss" type="BIGINT" />
-			<column name="create_time" type="DATETIME" />
-			<column name="update_time" type="DATETIME" />
-			<column name="close_time" type="DATETIME" />
 			<column name="base_currency" type="BINARY" />
 			<column name="base_symbol" type="VARCHAR" />
 			<column name="quote_currency" type="BINARY" />
 			<column name="quote_symbol" type="VARCHAR" />
-			<column name="hedging" type="BIT" />
-			<column name="margin_mode" type="VARCHAR" />
-			<column name="leverage" type="INT" />
-			<column name="lot_scale" type="DECIMAL" />
-			<column name="martingale" type="DECIMAL" />
-			<column name="alias" type="VARCHAR" />
+			<column name="position" type="CHAR" />
 			<column name="environment" type="BINARY" />
 			<column name="environ" type="VARCHAR" />
+			<column name="hedging" type="BIT" />
+			<column name="state" type="VARBINARY" />
+			<column name="status" type="VARCHAR" />
+			<column name="auto_state" type="VARBINARY" />
+			<column name="auto_status" type="VARCHAR" />
 			<column name="period" type="BINARY" />
 			<column name="timeframe" type="VARCHAR" />
 			<column name="timeframe_units" type="INT" />
-			<column name="auto_state" type="VARBINARY" />
+			<column name="margin_mode" type="VARCHAR" />
+			<column name="leverage" type="INT" />
 			<column name="max_leverage" type="SMALLINT" />
+			<column name="lot_scale" type="DECIMAL" />
+			<column name="martingale" type="DECIMAL" />
 			<column name="sma" type="INT" />
+			<column name="strict_stops" type="INT" />
+			<column name="strict_targets" type="INT" />
 			<column name="digits" type="BIGINT" />
+			<column name="open_request" type="BIGINT" />
+			<column name="open_take_profit" type="BIGINT" />
+			<column name="open_stop_loss" type="BIGINT" />
+			<column name="create_time" type="DATETIME" />
+			<column name="close_time" type="DATETIME" />
+			<column name="update_time" type="DATETIME" />
 		</view>
 		<view name="vw_instruments" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1593,13 +1593,18 @@ ioc: Immediate-or-cancel order]]></comment>
 		</view>
 		<view name="vw_stop_orders" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS with `Instruments` as (select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0) AS `digits` from (((`devel`.`instrument` `i` join `devel`.`instrument_detail` `id` on((`id`.`instrument` = `i`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`)))), `StopPrice` as (select `ipos`.`instrument_position` AS `instrument_position`,`sr`.`stop_request` AS `stop_request`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_trigger_price`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_order_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_trigger_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_order_price` from ((((`devel`.`stop_request` `sr` join `devel`.`stop_price` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `Instruments` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`stop_type` `st` on((`st`.`stop_type` = `sp`.`stop_type`))) group by `ipos`.`instrument_position`,`sr`.`stop_request`), `StopOrderKeys` as (select coalesce(`so`.`client_order_id`,max(`so`.`tpsl_id`)) AS `stop_request`,max(`so`.`tpsl_id`) AS `tpsl_id` from `devel`.`stop_order` `so` group by `so`.`client_order_id`) select `ipos`.`account` AS `account`,`so`.`tpsl_id` AS `tpsl_id`,`sr`.`stop_request` AS `stop_request`,`so`.`client_order_id` AS `client_order_id`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`ipos`.`position` AS `position`,`ps`.`state` AS `position_state`,`ps`.`status` AS `position_status`,`sr`.`margin_mode` AS `margin_mode`,`s`.`state` AS `state`,`s`.`status` AS `status`,coalesce(if((`s`.`status` = 'Expired'),`s`.`state`,NULL),`rs`.`state`,`s`.`state`) AS `request_state`,coalesce(if((`s`.`status` = 'Expired'),`s`.`status`,NULL),`rs`.`status`,`s`.`status`) AS `request_status`,`os`.`order_state` AS `order_state`,`os`.`source_ref` AS `order_status`,`sr`.`action` AS `action`,`sr`.`size` AS `size`,`so`.`actual_size` AS `actual_size`,`sp`.`sl_trigger_price` AS `sl_trigger_price`,`sp`.`sl_order_price` AS `sl_order_price`,`sp`.`tp_trigger_price` AS `tp_trigger_price`,`sp`.`tp_order_price` AS `tp_order_price`,`sr`.`reduce_only` AS `reduce_only`,`oc`.`order_category` AS `order_category`,`oc`.`source_ref` AS `category`,`sr`.`memo` AS `memo`,`sr`.`broker_id` AS `broker_id`,`sr`.`create_time` AS `create_time`,`sr`.`update_time` AS `update_time` from ((((((((((((`devel`.`stop_request` `sr` join `StopPrice` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) left join `StopOrderKeys` `sok` on((`sok`.`stop_request` = `sr`.`stop_request`))) left join `devel`.`stop_order` `so` on((`so`.`tpsl_id` = `sok`.`tpsl_id`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`))) left join `devel`.`order_state` `os` on((`os`.`order_state` = `so`.`order_state`))) left join `devel`.`state` `rs` on((`rs`.`status` = `os`.`status`))) left join `devel`.`order_category` `oc` on((`oc`.`order_category` = `so`.`order_category`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS with `Instruments` as (select `i`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `instId`,coalesce(length(substring_index(`id`.`tick_size`,'.',-(1))),0) AS `digits` from (((`devel`.`instrument` `i` join `devel`.`instrument_detail` `id` on((`id`.`instrument` = `i`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`)))), `StopPrice` as (select `ipos`.`instrument_position` AS `instrument_position`,`sr`.`stop_request` AS `stop_request`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_trigger_price`,max((case when (`st`.`source_ref` = 'tp') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `tp_order_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`trigger_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_trigger_price`,max((case when (`st`.`source_ref` = 'sl') then replace(format(`sp`.`order_price`,`i`.`digits`,'en_US'),',','') end)) AS `sl_order_price` from ((((`devel`.`stop_request` `sr` join `devel`.`stop_price` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `Instruments` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`stop_type` `st` on((`st`.`stop_type` = `sp`.`stop_type`))) group by `ipos`.`instrument_position`,`sr`.`stop_request`), `StopOrderKeys` as (select coalesce(`so`.`client_order_id`,max(`so`.`tpsl_id`)) AS `stop_request`,max(`so`.`tpsl_id`) AS `tpsl_id` from `devel`.`stop_order` `so` group by `so`.`client_order_id`) select `ipos`.`account` AS `account`,`sr`.`stop_request` AS `stop_request`,`so`.`tpsl_id` AS `tpsl_id`,`so`.`client_order_id` AS `client_order_id`,`ipos`.`instrument_position` AS `instrument_position`,`ipos`.`instrument` AS `instrument`,concat(`b`.`symbol`,'-',`q`.`symbol`) AS `symbol`,`b`.`currency` AS `base_currency`,`b`.`symbol` AS `base_symbol`,`q`.`currency` AS `quote_currency`,`q`.`symbol` AS `quote_symbol`,`ipos`.`position` AS `position`,`ps`.`state` AS `position_state`,`ps`.`status` AS `position_status`,`s`.`state` AS `state`,`s`.`status` AS `status`,coalesce(if((`s`.`status` = 'Expired'),`s`.`state`,NULL),`rs`.`state`,`s`.`state`) AS `request_state`,coalesce(if((`s`.`status` = 'Expired'),`s`.`status`,NULL),`rs`.`status`,`s`.`status`) AS `request_status`,`os`.`order_state` AS `order_state`,`os`.`source_ref` AS `order_status`,`sr`.`action` AS `action`,`sr`.`size` AS `size`,`so`.`actual_size` AS `actual_size`,`sp`.`sl_trigger_price` AS `sl_trigger_price`,`sp`.`sl_order_price` AS `sl_order_price`,`sp`.`tp_trigger_price` AS `tp_trigger_price`,`sp`.`tp_order_price` AS `tp_order_price`,`sr`.`margin_mode` AS `margin_mode`,`oc`.`order_category` AS `order_category`,`oc`.`source_ref` AS `category`,`sr`.`reduce_only` AS `reduce_only`,`sr`.`broker_id` AS `broker_id`,`sr`.`memo` AS `memo`,`sr`.`create_time` AS `create_time`,`sr`.`update_time` AS `update_time` from ((((((((((((`devel`.`stop_request` `sr` join `StopPrice` `sp` on((`sp`.`stop_request` = `sr`.`stop_request`))) left join `StopOrderKeys` `sok` on((`sok`.`stop_request` = `sr`.`stop_request`))) left join `devel`.`stop_order` `so` on((`so`.`tpsl_id` = `sok`.`tpsl_id`))) join `devel`.`instrument_position` `ipos` on((`ipos`.`instrument_position` = `sr`.`instrument_position`))) join `devel`.`instrument` `i` on((`i`.`instrument` = `ipos`.`instrument`))) join `devel`.`currency` `b` on((`b`.`currency` = `i`.`base_currency`))) join `devel`.`currency` `q` on((`q`.`currency` = `i`.`quote_currency`))) join `devel`.`state` `ps` on((`ps`.`state` = `ipos`.`state`))) join `devel`.`state` `s` on((`s`.`state` = `sr`.`state`))) left join `devel`.`order_state` `os` on((`os`.`order_state` = `so`.`order_state`))) left join `devel`.`state` `rs` on((`rs`.`status` = `os`.`status`))) left join `devel`.`order_category` `oc` on((`oc`.`order_category` = `so`.`order_category`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="stop_request" type="BINARY" />
 			<column name="tpsl_id" type="BINARY" />
+			<column name="client_order_id" type="BINARY" />
 			<column name="instrument_position" type="BINARY" />
 			<column name="instrument" type="BINARY" />
 			<column name="symbol" type="VARCHAR" />
+			<column name="base_currency" type="BINARY" />
+			<column name="base_symbol" type="VARCHAR" />
+			<column name="quote_currency" type="BINARY" />
+			<column name="quote_symbol" type="VARCHAR" />
 			<column name="position" type="CHAR" />
 			<column name="position_state" type="BINARY" />
 			<column name="position_status" type="VARCHAR" />
@@ -1612,23 +1617,18 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="action" type="CHAR" />
 			<column name="size" type="DOUBLE" />
 			<column name="actual_size" type="DOUBLE" />
-			<column name="reduce_only" type="BIT" />
-			<column name="order_category" type="BINARY" />
-			<column name="category" type="VARCHAR" />
-			<column name="memo" type="VARCHAR" />
-			<column name="broker_id" type="VARCHAR" />
-			<column name="create_time" type="DATETIME" />
-			<column name="update_time" type="DATETIME" />
-			<column name="base_currency" type="BINARY" />
-			<column name="base_symbol" type="VARCHAR" />
-			<column name="quote_currency" type="BINARY" />
-			<column name="quote_symbol" type="VARCHAR" />
-			<column name="margin_mode" type="VARCHAR" />
-			<column name="client_order_id" type="BINARY" />
 			<column name="sl_trigger_price" type="VARCHAR" />
+			<column name="tp_order_price" type="VARCHAR" />
 			<column name="sl_order_price" type="VARCHAR" />
 			<column name="tp_trigger_price" type="VARCHAR" />
-			<column name="tp_order_price" type="VARCHAR" />
+			<column name="margin_mode" type="VARCHAR" />
+			<column name="order_category" type="BINARY" />
+			<column name="category" type="VARCHAR" />
+			<column name="reduce_only" type="BIT" />
+			<column name="broker_id" type="VARCHAR" />
+			<column name="memo" type="VARCHAR" />
+			<column name="create_time" type="DATETIME" />
+			<column name="update_time" type="DATETIME" />
 		</view>
 		<view name="vw_users" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1762,18 +1762,14 @@ END]]></string>
 		<entity schema="devel" name="stop_request" color="3986C1" x="1881" y="950" />
 	</layout>
 	<layout name="Main Diagram" id="8ebd5325-da29-41a9-b71d-52356bcda289" show_relation="fk_name" >
-		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="646" y="1178" />
+		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="646" y="1197" />
 		<entity schema="devel" name="vw_accounts" color="E6B3E6" x="2489" y="399" />
-		<entity schema="devel" name="vw_stop_orders" color="666666" x="3135" y="399" />
-		<entity schema="devel" name="vw_api_requests" color="666666" x="3173" y="1140" />
 		<entity schema="devel" name="full_audit_request" color="00FFFF" x="2299" y="1520" />
-		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2717" y="399" />
 		<entity schema="devel" name="vw_users" color="E6B3E6" x="2755" y="703" />
 		<entity schema="devel" name="vw_audit_requests" color="00FFFF" x="2508" y="1520" />
 		<entity schema="devel" name="api_error" color="00FFFF" x="2717" y="1520" />
 		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="2527" y="1843" />
 		<entity schema="devel" name="environment" color="994D00" x="2166" y="1330" />
-		<entity schema="devel" name="vw_orders" color="666666" x="2926" y="399" />
 		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="2090" y="1520" />
 		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="1843" y="1520" />
 		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="1862" y="1634" />
@@ -1782,82 +1778,86 @@ END]]></string>
 		<entity schema="devel" name="audit_request" color="00FFFF" x="2318" y="1881" />
 		<entity schema="devel" name="vw_order_states" color="00FFFF" x="2736" y="1653" />
 		<entity schema="devel" name="vw_instrument_candles" color="3986C1" x="1862" y="1767" />
-		<entity schema="devel" name="vw_candles" color="4D66CC" x="646" y="1425" />
-		<entity schema="devel" name="vw_instruments" color="4D66CC" x="247" y="1178" />
+		<entity schema="devel" name="vw_candles" color="4D66CC" x="646" y="1444" />
+		<entity schema="devel" name="vw_instruments" color="4D66CC" x="247" y="1197" />
 		<entity schema="devel" name="vw_positions" color="666666" x="2926" y="1330" />
-		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2755" y="1045" />
 		<entity schema="devel" name="vw_role_subject_areas" color="E6B3E6" x="2508" y="1273" />
-		<entity schema="devel" name="vw_currency" color="4D66CC" x="266" y="1672" />
-		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="437" y="1178" />
-		<entity schema="devel" name="period" color="F0ECF7" x="950" y="1881" />
 		<entity schema="devel" name="currency" color="F0ECF7" x="1178" y="1121" />
 		<entity schema="devel" name="instrument" color="F0ECF7" x="1102" y="1406" />
 		<entity schema="devel" name="contract_type" color="F0ECF7" x="1311" y="1463" />
 		<entity schema="devel" name="app_config" color="F0ECF7" x="1558" y="1805" />
-		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1045" y="1672" />
-		<entity schema="devel" name="candle" color="F0ECF7" x="1216" y="1748" />
 		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1311" y="1596" />
-		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3154" y="1520" />
-		<entity schema="devel" name="role" color="C7F4BE" x="1216" y="418" />
-		<entity schema="devel" name="role_authority" color="C7F4BE" x="1121" y="95" />
 		<entity schema="devel" name="authority" color="C7F4BE" x="874" y="95" />
 		<entity schema="devel" name="state" color="F4BECD" x="1083" y="570" />
-		<entity schema="devel" name="user" color="C7F4BE" x="1520" y="380" />
-		<entity schema="devel" name="account" color="994D00" x="2204" y="608" />
 		<entity schema="devel" name="user_account" color="994D00" x="2147" y="380" />
 		<entity schema="devel" name="broker" color="994D00" x="2318" y="380" />
-		<entity schema="devel" name="activity" color="C7F4BE" x="1387" y="95" />
 		<entity schema="devel" name="positions" color="F0ECF7" x="1501" y="779" />
 		<entity schema="devel" name="instrument_position" color="F0ECF7" x="950" y="798" />
-		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="95" />
-		<entity schema="devel" name="cancel_source" color="FFFF00" x="57" y="969" />
-		<entity schema="devel" name="stop_type" color="FFFF00" x="323" y="665" />
-		<entity schema="devel" name="request_type" color="FFFF00" x="209" y="836" />
-		<entity schema="devel" name="price_type" color="FFFF00" x="323" y="95" />
-		<entity schema="devel" name="stop_order" color="FFFF00" x="646" y="95" />
 		<entity schema="devel" name="orders" color="FFFF00" x="95" y="532" />
-		<entity schema="devel" name="order_category" color="FFFF00" x="209" y="247" />
 		<entity schema="devel" name="account_detail" color="994D00" x="1843" y="893" />
-		<entity schema="devel" name="subject_area" color="C7F4BE" x="1672" y="95" />
-		<entity schema="devel" name="stop_price" color="FFFF00" x="323" y="418" />
-		<entity schema="devel" name="request" color="FFFF00" x="513" y="627" />
-		<entity schema="devel" name="position" color="F0ECF7" x="874" y="1330" />
 		<entity schema="devel" name="margin_mode" color="994D00" x="1881" y="741" />
-		<entity schema="devel" name="stop_request" color="FFFF00" x="646" y="323" />
+		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2717" y="380" />
+		<entity schema="devel" name="vw_orders" color="666666" x="2926" y="380" />
+		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2755" y="1083" />
+		<entity schema="devel" name="user" color="C7F4BE" x="1520" y="399" />
+		<entity schema="devel" name="role" color="C7F4BE" x="1197" y="399" />
+		<entity schema="devel" name="request" color="FFFF00" x="494" y="627" />
+		<entity schema="devel" name="stop_type" color="FFFF00" x="304" y="665" />
+		<entity schema="devel" name="stop_price" color="FFFF00" x="361" y="418" />
+		<entity schema="devel" name="stop_request" color="FFFF00" x="646" y="342" />
+		<entity schema="devel" name="role_authority" color="C7F4BE" x="1121" y="95" />
+		<entity schema="devel" name="request_type" color="FFFF00" x="228" y="836" />
+		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="95" />
+		<entity schema="devel" name="price_type" color="FFFF00" x="380" y="95" />
+		<entity schema="devel" name="order_category" color="FFFF00" x="209" y="247" />
+		<entity schema="devel" name="cancel_source" color="FFFF00" x="95" y="988" />
+		<entity schema="devel" name="vw_currency" color="4D66CC" x="266" y="1691" />
+		<entity schema="devel" name="position" color="F0ECF7" x="874" y="1311" />
+		<entity schema="devel" name="period" color="F0ECF7" x="931" y="1881" />
+		<entity schema="devel" name="candle" color="F0ECF7" x="1216" y="1748" />
+		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1045" y="1672" />
+		<entity schema="devel" name="account" color="994D00" x="2204" y="608" />
+		<entity schema="devel" name="subject_area" color="C7F4BE" x="1672" y="95" />
+		<entity schema="devel" name="vw_api_requests" color="666666" x="3173" y="1140" />
+		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3154" y="1596" />
+		<entity schema="devel" name="vw_stop_orders" color="666666" x="3135" y="380" />
+		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="437" y="1197" />
+		<entity schema="devel" name="stop_order" color="FFFF00" x="684" y="95" />
+		<entity schema="devel" name="activity" color="C7F4BE" x="1387" y="95" />
 		<group name="authority" color="EEF7EC" >
-			<entity schema="devel" name="role" />
-			<entity schema="devel" name="role_authority" />
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="user" />
-			<entity schema="devel" name="activity" />
+			<entity schema="devel" name="role" />
+			<entity schema="devel" name="role_authority" />
 			<entity schema="devel" name="subject_area" />
+			<entity schema="devel" name="activity" />
 		</group>
 		<group name="instruments" color="F0ECF7" >
 			<entity schema="devel" name="instrument_detail" />
-			<entity schema="devel" name="period" />
 			<entity schema="devel" name="currency" />
 			<entity schema="devel" name="instrument" />
 			<entity schema="devel" name="contract_type" />
 			<entity schema="devel" name="app_config" />
-			<entity schema="devel" name="instrument_period" />
-			<entity schema="devel" name="candle" />
 			<entity schema="devel" name="instrument_type" />
 			<entity schema="devel" name="positions" />
 			<entity schema="devel" name="instrument_position" />
 			<entity schema="devel" name="position" />
+			<entity schema="devel" name="period" />
+			<entity schema="devel" name="candle" />
+			<entity schema="devel" name="instrument_period" />
 		</group>
 		<group name="orders" color="FFFF00" >
-			<entity schema="devel" name="order_state" />
-			<entity schema="devel" name="cancel_source" />
-			<entity schema="devel" name="stop_type" />
-			<entity schema="devel" name="request_type" />
-			<entity schema="devel" name="price_type" />
-			<entity schema="devel" name="stop_order" />
 			<entity schema="devel" name="orders" />
-			<entity schema="devel" name="order_category" />
-			<entity schema="devel" name="stop_price" />
 			<entity schema="devel" name="request" />
+			<entity schema="devel" name="stop_type" />
+			<entity schema="devel" name="stop_price" />
 			<entity schema="devel" name="stop_request" />
+			<entity schema="devel" name="request_type" />
+			<entity schema="devel" name="order_state" />
+			<entity schema="devel" name="price_type" />
+			<entity schema="devel" name="order_category" />
+			<entity schema="devel" name="cancel_source" />
+			<entity schema="devel" name="stop_order" />
 		</group>
 		<group name="audit" color="00FFFF" >
 			<entity schema="devel" name="full_audit_request" />
@@ -1872,10 +1872,10 @@ END]]></string>
 		</group>
 		<group name="user privs" color="E6B3E6" >
 			<entity schema="devel" name="vw_accounts" />
-			<entity schema="devel" name="vw_role_authority" />
 			<entity schema="devel" name="vw_users" />
-			<entity schema="devel" name="vw_activity" />
 			<entity schema="devel" name="vw_role_subject_areas" />
+			<entity schema="devel" name="vw_role_authority" />
+			<entity schema="devel" name="vw_activity" />
 		</group>
 		<group name="trade components" color="4D66CC" >
 			<entity schema="devel" name="vw_instrument_periods" />
@@ -1885,20 +1885,20 @@ END]]></string>
 			<entity schema="devel" name="vw_instrument_positions" />
 		</group>
 		<group name="trade management" color="666666" >
-			<entity schema="devel" name="vw_stop_orders" />
-			<entity schema="devel" name="vw_api_requests" />
-			<entity schema="devel" name="vw_orders" />
 			<entity schema="devel" name="vw_positions" />
+			<entity schema="devel" name="vw_orders" />
+			<entity schema="devel" name="vw_api_requests" />
 			<entity schema="devel" name="vw_api_stop_requests" />
+			<entity schema="devel" name="vw_stop_orders" />
 		</group>
 		<group name="broker" color="994D00" >
 			<entity schema="devel" name="environment" />
 			<entity schema="devel" name="hedging" />
-			<entity schema="devel" name="account" />
 			<entity schema="devel" name="user_account" />
 			<entity schema="devel" name="broker" />
 			<entity schema="devel" name="account_detail" />
 			<entity schema="devel" name="margin_mode" />
+			<entity schema="devel" name="account" />
 		</group>
 		<script name="SQL_Editor" id="25b8aec0-7f4f-4f16-8e29-834a98e001f7" language="SQL" >
 			<string><![CDATA[CREATE SCHEMA devel;
@@ -6708,6 +6708,20 @@ CREATE INDEX fk_sr_state ON devel.stop_request ( state );
 CREATE INDEX ie_sr_update_time ON devel.stop_request ( stop_request, update_time );
 
 CREATE INDEX fk_sr_margin_mode ON devel.stop_request ( margin_mode );
+
+]]></string>
+		</script>
+		<script name="activity" id="65cd9e01-e257-4c57-936a-da7374e0cfbd" language="SQL" >
+			<string><![CDATA[CREATE  TABLE devel.activity ( 
+	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
+	subject_area         BINARY(3)    NOT NULL   ,
+	task                 VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_activity UNIQUE ( task ) 
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_a_subject_area ON devel.activity ( subject_area );
+
+ALTER TABLE devel.activity ADD CONSTRAINT fk_a_subject_area FOREIGN KEY ( subject_area ) REFERENCES devel.subject_area( subject_area ) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ]]></string>
 		</script>
