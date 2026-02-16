@@ -5,7 +5,7 @@
 "use strict";
 
 import type { ISymbol } from "db/interfaces/state";
-import type { IPublishResult, TResponse } from "api/api.util";
+import type { IPublishResult, TResponse, TKey } from "api";
 
 import { Select, Insert, Update } from "db/query.utils";
 import { PrimaryKey } from "api/api.util";
@@ -26,8 +26,9 @@ export interface ICurrency {
 //| Adds all new currencies recieved from Blofin to the database; defaults image         |
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult<ICurrency>> => {
+  const context = "Currency.Publish";
   if (!props || !(props.symbol || props.currency)) {
-    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context: "Currency.Publish" } };
+    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context } };
   }
 
   const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
@@ -41,19 +42,19 @@ export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult
         state: isEqual(state!, current.state!) ? undefined : state,
         image_url: props.image_url ? (props.image_url === current.image_url ? undefined : props.image_url) : undefined,
       },
-      { table: `currency`, keys: [{ key: `currency` }], context: "Currency.Publish" },
+      { table: `currency`, keys: [[`currency`]], context },
     );
 
     return { key: PrimaryKey(current, ["currency"]), response: result };
   }
 
-  const missing = {
+  const missing: Partial<ICurrency> = {
     currency: hashKey(6),
     symbol: props.symbol,
     state: state || (await States.Key({ status: "Enabled" })),
     image_url: `./public/images/currency/no-image.png`,
   };
-  const result = await Insert<ICurrency>(missing, { table: `currency`, context: "Currency.Publish" });
+  const result = await Insert<ICurrency>(missing, { table: `currency`, context });
 
   return { key: PrimaryKey(missing, ["currency"]), response: result };
 };
@@ -84,22 +85,23 @@ export const Suspend = async (props: Array<Partial<ICurrency>>): Promise<Array<I
 
   console.log(`-> Currency:Suspend [API] Processing ${props.length} items`);
 
+  const context = "Currency.Suspend";
   const suspended = await States.Key<ISymbol>({ status: "Suspended" });
 
   return await Promise.all(
     props.map(async (suspense): Promise<IPublishResult<ICurrency>> => {
       try {
         const { currency, symbol } = suspense;
-        const keys: Array<{ key: string }> = [];
+        const keys: Array<TKey<ICurrency>> = [];
 
-        currency && keys.push({ key: "currency" });
-        symbol && keys.push({ key: "symbol" });
+        currency && keys.push(["currency"]);
+        symbol && keys.push(["symbol"]);
 
         if (keys.length === 0) {
           throw new Error("Missing identifying keys (currency/symbol)");
         }
 
-        const result = await Update({ currency, symbol, state: suspended }, { table: "currency", keys, context: "Currency.Suspend" });
+        const result = await Update<ICurrency>({ currency, symbol, state: suspended }, { table: "currency", keys, context });
 
         return {
           key: PrimaryKey(suspense, ["currency"]),

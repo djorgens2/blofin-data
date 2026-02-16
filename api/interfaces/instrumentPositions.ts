@@ -4,20 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentAPI } from "api/instruments";
-import type { ILeverageAPI } from "api/leverage";
+import type { IPublishResult, IInstrumentAPI, ILeverageAPI } from "api";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { hasValues } from "lib/std.util";
 import { Session } from "module/session";
-import { Summary } from "db/query.utils";
 
 import * as Account from "db/interfaces/account";
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
-import * as LeverageAPI from "api/leverage";
-import * as InstrumentAPI from "api/instruments";
+import { Leverages, Instruments } from "api";
 
 export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;
 export type TPosition = `long` | `short` | `net`;
@@ -62,12 +59,14 @@ const merge = (instruments: Partial<IInstrumentAPI>[], leverages: ILeverageAPI[]
 //+--------------------------------------------------------------------------------------+
 //| Updates instrument positions for the logged account;                                 |
 //+--------------------------------------------------------------------------------------+
-const publish = async (props: Array<TInstrumentLeverage>) => {
+const publish = async (props: Array<TInstrumentLeverage>): Promise<Array<IPublishResult<IInstrumentPosition>>> => {
   if (hasValues(props)) {
-    const results = await Promise.all(
-      props.map(async (prop) => {
-        const instrument = await Instrument.Key({ symbol: prop.instId });
-        if (instrument) {
+    const results = (
+      await Promise.all(
+        props.map(async (prop) => {
+          const instrument = await Instrument.Key({ symbol: prop.instId });
+          if (!instrument) return undefined;
+
           const instrument_position: Partial<IInstrumentPosition> = {
             account: Session().account,
             instrument,
@@ -76,13 +75,13 @@ const publish = async (props: Array<TInstrumentLeverage>) => {
             update_time: new Date(),
           };
           return InstrumentPosition.Publish(instrument_position);
-        }
-      })
-    );
-    return Summary(results.map(r => r?.response));
-  } else {
-    return { total_rows: 0 };
+        }),
+      )
+    ).filter((r): r is IPublishResult<IInstrumentPosition> => !!r);
+
+    return results;
   }
+  return [] as Array<IPublishResult<IInstrumentPosition>>;
 };
 
 //------------------ Public functions ---------------------//
@@ -91,7 +90,7 @@ const publish = async (props: Array<TInstrumentLeverage>) => {
 // | Retrieves, validates, and updates local db with instrument position data from the API  |
 // +----------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const instruments = await InstrumentAPI.Fetch();
+  const instruments = await Instruments.Fetch();
 
   if (instruments) {
     console.log("-> Instrument.Position.Import [API]");
@@ -100,7 +99,7 @@ export const Import = async () => {
     const batches = createBatches(instruments, Session().leverage_max_fetch);
     const merged = batches.map(async (batch) => {
       const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
-      const leverages = ((await LeverageAPI.Import([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
+      const leverages = ((await Leverages.Import([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];
       return merge(batch, leverages);
     });
 

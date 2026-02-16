@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopsAPI } from "api/stops";
+import type { IStopsAPI } from "api";
 import type { IStopRequest } from "db/interfaces/stop_request";
 
 import { hexString } from "lib/std.util";
@@ -12,7 +12,7 @@ import { Session } from "module/session";
 import { Fetch } from "db/interfaces/stops";
 import { Submit } from "db/interfaces/stop_request";
 
-import * as Request from "api/stop_requests";
+import * as API from "api/interfaces/stop_requests";
 
 /**
  * Resubmits stop requests canceled by modification in 'Hold' state
@@ -48,7 +48,7 @@ export const Hold = async () => {
     },
   );
 
-  const cancels = await Request.Cancel(requests);
+  const cancels = await API.Cancel(requests);
 
   const results = await Promise.all([
     ...closures.map(async (closed) => {

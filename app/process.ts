@@ -10,8 +10,8 @@ import { CFractal } from "module/fractal";
 import { Session, config } from "module/session";
 import { parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
+import { Candles } from "api";
 
-import * as CandleAPI from "api/candles";
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 
 //+--------------------------------------------------------------------------------------+
@@ -36,7 +36,7 @@ export const Process = async () => {
     process.on("message", async (message: IMessage) => {
       try {
         if (message.state === `api`) {
-          await CandleAPI.Publish(message);
+          await Candles.Publish(message);
         } else if (message.state === `update`) {
           await Fractal.Update(message);
         }

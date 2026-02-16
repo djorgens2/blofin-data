@@ -72,7 +72,7 @@
 			<fk name="fk_a_margin_mode" to_schema="devel" to_table="margin_mode" >
 				<fk_column name="margin_mode" pk="margin_mode" />
 			</fk>
-			<fk name="fk_account_hedging" to_schema="devel" to_table="hedging" >
+			<fk name="fk_a_hedging" to_schema="devel" to_table="hedging" >
 				<fk_column name="hedging" pk="hedging" />
 			</fk>
 			<options><![CDATA[ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs]]></options>
@@ -1201,7 +1201,7 @@ ioc: Immediate-or-cancel order]]></comment>
 		</table>
 		<view name="vw_accounts" >
 			<comment><![CDATA[VIEW]]></comment>
-			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `a`.`account` AS `account`,`a`.`alias` AS `alias`,`a`.`broker` AS `broker`,`a`.`state` AS `state`,`s`.`status` AS `status`,`e`.`environment` AS `environment`,`e`.`environ` AS `environ`,`a`.`margin_mode` AS `margin_mode`,`a`.`hedging` AS `hedging`,`b`.`name` AS `broker_name`,`b`.`image_url` AS `broker_image_url`,`b`.`website_url` AS `broker_website_url`,`u`.`username` AS `owner_name`,`u`.`email` AS `owner_email`,`u`.`image_url` AS `owner_image_url`,`a`.`total_equity` AS `total_equity`,`a`.`isolated_equity` AS `isolated_equity`,`a`.`rest_api_url` AS `rest_api_url`,`a`.`private_wss_url` AS `private_wss_url`,`a`.`public_wss_url` AS `public_wss_url`,`c`.`currency` AS `currency`,`c`.`symbol` AS `symbol`,`c`.`image_url` AS `currency_image_url`,`c`.`state` AS `currency_state`,`cs`.`status` AS `currency_status`,`ad`.`balance` AS `balance`,`ad`.`currency_equity` AS `currency_equity`,`ad`.`currency_isolated_equity` AS `currency_isolated_equity`,`ad`.`available` AS `available`,`ad`.`available_equity` AS `available_equity`,`ad`.`equity_usd` AS `equity_usd`,`ad`.`frozen` AS `frozen`,`ad`.`order_frozen` AS `order_frozen`,`ad`.`borrow_frozen` AS `borrow_frozen`,`ad`.`unrealized_pnl` AS `unrealized_pnl`,`ad`.`isolated_unrealized_pnl` AS `isolated_unrealized_pnl`,`ad`.`coin_usd_price` AS `coin_usd_price`,`ad`.`margin_ratio` AS `margin_ratio`,`ad`.`spot_available` AS `spot_available`,`ad`.`liability` AS `liability`,`ad`.`update_time` AS `update_time` from (((((((`devel`.`account` `a` left join `devel`.`account_detail` `ad` on((`a`.`account` = `ad`.`account`))) left join `devel`.`currency` `c` on((`ad`.`currency` = `c`.`currency`))) left join `devel`.`state` `cs` on((`c`.`state` = `cs`.`state`))) join `devel`.`user` `u` on((`u`.`user` = `a`.`owner`))) join `devel`.`environment` `e` on((`a`.`environment` = `e`.`environment`))) join `devel`.`broker` `b` on((`a`.`broker` = `b`.`broker`))) join `devel`.`state` `s` on((`a`.`state` = `s`.`state`)))]]></view_script>
+			<view_script><![CDATA[CREATE VIEW ${nameWithSchemaName} AS select `a`.`account` AS `account`,`a`.`alias` AS `alias`,`a`.`broker` AS `broker`,`a`.`state` AS `state`,`s`.`status` AS `status`,`e`.`environment` AS `environment`,`e`.`environ` AS `environ`,`a`.`margin_mode` AS `margin_mode`,`a`.`hedging` AS `hedging`,`b`.`name` AS `broker_name`,`b`.`image_url` AS `broker_image_url`,`b`.`website_url` AS `broker_website_url`,`u`.`username` AS `owner_name`,`u`.`email` AS `owner_email`,`u`.`image_url` AS `owner_image_url`,`a`.`total_equity` AS `total_equity`,`a`.`isolated_equity` AS `isolated_equity`,`a`.`rest_api_url` AS `rest_api_url`,`a`.`private_wss_url` AS `private_wss_url`,`a`.`public_wss_url` AS `public_wss_url`,`c`.`currency` AS `currency`,`c`.`symbol` AS `account_currency`,`c`.`image_url` AS `currency_image_url`,`c`.`state` AS `currency_state`,`cs`.`status` AS `currency_status`,`ad`.`balance` AS `balance`,`ad`.`currency_equity` AS `currency_equity`,`ad`.`currency_isolated_equity` AS `currency_isolated_equity`,`ad`.`available` AS `available`,`ad`.`available_equity` AS `available_equity`,`ad`.`equity_usd` AS `equity_usd`,`ad`.`frozen` AS `frozen`,`ad`.`order_frozen` AS `order_frozen`,`ad`.`borrow_frozen` AS `borrow_frozen`,`ad`.`unrealized_pnl` AS `unrealized_pnl`,`ad`.`isolated_unrealized_pnl` AS `isolated_unrealized_pnl`,`ad`.`coin_usd_price` AS `coin_usd_price`,`ad`.`margin_ratio` AS `margin_ratio`,`ad`.`spot_available` AS `spot_available`,`ad`.`liability` AS `liability`,`ad`.`update_time` AS `update_time` from (((((((`devel`.`account` `a` left join `devel`.`account_detail` `ad` on((`a`.`account` = `ad`.`account`))) left join `devel`.`currency` `c` on((`ad`.`currency` = `c`.`currency`))) left join `devel`.`state` `cs` on((`c`.`state` = `cs`.`state`))) join `devel`.`user` `u` on((`u`.`user` = `a`.`owner`))) join `devel`.`environment` `e` on((`a`.`environment` = `e`.`environment`))) join `devel`.`broker` `b` on((`a`.`broker` = `b`.`broker`))) join `devel`.`state` `s` on((`a`.`state` = `s`.`state`)))]]></view_script>
 			<column name="account" type="BINARY" />
 			<column name="broker" type="BINARY" />
 			<column name="state" type="BINARY" />
@@ -1221,7 +1221,6 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="private_wss_url" type="VARCHAR" />
 			<column name="public_wss_url" type="VARCHAR" />
 			<column name="currency" type="BINARY" />
-			<column name="symbol" type="VARCHAR" />
 			<column name="currency_image_url" type="VARCHAR" />
 			<column name="currency_state" type="BINARY" />
 			<column name="currency_status" type="VARCHAR" />
@@ -1243,6 +1242,7 @@ ioc: Immediate-or-cancel order]]></comment>
 			<column name="update_time" type="DATETIME" />
 			<column name="margin_mode" type="VARCHAR" />
 			<column name="hedging" type="BIT" />
+			<column name="account_currency" type="VARCHAR" />
 		</view>
 		<view name="vw_activity" >
 			<comment><![CDATA[VIEW]]></comment>
@@ -1770,10 +1770,8 @@ END]]></string>
 		<entity schema="devel" name="api_error" color="00FFFF" x="2717" y="1520" />
 		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="2527" y="1843" />
 		<entity schema="devel" name="environment" color="994D00" x="2166" y="1330" />
-		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="2090" y="1520" />
 		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="1843" y="1520" />
 		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="1862" y="1634" />
-		<entity schema="devel" name="hedging" color="994D00" x="2318" y="1178" />
 		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1634" y="1368" />
 		<entity schema="devel" name="audit_request" color="00FFFF" x="2318" y="1881" />
 		<entity schema="devel" name="vw_order_states" color="00FFFF" x="2736" y="1653" />
@@ -1816,7 +1814,6 @@ END]]></string>
 		<entity schema="devel" name="period" color="F0ECF7" x="931" y="1881" />
 		<entity schema="devel" name="candle" color="F0ECF7" x="1216" y="1748" />
 		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1045" y="1672" />
-		<entity schema="devel" name="account" color="994D00" x="2204" y="608" />
 		<entity schema="devel" name="subject_area" color="C7F4BE" x="1672" y="95" />
 		<entity schema="devel" name="vw_api_requests" color="666666" x="3173" y="1140" />
 		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3154" y="1596" />
@@ -1824,6 +1821,9 @@ END]]></string>
 		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="437" y="1197" />
 		<entity schema="devel" name="activity" color="C7F4BE" x="1387" y="95" />
 		<entity schema="devel" name="stop_order" color="FFFF00" x="684" y="95" />
+		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="2090" y="1520" />
+		<entity schema="devel" name="hedging" color="994D00" x="2318" y="1178" />
+		<entity schema="devel" name="account" color="994D00" x="2204" y="608" />
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="user" />
@@ -1864,11 +1864,11 @@ END]]></string>
 			<entity schema="devel" name="vw_audit_requests" />
 			<entity schema="devel" name="api_error" />
 			<entity schema="devel" name="vw_audit_candles" />
-			<entity schema="devel" name="vw_audit_states" />
 			<entity schema="devel" name="vw_audit_instrument_periods" />
 			<entity schema="devel" name="vw_audit_role_authority" />
 			<entity schema="devel" name="audit_request" />
 			<entity schema="devel" name="vw_order_states" />
+			<entity schema="devel" name="vw_audit_states" />
 		</group>
 		<group name="user privs" color="E6B3E6" >
 			<entity schema="devel" name="vw_accounts" />
@@ -1893,11 +1893,11 @@ END]]></string>
 		</group>
 		<group name="broker" color="994D00" >
 			<entity schema="devel" name="environment" />
-			<entity schema="devel" name="hedging" />
 			<entity schema="devel" name="user_account" />
 			<entity schema="devel" name="broker" />
 			<entity schema="devel" name="account_detail" />
 			<entity schema="devel" name="margin_mode" />
+			<entity schema="devel" name="hedging" />
 			<entity schema="devel" name="account" />
 		</group>
 		<script name="SQL_Editor" id="25b8aec0-7f4f-4f16-8e29-834a98e001f7" language="SQL" >

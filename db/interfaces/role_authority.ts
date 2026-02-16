@@ -5,8 +5,9 @@
 "use strict";
 
 import type { TAccess, IAccess } from "db/interfaces/state";
+import type { TResponse } from "api";
 
-import { Select, Distinct, Update, Load, TResponse } from "db/query.utils";
+import { Select, Distinct, Update, Load } from "db/query.utils";
 
 import * as State from "db/interfaces/state";
 
@@ -53,7 +54,11 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse
       activity,
       state: await State.Key<IAccess>({ status: "Disabled" }),
     };
-    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }], context: "Role.Authority.Disable" });
+    return await Update(revised, {
+      table: `role_authority`,
+      keys: [[`role`], [`authority`], [`activity`]],
+      context: "Role.Authority.Disable",
+    });
   } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Disable" };
 };
 
@@ -70,7 +75,11 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse>
       activity,
       state: await State.Key<IAccess>({ status: "Enabled" }),
     };
-    return await Update(revised, { table: `role_authority`, keys: [{ key: `role` }, { key: `authority` }, { key: `activity` }], context: "Role.Authority.Enable" });
+    return await Update(revised, {
+      table: `role_authority`,
+      keys: [[`role`], [`authority`], [`activity`]],
+      context: "Role.Authority.Enable",
+    });
   } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Enable" };
 };
 
@@ -88,7 +97,7 @@ export const Fetch = async (props: Partial<IRoleAuthority>): Promise<Array<Parti
 export const Subjects = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
   const result = await Distinct<IRoleAuthority>(
     { role: props.role, subject_area: undefined, subject_area_title: undefined, status: props.status },
-    { table: `vw_role_authority`, keys: [{ key: `role` }, { key: `status` }] }
+    { table: `vw_role_authority`, keys: [[`role`], [`status`]] },
   );
 
   return result.length ? result : [];
@@ -100,7 +109,7 @@ export const Subjects = async (props: Partial<IRoleAuthority>): Promise<Array<Pa
 export const Privileges = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
   const result = await Distinct<IRoleAuthority>(
     { role: props.role, authority: undefined, privilege: undefined, status: props.status },
-    { table: `vw_role_authority`, keys: [{ key: `role` }, { key: "status" }] }
+    { table: `vw_role_authority`, keys: [[`role`], [`status`]] },
   );
   return result.length ? result : [];
 };

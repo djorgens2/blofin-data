@@ -5,9 +5,10 @@
 "use strict";
 
 import type { TPositionState } from "db/interfaces/state";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
-import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
@@ -72,7 +73,7 @@ export const Publish = async (props: Partial<IPositions>): Promise<IPublishResul
       create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
     };
-    const result = await Update(revised, { table: `positions`, keys: [{ key: `positions` }], context: "Positions.Publish" });
+    const result = await Update(revised, { table: `positions`, keys: [[`positions`]], context: "Positions.Publish" });
     return {
       key: PrimaryKey(current, ["positions", "instrument_position"]),
       response: result,

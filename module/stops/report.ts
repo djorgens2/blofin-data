@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api/api.util";
+import type { IPublishResult, TResponse } from "api";
 import type { IStopOrder } from "db/interfaces/stops";
 
 /**

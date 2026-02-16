@@ -1,4 +1,4 @@
-import { IRequest } from "db/interfaces/request";
+import type { IRequest } from "db/interfaces/request";
 import { setExpiry } from "lib/std.util";
 
 //-- Test 1a: request reject on size, resub, then edit and resub

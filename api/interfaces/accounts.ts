@@ -33,7 +33,7 @@ export interface IAccountAPI {
       spotAvailable: string;
       liability: string;
       borrowFrozen: string;
-    }
+    },
   ];
 }
 

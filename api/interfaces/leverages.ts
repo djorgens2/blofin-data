@@ -1,14 +1,14 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                   [api]  leverage.ts |
+//|                                                                  [api]  leverages.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
 import type { IInstrumentPosition, TPosition } from "db/interfaces/instrument_position";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
 import { hasValues } from "lib/std.util";
-import { API_GET, API_POST, ApiError } from "api/api.util";
+import { API_GET, API_POST, ApiError } from "api";
 
 import * as InstrumentPosition from "db/interfaces/instrument_position";
 

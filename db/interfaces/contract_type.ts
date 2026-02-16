@@ -4,10 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api/api.util";
+import type { IPublishResult, TResponse } from "api";
 
 import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api/api.util";
+import { PrimaryKey } from "api";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 

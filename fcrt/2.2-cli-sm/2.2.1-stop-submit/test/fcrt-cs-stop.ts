@@ -1,6 +1,6 @@
 //----------------------------- stop order test  -------------------------------------------------------//
 import type { IStopRequest } from "db/interfaces/stop_request";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
 import { Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -16,8 +16,8 @@ if (args.length) {
   const test = args[1] || "2c";
   const request: Array<Partial<IStopRequest>> = test === "2a" ? [req_fcrt_2a] : test === "2c" ? [req_fcrt_2c] : test === "3b" ? [req_fcrt_3b] : req_fcrt_3c;
 
-  const submit = async (request: Partial<IStopRequest>): Promise<IPublishResult<IStopRequest>> => {
-    await config({ account: hexify(args[0]) });
+  const submit = async (request: Partial<IStopRequest>): Promise<Array<IPublishResult<IStopRequest>>> => {
+    await config({ account: hexify(args[0]) }, request.symbol!);
     console.log("[Info] App.Config:", Session().Log(false));
     console.log(`-> Test ${test}: Submitting stop loss request without order for account ${args[0]}`);
 
@@ -38,7 +38,8 @@ if (args.length) {
           console.error("Exiting process with code 1.");
           process.exit(1);
         }
-        await StopOrder.Fetch({ stop_request: submitted?.key?.stop_request }).then((orders) => {
+        const [current] = submitted;
+        await StopOrder.Fetch({ stop_request: current?.key?.stop_request }).then((orders) => {
           if (orders && orders.length > 0) {
             console.log(`[Info] Test ${test}: Request submitted, check db for results.`, submitted);
             console.log(`[Info] Fetched order from DB:`, orders);

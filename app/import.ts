@@ -22,10 +22,7 @@ import * as State from "db/interfaces/state";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Roles from "db/interfaces/role";
 
-import * as CandleAPI from "api/candles";
-import * as InstrumentAPI from "api/instruments";
-import * as InstrumentPositionAPI from "api/instrumentPositions";
-import * as PositionsAPI from "api/positions";
+import { Candles, Instruments, InstrumentPositions, Positions } from "api";
 
 //+--------------------------------------------------------------------------------------+
 //| Imports full-candle history; follows up with a candle refresh;                       |
@@ -33,7 +30,7 @@ import * as PositionsAPI from "api/positions";
 export const importCandles = async () => {
   const authorized: Array<Partial<IInstrumentPosition>> = await Distinct<IInstrumentPosition>(
     { account: Session().account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
-    { table: `vw_instrument_positions`, keys: [[`account`, `auto_status`]] },
+    { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
   );
 
   console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));
@@ -49,7 +46,7 @@ export const importCandles = async () => {
 
         console.log("In App.Loader for ", { symbol, timeframe, startTime }, "start: ", new Date().toLocaleString());
 
-        return CandleAPI.Import(message, { symbol, timeframe, startTime });
+        return Candles.Import(message, { symbol, timeframe, startTime });
       }
     });
     const published = await Promise.all(promises);
@@ -69,7 +66,7 @@ export const importCandles = async () => {
       const { symbol, timeframe } = instrument;
       if (symbol && timeframe) {
         const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
-        return CandleAPI.Publish(message);
+        return Candles.Publish(message);
       }
     });
     const published = await Promise.all(promises);
@@ -95,10 +92,10 @@ export const importCandles = async () => {
 //| Installs seed data during initialization of a new database;                          |
 //+--------------------------------------------------------------------------------------+
 export const importInstruments = async () => {
-  await InstrumentAPI.Import();
-  await InstrumentPositionAPI.Import();
-  const res = await PositionsAPI.Import();
-  console.log(res);
+  await Instruments.Import();
+  await InstrumentPositions.Import();
+  const result = await Positions.Import();
+  console.log(result);
 };
 
 //+--------------------------------------------------------------------------------------+

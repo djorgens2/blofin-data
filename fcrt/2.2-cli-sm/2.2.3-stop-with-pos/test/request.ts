@@ -1,4 +1,4 @@
-import { IRequest } from "db/interfaces/request";
+import type { IRequest } from "db/interfaces/request";
 import { setExpiry } from "lib/std.util";
 
 //-- Test 2a: submit request with '1d' expiry; with new leverage
@@ -12,7 +12,7 @@ export const req_fcrt_2a: Partial<IRequest> = {
   leverage: 50,
   size: 500,
   memo: "Test 2a: submit request with '1d' expiry; with new leverage",
-  expiry_time: setExpiry(`1d`)
+  expiry_time: setExpiry(`1d`),
 };
 
 //-- Test 3a: update request with '5m' expiry; without tpsl

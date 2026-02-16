@@ -1,6 +1,7 @@
 //----------------------------- order test  -------------------------------------------------------//
 import type { TRefKey } from "db/interfaces/reference";
 import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult } from "api";
 
 import { config, Session } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -12,11 +13,10 @@ import * as IPos from "db/interfaces/instrument_position";
 import * as Orders from "db/interfaces/order";
 import * as Requests from "db/interfaces/request";
 import * as References from "db/interfaces/reference";
-import { IPublishResult } from "db/query.utils";
 
 const args = process.argv.slice(2); // get account id
 const submit = async (request: Partial<IRequest>, testId: string): Promise<[IPublishResult<IRequest>, Partial<IRequest>]> => {
-  await config({ account: hexify(args[0]) });
+  await config({ account: hexify(args[0]) }, request.symbol!);
 
   const expiry_time = setExpiry(`1d`); // 1 day from now
   const instrument_position = await IPos.Key({ account: Session().account, symbol: request.symbol, position: request.position });

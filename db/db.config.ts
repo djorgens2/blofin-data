@@ -5,9 +5,13 @@
 "use strict";
 
 import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+import path from "path";
 
-import * as dotenv from "dotenv";
-import * as path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 
@@ -27,20 +31,20 @@ const pool = mysql.createPool({
 // connectionLimit: process.env.DB_POOLLIMIT,
 // queueLimit: process.env.DB_QUEUELIMIT,
 
-export const Begin = async() => {
+export const Begin = async () => {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
   return connection;
-}
+};
 
 export const Commit = async (connection: mysql.PoolConnection) => {
   await connection.commit();
   connection.release();
-}
+};
 
 export const Rollback = async (connection: mysql.PoolConnection) => {
   await connection.rollback();
   connection.release();
-}
+};
 
 export default pool;

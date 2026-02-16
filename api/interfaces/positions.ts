@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 import type { IPositions } from "db/interfaces/positions";
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
@@ -12,7 +12,7 @@ import { Session } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { format, isEqual } from "lib/std.util";
 import { Select } from "db/query.utils";
-import { API_GET } from "./api.util";
+import { API_GET } from "api";
 
 import * as Positions from "db/interfaces/positions";
 import * as InstrumentPositions from "db/interfaces/instrument_position";
@@ -77,7 +77,7 @@ export const Publish = async (props: Array<Partial<IPositionsAPI>>) => {
     })
   );
 
-  const active = await Promise.all(
+  const active: Array<IPublishResult<IInstrumentPosition>> = await Promise.all(
     api
       .filter((p) => p?.response.success && p.key?.instrument_position)
       .map(async (p) => {

@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 import type { IInstrument } from "db/interfaces/instrument";
 import type { ICurrency } from "db/interfaces/currency";
 
 import { Session } from "module/session";
-import { Summary } from "db/query.utils";
 
 import * as Instrument from "db/interfaces/instrument";
 import * as InstrumentDetail from "db/interfaces/instrument_detail";
@@ -39,7 +38,7 @@ export interface IInstrumentAPI {
 const publish = async (props: Array<IInstrumentAPI>) => {
   console.log("-> Instrument.Publish [API]");
 
-  const imports = props.map(async (api) => {
+  const results = props.map(async (api) => {
     const master = await Instrument.Publish({ symbol: api.instId });
     if (master.response.success) {
       const detail = await InstrumentDetail.Publish({
@@ -60,14 +59,14 @@ const publish = async (props: Array<IInstrumentAPI>) => {
     } else return master as IPublishResult<IInstrument>;
   });
 
-  const published: Array<IPublishResult<IInstrument>> = await Promise.all(imports);
+  const published: Array<IPublishResult<IInstrument>> = await Promise.all(results);
   const suspended: Array<IPublishResult<ICurrency>> = await Instrument.Suspense(
     props.map((i) => ({ symbol: i.instId, status: i.state === "live" ? "Enabled" : "Suspended" }))
   );
 
   await InstrumentPeriod.Import();
 
-  return Summary(published.map((p) => p?.response).concat(suspended.map((s) => s?.response)));
+  return results;
 };
 
 //+--------------------------------------------------------------------------------------+

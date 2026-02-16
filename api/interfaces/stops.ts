@@ -4,16 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IPublishResult } from "api";
+
 import type { TRequestState } from "db/interfaces/state";
 import type { TPositionState } from "db/interfaces/state";
 import type { IStopOrder } from "db/interfaces/stops";
-import type { IPublishResult } from "api/api.util";
 import type { TRefKey } from "db/interfaces/reference";
 
 import { Session, setSession } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { delay, fileWrite, format } from "lib/std.util";
-import { API_GET, ApiError, ApiResult } from "api/api.util";
+import { API_GET, ApiError, ApiResult } from "api";
 
 import * as Stops from "db/interfaces/stops";
 import * as Requests from "db/interfaces/stop_request";

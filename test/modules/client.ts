@@ -1,8 +1,8 @@
 // client.js
 import type { IKeyProps, IResponseProps } from "../../lib/crypto.util";
 import type { wsStatus } from "../../module/websocket";
-import { signMessage } from "../../lib/crypto.util";
-import { parseJSON } from "../../lib/std.util";
+import type {  signMessage  } "../../lib/crypto.util";
+import type {  parseJSON  } "../../lib/std.util";
 
 interface IAccount {
   data: {

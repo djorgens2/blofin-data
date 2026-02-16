@@ -7,7 +7,7 @@
 import type { IInstrument } from "db/interfaces/instrument";
 
 import { Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api/api.util";
+import { PrimaryKey } from "api";
 import { isEqual } from "lib/std.util";
 
 import * as Instrument from "db/interfaces/instrument";

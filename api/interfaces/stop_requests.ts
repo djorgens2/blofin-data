@@ -4,11 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api/api.util";
-import type { IStopsAPI } from "api/stops";
+import type { IPublishResult, TResponse, IStopsAPI } from "api";
 import type { IStopRequest } from "db/interfaces/stop_request";
 
-import { API_POST, ApiError } from "api/api.util";
+import { API_POST, ApiError } from "api";
 import { PrimaryKey } from "api/api.util";
 import { hexify } from "lib/crypto.util";
 

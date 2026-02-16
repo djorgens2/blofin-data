@@ -4,15 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IPublishResult, TResponse, IRequestAPI } from "api";
 import type { IRequest } from "db/interfaces/request";
-import type { IPublishResult, TResponse } from "db/query.utils";
-import type { IRequestAPI } from "api/requests";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
 import { Fetch } from "db/interfaces/order";
 
-import * as RequestAPI from "api/requests";
+import * as API from "api/interfaces/requests";
 import * as Request from "db/interfaces/request";
 
 //-- [Process.Orders] Resubmit requests canceled by modification to the API for orders in hold state
@@ -46,7 +45,7 @@ export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
     }
   );
 
-  const cancels = await RequestAPI.Cancel(requests);
+  const cancels = await API.Cancel(requests);
 
   // 2. Process results (Parallel resubmission for successes)
   const results = await Promise.all([

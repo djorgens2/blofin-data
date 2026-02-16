@@ -1,11 +1,11 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                           Prompts.ts |
+//|                                                                    [cli]  Prompts.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
-import prompts, { type Answers, PromptObject } from "prompts";
+import type { Answers, PromptObject  } from "prompts";
+import prompts from "prompts";
 
 const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

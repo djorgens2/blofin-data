@@ -5,23 +5,8 @@
  */
 "use strict";
 
-import { Session, signRequest } from "module/session";
-
-export type TResponse = {
-  success: boolean;
-  response: string;
-  code: number;
-  rows: number;
-  context: string;
-  outcome?: string;
-  message?: string;
-};
-//export type CompositeKey<T> = { [K in keyof T]?: T[K] };
-export type TPrimaryKey<T> = Partial<T>;
-export interface IPublishResult<T, K = TPrimaryKey<T>> {
-  key?: K;
-  response: TResponse;
-}
+import type { TPrimaryKey, IPublishResult } from "api";
+import {  Session, signRequest  } from "module/session";
 
 /**
  * PrimaryKey

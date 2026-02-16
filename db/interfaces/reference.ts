@@ -132,7 +132,7 @@ export const Add = async (table: string, props: { [key: string]: any }) => {
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns data;   |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IReference>, options: TOptions): Promise<Array<Partial<IReference>> | undefined> => {
+export const Fetch = async (props: Partial<IReference>, options: TOptions<IReference>): Promise<Array<Partial<IReference>> | undefined> => {
   const result = await Select<IReference>(props, options);
   return result.length ? result : undefined;
 };
@@ -140,7 +140,7 @@ export const Fetch = async (props: Partial<IReference>, options: TOptions): Prom
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export const Key = async <T>(props: Partial<IReference>, options: TOptions): Promise<T | undefined> => {
+export const Key = async <T>(props: Partial<IReference>, options: TOptions<IReference>): Promise<T | undefined> => {
   if (hasValues<Partial<IReference>>(props)) {
     const [key] = await Select<IReference>(props, options);
     return key ? (Object.values(key)[0] as T) : undefined;

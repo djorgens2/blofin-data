@@ -12,8 +12,7 @@ import type { IMessage } from "lib/app.util";
 
 import { clear } from "lib/app.util";
 import { Session } from "module/session";
-
-import * as Candles from "api/candles";
+import { Candles } from "api";
 
 //+---------------------------------------------------------------------------------------------+
 //| Loads candle data locally for supplied symbol/timeframe from start_time and earlier;        |

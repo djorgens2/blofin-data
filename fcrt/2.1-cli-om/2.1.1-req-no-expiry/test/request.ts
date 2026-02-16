@@ -1,4 +1,4 @@
-import { IRequest } from "db/interfaces/request";
+import type {  IRequest  } from "db/interfaces/request";
 
 //-- Test 2a: request w/o expiry; w/o tpsl
 export const req_fcrt_2a: Partial<IRequest> = {

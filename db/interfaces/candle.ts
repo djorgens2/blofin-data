@@ -3,9 +3,10 @@
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
-import type { TKey } from "db/query.utils";
 
-import { Select, Insert, Update, TOptions } from "db/query.utils";
+import type { TKey, TOptions } from "db/query.utils";
+
+import { Select, Insert, Update } from "db/query.utils";
 import { isEqual } from "lib/std.util";
 
 export interface ICandle {

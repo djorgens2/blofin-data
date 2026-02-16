@@ -8,11 +8,9 @@ import { importCandles, importInstruments, importSeed } from "app/import";
 import { Log, Session, config } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { CMain } from "app/main";
-import { Stops } from "module/stops";
+import { TPSL } from "module/stops";
 
-import * as PositionsAPI from "api/positions";
-import * as OrderAPI from "api/orders";
-import * as StopsAPI from "api/stops";
+import { Positions, Orders, Stops } from "api";
 
 const initialize = async () => {
   await importSeed();
@@ -20,13 +18,13 @@ const initialize = async () => {
   const [instruments, candles, positions, orders, stops] = await Promise.all([
     importInstruments(),
     importCandles(),
-    PositionsAPI.Import(),
-    OrderAPI.Import(),
-    StopsAPI.Import(),
+    Positions.Import(),
+    Orders.Import(),
+    Stops.Import(),
   ]);
 
-//  stops && stops.map((s) => console.error(`In App`, s.key, s.response));
-  stops && Stops.Report(stops);
+  //  stops && stops.map((s) => console.error(`In App`, s.key, s.response));
+  stops && TPSL.Report(stops);
 
   setTimeout(async () => {
     console.log("[Info] Application.Initialization finished:", new Date().toLocaleString());

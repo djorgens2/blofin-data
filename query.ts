@@ -4,7 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "api/requests";
+import type { IRequestAPI } from "api/interfaces/requests";
+import type { TOptions } from "db/query.utils";
+import type { IAuthority } from "db/interfaces/authority";
+import type { IStopOrder } from "db/interfaces/stops";
+import type { IStopsAPI } from "api/interfaces/stops";
 
 import * as Candle from "db/interfaces/candle";
 import * as Instrument from "db/interfaces/instrument";
@@ -30,10 +34,7 @@ import * as Stops from "db/interfaces/stops";
 
 import { NormalizeHex, parseJSON } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
-import { IAuthority } from "db/interfaces/authority";
-import { Select, TOptions } from "db/query.utils";
-import { IStopOrder } from "db/interfaces/stops";
-import { IStopsAPI } from "api/stops";
+import { Select } from "db/query.utils";
 
 enum Subject {
   Account = "-a",

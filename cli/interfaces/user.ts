@@ -1,15 +1,14 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                              user.ts |
+//|                                                                       [cli]  user.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
-import Prompt, { type IOption } from "cli/modules/Prompts";
 import type { IUser } from "db/interfaces/user";
+import type { Answers } from "prompts";
+import Prompt, { type IOption } from "cli/modules/Prompts";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
-import { Answers } from "prompts";
 
 import { setState } from "cli/modules/State";
 import { setHeader } from "cli/modules/Header";
@@ -185,7 +184,7 @@ export const menuViewUser = async () => {
       update_time: 12,
       colBuffer: 5,
     },
-    users!
+    users!,
   );
 
   console.log(
@@ -196,7 +195,7 @@ export const menuViewUser = async () => {
     `${bold("Status".padEnd(keylen.status, " "))}`,
     `${bold("Image Location".padEnd(keylen.image_url, " "))}`,
     `${bold("Created".padEnd(keylen.create_time, " "))}`,
-    `${bold("Updated".padEnd(keylen.update_time, " "))}`
+    `${bold("Updated".padEnd(keylen.update_time, " "))}`,
   );
 
   if (users)
@@ -211,12 +210,12 @@ export const menuViewUser = async () => {
           status === "Enabled"
             ? cyan(status!.padEnd(keylen.status, " "))
             : status === "Disabled"
-            ? red(status!.padEnd(keylen.status, " "))
-            : yellow(status!.padEnd(keylen.status, " "))
+              ? red(status!.padEnd(keylen.status, " "))
+              : yellow(status!.padEnd(keylen.status, " "))
         }`,
         `${image_url!.padEnd(keylen.image_url, " ")}`,
         `${create_time!.toLocaleDateString().padEnd(keylen.create_time, " ")}`,
-        `${update_time!.toLocaleDateString().padEnd(keylen.update_time, " ")}`
+        `${update_time!.toLocaleDateString().padEnd(keylen.update_time, " ")}`,
       );
     }
   console.log(``);

@@ -3,9 +3,10 @@
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
+import { PrimaryKey } from "api";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -13,7 +14,7 @@ export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequestState = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
 export type TPositionState = "Open" | "Closed";
 export type TAccess = "Enabled" | "Disabled" | "Restricted" | "Suspended" | "Deleted";
-export type TSymbol = "Enabled" | "Disabled" | "Suspended"
+export type TSymbol = "Enabled" | "Disabled" | "Suspended";
 export type TStates = TRequestState | TSystem | TAccess | TPositionState | TSymbol;
 
 export type IState = {
@@ -38,8 +39,8 @@ export interface ISymbol extends IState {
 //| Imports seed States to define accounts/trading operational status;                   |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-    console.log("In State.Import:", new Date().toLocaleString());
-  
+  console.log("In State.Import:", new Date().toLocaleString());
+
   const states: Array<Partial<IState>> = [
     { status: "Enabled", description: "Enabled for trading" },
     { status: "Disabled", description: "Disabled from trading" },
@@ -63,7 +64,7 @@ export const Import = async () => {
   console.log(
     `-> State.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new states;` : `No new states;`,
-    `${exists.length} states verified;`
+    `${exists.length} states verified;`,
   );
 };
 

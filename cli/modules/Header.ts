@@ -21,12 +21,12 @@ export const setHeader = (heading: string) => {
     error === 0
       ? `${green("    Success:")} `
       : error < 200
-      ? `${cyan("  Confirmed:")} `
-      : error < 300
-      ? `${yellow("*** Warning:")} `
-      : error < 400
-      ? `${red("  *** Error:")} `
-      : `             `;
+        ? `${cyan("  Confirmed:")} `
+        : error < 300
+          ? `${yellow("*** Warning:")} `
+          : error < 400
+            ? `${red("  *** Error:")} `
+            : `             `;
 
   console.clear();
   console.log(`┌${"─".repeat(132)}┐`);

@@ -4,12 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Stops } from "module/stops";
+import { TPSL } from "module/stops";
 import { Requests } from "module/requests";
 
-import * as PositionsAPI from "api/positions";
-import * as OrderAPI from "api/orders";
-import * as StopsAPI from "api/stops";
+import { Positions, Accounts, Orders, Stops } from "api";
 
 //------------------ Private functions ---------------------//
 
@@ -29,11 +27,11 @@ const processOrders = async () => {
 //| Handle stop order submits, rejects, and updates (from hold status);                  |
 //+--------------------------------------------------------------------------------------+
 const processStops = async () => {
-  await Stops.Rejected();
-  await Stops.Pending();
-  await Stops.Canceled();
-  await Stops.Hold();
-  const queue = await Stops.Queued();
+  await TPSL.Rejected();
+  await TPSL.Pending();
+  await TPSL.Canceled();
+  await TPSL.Hold();
+  const queue = await TPSL.Queued();
 //  Stops.Report(queue);
 };
 
@@ -46,12 +44,12 @@ export const Trades = async () => {
   console.log("In Execute.Trades:", new Date().toLocaleString());
 
   const [ipos, orders, stops] = await Promise.all([
-    PositionsAPI.Import(),
-    OrderAPI.Import(),
-    StopsAPI.Import(),
+    Positions.Import(),
+    Orders.Import(),
+    Stops.Import(),
   ]);
 
-  stops && Stops.Report(stops);
+  stops && TPSL.Report(stops);
 
   await processOrders();
   await processStops();

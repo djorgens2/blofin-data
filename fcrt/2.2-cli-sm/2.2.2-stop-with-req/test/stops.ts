@@ -1,4 +1,4 @@
-import { IStopRequest } from "db/interfaces/stop_request";
+import type { IStopRequest } from "db/interfaces/stop_request";
 import { hexify } from "lib/crypto.util";
 
 //-- Test 2b: submit stop loss request with order --//

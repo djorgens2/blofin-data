@@ -5,7 +5,7 @@
 "use strict";
 
 import type { IRequest } from "db/interfaces/request";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
 import { Session } from "module/session";
 

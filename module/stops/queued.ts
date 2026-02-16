@@ -4,15 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopsAPI } from "api/stops";
+import type { IStopsAPI } from "api";
 
-import { hexify } from "lib/crypto.util";
 import { ApiError } from "api/api.util";
+import { hexString } from "lib/std.util";
 
-import * as RequestAPI from "api/stop_requests";
+import * as API from "api/interfaces/stop_requests";
 import * as Queue from "db/interfaces/stops";
 import * as Request from "db/interfaces/stop_request";
-import { hexString } from "lib/std.util";
 
 //+----------------------------------------------------------------------------------------+
 //| Handle processing related to Queued stops; TP/SL;                                      |
@@ -58,7 +57,7 @@ export const Queued = async () => {
       if (request.slOrderPrice) api.slOrderPrice = request.slOrderPrice;
 
       // 3. Fire to Broker
-      return await RequestAPI.Submit(api);
+      return await API.Submit(api);
     } catch (error) {
       console.error(`-> [Error] Stop.Order.Queue:`, error);
       return [

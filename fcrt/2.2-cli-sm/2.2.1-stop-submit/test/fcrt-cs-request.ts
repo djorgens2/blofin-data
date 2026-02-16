@@ -18,7 +18,7 @@ if (args.length) {
   const request = test === "2b" ? req_fcrt_2b : req_fcrt_3a;
 
   const submit = async (request: Partial<IRequest>) => {
-    await config({account: hexify(args[0])})
+    await config({account: hexify(args[0])}, request.symbol!)
     const instrument_position = await IPos.Key({account: Session().account, symbol: req_fcrt_2b.symbol, position: req_fcrt_2b.position});
     const request_type = await References.Key<TRefKey>({ source_ref: req_fcrt_2b.order_type }, { table: `request_type` });
     const submitted = await Requests.Submit({ ...request, instrument_position, request_type, memo: "Test 2b: request w/o expiry; w/o tpsl" });

@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrument } from "db/interfaces/instrument";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 import type { ICandle } from "db/interfaces/candle";
 import type { IMeasure, IMessage } from "lib/app.util"; //-- types
 
@@ -15,7 +15,6 @@ import { isBetween, isHigher, isLower, format } from "lib/std.util";
 import { UpdateReport, PublishReport, report } from "module/report";
 
 import * as Candle from "db/interfaces/candle";
-import { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 enum State {
   //----- Fractal States ----------------------------//

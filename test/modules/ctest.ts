@@ -7,8 +7,8 @@
 import type { IInstrument } from "@db/interfaces/instrument";
 import type { IMessage } from "@lib/app.util"; //-- types
 
-import { CFractal } from "@module/fractal";
-import { clear } from "@lib/app.util"; //-- functions
+import type {  CFractal  } "@module/fractal";
+import type {  clear  } "@lib/app.util"; //-- functions
 
 import * as Instrument from "@db/interfaces/instrument";
 

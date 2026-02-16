@@ -2,10 +2,9 @@
 //|                                                                            broker.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
-"use server";
 "use strict";
 
-import Prompt, { IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "cli/modules/Prompts";
 
 import { setHeader } from "cli/modules/Header";
 import { green, red, yellow, cyan, bold } from "console-log-colors";

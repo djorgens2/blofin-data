@@ -1,8 +1,8 @@
-import { IInstrumentAPI, IResult } from "../../api/instruments";
-import { Select, Modify, UniqueKey } from "../../db/query.utils";
-import { ICurrency } from "../../db/interfaces/currency";
-import { IInstrument } from "../../db/interfaces/instrument";
-import { splitSymbol } from "../../lib/std.util";
+import type {  IInstrumentAPI, IResult  } "../../api/instruments";
+import type {  Select, Modify, UniqueKey  } "../../db/query.utils";
+import type {  ICurrency  } "../../db/interfaces/currency";
+import type {  IInstrument  } "../../db/interfaces/instrument";
+import type {  splitSymbol  } "../../lib/std.util";
 import * as ContractType from "../../db/interfaces/contract_type";
 import * as InstrumentType from "../../db/interfaces/instrument_type";
 import * as InstrumentDetail from "../../db/interfaces/instrument_detail";

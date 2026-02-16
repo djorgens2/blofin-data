@@ -6,10 +6,11 @@
 
 import type { IRequestState, TRequestState } from "db/interfaces/state";
 import type { IStopOrder } from "db/interfaces/stops";
-import type { IPublishResult } from "db/query.utils";
-import type { TRefKey } from "./reference";
+import type { IPublishResult } from "api";
+import type { TRefKey } from "db/interfaces/reference";
 
-import { Select, Insert, Update, PrimaryKey } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hexify, uniqueKey } from "lib/crypto.util";
 import { Session } from "module/session";
 import { hasValues, isEqual } from "lib/std.util";
@@ -137,14 +138,14 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
           const [requestResult, priceResult] = await Promise.all([
             Update(revised, {
               table: `stop_request`,
-              keys: [{ key: `stop_request` }],
+              keys: [[`stop_request`]],
               context: "Stop.Request.Publish",
             }),
             Promise.all(
               stop_price.map(async (p) => {
                 const result = await Update(p, {
                   table: `stop_price`,
-                  keys: [{ key: `stop_request` }, { key: `stop_type` }],
+                  keys: [[`stop_request`], [`stop_type`]],
                   context: "Stop.Price.Publish",
                 });
                 return {
@@ -210,7 +211,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
       reduce_only: props.reduce_only !== undefined ? !!props.reduce_only : undefined,
       memo: props.memo || "[Info] Stop.Request.Publish: Initialized",
       create_time: props.create_time,
-//-> fix this      update_time: props.create_time,
+      //-> fix this      update_time: props.create_time,
     };
 
     (!!props.tp_trigger_price || !!props.tp_order_price) &&
@@ -232,7 +233,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
     const [requestResult, priceResult] = await Promise.all([
       await Insert(request, {
         table: `stop_request`,
-        keys: [{ key: `stop_request` }],
+        keys: [[`stop_request`]],
         context: "Stop.Request.Publish",
       }),
       Promise.all(
@@ -258,17 +259,19 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
     ].flat();
   }
 
-  return [{
-    key: undefined,
-    response: {
-      success: false,
-      code: 400,
-      response: `null_query`,
-      message: "[Error] Stop.Request.Publish: Nothing to publish",
-      rows: 0,
-      context: `Stop.Request.Publish.${source}`,
+  return [
+    {
+      key: undefined,
+      response: {
+        success: false,
+        code: 400,
+        response: `null_query`,
+        message: "[Error] Stop.Request.Publish: Nothing to publish",
+        rows: 0,
+        context: `Stop.Request.Publish.${source}`,
+      },
     },
-  }];
+  ];
 };
 
 //+--------------------------------------------------------------------------------------+

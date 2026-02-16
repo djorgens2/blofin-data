@@ -4,9 +4,9 @@
 //import { parseColumns, parseKeys } from "db/query.utils";
 // import { ILeverageAPI, Instruments } from "api/instruments";
 // import { IInstrument } from "db/interfaces/instrument";
-import { ILeverageAPI } from "api/leverage";
-import { TPosition } from "db/interfaces/instrument_position";
-import { IPublishResult, PrimaryKey } from "api/api.util";
+import type { IPublishResult, ILeverageAPI } from "api";
+import type { TPosition } from "db/interfaces/instrument_position";
+import type { PrimaryKey } from "api";
 import { Distinct } from "db/query.utils";
 import { hexify } from "lib/crypto.util";
 import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
@@ -2402,6 +2402,7 @@ import { parse } from "path";
 
 // getHistory();
 
+//---------------------------------- stop type key test ----------------------------------------//
 // import { ApiError } from "api/api.util";
 // import { Select } from "db/query.utils";
 
@@ -2437,6 +2438,7 @@ import { parse } from "path";
 
 // run();
 
+//---------------------------------- API pending fetch test  ----------------------------------------//
 /**
  * Pending - retrieves all active orders, paginating if count > Session().orders_max_fetch;
  */
@@ -2481,6 +2483,7 @@ import { parse } from "path";
 //   process.exit(1);
 // };
 
+//---------------------------------- Session config pulling account and symbol/? from env ----------------------------------------//
 import * as app from "module/session";
 const args = process.argv.slice(2); // get account id
 const run = async () => {
@@ -2488,3 +2491,34 @@ const run = async () => {
   await app.config({ account }, "XRP-USDT");
 };
 run();
+
+//---------------------------------- Distinct test ----------------------------------------//
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import * as db from "db/query.utils";
+
+(async () => {
+  const symbols: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+    { account: Session().account, auto_status: "Enabled", symbol: undefined },
+    { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
+  );
+
+  const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+    { alias: `Blofin Demo`, symbol: undefined, environ: undefined },
+    { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
+  );
+
+  const like: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
+    { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
+    { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
+  );
+
+  const ingroup: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
+    { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
+    { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
+  );
+
+  authorized.map((i) => console.error(i.alias, i.environ, i.symbol));
+  if (authorized.length) {
+    console.log(`Success:`, authorized);
+  }
+})();

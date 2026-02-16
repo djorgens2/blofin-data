@@ -9,14 +9,17 @@ import type { ISession } from "module/session";
 import { createHmac, createHash } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { TextEncoder } from "node:util";
+import { fileURLToPath } from 'url';
 
-import * as dotenv from "dotenv";
-import * as path from "path";
+import dotenv from "dotenv";
+import path from "path";
+
 import * as User from "db/interfaces/user";
 
-dotenv.config({ path: path.resolve(__dirname, ".env.local") });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const secret = process.env.USER_SECRET ? process.env.USER_SECRET : ``;
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |

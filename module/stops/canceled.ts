@@ -4,14 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopsAPI } from "api/stops";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult, IStopsAPI } from "api";
 import type { IStopRequest } from "db/interfaces/stop_request";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
 
-import * as StopRequestAPI from "api/stop_requests";
+import * as API from "api/interfaces/stop_requests";
 import * as Requests from "db/interfaces/stop_request";
 import * as Orders from "db/interfaces/stops";
 
@@ -46,7 +45,7 @@ export const Canceled = async (): Promise<Array<IPublishResult<IStopRequest>>> =
 
     (async () => {
       if (cancels.length === 0) return [];
-      const results = await StopRequestAPI.Cancel(cancels);
+      const results = await API.Cancel(cancels);
 
       return results.map((cancel) => ({
         ...cancel,

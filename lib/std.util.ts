@@ -61,8 +61,8 @@ export const NormalizeHex = <T extends object>(props: T): T => {
   (Object.keys(output) as Array<keyof T>).forEach((key) => {
     const val = output[key];
     const keyStr = String(key);
-    if (typeof val === 'string' && val.length > 0) {
-      if (HEX_FIELD_PATTERN.test(keyStr) || val.startsWith('0x')) {
+    if (typeof val === "string" && val.length > 0) {
+      if (HEX_FIELD_PATTERN.test(keyStr) || val.startsWith("0x")) {
         output[key] = hexify(val) as any;
       }
     }
@@ -232,25 +232,25 @@ export const hasValues = <T extends object>(props: T) => Object.keys(props).leng
 
 /**
  * Delay timer used predominantly for api throttle control;
- * 
+ *
  */
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 /**
  * Formats a value for CSV output, handling strings, numbers, booleans, and dates appropriately.
- * 
+ *
  */
 const formatValue = (val: unknown): string => {
   if (val === null || val === undefined) return '""';
-  
+
   if (val instanceof Uint8Array) return `"${Buffer.from(val).toString("hex")}"`;
 
   // Handle Dates (Standard for Trading History)
   if (val instanceof Date) return `"${val.toISOString()}"`;
-  
+
   // Handle Numbers (Avoid quotes if you want them as numeric in Excel/CSV)
   if (typeof val === "number") return val.toString();
-  
+
   // Handle Booleans
   if (typeof val === "boolean") return val ? "true" : "false";
 
@@ -279,11 +279,7 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
     // Type Guard: Check first element to determine if we need CSV conversion
     if (typeof array[0] === "object") {
       const headers = Object.keys(array[0] as object).join(",");
-      const rows = (array as object[]).map((obj) =>
-        Object.values(obj)
-          .map(formatValue)
-          .join(","),
-      );
+      const rows = (array as object[]).map((obj) => Object.values(obj).map(formatValue).join(","));
       text = [headers, ...rows].join("\n");
     } else {
       // It's a simple array of strings/primitives

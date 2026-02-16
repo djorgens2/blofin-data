@@ -4,9 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -20,14 +21,14 @@ export interface IEnvironment {
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
   console.log("In Environment.Import:", new Date().toLocaleString());
- 
+
   const environments: Array<string> = ["Production", "Development", "Test", "Quality Assurance (QA)"];
   const result = await Promise.all(environments.map(async (environ) => Add({ environ })));
   const exists = result.filter((r) => r.response.code === 200);
   console.log(
     `-> Environment.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new environments;` : `No new environments;`,
-    `${exists.length} environments verified;`
+    `${exists.length} environments verified;`,
   );
 };
 

@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
+import type { IPublishResult, TResponse } from "api";
 import type { IRequest } from "db/interfaces/request";
-import type { IPublishResult, TResponse } from "db/query.utils";
 
 import { Session } from "module/session";
 
@@ -17,10 +17,10 @@ type Accumulator = { verify: Partial<IRequest>[]; expire: Partial<IRequest>[] };
 
 export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
-  
+
   if (!requests) return [];
   console.log(`-> Requests.Pending: Processing ${requests.length} pending orders`);
-  
+
   const expiry = new Date();
   const { verify, expire } = requests.reduce(
     (acc: Accumulator, request) => {
@@ -30,7 +30,7 @@ export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
     {
       verify: [] as Array<Partial<IRequest>>,
       expire: [] as Array<Partial<IRequest>>,
-    }
+    },
   );
 
   const promises = [

@@ -5,10 +5,10 @@
 "use strict";
 
 import type { ISubjectArea } from "db/interfaces/subject_area";
-import type { IPublishResult } from "api/api.util";
+import type { IPublishResult } from "api";
 
 import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api/api.util";
+import { PrimaryKey } from "api";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 

@@ -7,10 +7,11 @@
 import type { IOrder } from "db/interfaces/order";
 import type { TRefKey } from "db/interfaces/reference";
 import type { IRequestState, TRequestState } from "db/interfaces/state";
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
-import { Insert, Update, PrimaryKey } from "db/query.utils";
-import { bufferString, hasValues, isEqual, setExpiry, timeString } from "lib/std.util";
+import { Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api";
+import { hasValues, isEqual, setExpiry } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
 
@@ -66,7 +67,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
           broker_id: props.broker_id?.length ? (props.broker_id === current.broker_id ? undefined : props.broker_id) : undefined,
         };
 
-        const result = await Update(revised, { table: `request`, keys: [{ key: `request` }], context: `Request.Publish.${source}` });
+        const result = await Update(revised, { table: `request`, keys: [[`request`]], context: `Request.Publish.${source}` });
 
         if (result.success || !isEqual(props.expiry_time! || current.expiry_time, current.expiry_time!)) {
           const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
@@ -79,7 +80,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
               expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
               update_time: props.update_time,
             },
-            { table: `request`, keys: [{ key: `request` }], context: `Request.Publish.${source}` },
+            { table: `request`, keys: [[`request`]], context: `Request.Publish.${source}` },
           );
 
           return { key: PrimaryKey(current, [`request`]), response: confirmed };
@@ -204,9 +205,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
   }
 
   const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
-  const search:Partial<IRequest> = props.request
-    ? { request: props.request }
-    : ({ instrument_position, status: open_request ? "Pending" : "Queued" } );
+  const search: Partial<IRequest> = props.request ? { request: props.request } : { instrument_position, status: open_request ? "Pending" : "Queued" };
   const found = await Orders.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
 
   if (!found) {

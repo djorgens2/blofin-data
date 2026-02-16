@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "db/query.utils";
+import type { IPublishResult, TResponse } from "api";
 import type { TRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 
-import { API_POST, ApiError } from "api/api.util";
-import { PrimaryKey } from "db/query.utils";
+import { API_POST, ApiError, PrimaryKey } from "api/api.util";
 import { hexify } from "lib/crypto.util";
 
 import * as Request from "db/interfaces/request";

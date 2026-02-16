@@ -1,10 +1,52 @@
-ts, you showed me a construct earlier I found very useful (pristine):  is there a way I can achieve this:
+To handle the
+IN operator, your parseKeys loop needs a way to expand a single ? into a dynamic list of placeholders (e.g., (?, ?, ?)) based on the length of the array provided. 
+Updated parseKeys with IN Support
+typescript
 
-snippet: export type TOptions = { table?: string; ignore?: boolean; keys: [(keyof T), sign:string]; limit?: number; suffix?: string; connection?: PoolConnection, context?: string }; 
+const parseKeys = <T extends object>(props: Partial<T>, keys?: Array<TKey<T>>) => {
+  const sqlClauses: Array<string> = [];
+  const values: Array<any> = [];
 
-from this current snippet: 
+  for (const [col, val] of Object.entries(props)) {
+    if (val === undefined) continue;
 
-export type TKey = { key: string; sign?: string };
-export type TOptions = { table?: string; ignore?: boolean; keys?: Array<TKey>; limit?: number; suffix?: string; connection?: PoolConnection, context?: string };
+    const match = keys?.find(([k]) => k === col);
+    const sign = (match ? match[1] : "=") || "=";
 
---> I'd need a method to associate the {key, sign} pair and a way to pass in the generic type...
+    // Handle IN clauses with dynamic placeholders
+    if (sign.toUpperCase() === "IN" && Array.isArray(val)) {
+      if (val.length === 0) continue; // MySQL 'IN ()' is a syntax error
+      
+      const placeholders = val.map(() => "?").join(", ");
+      sqlClauses.push(`${col} IN (${placeholders})`);
+      values.push(...val); // Flatten array values into the main args list
+    } 
+    else {
+      // Standard =, LIKE, <, > behavior
+      sqlClauses.push(`${col} ${sign} ?`);
+      values.push(val);
+    }
+  }
+
+  return [sqlClauses, values] as [string[], any[]];
+};
+
+Use code with caution.
+Why this logic is required
+
+    Placeholder Expansion: Standard prepared statements expect exactly one value per ?. For an IN clause, you must manually generate a string of comma-separated ? to match the number of items in your array.
+    Flattening Args: By using values.push(...val), you ensure the individual array items are added as separate arguments in the final args array, matching the number of generated placeholders.
+    Empty Guard: An empty IN () list will cause a 1064 syntax error in MySQL. 
+
+Example Test Case
+typescript
+
+const props = { symbol: ['XRP-USDT', 'BTC-USDT'] };
+const options = { keys: [['symbol', 'IN']] };
+
+const [fields, args] = parseKeys(props, options.keys);
+// fields -> ["symbol IN (?, ?)"]
+// args   -> ["XRP-USDT", "BTC-USDT"]
+
+Use code with caution.
+Ready to try the IN test, or should we add a check for null values to generate IS NULL automatically?

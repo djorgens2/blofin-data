@@ -93,7 +93,7 @@ export const setAccount = async (props: any) => {
         ...api,
         ...secret,
         ...phrase,
-      }
+      },
     );
   }
 };
@@ -116,7 +116,7 @@ export const accountSelect = async () => {
       available: 20,
       colBuffer: 5,
     },
-    accounts!
+    accounts!,
   );
 
   console.log(
@@ -127,7 +127,7 @@ export const accountSelect = async () => {
       `${bold("Status".padEnd(keylen.status, " "))}` +
       `${bold("Currency".padEnd(keylen.account_currency, " "))}` +
       `${bold("Balance".padStart(keylen.balance, " "))}` +
-      `${bold("Available".padStart(keylen.available, " "))}`
+      `${bold("Available".padStart(keylen.available, " "))}`,
   );
 
   if (accounts) {
@@ -141,8 +141,8 @@ export const accountSelect = async () => {
           account.status === "Enabled"
             ? cyan(account.status!.padEnd(keylen.status, " "))
             : account.status === "Disabled"
-            ? red(account.status!.padEnd(keylen.status, " "))
-            : yellow(account.status!.padEnd(keylen.status, " "))
+              ? red(account.status!.padEnd(keylen.status, " "))
+              : yellow(account.status!.padEnd(keylen.status, " "))
         }` +
         `${gray((account.account_currency ? account.account_currency : "Pending").padEnd(keylen.account_currency, " "))}` +
         `${gray(formatterUSD.format(account.balance || 0).padStart(keylen.balance, " "))}` +
@@ -171,7 +171,7 @@ export const symbolSelect = async (alias: string) => {
 
   const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
     { alias, symbol: undefined, environ: undefined },
-    { table: `vw_instrument_positions`, keys: [{ key: `alias` }], suffix: `ORDER BY SYMBOL` }
+    { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
   );
 
   const keylen = await getLengths<IInstrumentPosition>(
@@ -181,20 +181,20 @@ export const symbolSelect = async (alias: string) => {
       symbol: 12,
       colBuffer: 5,
     },
-    authorized!
+    authorized!,
   );
 
   console.log(
     `\n    ` +
       `${bold("Account".padEnd(keylen.alias, " "))}` +
       `${bold("Environment".padEnd(keylen.environ, " "))}` +
-      `${bold("Symbol".padEnd(keylen.symbol, " "))}`
+      `${bold("Symbol".padEnd(keylen.symbol, " "))}`,
   );
 
-  if (authorized) {
+  if (authorized.length) {
     const choices = authorized.map((i) => ({
       title:
-        `${gray(i.alias!.padEnd(keylen.alias, " "))}` + `${gray(i.environ!.padEnd(keylen.environ, " "))}` + `${gray(i.symbol!.padEnd(keylen.symbol, " "))}`,
+        `${gray(alias.padEnd(keylen.alias, " "))}` + `${gray(i.environ!.padEnd(keylen.environ, " "))}` + `${gray(i.symbol!.padEnd(keylen.symbol, " "))}`,
       value: i.symbol,
     }));
 
@@ -224,22 +224,24 @@ export const instrumentSelect = async (alias: string, symbol: string) => {
       alias: 24,
       environ: 20,
       symbol: 12,
+      position: 12,
       colBuffer: 5,
     },
-    positions!
+    positions!,
   );
 
   console.log(
     `\n    ` +
       `${bold("Account".padEnd(keylen.alias, " "))}` +
       `${bold("Environment".padEnd(keylen.environ, " "))}` +
-      `${bold("Symbol".padEnd(keylen.symbol, " "))}`
+      `${bold("Symbol".padEnd(keylen.symbol, " "))}`,
+      `${bold("Position".padEnd(keylen.position, " "))}`,
   );
 
   if (positions) {
     const choices = positions.map((i) => ({
       title:
-        `${gray(i.alias!.padEnd(keylen.alias, " "))}` + `${gray(i.environ!.padEnd(keylen.environ, " "))}` + `${gray(i.symbol!.padEnd(keylen.symbol, " "))}`,
+        `${gray(alias.padEnd(keylen.alias, " "))}` + `${gray(i.environ!.padEnd(keylen.environ, " "))}` + `${gray(symbol.padEnd(keylen.symbol, " "))}`+ `${gray(i.position!.padEnd(keylen.position, " "))}`,
       value: i.symbol,
     }));
 

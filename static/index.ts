@@ -1,7 +1,7 @@
 "use strict";
 "use client";
 
-import { createChart, ColorType, CandlestickSeries } from "lightweight-charts";
+import type {  createChart, ColorType, CandlestickSeries  } "lightweight-charts";
 
 const chartProperties = {
   width: 1500,

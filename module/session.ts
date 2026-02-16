@@ -12,10 +12,8 @@ import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
 import { Select } from "db/query.utils";
 
-import * as PositionsAPI from "api/positions";
-import * as AccountAPI from "api/accounts";
-import * as OrderAPI from "api/orders";
-import * as Accounts from "db/interfaces/account";
+import { Positions, Accounts, Orders } from "api";
+import * as Account from "db/interfaces/account";
 import * as Execute from "module/trades";
 
 interface ILogConfig {
@@ -126,7 +124,7 @@ const parseEnvAccounts = (envVar: string | undefined): Array<Partial<ISession>> 
 //| configures environment/application/globals on session opened with supplied keys;     |
 //+--------------------------------------------------------------------------------------+
 export const config = async (props: Partial<IAccount>, symbol: string) => {
-  const [accountConfig, sessionConfig] = await Promise.all([await Accounts.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
+  const [accountConfig, sessionConfig] = await Promise.all([await Account.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
 
   if (!accountConfig || !sessionConfig?.length) {
     console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");
@@ -150,7 +148,7 @@ export const config = async (props: Partial<IAccount>, symbol: string) => {
       audit_stops: "0",
     });
     console.log(`[Info] Session.Config: ${alias}/${symbol} configured successfully`);
-    console.error("Session:",Session().Log());
+    console.error("Session:", Session().Log());
   } else {
     console.warn(`[Error] Session.Config: Configuration failed; ${alias}/${symbol} not found`);
     process.exit(1);
@@ -243,9 +241,9 @@ export const openWebSocket = () => {
     } else if (message!.event === "subscribe") {
       console.log("Subscriptions:", message!.arg);
     } else if (message!.arg?.channel) {
-      message!.arg.channel === "account" && AccountAPI.Publish(message!.data);
-      message!.arg.channel === "orders" && OrderAPI.Publish("WSS", message!.data);
-      message!.arg.channel === "positions" && PositionsAPI.Publish(message!.data);
+      message!.arg.channel === "account" && Accounts.Publish(message!.data);
+      message!.arg.channel === "orders" && Orders.Publish("WSS", message!.data);
+      message!.arg.channel === "positions" && Positions.Publish(message!.data);
     } else console.log("Unhandled message:", message!, Session());
   };
 

@@ -4,9 +4,10 @@
 //+----------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
+import { PrimaryKey } from "api";
 
-import { Select, Insert, PrimaryKey, Update } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -35,11 +36,14 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
             instrument_type: current.instrument_type,
             description: props.description ? (props.description === current.description ? undefined : props.description) : undefined,
           };
-          const result = await Update<IInstrumentType>(revised, { table: `instrument_type`, keys: [{ key: `instrument_type` }] });
+          const result = await Update<IInstrumentType>(revised, { table: `instrument_type`, keys: [[`instrument_type`]] });
           return { key: PrimaryKey(current, ["instrument_type"]), response: result };
         }
       }
-      return { key: PrimaryKey({instrument_type: exists}, ["instrument_type"]), response: { success: true, code: 201, response: `exists`, rows: 0, context: "Instrument.Type.Publish" } };
+      return {
+        key: PrimaryKey({ instrument_type: exists }, ["instrument_type"]),
+        response: { success: true, code: 201, response: `exists`, rows: 0, context: "Instrument.Type.Publish" },
+      };
     } else {
       const missing = {
         instrument_type: hashKey(6),

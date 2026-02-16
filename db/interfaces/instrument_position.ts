@@ -5,9 +5,11 @@
 "use strict";
 
 import type { TPositionState, TSystem } from "db/interfaces/state";
-import type { IPublishResult, TResponse } from "db/query.utils";
+import type { IPublishResult } from "api";
+import type { TOptions } from "db/query.utils";
 
-import { Select, Update, Insert, TOptions, PrimaryKey } from "db/query.utils";
+import { Select, Update, Insert } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hasValues, isEqual } from "lib/std.util";
 import { hashKey } from "lib/crypto.util";
 import { Session } from "module/session";
@@ -91,18 +93,18 @@ export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPub
       strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
       close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
     };
-    const result = await Update(revised, { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" });
+    const result = await Update(revised, { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" });
 
     if (result.success) {
       const confirm = await Update(
         { instrument_position: current.instrument_position, update_time: props.update_time || new Date() },
-        { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" }
+        { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" },
       );
       return { key: PrimaryKey(revised, ["instrument_position"]), response: confirm };
     }
     return { key: PrimaryKey(revised, ["instrument_position"]), response: result };
   }
-  
+
   const instrument_position = hashKey(12);
   const account = Session().account;
   const instrument = props.instrument || (await Instrument.Key({ symbol: props.symbol }));
@@ -123,14 +125,17 @@ export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPub
     update_time: props.update_time || new Date(),
     close_time: props.close_time || new Date(),
   };
-  const result = await Insert(missing, { table: `instrument_position`, keys: [{ key: `instrument_position` }], context: "Instrument.Position.Publish" });
+  const result = await Insert(missing, { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" });
   return { key: PrimaryKey(missing, ["instrument_position"]), response: result };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Fetches instrument position data from local db meeting props criteria;               |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async (props: Partial<IInstrumentPosition>, options?: TOptions): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
+export const Fetch = async (
+  props: Partial<IInstrumentPosition>,
+  options?: TOptions<IInstrumentPosition>,
+): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
   const result = await Select<IInstrumentPosition>(props, { ...options, table: `vw_instrument_positions` });
   return result.length ? result : undefined;
 };

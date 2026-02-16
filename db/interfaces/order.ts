@@ -6,10 +6,11 @@
 
 import type { IRequest } from "db/interfaces/request";
 import type { TRefKey } from "db/interfaces/reference";
-import type { IPublishResult } from "api/api.util";
+import type { IPublishResult } from "api";
+import type { TOptions } from "db/query.utils";
 
-import { PrimaryKey } from "api/api.util";
-import { Select, Insert, Update, TOptions, TKey } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hasValues, isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
@@ -103,7 +104,8 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
 //| Fetches requests from local db that meet props criteria;                             |
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
-  Object.assign(props, { account: props.account || Session().account });
+  props.account = props.account || Session().account;
+  console.log("Query Props:", props);
   const result = await Select<IOrder>(props, { ...options, table: `vw_orders` });
   return result.length ? result : undefined;
 };

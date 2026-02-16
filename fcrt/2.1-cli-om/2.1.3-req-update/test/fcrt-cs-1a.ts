@@ -1,9 +1,10 @@
 //----------------------------- order test  -------------------------------------------------------//
 import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult } from "api";
 
 import { Session, setSession } from "module/session";
 import { hexify } from "lib/crypto.util";
-import { IPublishResult, Select } from "db/query.utils";
+import { Select } from "db/query.utils";
 
 import * as IPos from "db/interfaces/instrument_position";
 import * as Requests from "db/interfaces/request";
@@ -40,7 +41,11 @@ if (cli_account && cli_test) {
     if (cli_test === "1a") {
       if (valid.length === 0) {
         const submitted = await Requests.Submit({ ...Request.req_fcrt_1a, memo: `Test ${cli_test}: Starting Order: Results in Rejected status` });
-        console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1a]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1a });
+        console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1a]`, {
+          account: Session().account,
+          instrument_position,
+          ...Request.req_fcrt_1a,
+        });
         return [submitted, { ...Request.req_fcrt_1a, memo: `Test ${cli_test}: Starting Order: Results in Rejected status` }];
       }
       throw new Error(`[Error] No Order: Test ${cli_test} failed; Active request exists for this instrument;`);
@@ -56,10 +61,16 @@ if (cli_account && cli_test) {
             memo: `Test ${cli_test}: Correcting Order: Clears Rejected status; resubmitted`,
             update_time: new Date(),
           });
-          console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1b]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1b });
+          console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1b]`, {
+            account: Session().account,
+            instrument_position,
+            ...Request.req_fcrt_1b,
+          });
           return [submitted, Request.req_fcrt_1b];
         }
-        throw new Error(`[Error] No Order: Test ${cli_test} failed; Rejected request does not exist for [${Request.req_fcrt_1a.symbol}/${Request.req_fcrt_1a.position}];`);
+        throw new Error(
+          `[Error] No Order: Test ${cli_test} failed; Rejected request does not exist for [${Request.req_fcrt_1a.symbol}/${Request.req_fcrt_1a.position}];`,
+        );
       }
       if (cli_test === "1c") {
         const request = await Orders.Fetch({ status: "Pending" });
@@ -71,7 +82,11 @@ if (cli_account && cli_test) {
             memo: `Test ${cli_test}: Reduction Order: Updated to hold;`,
             update_time: new Date(),
           });
-          console.log(`[Info] Request.Submit: submitting request [Request.req_fcrt_1c]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1c });
+          console.log(`[Info] Request.Submit: submitting request [Request.req_fcrt_1c]`, {
+            account: Session().account,
+            instrument_position,
+            ...Request.req_fcrt_1c,
+          });
           return [submitted, Request.req_fcrt_1c];
         }
         throw new Error(`[Error] No Order: Test ${cli_test} failed; request does not exist for this instrument;`);
@@ -86,14 +101,20 @@ if (cli_account && cli_test) {
             memo: `Test ${cli_test}: Updating Order: setting expiry to 1m;`,
             update_time: new Date(),
           });
-          console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1d]`, { account: Session().account, instrument_position, ...Request.req_fcrt_1d});
+          console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1d]`, {
+            account: Session().account,
+            instrument_position,
+            ...Request.req_fcrt_1d,
+          });
           return [submitted, Request.req_fcrt_1d];
         }
         throw new Error(`[Error] No Order: Test ${cli_test} failed; request does not exist for this instrument;`);
       }
       throw new Error(`[Error] Invalid Test: ${cli_test} does not exist;`);
     }
-    throw new Error(`[Error] Existing Order Found: Only One (1) order for [${Request.req_fcrt_1a.symbol}/${Request.req_fcrt_1a.position}] is permitted for test ${cli_test};`);
+    throw new Error(
+      `[Error] Existing Order Found: Only One (1) order for [${Request.req_fcrt_1a.symbol}/${Request.req_fcrt_1a.position}] is permitted for test ${cli_test};`,
+    );
   };
 
   console.log(`Test ${cli_test}: request reject on size, resub, then edit and resub`);

@@ -6,14 +6,15 @@
 
 import type { ISession } from "module/session";
 import type { IAccess, TAccess } from "db/interfaces/state";
-import type { IPublishResult, TResponse } from "api/api.util";
-import { PrimaryKey } from "api/api.util";
+import type { IPublishResult, TResponse } from "api";
+
+import UserToken, { setUserToken } from "cli/interfaces/user";
 
 import { Select, Insert, Update } from "db/query.utils";
 import { hashHmac } from "lib/crypto.util";
+import { PrimaryKey } from "api";
 import { isEqual } from "lib/std.util";
 import { Session } from "module/session";
-import UserToken, { setUserToken } from "cli/interfaces/user";
 
 import * as States from "db/interfaces/state";
 import * as Users from "db/interfaces/user";
@@ -123,7 +124,7 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
       public_wss_url: props.public_wss_url,
     };
     const result = await Insert<IAccount>(account, { table: `account` });
-    return { key: PrimaryKey({ account: hash }, ["account"]), response: result };
+    return { key: PrimaryKey(account, ["account"]), response: result };
   }
   setUserToken({ error: 315, message: `Invalid session credentials.` });
   return { key: undefined, response: { success: false, code: 315, response: `error`, rows: 0, context: "Account.Add" } };

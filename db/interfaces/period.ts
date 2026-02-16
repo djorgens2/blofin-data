@@ -4,9 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "db/query.utils";
+import type { IPublishResult } from "api";
 
-import { Select, Insert, PrimaryKey } from "db/query.utils";
+import { Select, Insert } from "db/query.utils";
+import { PrimaryKey } from "api";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -46,7 +47,7 @@ export const Import = async () => {
   console.log(
     `-> Period.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new periods;` : `No new periods;`,
-    `${exists.length} periods verified;`
+    `${exists.length} periods verified;`,
   );
 };
 

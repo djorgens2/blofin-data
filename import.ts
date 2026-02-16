@@ -5,8 +5,9 @@
 "use strict";
 
 import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IMessage } from "lib/app.util";
 
-import { clear, IMessage } from "lib/app.util";
+import { clear } from "lib/app.util";
 import { hexify } from "lib/crypto.util";
 import { Session, config } from "module/session";
 
@@ -22,9 +23,7 @@ import * as State from "db/interfaces/state";
 import * as SubjectAreas from "db/interfaces/subject_area";
 import * as Roles from "db/interfaces/role";
 
-import * as CandleAPI from "api/candles";
-import * as InstrumentAPI from "api/instruments";
-import * as InstrumentPositionAPI from "api/instrumentPositions";
+import { Candles, Instruments, InstrumentPositions } from "api";
 import * as db from "db/query.utils";
 
 //+--------------------------------------------------------------------------------------+
@@ -41,13 +40,13 @@ export const Import = async () => {
   await Roles.Import();
   await State.Import();
   await RoleAuthority.Import({ status: `Enabled` });
-  await InstrumentAPI.Import();
-  await InstrumentPositionAPI.Import();
+  await Instruments.Import();
+  await InstrumentPositions.Import();
   await InstrumentPeriod.Import();
 
   const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
     { account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
-    { table: `vw_instrument_positions`, keys: [{ key: `account` }, { key: `auto_status` }] }
+    { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
   );
 
   console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));
@@ -61,7 +60,7 @@ export const Import = async () => {
 
       console.log("In App.Loader for ", { symbol, timeframe, startTime }, "start: ", new Date().toLocaleString());
 
-      return CandleAPI.Import(message, { symbol, timeframe, startTime });
+      return Candles.Import(message, { symbol, timeframe, startTime });
     }
   });
   const published = await Promise.all(promises);
@@ -77,12 +76,13 @@ export const Import = async () => {
   //-------------------------------- candles Import ---------------------------------------//
   const importCandles = async () => {
     const promises = authorized.map(async (instrument) => {
-    const { symbol, timeframe } = instrument;
+      const { symbol, timeframe } = instrument;
 
-    if (symbol && timeframe) {
-      const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
-      return CandleAPI.Publish(clear(message));
-    }});
+      if (symbol && timeframe) {
+        const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
+        return Candles.Publish(clear(message));
+      }
+    });
     const published = await Promise.all(promises);
 
     if (published) {
@@ -104,7 +104,7 @@ export const Import = async () => {
 };
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-config({ account }).then(() => {
+config({ account }, "import").then(() => {
   console.log(Session().Log(true));
   Import();
 });

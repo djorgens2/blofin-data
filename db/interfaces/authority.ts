@@ -4,10 +4,10 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api/api.util";
+import type { IPublishResult } from "api";
 
 import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api/api.util";
+import { PrimaryKey } from "api";
 import { hashKey } from "lib/crypto.util";
 import { hasValues } from "lib/std.util";
 
@@ -29,7 +29,7 @@ export const Import = async () => {
   console.log(
     `-> Authority.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new privileges;` : `No new privileges;`,
-    `${exists.length} privileges verified;`
+    `${exists.length} privileges verified;`,
   );
 };
 

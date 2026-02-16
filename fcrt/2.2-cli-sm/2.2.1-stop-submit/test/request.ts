@@ -1,5 +1,5 @@
-import { IRequest } from "db/interfaces/request";
-import { IStopRequest } from "db/interfaces/stop_request";
+import type { IRequest } from "db/interfaces/request";
+import type { IStopRequest } from "db/interfaces/stop_request";
 
 //-- Test 2a: submit stop loss request without order --//
 export const req_fcrt_2a: Partial<IStopRequest> = {

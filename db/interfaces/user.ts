@@ -5,8 +5,9 @@
 "use strict";
 
 import type { TAccess, IAccess } from "db/interfaces/state";
+import type { TResponse } from "api";
 
-import { Select, Insert, Update, TResponse } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { hashKey, hashPassword } from "lib/crypto.util";
 import { hasValues, isEqual } from "lib/std.util";
 
@@ -64,7 +65,7 @@ export const Modify = async (props: Partial<IUser>): Promise<TResponse> => {
         state: state && isEqual(state, current.state!) ? undefined : state,
         image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
       };
-      return await Update(revised, { table: `user`, keys: [{ key: `user` }], context: "User.Modify" });
+      return await Update(revised, { table: `user`, keys: [[`user`]], context: "User.Modify" });
     } else return { success: false, code: 404, response: `not_found`, rows: 0, context: "User.Modify" };
   } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "User.Modify" };
 };
@@ -88,7 +89,7 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
       state: props.state || (await States.Key({ status: props.status })) || (await States.Key<IAccess>({ status: "Disabled" })),
       image_url: props.image_url || "./images/user/no-image.png",
     };
-    const result = await Insert<IUser>(add, { table: `user`, context: "User.Add"  });
+    const result = await Insert<IUser>(add, { table: `user`, context: "User.Add" });
 
     return result.success ? add.user : undefined;
   } else return undefined;

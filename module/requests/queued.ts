@@ -4,16 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "api/requests";
+import type { IRequestAPI } from "api";
 import type { IRequest } from "db/interfaces/request";
 
 import { hexify } from "lib/crypto.util";
-import { Select, Summary } from "db/query.utils";
+import { Select } from "db/query.utils";
 import { Session } from "module/session";
 
 import * as Leverage from "db/interfaces/leverage";
 import * as Request from "db/interfaces/request";
-import * as RequestAPI from "api/requests";
+import * as API from "api/interfaces/requests";
 
 //-- [Process.Orders] Submit local requests to the API
 type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequest>[] };
@@ -52,6 +52,6 @@ export const Queued = async () => {
   console.log(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
   console.error(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
 
-  const submitted = await RequestAPI.Submit(queue);
-  return Summary([...expired, ...leverage, ...submitted].map((r) => r?.response));
+  const submitted = await API.Submit(queue);
+  return [...expired, ...leverage, ...submitted].map((r) => r?.response);
 };

@@ -5,7 +5,7 @@ import { hexify } from "lib/crypto.util";
 import * as Import from "app/import";
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-config({ account })
+config({ account }, `Import`)
   .then(async () => {
     console.log(Session().Log(true));
   })

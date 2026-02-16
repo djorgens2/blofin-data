@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { IOption } from "cli/modules/Prompts";
-import { Answers } from "prompts";
+import Prompt, { type IOption } from "cli/modules/Prompts";
+import type { Answers } from "prompts";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves environment assignments in prompt format;                                  |

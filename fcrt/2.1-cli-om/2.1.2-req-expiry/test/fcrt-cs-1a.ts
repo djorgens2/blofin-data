@@ -1,5 +1,6 @@
 //----------------------------- order test  -------------------------------------------------------//
 import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult } from "api";
 
 import { config, Session } from "module/session";
 import { hexify } from "lib/crypto.util";
@@ -7,7 +8,6 @@ import { req_fcrt_1a } from "./request";
 
 import * as Requests from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";
-import { IPublishResult } from "db/query.utils";
 
 
 const [cli_account, cli_test] = process.argv.slice(2);
@@ -15,7 +15,7 @@ const [cli_account, cli_test] = process.argv.slice(2);
 if (cli_account && cli_test) {
   
   const submit = async (request: Partial<IRequest>): Promise<[IPublishResult<IRequest>, Partial<IRequest>]> => {
-    await config({ account: hexify(cli_account) });
+    await config({ account: hexify(cli_account)}, request.symbol! );
     console.log(`-> Test ${cli_test}: Using Account:`, Session());
 
     const submitted = await Requests.Submit(request);

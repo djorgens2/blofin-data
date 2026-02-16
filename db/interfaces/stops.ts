@@ -6,10 +6,10 @@
 
 import type { TRequestState, TPositionState } from "db/interfaces/state";
 import type { IStopRequest } from "db/interfaces/stop_request";
-import type { IPublishResult } from "api/api.util";
-import type { IStopsAPI } from "api/stops";
+import type { IPublishResult, IStopsAPI } from "api";
+import type { TOptions } from "db/query.utils";
 
-import { Select, Insert, Update, TOptions } from "db/query.utils";
+import { Select, Insert, Update } from "db/query.utils";
 import { PrimaryKey } from "api/api.util";
 import { Session } from "module/session";
 import { hasValues, isEqual } from "lib/std.util";

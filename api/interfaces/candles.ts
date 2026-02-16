@@ -111,7 +111,7 @@ const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
         }
         return acc;
       },
-      { inserts: [] as Array<Partial<ICandle>>, updates: [] as Array<Partial<ICandle>> }
+      { inserts: [] as Array<Partial<ICandle>>, updates: [] as Array<Partial<ICandle>> },
     );
 
     return {
@@ -128,7 +128,7 @@ const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
 export const Publish = async (message: IMessage) => {
   const instrument = await Select<IInstrumentCandle>(
     { account: Session().account, symbol: message.symbol, timeframe: message.timeframe },
-    { table: "vw_instrument_candles" }
+    { table: "vw_instrument_candles" },
   );
 
   if (instrument.length) {

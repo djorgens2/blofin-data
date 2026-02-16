@@ -4,23 +4,22 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { IPublishResult, TResponse } from "db/query.utils";
-import { IOrderAPI } from "api/orders";
-import { IOrder } from "db/interfaces/order";
-import { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse, IOrderAPI } from "api";
+import type { IOrder } from "db/interfaces/order";
+import type { IRequest } from "db/interfaces/request";
 
 import { hexString } from "lib/std.util";
 import { Session } from "module/session";
 
-import * as RequestAPI from "api/requests";
-import * as Orders from "db/interfaces/order";
-import * as Requests from "db/interfaces/request";
+import * as API from "api/interfaces/requests";
+import * as Order from "db/interfaces/order";
+import * as Request from "db/interfaces/request";
 
 //-- [Process.Orders] Submit Cancel requests to the API for orders in canceled state
 type Accumulator = { cancel: Partial<IOrderAPI>[]; closure: Partial<IOrder>[] };
 
 export const Canceled = async (): Promise<Array<IPublishResult<IRequest>>> => {
-  const orders = await Orders.Fetch({ status: "Canceled", account: Session().account });
+  const orders = await Order.Fetch({ status: "Canceled", account: Session().account });
 
   if (!orders) return [];
   console.log(`-> Requests.Canceled: Processing ${orders.length} canceled orders`);
@@ -37,14 +36,14 @@ export const Canceled = async (): Promise<Array<IPublishResult<IRequest>>> => {
 
   const promises = [
     ...closure.map(async (request) => {
-      const result = await Requests.Submit({ ...request, update_time: new Date() });
+      const result = await Request.Submit({ ...request, update_time: new Date() });
       result.response.outcome = "closed";
       return result;
     }),
 
     (async () => {
       if (cancel.length === 0) return [];
-      const cancels = await RequestAPI.Cancel(cancel);
+      const cancels = await API.Cancel(cancel);
 
       return cancels.map((c) => ({
         ...c,

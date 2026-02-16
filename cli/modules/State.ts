@@ -1,11 +1,11 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                             State.ts |
+//|                                                                      [cli]  State.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
 import type { TStates, IState } from "db/interfaces/state";
-import Prompt, { IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "cli/modules/Prompts";
 import { isEqual } from "lib/std.util";
 
 import * as States from "db/interfaces/state";

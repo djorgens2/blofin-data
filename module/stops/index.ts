@@ -1,5 +1,5 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                    [stops]  index.ts |
+//|                                                                     [tpsl]  index.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
@@ -12,7 +12,7 @@ import { Rejected } from "module/stops/rejected";
 import { Report } from "module/stops/report";
 
 //-- Stops namespace declaration
-export const Stops = {
+export const TPSL = {
   Hold,
   Queued,
   Pending,

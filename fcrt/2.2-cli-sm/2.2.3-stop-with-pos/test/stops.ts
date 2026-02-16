@@ -1,4 +1,4 @@
-import { IStopRequest } from "db/interfaces/stop_request";
+import type { IStopRequest } from "db/interfaces/stop_request";
 
 //-- Test 2b: submit stop loss with position --//
 export const req_fcrt_2b: Array<Partial<IStopRequest>> = [
@@ -8,8 +8,8 @@ export const req_fcrt_2b: Array<Partial<IStopRequest>> = [
     action: "sell",
     stop_request_type: "tp",
     size: 500,
-    trigger_price: 2.5800,
-    order_price: 2.58500,
+    trigger_price: 2.58,
+    order_price: 2.585,
   },
   {
     symbol: "XRP-USDT",
@@ -17,8 +17,8 @@ export const req_fcrt_2b: Array<Partial<IStopRequest>> = [
     action: "sell",
     stop_request_type: "sl",
     size: 500,
-    trigger_price: 2.3180,
-    order_price: 2.3220,
+    trigger_price: 2.318,
+    order_price: 2.322,
   },
 ];
 
