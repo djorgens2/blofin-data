@@ -12,7 +12,7 @@ import type { IPublishResult, IRequestAPI } from "api";
 import { Session, setSession } from "module/session";
 import { delay, format, hexString } from "lib/std.util";
 import { hexify } from "lib/crypto.util";
-import { API_GET, ApiError } from "api";
+import { API_GET, ApiError, isApiError } from "api";
 
 import * as Requests from "db/interfaces/request";
 import * as Orders from "db/interfaces/order";

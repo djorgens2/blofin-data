@@ -23,6 +23,7 @@
       "api/*": ["./api/*"],
       "app/*": ["./app/*"],
       "db/*": ["./db/*"],
+      "db": ["./db/index.ts"],
       "lib/*": ["./lib/*"],
       "module/*": ["./module/*"],
       "cli/*": ["./cli/*"],

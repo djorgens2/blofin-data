@@ -1,38 +1,27 @@
-[Info] Session.Config: Blofin Demo configured successfully
->> [Info] Application.Initialization start: 1/23/2026, 4:34:26 PM
--> Active Session: {
-  candle_max_fetch: 1440,
-  leverage_max_fetch: 20,
-  orders_max_fetch: 100,
-  default_sma: 60,
-  default_leverage: 10,
-  alias: 'Blofin Demo',
-  api: '740ca668a6d34933b9534d805e18adc1',
-  secret: '732f894dd0f6476083dd7bd11bf04198',
-  phrase: 'development_api_key',
-  rest_api_url: 'https://demo-trading-openapi.blofin.com',
-  private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
-  public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
-  account: <Buffer 24 59 7a>,
-  margin_mode: 'cross',
-  hedging: 1,
-  state: 'disconnected',
-  audit_order: '0',
-  audit_stops: '0'
+[Info] Session.Config: Blofin Demo/Start configured successfully
+[Info] Application.Initialization start: 2/16/2026, 10:57:07 AM
+-> Active.Session: { account: '****' }
+-> Log.Config: {
+  select: false,
+  update: true,
+  insert: true,
+  delete: false,
+  account: false,
+  errors: false
 }
-In Subject.Area.Import: 1/23/2026, 4:34:26 PM
+In Subject.Area.Import: 2/16/2026, 10:57:07 AM
 -> Subject.Area.Import complete: No new areas; 5 areas verified;
-In Activity.Import: 1/23/2026, 4:34:26 PM
+In Activity.Import: 2/16/2026, 10:57:07 AM
 -> Activity.Import complete: No new activities; 8 activities verified;
-In Authority.Import: 1/23/2026, 4:34:26 PM
+In Authority.Import: 2/16/2026, 10:57:07 AM
 -> Authority.Import complete: No new privileges; 6 privileges verified;
-In Broker.Import: 1/23/2026, 4:34:26 PM
+In Broker.Import: 2/16/2026, 10:57:07 AM
 -> Broker.Import complete: No new brokers; 1 brokers verified;
-In Environment.Import: 1/23/2026, 4:34:26 PM
+In Environment.Import: 2/16/2026, 10:57:07 AM
 -> Environment.Import complete: No new environments; 4 environments verified;
-In Period.Import: 1/23/2026, 4:34:26 PM
+In Period.Import: 2/16/2026, 10:57:07 AM
 -> Period.Import complete: No new periods; 15 periods verified;
-In Reference.Import: 1/23/2026, 4:34:27 PM
+In Reference.Import: 2/16/2026, 10:57:07 AM
    # Order State imports:  7 verified
    # Request Type imports:  6 verified
    # Cancel Source imports:  3 verified
@@ -42,1737 +31,1717 @@ In Reference.Import: 1/23/2026, 4:34:27 PM
    # Stop Type imports:  2 verified
    # Position imports:  3 verified
    # Order Category imports:  6 verified
-In Role.Import: 1/23/2026, 4:34:27 PM
+In Role.Import: 2/16/2026, 10:57:07 AM
 -> Role.Import complete: No new roles; 4 roles verified;
-In State.Import: 1/23/2026, 4:34:27 PM
+In State.Import: 2/16/2026, 10:57:08 AM
 -> State.Import complete: No new states; 15 states verified;
-In Instruments.Import [API]: 1/23/2026, 4:34:27 PM
--> Instrument.Publish [API]
--> Instrument.Suspense: Found 0 instruments to suspend
--> Instruments.Fetch [API]: 1/23/2026, 4:34:27 PM
--> Instrument.Position.Import [API]
-In Position.Import [API] 1/23/2026, 4:34:28 PM
+In Instruments.Import [API]: 2/16/2026, 10:57:08 AM
+In Position.Import [API] 2/16/2026, 10:57:08 AM
+In Orders.Import [API]
 -> Imports Authorized: AR-USDT,AR-USDT,AVAX-USDT,BTC-USDT,ADA-USDT,XRP-USDT,DOGE-USDT,ONDO-USDT
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '1H', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'AR-USDT', timeframe: '30m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'AVAX-USDT', timeframe: '1H', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'BTC-USDT', timeframe: '15m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'ADA-USDT', timeframe: '15m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'XRP-USDT', timeframe: '15m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'DOGE-USDT', timeframe: '15m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+In App.Loader for  { symbol: 'ONDO-USDT', timeframe: '15m', startTime: 0 } start:  2/16/2026, 10:57:08 AM
+Loader start for AR-USDT after 0 on 2026-02-16T18:57:08.505Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for XRP-USDT after 0 on 2026-02-16T18:57:08.507Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for XRP-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for DOGE-USDT after 0 on 2026-02-16T18:57:08.508Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for DOGE-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AVAX-USDT after 0 on 2026-02-16T18:57:08.510Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for AVAX-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for ADA-USDT after 0 on 2026-02-16T18:57:08.511Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for ADA-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for AR-USDT after 0 on 2026-02-16T18:57:08.512Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for AR-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for BTC-USDT after 0 on 2026-02-16T18:57:08.512Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for BTC-USDT after [0,1970-01-01T00:00:00.000Z]
+Loader start for ONDO-USDT after 0 on 2026-02-16T18:57:08.513Z
+-> [Info] Session.Config: {
+  account: <Buffer 24 59 7a>,
+  alias: 'Blofin Demo',
+  candle_max_fetch: 1440
+}
+Fetching candles for ONDO-USDT after [0,1970-01-01T00:00:00.000Z]
+-> Instrument.Publish [API]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+-> Instrument.Suspense: Found 0 instruments to suspend
+-> Instruments.Fetch [API]: 2/16/2026, 10:57:09 AM
 updated -> [Info] candle updated {
   filters: {
     instrument: <Buffer 4d 38 93>,
     period: <Buffer 28 17 01>,
-    timestamp: 1769212800000
-  },
-  columns: { volume: 4824, vol_currency: 4824.3, vol_currency_quote: 58504.771 }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 34 01 a2>,
-    period: <Buffer 28 17 01>,
-    timestamp: 1769212800000
+    timestamp: 1771264800000
   },
   columns: {
-    low: 3.521,
-    close: 3.528,
-    volume: 671,
-    vol_currency: 67.1,
-    vol_currency_quote: 237.118
-  }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 94 99 63>,
-    period: <Buffer 03 e8 0e>,
-    timestamp: 1769213700000
-  },
-  columns: {
-    low: 0.3592,
-    close: 0.3592,
-    volume: 385,
-    vol_currency: 38553,
-    vol_currency_quote: 13876.397,
-    completed: true
-  }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer dd 63 0b>,
-    period: <Buffer 03 e8 0e>,
-    timestamp: 1769213700000
-  },
-  columns: {
-    low: 0.3454,
-    close: 0.3454,
-    volume: 1273681,
-    vol_currency: 127368.1,
-    vol_currency_quote: 44057.68918,
-    completed: true
-  }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 34 01 a2>,
-    period: <Buffer 76 3c 11>,
-    timestamp: 1769212800000
-  },
-  columns: {
-    low: 3.521,
-    close: 3.521,
-    volume: 601,
-    vol_currency: 60.1,
-    vol_currency_quote: 212.4334,
-    completed: true
-  }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer a2 80 0a>,
-    period: <Buffer 03 e8 0e>,
-    timestamp: 1769213700000
-  },
-  columns: {
-    close: 1.9182,
-    volume: 596,
-    vol_currency: 59699,
-    vol_currency_quote: 114573.0298,
-    completed: true
-  }
-}
-updated -> [Info] candle updated {
-  filters: {
-    instrument: <Buffer 6b 57 71>,
-    period: <Buffer 03 e8 0e>,
-    timestamp: 1769213700000
-  },
-  columns: {
-    low: 89403.4,
-    close: 89403.4,
-    volume: 8234,
-    vol_currency: 8.2341,
-    vol_currency_quote: 736943.26601,
-    completed: true
+    close: 9.13,
+    volume: 6822,
+    vol_currency: 6822.6,
+    vol_currency_quote: 62477.0187
   }
 }
 updated -> [Info] candle updated {
   filters: {
     instrument: <Buffer d4 45 2e>,
     period: <Buffer 03 e8 0e>,
-    timestamp: 1769213700000
+    timestamp: 1771267500000
   },
   columns: {
-    close: 0.12451,
-    volume: 539,
-    vol_currency: 539440,
-    vol_currency_quote: 67186.6973,
-    completed: true
+    close: 0.10045,
+    volume: 1163,
+    vol_currency: 1163660,
+    vol_currency_quote: 116869.9678
   }
 }
-In Candles.Publish [API]: 1/23/2026, 4:34:29 PM
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    close: 1.4726,
+    volume: 2697,
+    vol_currency: 269781,
+    vol_currency_quote: 397765.877
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer dd 63 0b>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    close: 0.2733,
+    volume: 5882,
+    vol_currency: 588.2,
+    vol_currency_quote: 160.75056
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1771266600000
+  },
+  columns: {
+    close: 2,
+    volume: 379,
+    vol_currency: 37.9,
+    vol_currency_quote: 75.791
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: { volume: 896, vol_currency: 89652, vol_currency_quote: 25238.8708 }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1771264800000
+  },
+  columns: {
+    close: 2,
+    volume: 742,
+    vol_currency: 74.2,
+    vol_currency_quote: 148.5321
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    close: 67872.2,
+    volume: 10482,
+    vol_currency: 10.4828,
+    vol_currency_quote: 712101.95378
+  }
+}
+-> Instrument.Position.Import [API]
+-> Leverage.Submit [API]
+-> Leverage.Submit [API]
+-> Leverage.Submit [API]
+-> Leverage.Submit [API]
+-> Leverage.Submit [API]
+In Position.Import [API] 2/16/2026, 10:57:09 AM
+[]
+-> [Info] Stops.History: fetched 83 records from API
+-> Stops.Import.History.Publish
+Fetching candles for AVAX-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1769972400000,2026-02-01T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1769972400000,2026-02-01T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1769972400000,2026-02-01T19:00:00.000Z]
+Fetching candles for AR-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1769972400000,2026-02-01T19:00:00.000Z]
+Fetching candles for AR-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1769972400000,2026-02-01T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+Fetching candles for AR-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+Fetching candles for AR-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for BTC-USDT after [1768676400000,2026-01-17T19:00:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1767380400000,2026-01-02T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1767380400000,2026-01-02T19:00:00.000Z]
+Fetching candles for AR-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1767380400000,2026-01-02T19:00:00.000Z]
+Fetching candles for AR-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1767380400000,2026-01-02T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1767380400000,2026-01-02T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for AR-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for AR-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1766084400000,2025-12-18T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+-> Orders.Publish.History
+-> Orders.Import complete; history orders processed: 490; open orders processed: 0;
+Fetching candles for AVAX-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1764788400000,2025-12-03T19:00:00.000Z]
+Fetching candles for AR-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1764788400000,2025-12-03T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1764788400000,2025-12-03T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1764788400000,2025-12-03T19:00:00.000Z]
+Fetching candles for AR-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1764788400000,2025-12-03T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+Fetching candles for AR-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+Fetching candles for AR-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1763492400000,2025-11-18T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1762196400000,2025-11-03T19:00:00.000Z]
+Fetching candles for AR-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1762196400000,2025-11-03T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1762196400000,2025-11-03T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1762196400000,2025-11-03T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+Fetching candles for AR-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+Fetching candles for BTC-USDT after [1762196400000,2025-11-03T19:00:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for AR-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+Fetching candles for AR-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1760900400000,2025-10-19T19:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1759604400000,2025-10-04T19:00:00.000Z]
+Fetching candles for AR-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1759604400000,2025-10-04T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1759604400000,2025-10-04T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1759604400000,2025-10-04T19:00:00.000Z]
+Fetching candles for AR-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1759604400000,2025-10-04T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+Fetching candles for AR-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+Fetching candles for AR-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1758308400000,2025-09-19T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1757012400000,2025-09-04T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1757012400000,2025-09-04T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1757012400000,2025-09-04T19:00:00.000Z]
+Fetching candles for AR-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1757012400000,2025-09-04T19:00:00.000Z]
+Fetching candles for AR-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1757012400000,2025-09-04T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for AR-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+Fetching candles for AR-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1755716400000,2025-08-20T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1754420400000,2025-08-05T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1754420400000,2025-08-05T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1754420400000,2025-08-05T19:00:00.000Z]
+Fetching candles for AR-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+Fetching candles for AR-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1754420400000,2025-08-05T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1754420400000,2025-08-05T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+Fetching candles for AR-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+Fetching candles for AR-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1753124400000,2025-07-21T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 298
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1693508400000,2023-08-31T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1751828400000,2025-07-06T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1751828400000,2025-07-06T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1751828400000,2025-07-06T19:00:00.000Z]
+Fetching candles for AR-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+Fetching candles for ONDO-USDT after [1751828400000,2025-07-06T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1751828400000,2025-07-06T19:00:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1688324400000,2023-07-02T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+Fetching candles for AR-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1750532400000,2025-06-21T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1683140400000,2023-05-03T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1749236400000,2025-06-06T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1749236400000,2025-06-06T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1749236400000,2025-06-06T19:00:00.000Z]
+Fetching candles for AR-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1749236400000,2025-06-06T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+Fetching candles for BTC-USDT after [1749236400000,2025-06-06T19:00:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1677956400000,2023-03-04T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+Fetching candles for AR-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+-> Candle.Publish [API]: AVAX-USDT / 1233
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1747940400000,2025-05-22T19:00:00.000Z]
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for AVAX-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for DOGE-USDT after [1746644400000,2025-05-07T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1746644400000,2025-05-07T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1746644400000,2025-05-07T19:00:00.000Z]
+Fetching candles for AR-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1746644400000,2025-05-07T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1746644400000,2025-05-07T19:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+Fetching candles for AR-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1745348400000,2025-04-22T19:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1744052400000,2025-04-07T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1744052400000,2025-04-07T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1744052400000,2025-04-07T19:00:00.000Z]
+Fetching candles for AR-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1744052400000,2025-04-07T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1744052400000,2025-04-07T19:00:00.000Z]
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+Fetching candles for AR-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1742756400000,2025-03-23T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1741460400000,2025-03-08T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1741460400000,2025-03-08T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1741460400000,2025-03-08T19:00:00.000Z]
+Fetching candles for AR-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1741460400000,2025-03-08T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1741460400000,2025-03-08T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+Fetching candles for AR-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1740164400000,2025-02-21T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1738868400000,2025-02-06T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1738868400000,2025-02-06T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1738868400000,2025-02-06T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1738868400000,2025-02-06T19:00:00.000Z]
+Fetching candles for AR-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1738868400000,2025-02-06T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+Fetching candles for AR-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1737572400000,2025-01-22T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1736276400000,2025-01-07T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1736276400000,2025-01-07T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1736276400000,2025-01-07T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1736276400000,2025-01-07T19:00:00.000Z]
+Fetching candles for AR-USDT after [1701284400000,2023-11-29T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 1440
+Fetching candles for BTC-USDT after [1736276400000,2025-01-07T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+Fetching candles for AR-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: AR-USDT / 596
+Fetching candles for BTC-USDT after [1734980400000,2024-12-23T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1733684400000,2024-12-08T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1733684400000,2024-12-08T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1733684400000,2024-12-08T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1733684400000,2024-12-08T19:00:00.000Z]
+Fetching candles for AR-USDT after [1697619600000,2023-10-18T09:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1733684400000,2024-12-08T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1732388400000,2024-11-23T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1731092400000,2024-11-08T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1731092400000,2024-11-08T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1731092400000,2024-11-08T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1731092400000,2024-11-08T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1731092400000,2024-11-08T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1729796400000,2024-10-24T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1728500400000,2024-10-09T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1728500400000,2024-10-09T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1728500400000,2024-10-09T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1728500400000,2024-10-09T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1728500400000,2024-10-09T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1727204400000,2024-09-24T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1725908400000,2024-09-09T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1725908400000,2024-09-09T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1725908400000,2024-09-09T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1725908400000,2024-09-09T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1725908400000,2024-09-09T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1724612400000,2024-08-25T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1723316400000,2024-08-10T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1723316400000,2024-08-10T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1723316400000,2024-08-10T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1723316400000,2024-08-10T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1723316400000,2024-08-10T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1722020400000,2024-07-26T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1720724400000,2024-07-11T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1720724400000,2024-07-11T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1720724400000,2024-07-11T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1720724400000,2024-07-11T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1720724400000,2024-07-11T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1719428400000,2024-06-26T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1718132400000,2024-06-11T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1718132400000,2024-06-11T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1718132400000,2024-06-11T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1718132400000,2024-06-11T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1718132400000,2024-06-11T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1716836400000,2024-05-27T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1715540400000,2024-05-12T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1715540400000,2024-05-12T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1715540400000,2024-05-12T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1715540400000,2024-05-12T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1715540400000,2024-05-12T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1714244400000,2024-04-27T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1712948400000,2024-04-12T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1712948400000,2024-04-12T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1712948400000,2024-04-12T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1712948400000,2024-04-12T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1712948400000,2024-04-12T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1711652400000,2024-03-28T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1710356400000,2024-03-13T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1710356400000,2024-03-13T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1710356400000,2024-03-13T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1710356400000,2024-03-13T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+Fetching candles for BTC-USDT after [1710356400000,2024-03-13T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1709060400000,2024-02-27T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1707764400000,2024-02-12T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1707764400000,2024-02-12T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1707764400000,2024-02-12T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1707764400000,2024-02-12T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ONDO-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1707764400000,2024-02-12T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+Fetching candles for ONDO-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+-> Candle.Publish [API]: ONDO-USDT / 610
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1706468400000,2024-01-28T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ONDO-USDT after [1705919400000,2024-01-22T10:30:00.000Z]
+Fetching candles for DOGE-USDT after [1705172400000,2024-01-13T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1705172400000,2024-01-13T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1705172400000,2024-01-13T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1705172400000,2024-01-13T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+Fetching candles for BTC-USDT after [1703876400000,2023-12-29T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1702580400000,2023-12-14T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1702580400000,2023-12-14T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1702580400000,2023-12-14T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1702580400000,2023-12-14T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1701284400000,2023-11-29T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1701284400000,2023-11-29T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1701284400000,2023-11-29T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1701284400000,2023-11-29T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1699988400000,2023-11-14T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1699988400000,2023-11-14T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1699988400000,2023-11-14T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1699988400000,2023-11-14T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1698692400000,2023-10-30T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1697396400000,2023-10-15T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1697396400000,2023-10-15T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1697396400000,2023-10-15T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1697396400000,2023-10-15T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1696100400000,2023-09-30T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1696100400000,2023-09-30T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1696100400000,2023-09-30T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1696100400000,2023-09-30T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1694804400000,2023-09-15T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1694804400000,2023-09-15T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1694804400000,2023-09-15T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1694804400000,2023-09-15T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1693508400000,2023-08-31T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1693508400000,2023-08-31T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1693508400000,2023-08-31T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1693508400000,2023-08-31T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1692212400000,2023-08-16T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1692212400000,2023-08-16T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1692212400000,2023-08-16T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1692212400000,2023-08-16T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for DOGE-USDT after [1690916400000,2023-08-01T19:00:00.000Z]
+Fetching candles for ADA-USDT after [1690916400000,2023-08-01T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1690916400000,2023-08-01T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1690916400000,2023-08-01T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1689620400000,2023-07-17T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1689620400000,2023-07-17T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1689620400000,2023-07-17T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1689620400000,2023-07-17T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1688324400000,2023-07-02T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1688324400000,2023-07-02T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1688324400000,2023-07-02T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1688324400000,2023-07-02T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1687028400000,2023-06-17T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1687028400000,2023-06-17T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1687028400000,2023-06-17T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1687028400000,2023-06-17T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1685732400000,2023-06-02T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1685732400000,2023-06-02T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1685732400000,2023-06-02T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1685732400000,2023-06-02T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1684436400000,2023-05-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1684436400000,2023-05-18T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1684436400000,2023-05-18T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1684436400000,2023-05-18T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1683140400000,2023-05-03T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1683140400000,2023-05-03T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1683140400000,2023-05-03T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1683140400000,2023-05-03T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1681844400000,2023-04-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1681844400000,2023-04-18T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1681844400000,2023-04-18T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1681844400000,2023-04-18T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1680548400000,2023-04-03T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1680548400000,2023-04-03T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1680548400000,2023-04-03T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1680548400000,2023-04-03T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1679252400000,2023-03-19T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1679252400000,2023-03-19T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1679252400000,2023-03-19T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1679252400000,2023-03-19T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1677956400000,2023-03-04T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1677956400000,2023-03-04T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1677956400000,2023-03-04T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1677956400000,2023-03-04T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1676660400000,2023-02-17T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1676660400000,2023-02-17T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1676660400000,2023-02-17T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1676660400000,2023-02-17T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1675364400000,2023-02-02T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1675364400000,2023-02-02T19:00:00.000Z]
+Fetching candles for XRP-USDT after [1675364400000,2023-02-02T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 1440
+-> Candle.Publish [API]: DOGE-USDT / 1440
+-> Candle.Publish [API]: XRP-USDT / 1440
+Fetching candles for BTC-USDT after [1675364400000,2023-02-02T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 1440
+Fetching candles for ADA-USDT after [1674068400000,2023-01-18T19:00:00.000Z]
+Fetching candles for DOGE-USDT after [1674068400000,2023-01-18T19:00:00.000Z]
+-> Candle.Publish [API]: ADA-USDT / 612
+Fetching candles for XRP-USDT after [1674068400000,2023-01-18T19:00:00.000Z]
+-> Candle.Publish [API]: DOGE-USDT / 612
+-> Candle.Publish [API]: XRP-USDT / 612
+Fetching candles for BTC-USDT after [1674068400000,2023-01-18T19:00:00.000Z]
+-> Candle.Publish [API]: BTC-USDT / 612
+Fetching candles for ADA-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for DOGE-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for XRP-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+Fetching candles for BTC-USDT after [1673517600000,2023-01-12T10:00:00.000Z]
+-> Import for AR-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] AR-USDT: 1 candles updated
+-> Import for AR-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] AR-USDT: 1 candles updated
+-> Import for AVAX-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] AVAX-USDT: 1 candles updated
+-> Import for BTC-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] BTC-USDT: 1 candles updated
+-> Import for ADA-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] ADA-USDT: 1 candles updated
+-> Import for XRP-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] XRP-USDT: 1 candles updated
+-> Import for DOGE-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] DOGE-USDT: 1 candles updated
+-> Import for ONDO-USDT complete: 2/16/2026, 10:59:23 AM
+   # [Info] ONDO-USDT: 1 candles updated
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 76 3c 11>,
+    timestamp: 1771266600000
+  },
+  columns: {
+    close: 1.996,
+    volume: 389,
+    vol_currency: 38.9,
+    vol_currency_quote: 77.789
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 4d 38 93>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1771264800000
+  },
+  columns: {
+    low: 9.122,
+    close: 9.123,
+    volume: 6859,
+    vol_currency: 6859.6,
+    vol_currency_quote: 62814.7697
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer d4 45 2e>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    close: 0.10037,
+    volume: 1254,
+    vol_currency: 1254700,
+    vol_currency_quote: 126005.5594
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 34 01 a2>,
+    period: <Buffer 28 17 01>,
+    timestamp: 1771264800000
+  },
+  columns: {
+    close: 1.996,
+    volume: 752,
+    vol_currency: 75.2,
+    vol_currency_quote: 150.5301
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    low: 67809.1,
+    close: 67818.2,
+    volume: 18418,
+    vol_currency: 18.4182,
+    vol_currency_quote: 1250469.54145
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer dd 63 0b>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    close: 0.2728,
+    volume: 5905,
+    vol_currency: 590.5,
+    vol_currency_quote: 161.37821
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    low: 0.281,
+    close: 0.2813,
+    volume: 982,
+    vol_currency: 98222,
+    vol_currency_quote: 27649.8808
+  }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: {
+    low: 1.47,
+    close: 1.4701,
+    volume: 3402,
+    vol_currency: 340259,
+    vol_currency_quote: 501449.8676
+  }
+}
+In Candles.Publish [API]: 2/16/2026, 10:59:23 AM
 -> Authorized Symbols: AR-USDT,AR-USDT,AVAX-USDT,BTC-USDT,ADA-USDT,XRP-USDT,DOGE-USDT,ONDO-USDT
    # [Info] AR-USDT: 1 candles updated
-   # [Info] AR-USDT: 1 candles imported
    # [Info] AR-USDT: 1 candles updated
    # [Info] AVAX-USDT: 1 candles updated
-   # [Info] BTC-USDT: 1 candles imported
    # [Info] BTC-USDT: 1 candles updated
-   # [Info] ADA-USDT: 1 candles imported
    # [Info] ADA-USDT: 1 candles updated
-   # [Info] XRP-USDT: 1 candles imported
    # [Info] XRP-USDT: 1 candles updated
-   # [Info] DOGE-USDT: 1 candles imported
    # [Info] DOGE-USDT: 1 candles updated
-   # [Info] ONDO-USDT: 1 candles imported
    # [Info] ONDO-USDT: 1 candles updated
->> [Info] Application.Initialization finished: 1/23/2026, 4:34:31 PM
-[Info] App.Main: AR-USDT process spawned; PID [1422368]
-[Info] App.Main: AR-USDT process spawned; PID [1422369]
-[Info] App.Main: AVAX-USDT process spawned; PID [1422372]
-[Info] App.Main: BTC-USDT process spawned; PID [1422376]
-[Info] App.Main: ADA-USDT process spawned; PID [1422382]
-[Info] App.Main: XRP-USDT process spawned; PID [1422388]
-[Info] App.Main: DOGE-USDT process spawned; PID [1422394]
-[Info] App.Main: ONDO-USDT process spawned; PID [1422400]
-Connected to websocket: [1422308:wss://demo-trading-openapi.blofin.com/ws/private]
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
-[Info] Session.Config: Blofin Demo configured successfully
+[Info] Application.Initialization finished: 2/16/2026, 10:59:25 AM
+[Info] App.Main: AR-USDT process spawned; PID [400355]
+[Info] App.Main: AR-USDT process spawned; PID [400356]
+[Info] App.Main: AVAX-USDT process spawned; PID [400362]
+[Info] App.Main: BTC-USDT process spawned; PID [400368]
+[Info] App.Main: ADA-USDT process spawned; PID [400375]
+[Info] App.Main: XRP-USDT process spawned; PID [400381]
+[Info] App.Main: DOGE-USDT process spawned; PID [400388]
+[Info] App.Main: ONDO-USDT process spawned; PID [400396]
+Connected to websocket: [399940:wss://demo-trading-openapi.blofin.com/ws/private]
+[Info] Session.Config: Blofin Demo/AR-USDT configured successfully
+[Info] Session.Config: Blofin Demo/AVAX-USDT configured successfully
 Subscriptions: { channel: 'account' }
 Subscriptions: { channel: 'positions' }
 Subscriptions: { channel: 'orders' }
+[Info] Session.Config: Blofin Demo/ONDO-USDT configured successfully
+[Info] Session.Config: Blofin Demo/ADA-USDT configured successfully
+[Info] Session.Config: Blofin Demo/AR-USDT configured successfully
+[Info] Session.Config: Blofin Demo/XRP-USDT configured successfully
+[Info] Session.Config: Blofin Demo/BTC-USDT configured successfully
+[Info] Session.Config: Blofin Demo/DOGE-USDT configured successfully
 updated -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:34:32.075Z }
-}
-In Execute.Trades: 1/23/2026, 4:35:00 PM
-In Position.Import [API] 1/23/2026, 4:35:00 PM
-In Orders.Import [API]
--> Orders.Publish.History [API]
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 0)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 1)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 4)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 2)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 3)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 5)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 6)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 7)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 8)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 9)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 10)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 11)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 12)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 13)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 14)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 15)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 16)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 17)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 18)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 19)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 20)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 21)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AVAX-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 23)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 22)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ONDO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 24)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 25)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 26)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 27)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 28)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [WIF-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 30)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 29)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 31)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 33)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 32)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 34)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 35)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 36)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 37)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 38)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 39)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 41)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 40)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 42)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 44)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 43)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 45)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 46)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 47)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 48)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 50)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 49)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 52)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 51)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 53)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 54)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 55)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 56)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 57)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 58)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 59)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 61)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 60)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 62)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 63)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 64)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [LINK-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 65)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [LINK-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 67)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 66)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 68)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [TURBO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 69)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [TURBO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 70)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 72)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [XRP-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [NOT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 71)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [NOT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [TURBO-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 73)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [TURBO-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [NOT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 74)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [NOT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 75)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [ETH-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 76)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 78)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [LINK-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 77)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [LINK-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 79)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 80)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 81)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 82)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 84)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 83)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [PONKE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 85)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 86)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [POPCAT-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 87)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 88)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 89)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 90)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 92)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 91)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 93)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 94)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 95)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 96)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 97)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [DOGE-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 98)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 99)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 190)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 191)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 192)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 193)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 194)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 195)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 197)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 196)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [BTC-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 198)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [AR-USDT:net] request from logged account Blofin Demo'
-}
--> [Error] Orders.Publish.History ApiError: [API Error] Code 452: Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo
-    at <anonymous> (/home/djorgenson/Projects/blofin-data/api/orders.ts:78:17)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async Promise.all (index 199)
-    at async Publish (/home/djorgenson/Projects/blofin-data/api/orders.ts:59:19)
-    at async Object.Import (/home/djorgenson/Projects/blofin-data/api/orders.ts:219:29)
-    at async Promise.all (index 1)
-    at async Object.Trades (/home/djorgenson/Projects/blofin-data/module/trades.ts:47:3)
-    at async WebSocket.ws.onmessage (/home/djorgenson/Projects/blofin-data/module/session.ts:183:7) {
-  code: 452,
-  msg: 'Unauthorized Instrument Position [INJ-USDT:net] request from logged account Blofin Demo'
-}
--> Orders.Import complete; history orders processed: 455; open orders processed: 0;
--> Requests.Queued: Processing 1 queued requests
--> Orders.Publish.WSS [API]
-updated -> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:35:10.401Z }
-}
--> [Info] orders inserted {
-  fields: [
-    'order_id',
-    'client_order_id',
-    'order_category',
-    'order_state',
-    'cancel_source',
-    'filled_size',
-    'filled_amount',
-    'average_price',
-    'fee',
-    'pnl'
-  ],
-  args: [
-    <Buffer 00 e8 db c2 02 72>,
-    <Buffer 52 8d f4 97 67 89>,
-    <Buffer 4f ae 94>,
-    <Buffer de 78 79>,
-    <Buffer 3d 66 8d>,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]
-}
-updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
-  columns: { state: <Buffer 4b c9 9c> }
+  columns: { total_equity: 71712.886, update_time: 2026-02-16T18:59:25.851Z }
 }
 updated -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 71712.886, coin_usd_price: 0.999602 }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 6b 57 71>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: { close: 67828.6 }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer 94 99 63>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: { close: 0.2814 }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer d4 45 2e>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: { close: 0.10039 }
+}
+updated -> [Info] candle updated {
+  filters: {
+    instrument: <Buffer a2 80 0a>,
+    period: <Buffer 03 e8 0e>,
+    timestamp: 1771267500000
+  },
+  columns: { close: 1.4705 }
+}
+In Execute.Trades: 2/16/2026, 10:59:54 AM
+In Position.Import [API] 2/16/2026, 10:59:54 AM
+In Orders.Import [API]
+-> [Info] Stops.History: fetched 83 records from API
+-> Stops.Import.History.Publish
+-> Orders.Publish.History
+-> Orders.Import complete; history orders processed: 490; open orders processed: 0;
+-> Requests.Queued: Processing 1 queued requests
+-> Requests.Queued: Processing leverage for request 898244ABDD5B
+-> Orders.Publish.WSS
+updated -> [Info] request updated {
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
+  columns: { state: <Buffer 4b c9 9c> }
+}
+-> [Info] orders inserted {
   columns: {
-    available: 67241.613,
-    available_equity: 67241.613,
-    frozen: 729.6,
-    order_frozen: 729.6,
-    update_time: 2026-01-24T00:35:10.393Z
+    order_id: <Buffer 00 e8 db de 94 50>,
+    client_order_id: <Buffer 89 82 44 ab dd 5b>,
+    order_category: <Buffer 4f ae 94>,
+    order_state: <Buffer de 78 79>,
+    cancel_source: <Buffer 3d 66 8d>,
+    filled_size: 0,
+    filled_amount: 0,
+    average_price: 0,
+    fee: 0,
+    pnl: 0
   }
 }
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:00:03.903Z }
+}
 updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
   columns: {
     memo: '[Info] Order submitted successfully',
-    update_time: 2026-01-24T00:35:10.478Z
+    update_time: 2026-02-16T19:00:03.961Z
   }
 }
-In Execute.Trades: 1/23/2026, 4:35:29 PM
-In Position.Import [API] 1/23/2026, 4:35:29 PM
-In Orders.Import [API]
--> Orders.Publish.Pending [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 1;
--> Requests.Pending: Processing 1 pending orders
-In Execute.Trades: 1/23/2026, 4:35:58 PM
-In Position.Import [API] 1/23/2026, 4:35:58 PM
-In Orders.Import [API]
--> Orders.Publish.Pending [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 1;
--> Requests.Pending: Processing 1 pending orders
-In Execute.Trades: 1/23/2026, 4:36:27 PM
-In Position.Import [API] 1/23/2026, 4:36:27 PM
-In Orders.Import [API]
--> Orders.Publish.Pending [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 1;
--> Requests.Pending: Processing 1 pending orders
-updated -> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:36:48.899Z }
+[
+  {
+    key: { instrument_position: <Buffer ed da 99 9d fb 4e> },
+    response: {
+      success: false,
+      code: 402,
+      response: 'no_update',
+      message: 'Leverage unchanged; no change detected',
+      rows: 0,
+      context: 'Leverage.Submit'
+    }
+  },
+  {
+    key: { request: <Buffer 89 82 44 ab dd 5b> },
+    response: {
+      success: true,
+      code: 0,
+      response: 'updated',
+      rows: 1,
+      context: 'Request.Publish.Submit',
+      outcome: 'pending',
+      message: '[Info] Order submitted successfully'
+    }
+  }
+]
+updated -> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: {
+    available: 67517.404,
+    available_equity: 67517.404,
+    frozen: 4224,
+    order_frozen: 4224,
+    update_time: 2026-02-16T19:00:03.896Z
+  }
 }
-In Execute.Trades: 1/23/2026, 4:36:56 PM
-In Position.Import [API] 1/23/2026, 4:36:56 PM
+In Execute.Trades: 2/16/2026, 11:00:23 AM
+In Position.Import [API] 2/16/2026, 11:00:23 AM
 In Orders.Import [API]
--> Orders.Publish.Pending [API]
+-> Orders.Publish.Pending
 -> Orders.Import complete; history orders processed: 0; open orders processed: 1;
 -> Requests.Pending: Processing 1 pending orders
-In Execute.Trades: 1/23/2026, 4:37:25 PM
-In Position.Import [API] 1/23/2026, 4:37:25 PM
+In Execute.Trades: 2/16/2026, 11:00:52 AM
+In Position.Import [API] 2/16/2026, 11:00:52 AM
 In Orders.Import [API]
--> Orders.Publish.Pending [API]
+-> Orders.Publish.Pending
 -> Orders.Import complete; history orders processed: 0; open orders processed: 1;
 -> Requests.Pending: Processing 1 pending orders
--> Orders.Publish.WSS [API]
-updated -> [Info] account updated {
-  filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:37:32.004Z }
-}
-In Execute.Trades: 1/23/2026, 4:37:54 PM
-In Position.Import [API] 1/23/2026, 4:37:54 PM
+In Execute.Trades: 2/16/2026, 11:01:21 AM
+In Position.Import [API] 2/16/2026, 11:01:21 AM
 In Orders.Import [API]
--> Orders.Publish.Pending [API]
+-> Orders.Publish.Pending
 -> Orders.Import complete; history orders processed: 0; open orders processed: 1;
 -> Requests.Pending: Processing 1 pending orders
-In Execute.Trades: 1/23/2026, 4:38:23 PM
-In Position.Import [API] 1/23/2026, 4:38:23 PM
+In Execute.Trades: 2/16/2026, 11:01:50 AM
+In Position.Import [API] 2/16/2026, 11:01:50 AM
 In Orders.Import [API]
--> Orders.Publish.Pending [API]
+-> Orders.Publish.Pending
+-> Orders.Import complete; history orders processed: 0; open orders processed: 1;
+-> Requests.Pending: Processing 1 pending orders
+In Execute.Trades: 2/16/2026, 11:02:19 AM
+In Position.Import [API] 2/16/2026, 11:02:19 AM
+In Orders.Import [API]
+-> Orders.Publish.Pending
+-> Orders.Import complete; history orders processed: 0; open orders processed: 1;
+-> Requests.Pending: Processing 1 pending orders
+In Execute.Trades: 2/16/2026, 11:02:48 AM
+In Position.Import [API] 2/16/2026, 11:02:48 AM
+In Orders.Import [API]
+-> Orders.Publish.Pending
 -> Orders.Import complete; history orders processed: 0; open orders processed: 1;
 -> Requests.Pending: Processing 1 pending orders
 updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
   columns: { state: <Buffer 1b 0c b1> }
 }
 updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
   columns: {
     memo: '[Expired]: Pending order changed to Canceled',
-    update_time: 2026-01-24T00:38:25.720Z
+    update_time: 2026-02-16T19:02:50.416Z
   }
 }
 -> Requests.Canceled: Processing 1 canceled orders
--> Orders.Publish.WSS [API]
+-> Orders.Publish.WSS
 updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
   columns: { state: <Buffer e8 fc f7> }
 }
 updated -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:38:26.013Z }
+  columns: { update_time: 2026-02-16T19:02:50.738Z }
 }
 updated -> [Info] orders updated {
-  filters: { order_id: <Buffer 00 e8 db c2 02 72> },
+  filters: { order_id: <Buffer 00 e8 db de 94 50> },
   columns: { order_state: <Buffer 97 e7 4e> }
 }
 updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
+  filters: { request: <Buffer 89 82 44 ab dd 5b> },
   columns: {
     memo: '[Info] Order canceled successfully',
-    update_time: 2026-01-24T00:38:26.042Z
+    update_time: 2026-02-16T19:02:50.786Z
   }
 }
 updated -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
   columns: {
-    available: 67971.213,
-    available_equity: 67971.213,
+    available: 71741.404,
+    available_equity: 71741.404,
     frozen: 0,
     order_frozen: 0,
-    update_time: 2026-01-24T00:38:26.005Z
+    update_time: 2026-02-16T19:02:50.730Z
   }
 }
-updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
-  columns: { state: <Buffer e8 fc f7> }
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:03:13.604Z }
 }
-updated -> [Info] request updated {
-  filters: { request: <Buffer 52 8d f4 97 67 89> },
-  columns: { update_time: 2026-01-24T00:38:26.006Z }
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:03:13.649Z }
 }
-In Execute.Trades: 1/23/2026, 4:38:52 PM
-In Position.Import [API] 1/23/2026, 4:38:52 PM
+In Execute.Trades: 2/16/2026, 11:03:17 AM
+In Position.Import [API] 2/16/2026, 11:03:17 AM
 In Orders.Import [API]
--> Orders.Publish.History [API]
+-> Orders.Publish.History
 updated -> [Info] orders updated {
-  filters: { order_id: <Buffer 00 e8 db c2 02 72> },
+  filters: { order_id: <Buffer 00 e8 db de 94 50> },
   columns: { cancel_source: <Buffer ba 05 f1> }
 }
 -> Orders.Import complete; history orders processed: 1; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:39:21 PM
-In Position.Import [API] 1/23/2026, 4:39:21 PM
+In Execute.Trades: 2/16/2026, 11:03:46 AM
+In Position.Import [API] 2/16/2026, 11:03:46 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:39:50 PM
-In Position.Import [API] 1/23/2026, 4:39:50 PM
-In Orders.Import [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:40:19 PM
-In Position.Import [API] 1/23/2026, 4:40:19 PM
-In Orders.Import [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:40:48 PM
-In Position.Import [API] 1/23/2026, 4:40:48 PM
-In Orders.Import [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:41:17 PM
-In Position.Import [API] 1/23/2026, 4:41:17 PM
-In Orders.Import [API]
--> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:41:46 PM
-In Position.Import [API] 1/23/2026, 4:41:46 PM
+In Execute.Trades: 2/16/2026, 11:04:15 AM
+In Position.Import [API] 2/16/2026, 11:04:15 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
 updated -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { total_equity: 67891.687, update_time: 2026-01-24T00:41:48.919Z }
+  columns: { update_time: 2026-02-16T19:04:16.335Z }
+}
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:04:16.335Z }
+}
+In Execute.Trades: 2/16/2026, 11:04:44 AM
+In Position.Import [API] 2/16/2026, 11:04:44 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:05:13 AM
+In Position.Import [API] 2/16/2026, 11:05:13 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:05:42 AM
+In Position.Import [API] 2/16/2026, 11:05:42 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:06:11 AM
+In Position.Import [API] 2/16/2026, 11:06:11 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:06:40 AM
+In Position.Import [API] 2/16/2026, 11:06:40 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:07:09 AM
+In Position.Import [API] 2/16/2026, 11:07:09 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:07:38 AM
+In Position.Import [API] 2/16/2026, 11:07:38 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:08:07 AM
+In Position.Import [API] 2/16/2026, 11:08:07 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:08:36 AM
+In Position.Import [API] 2/16/2026, 11:08:36 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:09:05 AM
+In Position.Import [API] 2/16/2026, 11:09:05 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 71712.599, update_time: 2026-02-16T19:09:16.366Z }
+}
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 71712.599, update_time: 2026-02-16T19:09:16.398Z }
 }
 updated -> [Info] account_detail updated {
   filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
-  columns: { equity_usd: 67891.687, coin_usd_price: 0.99883 }
+  columns: { equity_usd: 71712.599, coin_usd_price: 0.999598 }
 }
-In Execute.Trades: 1/23/2026, 4:42:15 PM
-In Position.Import [API] 1/23/2026, 4:42:15 PM
+updated -> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 71712.599, coin_usd_price: 0.999598 }
+}
+In Execute.Trades: 2/16/2026, 11:09:34 AM
+In Position.Import [API] 2/16/2026, 11:09:34 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:10:03 AM
+In Position.Import [API] 2/16/2026, 11:10:03 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:10:32 AM
+In Position.Import [API] 2/16/2026, 11:10:32 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:11:01 AM
+In Position.Import [API] 2/16/2026, 11:11:01 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:11:30 AM
+In Position.Import [API] 2/16/2026, 11:11:30 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:11:59 AM
+In Position.Import [API] 2/16/2026, 11:11:59 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:12:28 AM
+In Position.Import [API] 2/16/2026, 11:12:28 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:12:57 AM
+In Position.Import [API] 2/16/2026, 11:12:57 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:13:26 AM
+In Position.Import [API] 2/16/2026, 11:13:26 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:13:55 AM
+In Position.Import [API] 2/16/2026, 11:13:55 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
 updated -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:42:32.000Z }
+  columns: { update_time: 2026-02-16T19:14:16.328Z }
 }
-In Execute.Trades: 1/23/2026, 4:42:45 PM
-In Position.Import [API] 1/23/2026, 4:42:45 PM
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:14:16.336Z }
+}
+In Execute.Trades: 2/16/2026, 11:14:24 AM
+In Position.Import [API] 2/16/2026, 11:14:25 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:43:14 PM
-In Position.Import [API] 1/23/2026, 4:43:14 PM
+In Execute.Trades: 2/16/2026, 11:14:54 AM
+In Position.Import [API] 2/16/2026, 11:14:54 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:43:43 PM
-In Position.Import [API] 1/23/2026, 4:43:43 PM
+In Execute.Trades: 2/16/2026, 11:15:23 AM
+In Position.Import [API] 2/16/2026, 11:15:23 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:44:12 PM
-In Position.Import [API] 1/23/2026, 4:44:12 PM
+In Execute.Trades: 2/16/2026, 11:15:52 AM
+In Position.Import [API] 2/16/2026, 11:15:52 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:44:41 PM
-In Position.Import [API] 1/23/2026, 4:44:41 PM
+In Execute.Trades: 2/16/2026, 11:16:21 AM
+In Position.Import [API] 2/16/2026, 11:16:21 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:45:10 PM
-In Position.Import [API] 1/23/2026, 4:45:10 PM
+In Execute.Trades: 2/16/2026, 11:16:50 AM
+In Position.Import [API] 2/16/2026, 11:16:50 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:45:39 PM
-In Position.Import [API] 1/23/2026, 4:45:39 PM
+In Execute.Trades: 2/16/2026, 11:17:19 AM
+In Position.Import [API] 2/16/2026, 11:17:19 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:46:08 PM
-In Position.Import [API] 1/23/2026, 4:46:08 PM
+In Execute.Trades: 2/16/2026, 11:17:48 AM
+In Position.Import [API] 2/16/2026, 11:17:48 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
-In Execute.Trades: 1/23/2026, 4:46:37 PM
-In Position.Import [API] 1/23/2026, 4:46:37 PM
+In Execute.Trades: 2/16/2026, 11:18:17 AM
+In Position.Import [API] 2/16/2026, 11:18:17 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:18:46 AM
+In Position.Import [API] 2/16/2026, 11:18:46 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:19:15 AM
+In Position.Import [API] 2/16/2026, 11:19:15 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
 updated -> [Info] account updated {
   filters: { account: <Buffer 24 59 7a> },
-  columns: { update_time: 2026-01-24T00:46:48.855Z }
+  columns: { update_time: 2026-02-16T19:19:16.339Z }
 }
-In Execute.Trades: 1/23/2026, 4:47:06 PM
-In Position.Import [API] 1/23/2026, 4:47:06 PM
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:19:16.350Z }
+}
+In Execute.Trades: 2/16/2026, 11:19:44 AM
+In Position.Import [API] 2/16/2026, 11:19:44 AM
 In Orders.Import [API]
 -> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:20:13 AM
+In Position.Import [API] 2/16/2026, 11:20:13 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:20:42 AM
+In Position.Import [API] 2/16/2026, 11:20:42 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:21:11 AM
+In Position.Import [API] 2/16/2026, 11:21:11 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:21:40 AM
+In Position.Import [API] 2/16/2026, 11:21:40 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:22:09 AM
+In Position.Import [API] 2/16/2026, 11:22:09 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:22:38 AM
+In Position.Import [API] 2/16/2026, 11:22:38 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:23:07 AM
+In Position.Import [API] 2/16/2026, 11:23:07 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:23:36 AM
+In Position.Import [API] 2/16/2026, 11:23:36 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:24:05 AM
+In Position.Import [API] 2/16/2026, 11:24:05 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:24:16.326Z }
+}
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:24:16.330Z }
+}
+In Execute.Trades: 2/16/2026, 11:24:34 AM
+In Position.Import [API] 2/16/2026, 11:24:34 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:25:03 AM
+In Position.Import [API] 2/16/2026, 11:25:03 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:25:32 AM
+In Position.Import [API] 2/16/2026, 11:25:32 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:26:01 AM
+In Position.Import [API] 2/16/2026, 11:26:01 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:26:30 AM
+In Position.Import [API] 2/16/2026, 11:26:30 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:26:59 AM
+In Position.Import [API] 2/16/2026, 11:26:59 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:27:28 AM
+In Position.Import [API] 2/16/2026, 11:27:28 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:27:57 AM
+In Position.Import [API] 2/16/2026, 11:27:57 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:28:26 AM
+In Position.Import [API] 2/16/2026, 11:28:26 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:28:55 AM
+In Position.Import [API] 2/16/2026, 11:28:55 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 71710.34, update_time: 2026-02-16T19:29:16.330Z }
+}
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { total_equity: 71710.34, update_time: 2026-02-16T19:29:16.331Z }
+}
+updated -> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 71710.34, coin_usd_price: 0.999567 }
+}
+updated -> [Info] account_detail updated {
+  filters: { account: <Buffer 24 59 7a>, currency: <Buffer b5 2b c7> },
+  columns: { equity_usd: 71710.34, coin_usd_price: 0.999567 }
+}
+In Execute.Trades: 2/16/2026, 11:29:24 AM
+In Position.Import [API] 2/16/2026, 11:29:24 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:29:53 AM
+In Position.Import [API] 2/16/2026, 11:29:53 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:30:22 AM
+In Position.Import [API] 2/16/2026, 11:30:22 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:30:51 AM
+In Position.Import [API] 2/16/2026, 11:30:51 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:31:20 AM
+In Position.Import [API] 2/16/2026, 11:31:20 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:31:49 AM
+In Position.Import [API] 2/16/2026, 11:31:49 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:32:18 AM
+In Position.Import [API] 2/16/2026, 11:32:18 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:32:47 AM
+In Position.Import [API] 2/16/2026, 11:32:47 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:33:16 AM
+In Position.Import [API] 2/16/2026, 11:33:16 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:33:45 AM
+In Position.Import [API] 2/16/2026, 11:33:45 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+In Execute.Trades: 2/16/2026, 11:34:14 AM
+In Position.Import [API] 2/16/2026, 11:34:14 AM
+In Orders.Import [API]
+-> Orders.Import complete; history orders processed: 0; open orders processed: 0;
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:34:16.329Z }
+}
+updated -> [Info] account updated {
+  filters: { account: <Buffer 24 59 7a> },
+  columns: { update_time: 2026-02-16T19:34:16.340Z }
+}

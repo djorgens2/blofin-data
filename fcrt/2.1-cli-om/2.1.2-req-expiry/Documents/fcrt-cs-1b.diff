@@ -1,10 +1,10 @@
 [1mdiff --git a/./.base.csv b/./.comp.csv[m
-[1mindex 190409f..aba3623 100644[m
+[1mindex 1783a94..c7a087a 100644[m
 [1m--- a/./.base.csv[m
 [1m+++ b/./.comp.csv[m
 [36m@@ -13 +13 @@[m [mTime"[m
-D185A1BE80B0,EDDA999DFB4E,sell,[31m6257CB[m[32m19D388[m,2.85,100,40,B83296,cross,1,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m",,"2026/01/23 16:10:27.990","2026/01/23 16:15:27.956","2026/01/23 16:[31m10[m[32m22[m:27.[31m99[m0[32m48[m"
-[36m@@ -672 +672 @@[m [mTime"[m
-D185A1BE80B0,,24597A,A2800A,EDDA999DFB4E,XRP-USDT,20E067,XRP,B52BC7,USDT,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,,,short,sell,B83296,limit,cross,2.85,100,40,,,,,,4,,,,,9B1ACC,E1A1FA,1,,03E80E,15m,15,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026-01-23 16:10:27.990","2026/01/23 16:15:27.956","2026/01/23 16:[31m10[m[32m22[m:27.[31m99[m0[32m48[m"
-[36m@@ -949 +949 @@[m [maccount,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,[m
-24597A,,[31mQueu[m[32mExpir[med,XRP-USDT,cross,short,sell,limit,2.85,100,40,true,,D185A1BE80B0,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026/01/23 16:15:27.956"
+88A0328996E8,EDDA999DFB4E,sell,[31m6257CB[m[32m19D388[m,1.65,1000,40,B83296,cross,1,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m",,"2026/02/16 10:38:45.039","2026/02/16 10:43:45.004","2026/02/16 10:[31m38[m[32m46[m:[32m1[m4[31m5[m.[31m0[m3[31m9[m[32m57[m"
+[36m@@ -728 +728 @@[m [mTime"[m
+88A0328996E8,,24597A,A2800A,EDDA999DFB4E,XRP-USDT,20E067,XRP,B52BC7,USDT,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,[31m6257CB[m[32m19D388[m,[31mQueu[m[32mExpir[med,,,short,sell,B83296,limit,cross,1.65,1000,40,,,,,,4,,,,,9B1ACC,E1A1FA,1,,03E80E,15m,15,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026-02-16 10:38:45.039","2026/02/16 10:43:45.004","2026/02/16 10:[31m38[m[32m46[m:[32m1[m4[31m5[m.[31m0[m3[31m9[m[32m57[m"
+[36m@@ -1026 +1026 @@[m [maccount,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,[m
+24597A,,[31mQueu[m[32mExpir[med,XRP-USDT,cross,short,sell,limit,1.65,1000,40,true,,88A0328996E8,"[31mT[m[32m[Expir[me[31mst 1a[m[32md][m: [32mQueued [mrequest [31mw/ [m[32mchang[me[31mxpiry;[m[32md[m [31mw/[m[32mt[mo [31mt[m[32mEx[mp[31msl[m[32mired[m","2026/02/16 10:43:45.004"

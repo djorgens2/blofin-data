@@ -126,7 +126,7 @@ const parseEnvAccounts = (envVar: string | undefined): Array<Partial<ISession>> 
 export const config = async (props: Partial<IAccount>, symbol: string) => {
   const [accountConfig, sessionConfig] = await Promise.all([await Account.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
 
-  if (!accountConfig || !sessionConfig?.length) {
+  if (!accountConfig || !sessionConfig.success) {
     console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");
     process.exit(1);
   }
@@ -140,7 +140,7 @@ export const config = async (props: Partial<IAccount>, symbol: string) => {
       account,
       symbol,
       ...sessionKey,
-      ...sessionConfig[0],
+      ...sessionConfig.data,
       margin_mode,
       hedging,
       state: "disconnected",

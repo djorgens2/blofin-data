@@ -1,15 +1,15 @@
 Test 1b: request reject on size, resub, then edit and resub
 { instrument_position: <Buffer ed da 99 9d fb 4e> }
 updated -> [Info] request updated {
-  filters: { request: <Buffer 54 83 36 fb fd b2> },
-  columns: { size: 1000 }
+  filters: { request: <Buffer 0d 32 0b 6d 1c fa> },
+  columns: { price: 1.85, size: 1000 }
 }
 updated -> [Info] request updated {
-  filters: { request: <Buffer 54 83 36 fb fd b2> },
+  filters: { request: <Buffer 0d 32 0b 6d 1c fa> },
   columns: {
     memo: 'Test 1b: Correcting Order: Clears Rejected status; resubmitted',
-    expiry_time: 2026-01-29T21:51:47.725Z,
-    update_time: 2026-01-29T13:51:47.757Z
+    expiry_time: 2026-02-17T11:56:44.369Z,
+    update_time: 2026-02-17T03:56:44.404Z
   }
 }
 [Info] Starting Order: submitting request [Request.req_fcrt_1b] {
@@ -19,14 +19,14 @@ updated -> [Info] request updated {
   position: 'short',
   action: 'sell',
   order_type: 'limit',
-  price: 2.85,
+  price: 1.85,
   size: 1000,
   leverage: 50,
-  expiry_time: 2026-01-29T21:51:47.725Z,
+  expiry_time: 2026-02-17T11:56:44.369Z,
   memo: 'Test 1b: request reject on size, resub, then edit and resub'
 }
 Test 1b: Request submitted, check db for results. {
-  key: { request: <Buffer 54 83 36 fb fd b2> },
+  key: { request: <Buffer 0d 32 0b 6d 1c fa> },
   response: {
     success: true,
     code: 0,
@@ -36,7 +36,7 @@ Test 1b: Request submitted, check db for results. {
   }
 }
 Fetched order from DB: {
-  key: { request: <Buffer 54 83 36 fb fd b2> },
+  key: { request: <Buffer 0d 32 0b 6d 1c fa> },
   response: {
     success: true,
     code: 0,
@@ -46,7 +46,7 @@ Fetched order from DB: {
   }
 } [
   {
-    request: <Buffer 54 83 36 fb fd b2>,
+    request: <Buffer 0d 32 0b 6d 1c fa>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -67,7 +67,7 @@ Fetched order from DB: {
     request_type: <Buffer b8 32 96>,
     order_type: 'limit',
     margin_mode: 'cross',
-    price: 2.85,
+    price: 1.85,
     size: 1000,
     leverage: 50,
     filled_size: null,
@@ -88,8 +88,8 @@ Fetched order from DB: {
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 1b: Correcting Order: Clears Rejected status; resubmitted',
-    create_time: 2026-01-29T13:48:51.930Z,
-    expiry_time: 2026-01-29T21:51:47.725Z,
-    update_time: 2026-01-29T13:51:47.757Z
+    create_time: 2026-02-17T03:53:21.164Z,
+    expiry_time: 2026-02-17T11:56:44.369Z,
+    update_time: 2026-02-17T03:56:44.404Z
   }
 ]

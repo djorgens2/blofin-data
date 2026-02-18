@@ -4,8 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "api";
+import type { IPublishResult, IRequestAPI } from "api";
 import type { IRequest } from "db/interfaces/request";
+import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
 import { hexify } from "lib/crypto.util";
 import { Select } from "db/query.utils";
@@ -18,7 +19,7 @@ import * as API from "api/interfaces/requests";
 //-- [Process.Orders] Submit local requests to the API
 type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequest>[] };
 
-export const Queued = async () => {
+export const Queued = async (): Promise<Array<IPublishResult<IRequest | IInstrumentPosition>>> => {
   const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
 
   if (!requests.length) return [];
@@ -49,9 +50,7 @@ export const Queued = async () => {
       }),
     ),
   ]);
-  console.log(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
-  console.error(`-> Leverage response:`, leverage, `on ${queue.length} queued requests`);
 
-  const submitted = await API.Submit(queue);
-  return [...expired, ...leverage, ...submitted].map((r) => r?.response);
+  const submitted = await API.Submit(queue) ?? [];
+  return [...expired, ...leverage, ...submitted].flat();
 };

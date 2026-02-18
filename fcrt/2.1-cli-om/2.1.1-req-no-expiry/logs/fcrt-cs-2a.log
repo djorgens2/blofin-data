@@ -1,56 +1,53 @@
 -> [Info] request inserted {
-  fields: [
-    'request',
-    'instrument_position',
-    'action',
-    'state',
-    'price',
-    'size',
-    'leverage',
-    'request_type',
-    'margin_mode',
-    'memo',
-    'create_time',
-    'expiry_time',
-    'update_time'
-  ],
-  args: [
-    <Buffer 82 99 2c 88 64 97>,
-    <Buffer ed da 99 9d fb 4e>,
-    'sell',
-    <Buffer 62 57 cb>,
-    2.95,
-    100,
-    40,
-    <Buffer b8 32 96>,
-    'cross',
-    'Test 2a: request w/o expiry; w/o tpsl',
-    2026-01-23T21:26:33.047Z,
-    2026-01-24T05:26:33.048Z,
-    2026-01-23T21:26:33.047Z
-  ]
+  columns: {
+    request: <Buffer 43 b7 4a 4b 44 0d>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
+    action: 'sell',
+    state: <Buffer 62 57 cb>,
+    price: 1.65,
+    size: 1000,
+    leverage: 40,
+    request_type: <Buffer b8 32 96>,
+    margin_mode: 'cross',
+    memo: 'Test 2a: request w/o expiry; w/o tpsl',
+    create_time: 2026-02-16T07:48:27.241Z,
+    expiry_time: 2026-02-16T15:48:27.242Z,
+    update_time: 2026-02-16T07:48:27.241Z
+  }
 }
 {
   submitted: {
-    key: { request: <Buffer 82 99 2c 88 64 97> },
-    response: { success: true, code: 0, response: 'inserted', rows: 1 }
+    key: { request: <Buffer 43 b7 4a 4b 44 0d> },
+    response: {
+      success: true,
+      code: 0,
+      response: 'inserted',
+      rows: 1,
+      context: 'Request.Publish.Submit'
+    }
   },
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
     action: 'sell',
     order_type: 'limit',
-    price: 2.95,
-    size: 100
+    price: 1.65,
+    size: 1000
   }
 }
 Test 2a: Request submitted, check db for results. {
-  key: { request: <Buffer 82 99 2c 88 64 97> },
-  response: { success: true, code: 0, response: 'inserted', rows: 1 }
+  key: { request: <Buffer 43 b7 4a 4b 44 0d> },
+  response: {
+    success: true,
+    code: 0,
+    response: 'inserted',
+    rows: 1,
+    context: 'Request.Publish.Submit'
+  }
 }
 Fetched order from DB: [
   {
-    request: <Buffer 82 99 2c 88 64 97>,
+    request: <Buffer 43 b7 4a 4b 44 0d>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -71,8 +68,8 @@ Fetched order from DB: [
     request_type: <Buffer b8 32 96>,
     order_type: 'limit',
     margin_mode: 'cross',
-    price: 2.95,
-    size: 100,
+    price: 1.65,
+    size: 1000,
     leverage: 40,
     filled_size: null,
     filled_amount: null,
@@ -92,8 +89,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 2a: request w/o expiry; w/o tpsl',
-    create_time: 2026-01-23T21:26:33.047Z,
-    expiry_time: 2026-01-24T05:26:33.048Z,
-    update_time: 2026-01-23T21:26:33.047Z
+    create_time: 2026-02-16T07:48:27.241Z,
+    expiry_time: 2026-02-16T15:48:27.242Z,
+    update_time: 2026-02-16T07:48:27.241Z
   }
 ]

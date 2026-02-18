@@ -1,14 +1,15 @@
-//+--------------------------------------------------------------------------------------+
-//|                                                                   [api]  accounts.ts |
-//|                                                     Copyright 2018, Dennis Jorgenson |
-//+--------------------------------------------------------------------------------------+
+/**
+  * [api] accounts.ts
+  * 
+  * Accounts - WSS receiver only; syncs local account details by applying broker push notifications
+  *
+  * (c) 2018, Dennis Jorgenson
+ */
 "use strict";
 
 import { Session } from "module/session";
 import { format } from "lib/std.util";
-
-import * as Accounts from "db/interfaces/account";
-import * as Currency from "db/interfaces/currency";
+import { Account, Currency } from "db";
 
 export interface IAccountAPI {
   ts: string;
@@ -42,7 +43,7 @@ export interface IAccountAPI {
 //+--------------------------------------------------------------------------------------+
 export const Publish = async (props: IAccountAPI) => {
   if (props && props.details) {
-    await Accounts.Publish({
+    await Account.Publish({
       account: Session().account,
       total_equity: format(props!.totalEquity, 3),
       isolated_equity: format(props!.isolatedEquity, 3),
@@ -53,7 +54,7 @@ export const Publish = async (props: IAccountAPI) => {
       const currency = await Currency.Key({ symbol: detail.currency });
 
       currency &&
-        (await Accounts.PublishDetail({
+        (await Account.PublishDetail({
           account: Session().account,
           currency,
           balance: format(detail.balance!, 3),

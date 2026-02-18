@@ -1,52 +1,114 @@
-To handle the
-IN operator, your parseKeys loop needs a way to expand a single ? into a dynamic list of placeholders (e.g., (?, ?, ?)) based on the length of the array provided. 
-Updated parseKeys with IN Support
-typescript
+ts, I was hoping for something more like this... (the possibility appears to be waning)
 
-const parseKeys = <T extends object>(props: Partial<T>, keys?: Array<TKey<T>>) => {
-  const sqlClauses: Array<string> = [];
-  const values: Array<any> = [];
+AppTypes:
 
-  for (const [col, val] of Object.entries(props)) {
-    if (val === undefined) continue;
-
-    const match = keys?.find(([k]) => k === col);
-    const sign = (match ? match[1] : "=") || "=";
-
-    // Handle IN clauses with dynamic placeholders
-    if (sign.toUpperCase() === "IN" && Array.isArray(val)) {
-      if (val.length === 0) continue; // MySQL 'IN ()' is a syntax error
-      
-      const placeholders = val.map(() => "?").join(", ");
-      sqlClauses.push(`${col} IN (${placeholders})`);
-      values.push(...val); // Flatten array values into the main args list
-    } 
-    else {
-      // Standard =, LIKE, <, > behavior
-      sqlClauses.push(`${col} ${sign} ?`);
-      values.push(val);
-    }
-  }
-
-  return [sqlClauses, values] as [string[], any[]];
+type TResponseData = {
+  orderId: string;
+  clientOrderId: string;
+  msg: string;
+  code: string;
 };
 
-Use code with caution.
-Why this logic is required
+type TResponseAPI = {
+  code: string;
+  msg: string;
+  data: Array<TResponseData>;
+};
 
-    Placeholder Expansion: Standard prepared statements expect exactly one value per ?. For an IN clause, you must manually generate a string of comma-separated ? to match the number of items in your array.
-    Flattening Args: By using values.push(...val), you ensure the individual array items are added as separate arguments in the final args array, matching the number of generated placeholders.
-    Empty Guard: An empty IN () list will cause a 1064 syntax error in MySQL. 
+-> or, something like this:
+type TResponseData = {
+  orderId: string;
+  clientOrderId: string;
+  msg: string;
+  code: string;
+};
 
-Example Test Case
-typescript
+interface TResponseAPI extends IApiItem<TResponseData> {
+  data: Array<TResponseData>;
+};
 
-const props = { symbol: ['XRP-USDT', 'BTC-USDT'] };
-const options = { keys: [['symbol', 'IN']] };
 
-const [fields, args] = parseKeys(props, options.keys);
-// fields -> ["symbol IN (?, ?)"]
-// args   -> ["XRP-USDT", "BTC-USDT"]
+Api Types:
 
-Use code with caution.
-Ready to try the IN test, or should we add a check for null values to generate IS NULL automatically?
+// Define a base interface for what an API item looks like
+// This ensures 'data' always has at least these fields
+export interface IApiItem<T> {
+  code?: string | number;
+  msg?: string;
+  data: T[];
+}
+
+/**
+ * ApiError
+ *
+ * Formats and handles errors received from an api call;
+ */
+export class ApiError<T extends IApiItem<T>> extends Error {
+  public readonly data: T[];
+
+  constructor(
+    public readonly code: string | number,
+    public readonly msg: string,
+    data?: T[],
+  ) {
+    // Standardize the message for the stack trace
+    super(`[API] Code ${code}: ${msg}`);
+
+    this.name = "ApiError";
+    this.data = data || [];
+
+    Object.setPrototypeOf(this, ApiError.prototype);
+  }
+}
+
+-> the API_POST looks like this:
+
+Request Example:
+[
+  {
+    "instId": "ETH-USDT",
+    "marginMode": "cross",
+    "positionSide": "net",
+    "side": "buy",
+    "orderType": "limit",
+    "price": "1601.1",
+    "size": "1",
+    "reduceOnly": "false",
+    "clientOrderId": "eeeeee11223112",
+    "tpTriggerPrice": "",
+    "tpOrderPrice": "",
+    "slTriggerPrice": "",
+    "slOrderPrice": ""
+  },
+    {
+    "instId": "ETH-USDT",
+    "marginMode": "cross",
+    "positionSide": "net",
+    "side": "buy",
+    "orderType": "limit",
+    "price": "1602.1",
+    "size": "2",
+    "reduceOnly": "false",
+    "clientOrderId": "eeeeee1122321",
+    "tpTriggerPrice": "",
+    "tpOrderPrice": "",
+    "slTriggerPrice": "",
+    "slOrderPrice": ""
+  }
+]
+    
+Response Example:
+{
+    "code": "0",
+    "msg": "success",
+    "data": [
+        {
+            "orderId": "22617453",
+            "clientOrderId": "eeeeee11223112"
+        },
+        {
+            "orderId": "22617454",
+            "clientOrderId": "eeeeee1122321"
+        }
+    ]
+}

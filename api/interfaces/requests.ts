@@ -4,11 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api";
+import type { IPublishResult, TResponse, IApiEnvelope } from "api";
 import type { TRequestState } from "db/interfaces/state";
 import type { IRequest } from "db/interfaces/request";
 
-import { API_POST, ApiError, PrimaryKey } from "api/api.util";
+import { API_POST, ApiError, isApiError, PrimaryKey } from "api";
 import { hexify } from "lib/crypto.util";
 
 import * as Request from "db/interfaces/request";
@@ -39,12 +39,14 @@ export interface IRequestAPI {
   expiry_time?: Date;
 }
 
-type TResponseAPI = {
+type TResponseData = {
   orderId: string;
   clientOrderId: string;
   msg: string;
   code: string;
 };
+
+interface TResponseAPI extends IApiEnvelope<TResponseData> {}
 
 type TRequestResponse = Partial<IRequest> & TResponse;
 
@@ -58,7 +60,7 @@ interface PublishConfig {
 /**
  * Process the api response returned after a POST call
  */
-const publish = async (response: TResponseAPI, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
+const publish = async (response: Array<TResponseData>, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
   if (!Array.isArray(response) || !response.length) {
     console.error(`-> [Error] ${config.context}: Invalid response format`, response);
     return [];
@@ -87,13 +89,13 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
           message: request.msg,
         } as TRequestResponse,
       };
-    })
+    }),
   );
 
   return Promise.all(
     orders.map(async ({ success, current, request }) => {
       const { code, message, ...updates } = request;
-      const result = await Request.Publish('API', current, updates);
+      const result = await Request.Publish("API", current, updates);
 
       return {
         key: PrimaryKey(request, ["request"]),
@@ -105,7 +107,7 @@ const publish = async (response: TResponseAPI, config: PublishConfig): Promise<A
           code: success ? 0 : result.response.success ? code || 0 : request.code || 0,
         },
       };
-    })
+    }),
   );
 };
 
@@ -118,7 +120,7 @@ export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
   const cancels = requests.map(({ instId, orderId }) => ({ instId, orderId }));
   const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
 
-  return await publish(result, {
+  return await publish(result.data, {
     context: "Request.Publish.Cancel",
     states: { success: "Closed", fail: "Canceled" },
     outcomes: { success: "closed", fail: "error" },
@@ -135,15 +137,30 @@ export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
 export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
   if (!requests.length) return [];
 
-  const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
-
-  return await publish(result, {
-    context: "Request.Publish.Submit",
-    states: { success: "Pending", fail: "Rejected" },
-    outcomes: { success: "pending", fail: "rejected" },
-    messages: {
-      success: "[Info] Order submitted successfully",
-      fail: "[Error] Order submission failed",
-    },
-  });
+  try {
+    const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
+    console.log("Success Result:",requests, result);
+    return await publish(result.data, {
+      context: "Request.Publish.Submit",
+      states: { success: "Pending", fail: "Rejected" },
+      outcomes: { success: "pending", fail: "rejected" },
+      messages: {
+        success: "[Info] Order submitted successfully",
+        fail: "[Error] Order submission failed",
+      },
+    });
+  } catch (error) {
+    if (isApiError<TResponseData>(error)) {
+      console.log("Fail Result:",requests, error?.code, error.message, error.data);
+      return await publish(error.data, {
+        context: "Request.Publish.Submit.Partial",
+        states: { success: "Pending", fail: "Rejected" },
+        outcomes: { success: "pending", fail: "rejected" },
+        messages: {
+          success: "[Info] Order submitted successfully",
+          fail: "[Error] Order submission failed",
+        },
+      });
+    }
+  }
 };

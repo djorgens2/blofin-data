@@ -1,12 +1,12 @@
 [1mdiff --git a/./.base.csv b/./.comp.csv[m
-[1mindex b8daa78..190409f 100644[m
+[1mindex 6033521..1783a94 100644[m
 [1m--- a/./.base.csv[m
 [1m+++ b/./.comp.csv[m
 [36m@@ -2 +2 @@[m [mREQUEST,ORDERS,VW_ORDERS,VW_API_REQUESTS[m
-27[31m4[m[32m5[m,345,27[31m4[m[32m5[m,27[31m4[m[32m5[m
+29[31m5[m[32m6[m,380,29[31m5[m[32m6[m,29[31m5[m[32m6[m
 [36m@@ -12,0 +13 @@[m [mTime"[m
-[32mD185A1BE80B0,EDDA999DFB4E,sell,6257CB,2.85,100,40,B83296,cross,1,"Test 1a: request w/ expiry; w/o tpsl",,"2026/01/23 16:10:27.990","2026/01/23 16:15:27.956","2026/01/23 16:10:27.990"[m
-[36m@@ -670,0 +672 @@[m [mTime"[m
-[32mD185A1BE80B0,,24597A,A2800A,EDDA999DFB4E,XRP-USDT,20E067,XRP,B52BC7,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,2.85,100,40,,,,,,4,,,,,9B1ACC,E1A1FA,1,,03E80E,15m,15,"Test 1a: request w/ expiry; w/o tpsl","2026-01-23 16:10:27.990","2026/01/23 16:15:27.956","2026/01/23 16:10:27.990"[m
-[36m@@ -946,0 +949 @@[m [maccount,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,[m
-[32m24597A,,Queued,XRP-USDT,cross,short,sell,limit,2.85,100,40,true,,D185A1BE80B0,"Test 1a: request w/ expiry; w/o tpsl","2026/01/23 16:15:27.956"[m
+[32m88A0328996E8,EDDA999DFB4E,sell,6257CB,1.65,1000,40,B83296,cross,1,"Test 1a: request w/ expiry; w/o tpsl",,"2026/02/16 10:38:45.039","2026/02/16 10:43:45.004","2026/02/16 10:38:45.039"[m
+[36m@@ -726,0 +728 @@[m [mTime"[m
+[32m88A0328996E8,,24597A,A2800A,EDDA999DFB4E,XRP-USDT,20E067,XRP,B52BC7,USDT,6257CB,Queued,6257CB,Queued,,,short,sell,B83296,limit,cross,1.65,1000,40,,,,,,4,,,,,9B1ACC,E1A1FA,1,,03E80E,15m,15,"Test 1a: request w/ expiry; w/o tpsl","2026-02-16 10:38:45.039","2026/02/16 10:43:45.004","2026/02/16 10:38:45.039"[m
+[36m@@ -1023,0 +1026 @@[m [maccount,orderId,status,instId,marginMode,positionSide,side,orderType,price,size,[m
+[32m24597A,,Queued,XRP-USDT,cross,short,sell,limit,1.65,1000,40,true,,88A0328996E8,"Test 1a: request w/ expiry; w/o tpsl","2026/02/16 10:43:45.004"[m

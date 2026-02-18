@@ -105,7 +105,6 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
   props.account = props.account || Session().account;
-  console.log("Query Props:", props);
   const result = await Select<IOrder>(props, { ...options, table: `vw_orders` });
   return result.length ? result : undefined;
 };
@@ -115,7 +114,7 @@ export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>):
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IOrder>): Promise<IOrder["request"] | undefined> => {
   if (hasValues<Partial<IOrder>>(props)) {
-    Object.assign(props, { account: props.account || Session().account });
+    props.account = props.account || Session().account;
     const [result] = await Select<IOrder>(props, { table: `vw_orders` });
     return result ? result.request : undefined;
   } else return undefined;

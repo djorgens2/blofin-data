@@ -5,7 +5,7 @@
 "use strict";
 
 import type { IRequestAPI } from "api/interfaces/requests";
-import type { TOptions } from "db/query.utils";
+import type { TOptions } from "db/types";
 import type { IAuthority } from "db/interfaces/authority";
 import type { IStopOrder } from "db/interfaces/stops";
 import type { IStopsAPI } from "api/interfaces/stops";

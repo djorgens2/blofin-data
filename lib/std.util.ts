@@ -197,6 +197,17 @@ export const format = (value: number | string, digits: number = 14): number => {
   return isNaN(parseFloat(formatted)) ? 0 : Number(formatted);
 };
 
+export const toProperCase = (text: string) => {
+  text = text.toLowerCase();
+  
+  // Use replace with a regular expression to find the first letter of each word
+  // \b matches a word boundary, \w matches a word character
+  return text.replace(/\b\w/g, function(char) {
+    // Capitalize the matched first character
+    return char.toUpperCase();
+  });
+}
+
 //+--------------------------------------------------------------------------------------+
 //| Returns the max length of each object key from array; default maximums in keylens;   |
 //+--------------------------------------------------------------------------------------+

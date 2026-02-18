@@ -5,57 +5,72 @@
  */
 "use strict";
 
-import type { TPrimaryKey, IPublishResult } from "api";
-import {  Session, signRequest  } from "module/session";
+import type { TResponse } from "api";
+import { Session, signRequest } from "module/session";
 
 /**
- * PrimaryKey
+ * Factory function to generate a canonical response object.
+ * Standardizes the communication between API, Database, and State Machine modules
+ * to prevent 'undefined' errors and ensure consistent outcome reporting.
  *
- * Builds and formats the TResponse pkey for a all db Primary Keys including composites
+ * @template T - The type of the data payload (typically an object or array).
+ * @param {boolean} success - Primary flag indicating if the operation met expectations.
+ * @param {string} context - The module/function path (e.g., 'DB.Request.Update') for trace logging.
+ * @param {Object} [overrides={}] - Optional properties to overwrite default values.
+ * @param {number|string} [overrides.code] - Custom error or status code (defaults to 0 on success).
+ * @param {string} [overrides.state] - The FCRT state (e.g., 'Pending', 'Rejected', 'Complete').
+ * @param {string} [overrides.message] - Human-readable status message for logs and UI.
+ * @param {number} [overrides.rows] - Number of affected records (auto-calculated if data is provided).
+ * @param {T} [overrides.data] - The actual payload being transported.
+ * 
+ * @returns {TResponse & { data?: T }} A standardized result object containing metadata and payload.
+ * 
+ * @example
+ * // Success Example
+ * const res = ApiResult(true, 'API.Submit', { data: { id: '123' }, state: 'Pending' });
+ * 
+ * @example
+ * // Failure Example
+ * const res = ApiResult(false, 'DB.Query', { message: 'Unique constraint failed', code: 'P2002' });
  */
-export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
-  const cpk: TPrimaryKey<T> = {};
-  keys.forEach((key) => {
-    if (obj[key] !== undefined) {
-      cpk[key] = obj[key] as any;
-    }
-  });
-  return cpk;
-};
-
-/**
- * ApiResult
- *
- * Uniformly formats the canonical the IPublish object;
- */
-export const ApiResult = <T>(context: string, data: any[], code = 200, message?: string): IPublishResult<T> => ({
-  key: undefined,
-  response: {
-    success: data.length > 0,
-    code,
-    response: `total`,
-    rows: data.length,
-    context,
-    message: message ? message : data.length ? `[Info] ${context} successful` : `[Warning] ${context} no data found`,
-  },
+export const ApiResult = <T> (
+  success: boolean,
+  context: string,
+  overrides: Partial<TResponse> & { data?: T } = {}
+): TResponse & { data?: T } => ({
+  success,
+  code: overrides.code || (success ? 0 : "ERR_GENERIC"),
+  state: overrides.state || (success ? "Success" : "Failed"),
+  message: overrides.message || (success ? "Operation completed" : "Operation failed"),
+  rows: overrides.rows ?? (overrides.data ? (Array.isArray(overrides.data) ? overrides.data.length : 1) : 0),
+  context,
+  data: overrides.data
 });
 
 /**
- * ApiError
- *
- * Formats and handles errors received from an api call;
+ * Type guard to check if an error is an ApiError with a specific data payload
  */
-export class ApiError extends Error {
-  public readonly code: number;
-  public readonly msg: string;
+export function isApiError<T>(error: unknown): error is ApiError<T> {
+  return error instanceof ApiError;
+}
 
-  constructor(code: number, msg: string) {
+/**
+ * ApiError
+ * T represents the type of the items INSIDE the data array.
+ */
+export class ApiError<T> extends Error {
+  public readonly data: T | undefined;
+
+  constructor(
+    public readonly code: string | number,
+    public readonly msg: string,
+    data?: T,
+  ) {
     super(`[API] Code ${code}: ${msg}`);
-
     this.name = "ApiError";
-    this.code = code;
-    this.msg = msg;
+    this.data = data;
 
+    // Necessary for extending built-in classes in TS/ES5
     Object.setPrototypeOf(this, ApiError.prototype);
   }
 }
@@ -94,7 +109,8 @@ export const API_POST = async <T>(path: string, data: unknown, context: string):
     const result = await response.json();
     if (result.code !== "0") {
       console.log("[Error]", result);
-      throw new ApiError(result.code, result.msg);
+      // result.data is inferred as T[] here
+      throw new ApiError<T>(result.code, result.msg, result.data);
     }
 
     return result.data as T;

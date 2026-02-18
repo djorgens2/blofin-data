@@ -1,10 +1,7 @@
-[Info] Session.Config: Blofin Demo configured successfully
+[Info] Session.Config: Blofin Demo/XRP-USDT configured successfully
 -> Test 1a: Using Account: {
-  candle_max_fetch: 1440,
-  leverage_max_fetch: 20,
-  orders_max_fetch: 100,
-  default_sma: 60,
-  default_leverage: 10,
+  account: <Buffer 24 59 7a>,
+  symbol: 'XRP-USDT',
   alias: 'Blofin Demo',
   api: '740ca668a6d34933b9534d805e18adc1',
   secret: '732f894dd0f6476083dd7bd11bf04198',
@@ -12,68 +9,70 @@
   rest_api_url: 'https://demo-trading-openapi.blofin.com',
   private_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/private',
   public_wss_url: 'wss://demo-trading-openapi.blofin.com/ws/public',
-  account: <Buffer 24 59 7a>,
+  candle_max_fetch: 1440,
+  leverage_max_fetch: 20,
+  orders_max_fetch: 100,
+  default_sma: 60,
+  default_leverage: 10,
   margin_mode: 'cross',
   hedging: 1,
   state: 'disconnected',
   audit_order: '0',
-  audit_stops: '0'
+  audit_stops: '0',
+  Log: [Function: Log]
 }
 -> [Info] request inserted {
-  fields: [
-    'request',
-    'instrument_position',
-    'action',
-    'state',
-    'price',
-    'size',
-    'leverage',
-    'request_type',
-    'margin_mode',
-    'memo',
-    'create_time',
-    'expiry_time',
-    'update_time'
-  ],
-  args: [
-    <Buffer d1 85 a1 be 80 b0>,
-    <Buffer ed da 99 9d fb 4e>,
-    'sell',
-    <Buffer 62 57 cb>,
-    2.85,
-    100,
-    40,
-    <Buffer b8 32 96>,
-    'cross',
-    'Test 1a: request w/ expiry; w/o tpsl',
-    2026-01-24T00:10:27.990Z,
-    2026-01-24T00:15:27.956Z,
-    2026-01-24T00:10:27.990Z
-  ]
+  columns: {
+    request: <Buffer 88 a0 32 89 96 e8>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
+    action: 'sell',
+    state: <Buffer 62 57 cb>,
+    price: 1.65,
+    size: 1000,
+    leverage: 40,
+    request_type: <Buffer b8 32 96>,
+    margin_mode: 'cross',
+    memo: 'Test 1a: request w/ expiry; w/o tpsl',
+    create_time: 2026-02-16T18:38:45.039Z,
+    expiry_time: 2026-02-16T18:43:45.004Z,
+    update_time: 2026-02-16T18:38:45.039Z
+  }
 }
 {
   submitted: {
-    key: { request: <Buffer d1 85 a1 be 80 b0> },
-    response: { success: true, code: 0, response: 'inserted', rows: 1 }
+    key: { request: <Buffer 88 a0 32 89 96 e8> },
+    response: {
+      success: true,
+      code: 0,
+      response: 'inserted',
+      rows: 1,
+      context: 'Request.Publish.Submit'
+    }
   },
   request: {
     symbol: 'XRP-USDT',
     position: 'short',
     action: 'sell',
     order_type: 'limit',
-    price: 2.85,
-    size: 100,
-    expiry_time: 2026-01-24T00:15:27.956Z,
+    price: 1.65,
+    size: 1000,
+    expiry_time: 2026-02-16T18:43:45.004Z,
     memo: 'Test 1a: request w/ expiry; w/o tpsl'
   }
 }
 Test 1a: Request submitted, check db for results. {
-  key: { request: <Buffer d1 85 a1 be 80 b0> },
-  response: { success: true, code: 0, response: 'inserted', rows: 1 }
+  key: { request: <Buffer 88 a0 32 89 96 e8> },
+  response: {
+    success: true,
+    code: 0,
+    response: 'inserted',
+    rows: 1,
+    context: 'Request.Publish.Submit'
+  }
 }
 Fetched order from DB: [
   {
-    request: <Buffer d1 85 a1 be 80 b0>,
+    request: <Buffer 88 a0 32 89 96 e8>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -94,8 +93,8 @@ Fetched order from DB: [
     request_type: <Buffer b8 32 96>,
     order_type: 'limit',
     margin_mode: 'cross',
-    price: 2.85,
-    size: 100,
+    price: 1.65,
+    size: 1000,
     leverage: 40,
     filled_size: null,
     filled_amount: null,
@@ -115,8 +114,8 @@ Fetched order from DB: [
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 1a: request w/ expiry; w/o tpsl',
-    create_time: 2026-01-24T00:10:27.990Z,
-    expiry_time: 2026-01-24T00:15:27.956Z,
-    update_time: 2026-01-24T00:10:27.990Z
+    create_time: 2026-02-16T18:38:45.039Z,
+    expiry_time: 2026-02-16T18:43:45.004Z,
+    update_time: 2026-02-16T18:38:45.039Z
   }
 ]

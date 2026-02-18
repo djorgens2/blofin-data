@@ -16,10 +16,7 @@ import { PrimaryKey } from "api";
 import { isEqual } from "lib/std.util";
 import { Session } from "module/session";
 
-import * as States from "db/interfaces/state";
-import * as Users from "db/interfaces/user";
-import * as Brokers from "db/interfaces/broker";
-import * as Environments from "db/interfaces/environment";
+import { State, User, Broker, Environment } from "db";
 
 export interface IAccount {
   account: Uint8Array;
@@ -113,10 +110,10 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
     const account: Partial<IAccount> = {
       account: hash,
       alias: props.alias,
-      owner: props.owner || (await Users.Key({ username: props.owner_name })) || undefined,
-      broker: props.broker || (await Brokers.Key({ name: props.broker_name })) || undefined,
-      state: props.state || (props.status ? await States.Key<IAccess>({ status: props.status }) : undefined) || undefined,
-      environment: props.environment || (await Environments.Key({ environ: props.environ })) || undefined,
+      owner: props.owner || (await User.Key({ username: props.owner_name })) || undefined,
+      broker: props.broker || (await Broker.Key({ name: props.broker_name })) || undefined,
+      state: props.state || (props.status ? await State.Key<IAccess>({ status: props.status }) : undefined) || undefined,
+      environment: props.environment || (await Environment.Key({ environ: props.environ })) || undefined,
       total_equity: 0,
       isolated_equity: 0,
       rest_api_url: props.rest_api_url,

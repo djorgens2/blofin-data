@@ -1762,68 +1762,68 @@ END]]></string>
 		<entity schema="devel" name="stop_request" color="3986C1" x="1881" y="950" />
 	</layout>
 	<layout name="Main Diagram" id="8ebd5325-da29-41a9-b71d-52356bcda289" show_relation="fk_name" >
-		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="646" y="1197" />
-		<entity schema="devel" name="vw_accounts" color="E6B3E6" x="2489" y="399" />
-		<entity schema="devel" name="full_audit_request" color="00FFFF" x="2299" y="1520" />
-		<entity schema="devel" name="vw_users" color="E6B3E6" x="2755" y="703" />
-		<entity schema="devel" name="vw_audit_requests" color="00FFFF" x="2508" y="1520" />
-		<entity schema="devel" name="api_error" color="00FFFF" x="2717" y="1520" />
-		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="2527" y="1843" />
-		<entity schema="devel" name="environment" color="994D00" x="2166" y="1330" />
-		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="1843" y="1520" />
-		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="1862" y="1634" />
-		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1634" y="1368" />
-		<entity schema="devel" name="audit_request" color="00FFFF" x="2318" y="1881" />
-		<entity schema="devel" name="vw_order_states" color="00FFFF" x="2736" y="1653" />
-		<entity schema="devel" name="vw_instrument_candles" color="3986C1" x="1862" y="1767" />
-		<entity schema="devel" name="vw_candles" color="4D66CC" x="646" y="1444" />
-		<entity schema="devel" name="vw_instruments" color="4D66CC" x="247" y="1197" />
-		<entity schema="devel" name="vw_positions" color="666666" x="2926" y="1330" />
-		<entity schema="devel" name="vw_role_subject_areas" color="E6B3E6" x="2508" y="1273" />
-		<entity schema="devel" name="currency" color="F0ECF7" x="1178" y="1121" />
-		<entity schema="devel" name="instrument" color="F0ECF7" x="1102" y="1406" />
-		<entity schema="devel" name="contract_type" color="F0ECF7" x="1311" y="1463" />
-		<entity schema="devel" name="app_config" color="F0ECF7" x="1558" y="1805" />
-		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1311" y="1596" />
-		<entity schema="devel" name="authority" color="C7F4BE" x="874" y="95" />
-		<entity schema="devel" name="state" color="F4BECD" x="1083" y="570" />
-		<entity schema="devel" name="user_account" color="994D00" x="2147" y="380" />
-		<entity schema="devel" name="broker" color="994D00" x="2318" y="380" />
-		<entity schema="devel" name="positions" color="F0ECF7" x="1501" y="779" />
-		<entity schema="devel" name="instrument_position" color="F0ECF7" x="950" y="798" />
-		<entity schema="devel" name="orders" color="FFFF00" x="95" y="532" />
-		<entity schema="devel" name="account_detail" color="994D00" x="1843" y="893" />
-		<entity schema="devel" name="margin_mode" color="994D00" x="1881" y="741" />
-		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2717" y="380" />
-		<entity schema="devel" name="vw_orders" color="666666" x="2926" y="380" />
-		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2755" y="1083" />
-		<entity schema="devel" name="user" color="C7F4BE" x="1520" y="399" />
-		<entity schema="devel" name="role" color="C7F4BE" x="1197" y="399" />
-		<entity schema="devel" name="request" color="FFFF00" x="494" y="627" />
-		<entity schema="devel" name="stop_type" color="FFFF00" x="304" y="665" />
-		<entity schema="devel" name="stop_price" color="FFFF00" x="361" y="418" />
-		<entity schema="devel" name="stop_request" color="FFFF00" x="646" y="342" />
-		<entity schema="devel" name="role_authority" color="C7F4BE" x="1121" y="95" />
-		<entity schema="devel" name="request_type" color="FFFF00" x="228" y="836" />
-		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="95" />
-		<entity schema="devel" name="price_type" color="FFFF00" x="380" y="95" />
-		<entity schema="devel" name="order_category" color="FFFF00" x="209" y="247" />
-		<entity schema="devel" name="cancel_source" color="FFFF00" x="95" y="988" />
-		<entity schema="devel" name="vw_currency" color="4D66CC" x="266" y="1691" />
-		<entity schema="devel" name="position" color="F0ECF7" x="874" y="1311" />
-		<entity schema="devel" name="period" color="F0ECF7" x="931" y="1881" />
-		<entity schema="devel" name="candle" color="F0ECF7" x="1216" y="1748" />
-		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1045" y="1672" />
-		<entity schema="devel" name="subject_area" color="C7F4BE" x="1672" y="95" />
-		<entity schema="devel" name="vw_api_requests" color="666666" x="3173" y="1140" />
-		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3154" y="1596" />
-		<entity schema="devel" name="vw_stop_orders" color="666666" x="3135" y="380" />
-		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="437" y="1197" />
-		<entity schema="devel" name="activity" color="C7F4BE" x="1387" y="95" />
-		<entity schema="devel" name="stop_order" color="FFFF00" x="684" y="95" />
-		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="2090" y="1520" />
-		<entity schema="devel" name="hedging" color="994D00" x="2318" y="1178" />
-		<entity schema="devel" name="account" color="994D00" x="2204" y="608" />
+		<entity schema="devel" name="vw_instrument_periods" color="4D66CC" x="760" y="1292" />
+		<entity schema="devel" name="vw_accounts" color="E6B3E6" x="2603" y="399" />
+		<entity schema="devel" name="full_audit_request" color="00FFFF" x="2413" y="1520" />
+		<entity schema="devel" name="vw_users" color="E6B3E6" x="2869" y="703" />
+		<entity schema="devel" name="vw_audit_requests" color="00FFFF" x="2622" y="1520" />
+		<entity schema="devel" name="api_error" color="00FFFF" x="2831" y="1520" />
+		<entity schema="devel" name="vw_audit_candles" color="00FFFF" x="2641" y="1843" />
+		<entity schema="devel" name="environment" color="994D00" x="2280" y="1330" />
+		<entity schema="devel" name="vw_audit_instrument_periods" color="00FFFF" x="1957" y="1520" />
+		<entity schema="devel" name="vw_audit_role_authority" color="00FFFF" x="1976" y="1634" />
+		<entity schema="devel" name="instrument_detail" color="F0ECF7" x="1748" y="1368" />
+		<entity schema="devel" name="audit_request" color="00FFFF" x="2432" y="1881" />
+		<entity schema="devel" name="vw_order_states" color="00FFFF" x="2850" y="1653" />
+		<entity schema="devel" name="vw_instrument_candles" color="3986C1" x="1976" y="1767" />
+		<entity schema="devel" name="vw_candles" color="4D66CC" x="760" y="1539" />
+		<entity schema="devel" name="vw_instruments" color="4D66CC" x="361" y="1292" />
+		<entity schema="devel" name="vw_positions" color="666666" x="3040" y="1330" />
+		<entity schema="devel" name="vw_role_subject_areas" color="E6B3E6" x="2622" y="1273" />
+		<entity schema="devel" name="currency" color="F0ECF7" x="1292" y="1121" />
+		<entity schema="devel" name="instrument" color="F0ECF7" x="1216" y="1406" />
+		<entity schema="devel" name="contract_type" color="F0ECF7" x="1425" y="1463" />
+		<entity schema="devel" name="app_config" color="F0ECF7" x="1672" y="1805" />
+		<entity schema="devel" name="instrument_type" color="F0ECF7" x="1425" y="1596" />
+		<entity schema="devel" name="authority" color="C7F4BE" x="988" y="95" />
+		<entity schema="devel" name="state" color="F4BECD" x="1197" y="570" />
+		<entity schema="devel" name="user_account" color="994D00" x="2261" y="380" />
+		<entity schema="devel" name="broker" color="994D00" x="2432" y="380" />
+		<entity schema="devel" name="positions" color="F0ECF7" x="1615" y="779" />
+		<entity schema="devel" name="instrument_position" color="F0ECF7" x="1064" y="798" />
+		<entity schema="devel" name="account_detail" color="994D00" x="1957" y="893" />
+		<entity schema="devel" name="margin_mode" color="994D00" x="1995" y="741" />
+		<entity schema="devel" name="vw_role_authority" color="E6B3E6" x="2831" y="380" />
+		<entity schema="devel" name="vw_orders" color="666666" x="3040" y="380" />
+		<entity schema="devel" name="vw_activity" color="E6B3E6" x="2869" y="1083" />
+		<entity schema="devel" name="user" color="C7F4BE" x="1634" y="399" />
+		<entity schema="devel" name="role" color="C7F4BE" x="1311" y="399" />
+		<entity schema="devel" name="request" color="FFFF00" x="608" y="627" />
+		<entity schema="devel" name="stop_request" color="FFFF00" x="760" y="342" />
+		<entity schema="devel" name="role_authority" color="C7F4BE" x="1235" y="95" />
+		<entity schema="devel" name="vw_currency" color="4D66CC" x="380" y="1786" />
+		<entity schema="devel" name="position" color="F0ECF7" x="988" y="1311" />
+		<entity schema="devel" name="period" color="F0ECF7" x="1045" y="1881" />
+		<entity schema="devel" name="candle" color="F0ECF7" x="1330" y="1748" />
+		<entity schema="devel" name="instrument_period" color="F0ECF7" x="1159" y="1672" />
+		<entity schema="devel" name="subject_area" color="C7F4BE" x="1786" y="95" />
+		<entity schema="devel" name="vw_api_requests" color="666666" x="3287" y="1140" />
+		<entity schema="devel" name="vw_api_stop_requests" color="666666" x="3268" y="1596" />
+		<entity schema="devel" name="vw_stop_orders" color="666666" x="3249" y="380" />
+		<entity schema="devel" name="vw_instrument_positions" color="4D66CC" x="551" y="1292" />
+		<entity schema="devel" name="activity" color="C7F4BE" x="1501" y="95" />
+		<entity schema="devel" name="vw_audit_states" color="00FFFF" x="2204" y="1520" />
+		<entity schema="devel" name="hedging" color="994D00" x="2432" y="1178" />
+		<entity schema="devel" name="account" color="994D00" x="2318" y="608" />
+		<entity schema="devel" name="orders" color="FFFF00" x="133" y="532" />
+		<entity schema="devel" name="stop_type" color="FFFF00" x="399" y="722" />
+		<entity schema="devel" name="stop_price" color="FFFF00" x="399" y="456" />
+		<entity schema="devel" name="price_type" color="FFFF00" x="266" y="95" />
+		<entity schema="devel" name="stop_order" color="FFFF00" x="551" y="95" />
+		<entity schema="devel" name="order_category" color="FFFF00" x="247" y="247" />
+		<entity schema="devel" name="order_state" color="FFFF00" x="57" y="190" />
+		<entity schema="devel" name="cancel_source" color="FFFF00" x="133" y="1083" />
+		<entity schema="devel" name="request_type" color="FFFF00" x="247" y="912" />
 		<group name="authority" color="EEF7EC" >
 			<entity schema="devel" name="authority" />
 			<entity schema="devel" name="user" />
@@ -1847,17 +1847,17 @@ END]]></string>
 			<entity schema="devel" name="instrument_period" />
 		</group>
 		<group name="orders" color="FFFF00" >
-			<entity schema="devel" name="orders" />
 			<entity schema="devel" name="request" />
+			<entity schema="devel" name="stop_request" />
+			<entity schema="devel" name="orders" />
 			<entity schema="devel" name="stop_type" />
 			<entity schema="devel" name="stop_price" />
-			<entity schema="devel" name="stop_request" />
-			<entity schema="devel" name="request_type" />
-			<entity schema="devel" name="order_state" />
 			<entity schema="devel" name="price_type" />
-			<entity schema="devel" name="order_category" />
-			<entity schema="devel" name="cancel_source" />
 			<entity schema="devel" name="stop_order" />
+			<entity schema="devel" name="order_category" />
+			<entity schema="devel" name="order_state" />
+			<entity schema="devel" name="cancel_source" />
+			<entity schema="devel" name="request_type" />
 		</group>
 		<group name="audit" color="00FFFF" >
 			<entity schema="devel" name="full_audit_request" />

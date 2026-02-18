@@ -80,7 +80,7 @@ export class CMain {
   async Start() {
     let wss = await this.setService();
 
-    const authorized: Array<Partial<IInstrumentPosition>> = await Distinct<IInstrumentPosition>(
+    const authorized = await Distinct<IInstrumentPosition>(
       { account: Session().account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
       { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
     );
@@ -88,8 +88,8 @@ export class CMain {
     this.accountDetails = Session().account; // Make account details available to the respawn logic
 
     //-- Initialize and spawn opening processes
-    if (authorized.length) {
-      for (const instrument of authorized) {
+    if (authorized.success) {
+      for (const instrument of authorized.data!) {
         if (instrument.symbol) {
           this.spawnProcess(instrument);
         }

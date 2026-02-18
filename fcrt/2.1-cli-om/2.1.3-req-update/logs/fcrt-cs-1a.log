@@ -1,36 +1,21 @@
 Test 1a: request reject on size, resub, then edit and resub
 { instrument_position: <Buffer ed da 99 9d fb 4e> }
 -> [Info] request inserted {
-  fields: [
-    'request',
-    'instrument_position',
-    'action',
-    'state',
-    'price',
-    'size',
-    'leverage',
-    'request_type',
-    'margin_mode',
-    'memo',
-    'create_time',
-    'expiry_time',
-    'update_time'
-  ],
-  args: [
-    <Buffer 54 83 36 fb fd b2>,
-    <Buffer ed da 99 9d fb 4e>,
-    'sell',
-    <Buffer 62 57 cb>,
-    2.85,
-    100000,
-    50,
-    <Buffer b8 32 96>,
-    'cross',
-    'Test 1a: Starting Order: Results in Rejected status',
-    2026-01-29T13:48:51.930Z,
-    2026-01-29T21:48:51.898Z,
-    2026-01-29T13:48:51.930Z
-  ]
+  columns: {
+    request: <Buffer 0d 32 0b 6d 1c fa>,
+    instrument_position: <Buffer ed da 99 9d fb 4e>,
+    action: 'sell',
+    state: <Buffer 62 57 cb>,
+    price: 1.65,
+    size: 100000,
+    leverage: 50,
+    request_type: <Buffer b8 32 96>,
+    margin_mode: 'cross',
+    memo: 'Test 1a: Starting Order: Results in Rejected status',
+    create_time: 2026-02-17T03:53:21.164Z,
+    expiry_time: 2026-02-17T11:53:21.129Z,
+    update_time: 2026-02-17T03:53:21.164Z
+  }
 }
 [Info] Starting Order: submitting request [Request.req_fcrt_1a] {
   account: <Buffer 24 59 7a>,
@@ -39,14 +24,14 @@ Test 1a: request reject on size, resub, then edit and resub
   position: 'short',
   action: 'sell',
   order_type: 'limit',
-  price: 2.85,
+  price: 1.65,
   size: 100000,
   leverage: 50,
-  expiry_time: 2026-01-29T21:48:51.898Z,
+  expiry_time: 2026-02-17T11:53:21.129Z,
   memo: 'Test 1a: request reject on size, resub, then edit and resub'
 }
 Test 1a: Request submitted, check db for results. {
-  key: { request: <Buffer 54 83 36 fb fd b2> },
+  key: { request: <Buffer 0d 32 0b 6d 1c fa> },
   response: {
     success: true,
     code: 0,
@@ -56,7 +41,7 @@ Test 1a: Request submitted, check db for results. {
   }
 }
 Fetched order from DB: {
-  key: { request: <Buffer 54 83 36 fb fd b2> },
+  key: { request: <Buffer 0d 32 0b 6d 1c fa> },
   response: {
     success: true,
     code: 0,
@@ -66,7 +51,7 @@ Fetched order from DB: {
   }
 } [
   {
-    request: <Buffer 54 83 36 fb fd b2>,
+    request: <Buffer 0d 32 0b 6d 1c fa>,
     order_id: null,
     account: <Buffer 24 59 7a>,
     instrument: <Buffer a2 80 0a>,
@@ -87,7 +72,7 @@ Fetched order from DB: {
     request_type: <Buffer b8 32 96>,
     order_type: 'limit',
     margin_mode: 'cross',
-    price: 2.85,
+    price: 1.65,
     size: 100000,
     leverage: 50,
     filled_size: null,
@@ -108,8 +93,8 @@ Fetched order from DB: {
     trade_timeframe: '15m',
     timeframe_units: 15,
     memo: 'Test 1a: Starting Order: Results in Rejected status',
-    create_time: 2026-01-29T13:48:51.930Z,
-    expiry_time: 2026-01-29T21:48:51.898Z,
-    update_time: 2026-01-29T13:48:51.930Z
+    create_time: 2026-02-17T03:53:21.164Z,
+    expiry_time: 2026-02-17T11:53:21.129Z,
+    update_time: 2026-02-17T03:53:21.164Z
   }
 ]
