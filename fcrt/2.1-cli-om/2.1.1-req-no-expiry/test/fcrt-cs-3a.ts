@@ -1,10 +1,10 @@
 //----------------------------- order test  -------------------------------------------------------//
-import { setSession, Session } from "module/session";
-import { hexify } from "lib/crypto.util";
-import { req_fcrt_3a } from "fcrt/2.1-cli-om/2.1.1-req-no-expiry/test/request";
+import { setSession, Session } from "#module/session";
+import { hexify } from "#lib/crypto.util";
+import { req_fcrt_3a } from "./request";
 
-import * as Requests from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
+import * as Requests from "#db/interfaces/request";
+import * as Orders from "#db/interfaces/order";
 
 const args = process.argv.slice(2); // get account id
 

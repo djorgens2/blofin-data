@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api";
+import type { IPublishResult, TResponse } from "#api";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IContractType {
   contract_type: Uint8Array | string;
@@ -24,14 +23,15 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
   const context = "Contract.Type.Publish";
   const publishResult: TResponse = {
     success: false,
-    response: "error",
+    state: "error",
+    message: `[Error] ${context}:`,
     code: -1,
     rows: 0,
     context,
   };
 
   if (!hasValues(props)) {
-    return { key: undefined, response: { ...publishResult, code: 410, response: `null_query` } };
+    return { key: undefined, response: { ...publishResult, code: 410, state: `null_query` } };
   }
 
   const search = {
@@ -55,7 +55,7 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
     }
     return {
       key: PrimaryKey({ contract_type: exists }, ["contract_type"]),
-      response: { ...publishResult, success: true, code: 201, response: `exists` },
+      response: { ...publishResult, success: true, code: 201, state: `exists` },
     };
   }
 
@@ -74,9 +74,10 @@ export const Publish = async (props: Partial<IContractType>): Promise<IPublishRe
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IContractType>): Promise<IContractType["contract_type"] | undefined> => {
   if (hasValues<Partial<IContractType>>(props)) {
-    const [result] = await Select<IContractType>(props, { table: `contract_type` });
-    return result ? result.contract_type : undefined;
-  } else return undefined;
+    const result = await Select<IContractType>(props, { table: `contract_type` });
+    return result.success && result.data?.length ? result.data[0].contract_type : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -84,5 +85,5 @@ export const Key = async (props: Partial<IContractType>): Promise<IContractType[
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IContractType>): Promise<Array<Partial<IContractType>> | undefined> => {
   const result = await Select<IContractType>(props, { table: `contract_type` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

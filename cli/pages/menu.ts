@@ -4,17 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { type IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
 
-import { setHeader } from "cli/modules/Header";
-import { setMenu } from "cli/modules/Menu";
-import { isEqual } from "lib/std.util";
+import { setHeader } from "#cli/modules/Header";
+import { setMenu } from "#cli/modules/Menu";
+import { isEqual } from "#lib/std.util";
 
-import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "cli/interfaces/user";
-import { menuCreateAccount, menuEditAccount, menuDropAccount } from "cli/interfaces/account";
+import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "#cli/interfaces/user";
+import { menuCreateAccount, menuEditAccount, menuDropAccount } from "#cli/interfaces/account";
 
-import * as Account from "cli/interfaces/account";
-import * as Instrument from "cli/interfaces/instruments";
+import * as Account from "#cli/interfaces/account";
+import * as Instrument from "#cli/interfaces/instruments";
 
 //+--------------------------------------------------------------------------------------+
 //| View menu; displays the rows for the supplied subject area;                          |

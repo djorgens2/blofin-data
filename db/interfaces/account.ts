@@ -4,19 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "module/session";
-import type { IAccess, TAccess } from "db/interfaces/state";
-import type { IPublishResult, TResponse } from "api";
+import type { ISession } from "#module/session";
+import type { IAccess, TAccess } from "#db/interfaces/state";
+import type { IPublishResult, TResponse } from "#api";
 
-import UserToken, { setUserToken } from "cli/interfaces/user";
+import UserToken, { setUserToken } from "#cli/interfaces/user";
+import { State, User, Broker, Environment } from "#db";
+import { Session } from "#module/session";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { hashHmac } from "lib/crypto.util";
-import { PrimaryKey } from "api";
-import { isEqual } from "lib/std.util";
-import { Session } from "module/session";
-
-import { State, User, Broker, Environment } from "db";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hashHmac } from "#lib/crypto.util";
+import { isEqual } from "#lib/std.util";
 
 export interface IAccount {
   account: Uint8Array;
@@ -99,7 +97,7 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
 
   if (exists) {
     setUserToken({ error: 312, message: `Duplicate account ${props.alias} exists.` });
-    return { key: undefined, response: { success: false, code: 312, response: `error`, rows: 0, context: "Account.Add" } };
+    return { key: undefined, response: { success: false, code: 312, state: `duplicate_acount`, message: `Error`, rows: 0, context: "Account.Add" } };
   }
 
   const hmac = await hashHmac(session);
@@ -124,7 +122,10 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
     return { key: PrimaryKey(account, ["account"]), response: result };
   }
   setUserToken({ error: 315, message: `Invalid session credentials.` });
-  return { key: undefined, response: { success: false, code: 315, response: `error`, rows: 0, context: "Account.Add" } };
+  return {
+    key: undefined,
+    response: { success: false, code: 315, state: `error`, message: `[Error] Invalid or unauthorized session credentials`, rows: 0, context: "Account.Add" },
+  };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -190,13 +191,13 @@ export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishR
 
     const result: TResponse = await Update(revised, { table: `account_detail`, keys: [[`account`], [`currency`]] });
 
-    setUserToken({ error: result.code, message: result.success ? `Account details update applied.` : `Account details update failed.` });
+    setUserToken({ error: parseInt(String(result.code)), message: result.success ? `Account details update applied.` : `Account details update failed.` });
     return { key: PrimaryKey(current, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
   }
 
   const result = await Insert<IAccount>(props, { table: `account_detail` });
 
-  setUserToken({ error: result.code, message: result.success ? `New Account details Imported.` : `Failed to import account details.` });
+  setUserToken({ error: parseInt(String(result.code)), message: result.success ? `New Account details Imported.` : `Failed to import account details.` });
   return { key: PrimaryKey(props, ["account", "currency"]), response: result } as IPublishResult<IAccount>;
 };
 
@@ -234,5 +235,5 @@ export const Key = async (props: Partial<ISession>): Promise<IAccount["account"]
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAccount>> | undefined> => {
   const result = await Select<IAccount>(props, { table: `vw_accounts` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

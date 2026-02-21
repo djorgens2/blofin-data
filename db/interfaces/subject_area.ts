@@ -4,12 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert  } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db/query.utils";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface ISubjectArea {
   subject_area: Uint8Array;
@@ -35,7 +34,7 @@ export const Import = async () => {
   console.log(
     `-> Subject.Area.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new areas;` : `No new areas;`,
-    `${exists.length} areas verified;`
+    `${exists.length} areas verified;`,
   );
 };
 
@@ -53,9 +52,10 @@ export const Add = async (props: Partial<ISubjectArea>): Promise<IPublishResult<
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<ISubjectArea>): Promise<ISubjectArea["subject_area"] | undefined> => {
   if (hasValues<Partial<ISubjectArea>>(props)) {
-    const [key] = await Select<ISubjectArea>(props, { table: `subject_area` });
-    return key ? key.subject_area : undefined;
-  } else return undefined;
+    const result = await Select<ISubjectArea>(props, { table: `subject_area` });
+    return result.success && result.data?.length ? result.data[0].subject_area : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -63,5 +63,5 @@ export const Key = async (props: Partial<ISubjectArea>): Promise<ISubjectArea["s
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: ISubjectArea): Promise<Array<Partial<ISubjectArea>> | undefined> => {
   const result = await Select<ISubjectArea>(props, { table: `subject_area` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

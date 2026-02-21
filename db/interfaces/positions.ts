@@ -4,13 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TPositionState } from "db/interfaces/state";
-import type { IPublishResult } from "api";
+import type { TPositionState } from "#db/interfaces/state";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hasValues, isEqual } from "lib/std.util";
-import { Session } from "module/session";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hasValues, isEqual } from "#lib/std.util";
+import { Session } from "#module/session";
 
 export interface IPositions {
   account: Uint8Array;
@@ -45,9 +44,10 @@ export interface IPositions {
 //+--------------------------------------------------------------------------------------+
 //| Inserts or updates positions; returns positions key;                                 |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IPositions>): Promise<IPublishResult<IPositions>> => {
+export const Publish = async (props: Partial<IPositions>, context = "Positions"): Promise<IPublishResult<IPositions>> => {
+  context = `${context}.Publish`;
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 415, response: `null_query`, rows: 0, context: "Positions.Publish" } };
+    return { key: undefined, response: { success: false, code: 415, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
   }
 
   const exists = await Fetch({ account: Session().account, positions: props.positions });
@@ -73,14 +73,14 @@ export const Publish = async (props: Partial<IPositions>): Promise<IPublishResul
       create_time: isEqual(props.create_time!, current.create_time!) ? undefined : props.create_time,
       update_time: isEqual(props.update_time!, current.update_time!) ? undefined : props.update_time,
     };
-    const result = await Update(revised, { table: `positions`, keys: [[`positions`]], context: "Positions.Publish" });
+    const result = await Update(revised, { table: `positions`, keys: [[`positions`]], context });
     return {
       key: PrimaryKey(current, ["positions", "instrument_position"]),
       response: result,
     };
   }
 
-  const result = await Insert<IPositions>(props, { table: `positions`, context: "Positions.Publish" });
+  const result = await Insert<IPositions>(props, { table: `positions`, context });
   return {
     key: PrimaryKey(props, ["positions", "instrument_position"]),
     response: result,
@@ -92,5 +92,5 @@ export const Publish = async (props: Partial<IPositions>): Promise<IPublishResul
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> => {
   const result = await Select<IPositions>(props, { table: `vw_positions` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

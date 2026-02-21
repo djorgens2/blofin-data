@@ -4,25 +4,24 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopsAPI } from "api";
-import type { IStopRequest } from "db/interfaces/stop_request";
+import type { IStopOrderAPI } from "#api";
+import type { IStopRequest } from "#db/interfaces/stop_request";
 
-import { hexString } from "lib/std.util";
-import { Session } from "module/session";
-import { Fetch } from "db/interfaces/stops";
-import { Submit } from "db/interfaces/stop_request";
+import { StopOrder, StopRequest } from "#db";
+import { StopRequests } from "#api";
+import { Session } from "#module/session";
 
-import * as API from "api/interfaces/stop_requests";
+import { hexString } from "#lib/std.util";
 
 /**
  * Resubmits stop requests canceled by modification in 'Hold' state
  * Returns execution statistics for the caller
  */
-type Accumulator = { requests: Partial<IStopsAPI>[]; closures: Partial<IStopRequest>[] };
+type Accumulator = { requests: Partial<IStopOrderAPI>[]; closures: Partial<IStopRequest>[] };
 
 export const Hold = async () => {
   const account = Session().account;
-  const orders = await Fetch({ status: "Hold", account });
+  const orders = await StopOrder.Fetch({ status: "Hold", account });
 
   if (!orders) return [];
   console.log(`-> Stop.Requests.Hold: Processing ${orders.length} hold orders`);
@@ -43,19 +42,19 @@ export const Hold = async () => {
       return acc;
     },
     {
-      requests: [] as Array<Partial<IStopsAPI>>,
+      requests: [] as Array<Partial<IStopOrderAPI>>,
       closures: [] as Array<Partial<IStopRequest>>,
     },
   );
 
-  const cancels = await API.Cancel(requests);
+  const cancels = await StopRequests.Cancel(requests);
 
   const results = await Promise.all([
     ...closures.map(async (closed) => {
-      const resub = await Submit(closed);
+      const resub = await StopRequest.Submit(closed);
       return {
         ...resub,
-        response: { ...resub.response, outcome: "closed" },
+        response: { ...resub, state: "closed" },
       };
     }),
 
@@ -70,7 +69,7 @@ export const Hold = async () => {
 
       // If cancel succeeded, resubmit the request
       try {
-        const resub = await Submit({
+        const resub = await StopRequests.Submit({
           stop_request: cancel.key?.stop_request,
           status: `Queued`,
           memo: `[Info] Stop.Requests.Hold: Request successfully resubmitted`,
@@ -79,7 +78,7 @@ export const Hold = async () => {
 
         return {
           ...resub,
-          response: { ...resub.response, outcome: "requeued" },
+          response: { ...resub, outcome: "requeued" },
         };
       } catch (error) {
         // If resubmit fails after a successful cancel

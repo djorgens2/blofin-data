@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IBroker {
   broker: Uint8Array;
@@ -49,9 +48,10 @@ export const Add = async (props: Partial<IBroker>): Promise<IPublishResult<IBrok
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IBroker>): Promise<IBroker["broker"] | undefined> => {
   if (hasValues<Partial<IBroker>>(props)) {
-    const [result] = await Select<IBroker>(props, { table: `broker` });
-    return result ? result.broker : undefined;
-  } else return undefined;
+    const result = await Select<IBroker>(props, { table: `broker` });
+    return result.success && result.data?.length ? result.data[0].broker : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -59,5 +59,5 @@ export const Key = async (props: Partial<IBroker>): Promise<IBroker["broker"] | 
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IBroker>): Promise<Array<Partial<IBroker>> | undefined> => {
   const result = await Select<IBroker>(props, { table: `broker` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

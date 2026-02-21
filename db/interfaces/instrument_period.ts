@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { Select, Load } from "db/query.utils";
+import { Select, Load } from "#db";
 
 export interface IInstrumentPeriod {
   instrument: Uint8Array;
@@ -22,8 +22,8 @@ export interface IInstrumentPeriod {
 //| Adds new/missing instrument periods;                                                 |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  const data = await Select<IInstrumentPeriod>({}, { table: `vw_audit_instrument_periods` });
-  const result = await Load(data, { table: `instrument_period` });
+  const result = await Select<IInstrumentPeriod>({}, { table: `vw_audit_instrument_periods` });
+  return result.success ? await Load(result.data!, { table: `instrument_period` }) : undefined;
   return result;
 };
 
@@ -32,5 +32,5 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IInstrumentPeriod>): Promise<Array<Partial<IInstrumentPeriod>> | undefined> => {
   const result = await Select<IInstrumentPeriod>(props, { table: `vw_instrument_periods` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

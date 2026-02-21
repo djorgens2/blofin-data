@@ -4,14 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, ILeverageAPI } from "api";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IPublishResult, ILeverageAPI } from "#api";
+import type { IInstrumentPosition } from "#db";
 
-import { Session } from "module/session";
-import { PrimaryKey, Leverages } from "api";
-import { hasValues, isEqual } from "lib/std.util";
-
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import { Leverages } from "#api";
+import { PrimaryKey, InstrumentPosition } from "#db";
+import { Session } from "#module/session";
+import { hasValues, isEqual } from "#lib/std.util";
 
 //------------------ Public functions ---------------------//
 
@@ -23,7 +22,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
     console.log("-> Leverage.Submit: Incomplete leverage properties provided", props);
     return {
       key: undefined,
-      response: { success: false, code: 400, response: `null_query`, message: `Undefined leverage data provided`, rows: 0, context: "Leverage.Submit" },
+      response: { success: false, code: 400, state: `null_query`, message: `Undefined leverage data provided`, rows: 0, context: "Leverage.Submit" },
     };
   }
 
@@ -37,7 +36,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
   if (!instrument_position) {
     return {
       key: undefined,
-      response: { success: false, code: 404, response: `not_found`, message: `Position not available for update`, rows: 0, context: "Leverage.Submit" },
+      response: { success: false, code: 404, state: `not_found`, message: `Position not available for update`, rows: 0, context: "Leverage.Submit" },
     };
   }
   const [current] = instrument_position;
@@ -45,7 +44,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
   if (isEqual(parseInt(props.leverage), current.leverage!))
     return {
       key: PrimaryKey(current, ["instrument_position"]),
-      response: { success: false, code: 402, response: `no_update`, message: `Leverage unchanged; no change detected`, rows: 0, context: "Leverage.Submit" },
+      response: { success: false, code: 402, state: `no_update`, message: `Leverage unchanged; no change detected`, rows: 0, context: "Leverage.Submit" },
     };
   console.log(`-> Leverage.Submit: Submitting leverage change for ${props.instId} ${props.positionSide} from ${current.leverage} to ${props.leverage}`);
   return await Leverages.Submit(props);

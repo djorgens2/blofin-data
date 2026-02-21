@@ -4,17 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopOrder } from "db/interfaces/stops";
+import type { IStopOrder } from "#db";
 
-import { Session } from "module/session";
-import { Fetch } from "db/interfaces/stops";
-import { Submit } from "db/interfaces/stop_request";
+import { Session } from "#module/session";
+import { StopRequest, StopOrder } from "#db";
 
 //-- [Process.Stops] Resubmits rejected requests to broker for execution; closes rejects beyond expiry
 type Accumulator = { queued: Partial<IStopOrder>[]; closures: Partial<IStopOrder>[] };
 
 export const Rejected = async () => {
-  const requests = (await Fetch({ status: "Rejected", account: Session().account })) ?? [];
+  const requests = (await StopOrder.Fetch({ status: "Rejected", account: Session().account })) ?? [];
 
   if (requests.length) {
     const { queued, closures } = requests.reduce(
@@ -35,7 +34,7 @@ export const Rejected = async () => {
       },
       { queued: [] as Partial<IStopOrder>[], closures: [] as Partial<IStopOrder>[] }
     );
-    const [retryResults, closeResults] = await Promise.all([Promise.all(queued.map((q) => Submit(q))), Promise.all(closures.map((c) => Submit(c)))]);
+    const [retryResults, closeResults] = await Promise.all([Promise.all(queued.map((q) => StopRequest.Submit(q))), Promise.all(closures.map((c) => StopRequest.Submit(c)))]);
 
     return {
       size: requests.length,

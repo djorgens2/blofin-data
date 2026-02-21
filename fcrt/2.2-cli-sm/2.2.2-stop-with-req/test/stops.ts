@@ -1,5 +1,5 @@
-import type { IStopRequest } from "db/interfaces/stop_request";
-import { hexify } from "lib/crypto.util";
+import type { IStopRequest } from "#db/interfaces/stop_request";
+import { hexify } from "#lib/crypto.util";
 
 //-- Test 2b: submit stop loss request with order --//
 export const req_fcrt_2b: Array<Partial<IStopRequest>> = [

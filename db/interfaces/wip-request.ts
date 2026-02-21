@@ -4,21 +4,21 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IOrder } from "db/interfaces/order";
-import type { TRefKey } from "db/interfaces/reference";
-import type { IRequestState, TRequestState } from "db/interfaces/state";
-import type { IPublishResult } from "api";
+import type { TRefKey, IOrder } from "#db";
+import type {} from "#db/interfaces/reference";
+import type { IRequestState, TRequestState } from "#db/interfaces/state";
+import type { IPublishResult } from "#api";
 
-import { Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hasValues, isEqual, setExpiry } from "lib/std.util";
-import { hashKey } from "lib/crypto.util";
-import { Session } from "module/session";
+import { Insert, Update } from "#db/query.utils";
+import { PrimaryKey } from "#api";
+import { hasValues, isEqual, setExpiry } from "#lib/std.util";
+import { hashKey } from "#lib/crypto.util";
+import { Session } from "#module/session";
 
-import * as Orders from "db/interfaces/order";
-import * as States from "db/interfaces/state";
-import * as References from "db/interfaces/reference";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import * as Orders from "#db/interfaces/order";
+import * as States from "#db/interfaces/state";
+import * as References from "#db/interfaces/reference";
+import * as InstrumentPosition from "#db/interfaces/instrument_position";
 
 export interface IRequest {
   request: Uint8Array;
@@ -55,7 +55,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
 
   // 1. Core Immutability Check
   if (!hasValues<Partial<IOrder>>(props)) {
-    return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 400, rows: 0, response: `null_query`, context } };
+    return { key: PrimaryKey(current, [`request`]), response: { success: false, code: 400, rows: 0, state: `null_query`, message: `[Error] ${context}:`, context } };
   }
 
   // 2. Handle new requests
@@ -89,7 +89,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
   if (props.update_time! <= current.update_time!) {
     return {
       key: PrimaryKey(current, [`request`]),
-      response: { success: false, code: 200, response: `exists`, message: `Stale update ignored`, rows: 0, context },
+      response: { success: false, code: 200, state: `exists`, message: `Stale update ignored`, rows: 0, context },
     };
   }
 
@@ -140,7 +140,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
 
   return {
     key: PrimaryKey(current, [`request`]),
-    response: { success: false, code: 200, response: `exists`, message: `Request unchanged`, rows: 0, context },
+    response: { success: false, code: 200, state: `exists`, message: `Request unchanged`, rows: 0, context },
   };
 };
 
@@ -158,7 +158,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
         response: {
           success: false,
           code: 400,
-          response: `null_query`,
+          state: `null_query`,
           message: "[Error] Request.Cancel: Nothing to cancel",
           rows: 0,
           context: "Request.Cancel",
@@ -189,7 +189,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
     return {
       key: undefined,
-      response: { success: false, code: 400, response: `null_query`, message: `No request properties provided`, rows: 0, context: "Request.Submit" },
+      response: { success: false, code: 400, state: `null_query`, message: `No request properties provided`, rows: 0, context: "Request.Submit" },
     };
   }
 
@@ -202,7 +202,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
     return {
       key: undefined,
-      response: { success: false, code: 404, response: `error`, message: `Instrument position not found`, rows: 0, context: "Request.Submit" },
+      response: { success: false, code: 404, state: `error`, message: `Instrument position not found`, rows: 0, context: "Request.Submit" },
     };
   }
 
@@ -256,7 +256,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     response: {
       success: true,
       code: 201,
-      response: `exists`,
+      state: `exists`,
       message: `-> [Info] Request.Submit: Queued request verified`,
       rows: 0,
       context: "Request.Submit",

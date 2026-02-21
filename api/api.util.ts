@@ -5,8 +5,8 @@
  */
 "use strict";
 
-import type { TResponse } from "api";
-import { Session, signRequest } from "module/session";
+import type { TResponse } from "#api";
+import { Session, signRequest } from "#module/session";
 
 /**
  * Factory function to generate a canonical response object.
@@ -22,29 +22,25 @@ import { Session, signRequest } from "module/session";
  * @param {string} [overrides.message] - Human-readable status message for logs and UI.
  * @param {number} [overrides.rows] - Number of affected records (auto-calculated if data is provided).
  * @param {T} [overrides.data] - The actual payload being transported.
- * 
+ *
  * @returns {TResponse & { data?: T }} A standardized result object containing metadata and payload.
- * 
+ *
  * @example
  * // Success Example
  * const res = ApiResult(true, 'API.Submit', { data: { id: '123' }, state: 'Pending' });
- * 
+ *
  * @example
  * // Failure Example
  * const res = ApiResult(false, 'DB.Query', { message: 'Unique constraint failed', code: 'P2002' });
  */
-export const ApiResult = <T> (
-  success: boolean,
-  context: string,
-  overrides: Partial<TResponse> & { data?: T } = {}
-): TResponse & { data?: T } => ({
+export const ApiResult = <T>(success: boolean, context: string, overrides: Partial<TResponse> & { data?: T } = {}): TResponse & { data?: T } => ({
   success,
   code: overrides.code || (success ? 0 : "ERR_GENERIC"),
   state: overrides.state || (success ? "Success" : "Failed"),
   message: overrides.message || (success ? "Operation completed" : "Operation failed"),
   rows: overrides.rows ?? (overrides.data ? (Array.isArray(overrides.data) ? overrides.data.length : 1) : 0),
   context,
-  data: overrides.data
+  data: overrides.data,
 });
 
 /**
@@ -59,16 +55,17 @@ export function isApiError<T>(error: unknown): error is ApiError<T> {
  * T represents the type of the items INSIDE the data array.
  */
 export class ApiError<T> extends Error {
+  public readonly code: string | number;
+  public readonly msg: string;
   public readonly data: T | undefined;
 
-  constructor(
-    public readonly code: string | number,
-    public readonly msg: string,
-    data?: T,
-  ) {
+  constructor(code: string | number, msg: string, data?: T) {
     super(`[API] Code ${code}: ${msg}`);
-    this.name = "ApiError";
+    
+    this.code = code;
+    this.msg = msg;
     this.data = data;
+    this.name = "ApiError";
 
     // Necessary for extending built-in classes in TS/ES5
     Object.setPrototypeOf(this, ApiError.prototype);

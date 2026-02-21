@@ -1,15 +1,15 @@
 //----------------------------- order test  -------------------------------------------------------//
-import type { TRefKey } from "db/interfaces/reference";
-import type { IRequest } from "db/interfaces/request";
+import type { TRefKey } from "#db";
+import type { IRequest } from "#db/interfaces/request";
 
-import { setSession, Session } from "module/session";
-import { hexify } from "lib/crypto.util";
-import { req_fcrt_2a } from "./request";
+import { setSession, Session } from "#module/session";
+import { hexify } from "#lib/crypto.util";
+import { req_fcrt_2a } from "./request.ts";
 
-import * as IPos from "db/interfaces/instrument_position";
-import * as Orders from "db/interfaces/order";
-import * as Requests from "db/interfaces/request";
-import * as References from "db/interfaces/reference";
+import * as IPos from "#db/interfaces/instrument_position";
+import * as Orders from "#db/interfaces/order";
+import * as Requests from "#db/interfaces/request";
+import * as References from "#db/interfaces/reference";
 
 const args = process.argv.slice(2); // get account id
 

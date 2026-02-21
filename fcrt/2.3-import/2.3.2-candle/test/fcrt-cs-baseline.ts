@@ -1,8 +1,8 @@
 //----------------------------- Instrument Baseline Test-------------------------------------------//
-import { Session, config } from "module/session";
-import { hexify } from "lib/crypto.util";
+import { Session, config } from "#module/session";
+import { hexify } from "#lib/crypto.util";
 
-import * as Import from "app/import";
+import * as Import from "#app/import";
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account }, `Import`)

@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IPeriod {
   period: Uint8Array;
@@ -65,9 +64,10 @@ export const Add = async (props: Partial<IPeriod>): Promise<IPublishResult<IPeri
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | undefined> => {
   if (hasValues<Partial<IPeriod>>(props)) {
-    const [key] = await Select<IPeriod>(props, { table: `period` });
-    return key ? key.period : undefined;
-  } else return undefined;
+    const result = await Select<IPeriod>(props, { table: `period` });
+        return result.success && result.data?.length ? result.data[0].period : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -75,5 +75,5 @@ export const Key = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | 
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IPeriod>): Promise<Array<Partial<IPeriod>> | undefined> => {
   const result = await Select<IPeriod>(props, { table: `period` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

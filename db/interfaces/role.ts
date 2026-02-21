@@ -4,12 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
-import { PrimaryKey } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IRole {
   role: Uint8Array;
@@ -34,7 +33,7 @@ export const Import = async () => {
   console.log(
     `-> Role.Import complete:`,
     exists.length - result.length ? `${result.filter((r) => r.response.success).length} new roles;` : `No new roles;`,
-    `${exists.length} roles verified;`
+    `${exists.length} roles verified;`,
   );
 };
 
@@ -52,9 +51,10 @@ export const Add = async (props: Partial<IRole>): Promise<IPublishResult<IRole>>
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IRole>): Promise<IRole["role"] | undefined> => {
   if (hasValues<Partial<IRole>>(props)) {
-    const [key] = await Select<IRole>(props, { table: `role` });
-    return key ? key.role : undefined;
-  } else return undefined;
+    const result = await Select<IRole>(props, { table: `role` });
+    return result.success && result.data?.length ? result.data[0].role : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -62,5 +62,5 @@ export const Key = async (props: Partial<IRole>): Promise<IRole["role"] | undefi
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IRole>): Promise<Array<Partial<IRole>> | undefined> => {
   const result = await Select<IRole>(props, { table: `role` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

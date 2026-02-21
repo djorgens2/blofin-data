@@ -4,13 +4,13 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { type IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
 
-import { setHeader } from "cli/modules/Header";
+import { setHeader } from "#cli/modules/Header";
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 
-import * as Accounts from "db/interfaces/account";
-import * as Brokers from "db/interfaces/broker";
+import * as Accounts from "#db/interfaces/account";
+import * as Brokers from "#db/interfaces/broker";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves broker assignments in prompt format;                                       |

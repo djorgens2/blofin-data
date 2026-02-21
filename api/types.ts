@@ -3,6 +3,8 @@
  * @description Core Type definitions for API and DML operations.
  */
 
+import type { TPrimaryKey } from "#db";
+
 /**
  * Standard API Response package
  */
@@ -23,11 +25,6 @@ export type TResponse = {
   rows: number;
   context: string;
 };
-
-/**
- * Type guard for Primary Key publishing
- */
-export type TPrimaryKey<T> = Partial<T>;
 
 /**
  * The Standardized Publish Wrapper

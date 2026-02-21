@@ -4,7 +4,7 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { type IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
 import type { Answers } from "prompts";
 
 //+--------------------------------------------------------------------------------------+

@@ -4,22 +4,18 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestState, TRequestState } from "db/interfaces/state";
-import type { IStopOrder } from "db/interfaces/stops";
-import type { IPublishResult } from "api";
-import type { TRefKey } from "db/interfaces/reference";
+import type { IRequestState, TRequestState } from "#db/interfaces/state";
+import type { TRefKey, IStopOrder } from "#db";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hexify, uniqueKey } from "lib/crypto.util";
-import { Session } from "module/session";
-import { hasValues, isEqual } from "lib/std.util";
-import { ApiError } from "api/api.util";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hexify, uniqueKey } from "#lib/crypto.util";
+import { hasValues, isEqual } from "#lib/std.util";
 
-import * as Stops from "db/interfaces/stops";
-import * as States from "db/interfaces/state";
-import * as Reference from "db/interfaces/reference";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import { Session } from "#module/session";
+import { ApiError } from "#api";
+
+import { StopOrder, State, Reference, InstrumentPosition } from "#db";
 
 export interface IStopRequest {
   account: Uint8Array;
@@ -63,17 +59,18 @@ export interface IStopPrice {
 //+--------------------------------------------------------------------------------------+
 //| Fetches stop types from local db;                                                    |
 //+--------------------------------------------------------------------------------------+
-const stop_types = async (props: ["tp", "sl"]): Promise<Array<Partial<IStopType>>> => {
-  const types = props
+const stop_types = async (props: ["tp", "sl"]): Promise<Array<IStopType>> => {
+  const types: Array<IStopType | undefined> = props
     ? (
         await Promise.all(
-          props.map((p) => {
-            return Select<IStopType>({ source_ref: p }, { table: `stop_type` });
+          props.map(async (p) => {
+            const result = await Select<IStopType>({ source_ref: p }, { table: `stop_type` });
+            return result.success ? result.data : undefined;
           }),
         )
       ).flat()
-    : [];
-  return types;
+    : ([] as Array<IStopType>);
+  return types.filter((tpsl) => tpsl != null)
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -81,7 +78,7 @@ const stop_types = async (props: ["tp", "sl"]): Promise<Array<Partial<IStopType>
 //+--------------------------------------------------------------------------------------+
 const price = async (stop_request: IStopPrice["stop_request"]): Promise<Array<Partial<IStopPrice>> | undefined> => {
   const result = await Select<IStopPrice>({ stop_request }, { table: `stop_price` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -101,7 +98,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
   if (hasValues<Partial<IStopOrder>>(current)) {
     if (hasValues<Partial<IStopOrder>>(props)) {
       const update_time = props.update_time || new Date();
-      const state = (await States.Key<IRequestState>({ status: props.status })) ?? props.state;
+      const state = (await State.Key<IRequestState>({ status: props.status })) ?? props.state;
 
       if (update_time > current.update_time!) {
         // 1. Build the core diff
@@ -133,7 +130,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
           revised.update_time = update_time; // Stamp the change
           revised.reduce_only = !!props.reduce_only;
           revised.memo = props.memo || current.memo || "[Info] Stop.Request.Publish: Updated stop request";
-          revised.state = props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : state; // Special Case: Auto-correction for 'Hold'
+          revised.state = props.status === "Hold" ? await State.Key<IRequestState>({ status: "Hold" }) : state; // Special Case: Auto-correction for 'Hold'
 
           const [requestResult, priceResult] = await Promise.all([
             Update(revised, {
@@ -173,7 +170,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
           response: {
             success: true,
             code: 200,
-            response: `exists`,
+            state: `exists`,
             message: `Stop request unchanged`,
             rows: 0,
             context: "Stop.Request.Publish",
@@ -188,7 +185,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
         response: {
           success: false,
           code: 400,
-          response: `null_query`,
+          state: `null_query`,
           message: `[Error] Stop Request: No update properties provided from ${source}; stop request unchanged`,
           rows: 0,
           context: `Stop.Request.Publish.${source}`,
@@ -199,7 +196,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
 
   if (hasValues<Partial<IStopRequest>>(props)) {
     const query: Partial<IRequestState> = props.status ? { status: props.status } : props.state ? { state: props.state } : { status: "Queued" };
-    const state = await States.Key<IRequestState>(query);
+    const state = await State.Key<IRequestState>(query);
     const request: Partial<IStopRequest> = {
       stop_request: props.stop_request || hexify(uniqueKey(10), 5),
       stop_type: props.stop_type,
@@ -265,7 +262,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
       response: {
         success: false,
         code: 400,
-        response: `null_query`,
+        state: `null_query`,
         message: "[Error] Stop.Request.Publish: Nothing to publish",
         rows: 0,
         context: `Stop.Request.Publish.${source}`,
@@ -278,7 +275,7 @@ export const Publish = async (source: string, current: Partial<IStopOrder>, prop
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
 export const Cancel = async (props: Partial<IStopRequest>): Promise<Array<IPublishResult<IStopRequest>>> => {
-  const orders = await Stops.Fetch(props.stop_request ? { stop_request: props.stop_request } : props);
+  const orders = await StopOrder.Fetch(props.stop_request ? { stop_request: props.stop_request } : props);
 
   if (!orders) {
     console.log("[Error]: Unauthorized cancellation attempt");
@@ -288,7 +285,7 @@ export const Cancel = async (props: Partial<IStopRequest>): Promise<Array<IPubli
         response: {
           success: false,
           code: 400,
-          response: `null_query`,
+          state: `null_query`,
           message: "[Error] Request.Cancel: Nothing to cancel",
           rows: 0,
           context: "Request.Cancel",
@@ -331,7 +328,7 @@ export const Submit = async (props: Partial<IStopRequest>): Promise<Array<IPubli
     if (!stop_position || !stop_type) throw new ApiError(604, `System Configuration: Authorization or configuration failure`);
 
     const [{ instrument_position, open_request, open_take_profit, open_stop_loss }] = stop_position;
-    const requests = await Stops.Fetch(
+    const requests = await StopOrder.Fetch(
       { instrument_position, stop_type },
       { suffix: `AND status IN ("Pending", "Queued", "Rejected") ORDER BY status, update_time DESC` },
     );

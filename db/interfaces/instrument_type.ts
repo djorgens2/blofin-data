@@ -4,12 +4,11 @@
 //+----------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
-import { PrimaryKey } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IInstrumentType {
   instrument_type: Uint8Array | string;
@@ -20,7 +19,9 @@ export interface IInstrumentType {
 //+----------------------------------------------------------------------------------------+
 //| Adds all new instrument types recieved from Blofin to the database;                    |
 //+----------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublishResult<IInstrumentType>> => {
+export const Publish = async (props: Partial<IInstrumentType>, context = "Instrument.Type"): Promise<IPublishResult<IInstrumentType>> => {
+  context = `${context}.Publish`;
+
   if (hasValues(props)) {
     const search = {
       instrument_type: typeof props.instrument_type === "string" ? undefined : props.instrument_type,
@@ -42,7 +43,7 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
       }
       return {
         key: PrimaryKey({ instrument_type: exists }, ["instrument_type"]),
-        response: { success: true, code: 201, response: `exists`, rows: 0, context: "Instrument.Type.Publish" },
+        response: { success: true, code: 201, state: `exists`, message: `[Error] ${context}:`, rows: 0, context },
       };
     } else {
       const missing = {
@@ -50,11 +51,11 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
         source_ref: search.source_ref,
         description: props.description || "Description pending",
       };
-      const result = await Insert<IInstrumentType>(missing, { table: `instrument_type`, context: "Instrument.Type.Publish" });
+      const result = await Insert<IInstrumentType>(missing, { table: `instrument_type`, context });
       return { key: PrimaryKey(missing, ["instrument_type"]), response: result };
     }
   }
-  return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context: "Instrument.Type.Publish" } };
+  return { key: undefined, response: { success: false, code: 411, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -62,9 +63,10 @@ export const Publish = async (props: Partial<IInstrumentType>): Promise<IPublish
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrumentType>): Promise<IInstrumentType["instrument_type"] | undefined> => {
   if (hasValues<Partial<IInstrumentType>>(props)) {
-    const [result] = await Select<IInstrumentType>(props, { table: `instrument_type` });
-    return result ? result.instrument_type : undefined;
-  } else return undefined;
+    const result = await Select<IInstrumentType>(props, { table: `instrument_type` });
+    return result.success && result.data?.length ? result.data[0].instrument_type : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -72,5 +74,5 @@ export const Key = async (props: Partial<IInstrumentType>): Promise<IInstrumentT
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IInstrumentType>): Promise<Array<Partial<IInstrumentType>> | undefined> => {
   const result = await Select<IInstrumentType>(props, { table: `instrument_type` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

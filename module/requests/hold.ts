@@ -4,21 +4,21 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse, IRequestAPI } from "api";
-import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse, IRequestAPI } from "#api";
+import type { IRequest } from "#db";
 
-import { hexString } from "lib/std.util";
-import { Session } from "module/session";
-import { Fetch } from "db/interfaces/order";
+import { hexString } from "#lib/std.util";
+import { Session } from "#module/session";
+import { Order } from "#db";
 
-import * as API from "api/interfaces/requests";
-import * as Request from "db/interfaces/request";
+import { Requests }from "#api";
+import { Request } from "#db";
 
 //-- [Process.Orders] Resubmit requests canceled by modification to the API for orders in hold state
 type Accumulator = { requests: Partial<IRequestAPI>[]; closures: Partial<IRequest>[] };
 
 export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
-  const orders = await Fetch({ status: "Hold", account: Session().account });
+  const orders = await Order.Fetch({ status: "Hold", account: Session().account });
   if (!orders) return [];
   console.log(`-> Requests.Hold: Processing ${orders.length} hold orders`);
 
@@ -45,7 +45,7 @@ export const Hold = async (): Promise<Array<IPublishResult<IRequest>>> => {
     }
   );
 
-  const cancels = await API.Cancel(requests);
+  const cancels = await Requests.Cancel(requests);
 
   // 2. Process results (Parallel resubmission for successes)
   const results = await Promise.all([

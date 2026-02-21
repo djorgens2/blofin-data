@@ -4,15 +4,14 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TAccess, IAccess } from "db/interfaces/state";
-import type { TResponse } from "api";
+import type { TAccess, IAccess } from "#db/interfaces/state";
+import type { TResponse } from "#api";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { hashKey, hashPassword } from "lib/crypto.util";
-import { hasValues, isEqual } from "lib/std.util";
+import { Select, Insert, Update } from "#db";
+import { hashKey, hashPassword } from "#lib/crypto.util";
+import { hasValues, isEqual } from "#lib/std.util";
 
-import * as Roles from "db/interfaces/role";
-import * as States from "db/interfaces/state";
+import { Role, State } from "#db";
 
 export interface IUser {
   user: Uint8Array;
@@ -51,29 +50,36 @@ export const SetPassword = async (props: Partial<IUser>) => {
 //+--------------------------------------------------------------------------------------+
 //| Updates changes to User @ the local DB;                                              |
 //+--------------------------------------------------------------------------------------+
-export const Modify = async (props: Partial<IUser>): Promise<TResponse> => {
-  if (hasValues(props)) {
-    const user = await Fetch({ username: props.username, email: props.email });
+export const Save = async (props: Partial<IUser>, context = "User"): Promise<TResponse> => {
+  context = `${context}.Save`;
 
-    if (user) {
-      const [current] = user;
-      const role = props.role || (await Roles.Key({ title: props.title })) || undefined;
-      const state = props.state || (await States.Key({ status: props.status })) || undefined;
-      const revised: Partial<IUser> = {
-        user: props.user,
-        role: role && isEqual(role, current.role!) ? undefined : role,
-        state: state && isEqual(state, current.state!) ? undefined : state,
-        image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
-      };
-      return await Update(revised, { table: `user`, keys: [[`user`]], context: "User.Modify" });
-    } else return { success: false, code: 404, response: `not_found`, rows: 0, context: "User.Modify" };
-  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "User.Modify" };
+  if (!hasValues(props)) {
+    return { success: false, code: 400, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context };
+  }
+
+  const user = await Fetch({ username: props.username, email: props.email });
+
+  if (user) {
+    const [current] = user;
+    const role = props.role || (await Role.Key({ title: props.title })) || undefined;
+    const state = props.state || (await State.Key({ status: props.status })) || undefined;
+    const revised: Partial<IUser> = {
+      user: props.user,
+      role: role && isEqual(role, current.role!) ? undefined : role,
+      state: state && isEqual(state, current.state!) ? undefined : state,
+      image_url: props.image_url && props.image_url === current.image_url ? undefined : props.image_url,
+    };
+    return await Update(revised, { table: `user`, keys: [[`user`]], context: "User.Modify" });
+  }
+  return { success: false, code: 404, state: `not_found`, message: `[Error] ${context}:`, rows: 0, context: "User.Modify" };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Adds new Users to local database;                                                    |
 //+--------------------------------------------------------------------------------------+
-export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
+export const Add = async (props: Partial<IUser>, context = "User"): Promise<IUser["user"] | undefined> => {
+  context = `${context}.Add`;
+
   const { username, email } = props;
   const user = await Key({ username, email });
 
@@ -81,15 +87,15 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
     const { hash, password } = await SetPassword({ username, email, password: props.password });
     const add: Partial<IUser> = {
       user: hashKey(6),
-      role: props.role || (await Roles.Key({ title: props.title })) || (await Roles.Key({ title: "Viewer" })),
+      role: props.role || (await Role.Key({ title: props.title })) || (await Role.Key({ title: "Viewer" })),
       username,
       email,
       hash,
       password,
-      state: props.state || (await States.Key({ status: props.status })) || (await States.Key<IAccess>({ status: "Disabled" })),
+      state: props.state || (await State.Key({ status: props.status })) || (await State.Key<IAccess>({ status: "Disabled" })),
       image_url: props.image_url || "./images/user/no-image.png",
     };
-    const result = await Insert<IUser>(add, { table: `user`, context: "User.Add" });
+    const result = await Insert<IUser>(add, { table: `user`, context });
 
     return result.success ? add.user : undefined;
   } else return undefined;
@@ -100,8 +106,8 @@ export const Add = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IUser>): Promise<IUser["user"] | undefined> => {
   if (hasValues<Partial<IUser>>(props)) {
-    const [key] = await Select<IUser>(props, { table: `vw_users` });
-    return key ? key.user : undefined;
+    const result = await Select<IUser>(props, { table: `vw_users` });
+    return result.success && result.data?.length ? result.data[0].user : undefined;
   } else return undefined;
 };
 
@@ -110,7 +116,7 @@ export const Key = async (props: Partial<IUser>): Promise<IUser["user"] | undefi
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IUser>): Promise<Array<Partial<IUser>> | undefined> => {
   const result = await Select<IUser>(props, { table: `vw_users` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+

@@ -5,7 +5,10 @@
 "use strict"
 
 import type { PoolConnection } from "mysql2/promise";
-import type { TResponse } from "api";
+import type { TResponse } from "#api";
+
+export type TRefKey = Uint8Array;
+export type TRefText = string;
 
 /**
  * TKey represents a [column, operator] pair.
@@ -32,10 +35,3 @@ export type TOptions<T> = {
  */
 export type TPrimaryKey<T> = Partial<T>;
 
-/**
- * The Standardized Publish Wrapper
- */
-export interface IPublishResult<T> {
-  key?: TPrimaryKey<T> | undefined;
-  response: TResponse;
-}

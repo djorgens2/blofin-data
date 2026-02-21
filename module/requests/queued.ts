@@ -4,17 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, IRequestAPI } from "api";
-import type { IRequest } from "db/interfaces/request";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IPublishResult, IRequestAPI } from "#api";
+import type { IRequest, IInstrumentPosition } from "#db";
 
-import { hexify } from "lib/crypto.util";
-import { Select } from "db/query.utils";
-import { Session } from "module/session";
+import { Select } from "#db";
+import { Session } from "#module/session";
+import { hexify } from "#lib/crypto.util";
 
-import * as Leverage from "db/interfaces/leverage";
-import * as Request from "db/interfaces/request";
-import * as API from "api/interfaces/requests";
+import { Request, Leverage } from "#db";
+import { Requests } from "#api";
 
 //-- [Process.Orders] Submit local requests to the API
 type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequest>[] };
@@ -22,11 +20,11 @@ type Accumulator = { queue: Partial<IRequestAPI>[]; expire: Partial<IRequest>[] 
 export const Queued = async (): Promise<Array<IPublishResult<IRequest | IInstrumentPosition>>> => {
   const requests = await Select<IRequestAPI>({ status: "Queued", account: Session().account }, { table: `vw_api_requests` });
 
-  if (!requests.length) return [];
-  console.log(`-> Requests.Queued: Processing ${requests.length} queued requests`);
+  if (!requests.success || !requests.data?.length) return [];
+  console.log(`-> Requests.Queued: Processing ${requests.data.length} queued requests`);
 
   const expiry = new Date();
-  const { queue, expire } = requests.reduce(
+  const { queue, expire } = requests.data.reduce(
     (acc: Accumulator, request) => {
       expiry < request.expiry_time!
         ? acc.queue.push(request)
@@ -51,6 +49,6 @@ export const Queued = async (): Promise<Array<IPublishResult<IRequest | IInstrum
     ),
   ]);
 
-  const submitted = await API.Submit(queue) ?? [];
+  const submitted = (await Requests.Submit(queue)) ?? [];
   return [...expired, ...leverage, ...submitted].flat();
 };

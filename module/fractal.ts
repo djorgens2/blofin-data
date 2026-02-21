@@ -4,17 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
-import type { ICandle } from "db/interfaces/candle";
-import type { IMeasure, IMessage } from "lib/app.util"; //-- types
+import type { IInstrumentPosition, ICandle } from "#db";
+import type { IMeasure, IMessage } from "#lib/app.util"; //-- types
 
-import { CEvent, Event, Alert } from "module/event";
-import { Direction, Bias, directionChanged } from "lib/app.util"; //-- enums
-import { bias, direction } from "lib/app.util"; //-- functions
-import { isBetween, isHigher, isLower, format } from "lib/std.util";
-import { UpdateReport, PublishReport, report } from "module/report";
+import { CEvent, Event, Alert } from "#module/event";
+import { Direction, Bias, directionChanged } from "#lib/app.util"; //-- enums
+import { bias, direction } from "#lib/app.util"; //-- functions
+import { isBetween, isHigher, isLower, format } from "#lib/std.util";
+import { UpdateReport, PublishReport, report } from "#module/report";
 
-import * as Candle from "db/interfaces/candle";
+import * as Candle from "#db/interfaces/candle";
 
 enum State {
   //----- Fractal States ----------------------------//

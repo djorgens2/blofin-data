@@ -4,17 +4,17 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequest } from "db/interfaces/request";
-import type { TRefKey } from "db/interfaces/reference";
-import type { IPublishResult } from "api";
-import type { TOptions } from "db/query.utils";
+import type { TRefKey, IRequest } from "#db";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hasValues, isEqual } from "lib/std.util";
-import { Session } from "module/session";
+import type { IPublishResult } from "#api";
+import type { TOptions } from "#db";
 
-import * as References from "db/interfaces/reference";
+import { Select, Insert, Update } from "#db";
+import { PrimaryKey } from "#api";
+import { hasValues, isEqual } from "#lib/std.util";
+import { Session } from "#module/session";
+
+import * as References from "#db/interfaces/reference";
 
 export interface IOrder extends IRequest {
   order_id: Uint8Array;
@@ -51,7 +51,7 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
       response: {
         success: false,
         code: 400,
-        response: `null_query`,
+        state: `null_query`,
         rows: 0,
         context: "Orders.Publish",
         message: "No order properties provided; publishing rejected",
@@ -61,8 +61,8 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
   const { order_id } = props;
   const exists = await Select<IOrder>({ order_id }, { table: `orders` });
 
-  if (exists.length) {
-    const [current] = exists;
+  if (exists.success && exists.data?.length) {
+    const [current] = exists.data;
     const revised: Partial<IOrder> = {
       order_id,
       order_category: isEqual(props.order_category!, current.order_category!) ? undefined : props.order_category,
@@ -106,7 +106,7 @@ export const Publish = async (props: Partial<IOrder>): Promise<IPublishResult<IO
 export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>): Promise<Array<Partial<IOrder>> | undefined> => {
   props.account = props.account || Session().account;
   const result = await Select<IOrder>(props, { ...options, table: `vw_orders` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -115,7 +115,8 @@ export const Fetch = async (props: Partial<IOrder>, options?: TOptions<IOrder>):
 export const Key = async (props: Partial<IOrder>): Promise<IOrder["request"] | undefined> => {
   if (hasValues<Partial<IOrder>>(props)) {
     props.account = props.account || Session().account;
-    const [result] = await Select<IOrder>(props, { table: `vw_orders` });
-    return result ? result.request : undefined;
-  } else return undefined;
+    const result = await Select<IOrder>(props, { table: `vw_orders` });
+    return result.success && result.data?.length ? result.data[0].request : undefined;
+  }
+  return undefined;
 };

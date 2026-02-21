@@ -4,10 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { TPSL } from "module/stops";
-import { Requests } from "module/requests";
+import { Stops } from "#stops";
+import { Requests } from "#requests";
 
-import { Positions, Accounts, Orders, Stops } from "api";
+import { Positions, Orders, StopOrders } from "#api";
 
 //------------------ Private functions ---------------------//
 
@@ -27,11 +27,11 @@ const processOrders = async () => {
 //| Handle stop order submits, rejects, and updates (from hold status);                  |
 //+--------------------------------------------------------------------------------------+
 const processStops = async () => {
-  await TPSL.Rejected();
-  await TPSL.Pending();
-  await TPSL.Canceled();
-  await TPSL.Hold();
-  const queue = await TPSL.Queued();
+  await Stops.Rejected();
+  await Stops.Pending();
+  await Stops.Canceled();
+  await Stops.Hold();
+  const queue = await Stops.Queued();
 //  Stops.Report(queue);
 };
 
@@ -46,7 +46,7 @@ export const Trades = async () => {
   const [ipos, orders, stops] = await Promise.all([
     Positions.Import(),
     Orders.Import(),
-    Stops.Import(),
+    StopOrders.Import(),
   ]);
 
   //stops && TPSL.Report(stops);

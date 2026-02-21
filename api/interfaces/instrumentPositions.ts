@@ -4,20 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, IInstrumentAPI, ILeverageAPI } from "api";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { IPublishResult, IInstrumentAPI, ILeverageAPI } from "#api";
+import type { IInstrumentPosition } from "#db";
 
-import { hasValues } from "lib/std.util";
-import { Session } from "module/session";
+import { hasValues } from "#lib/std.util";
 
-import * as Account from "db/interfaces/account";
-import * as Instrument from "db/interfaces/instrument";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
-
-import { Leverages, Instruments } from "api";
+import { Account, Instrument, InstrumentPosition } from "#db";
+import { Leverages, Instruments } from "#api";
+import { Session } from "#module/session";
 
 export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;
-export type TPosition = `long` | `short` | `net`;
 
 //------------------ Private functions ---------------------//
 

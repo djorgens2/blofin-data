@@ -4,9 +4,9 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import { hexify } from "./crypto.util";
+import { hexify } from "#lib/crypto.util";
 
-import Prompt from "cli/modules/Prompts";
+import Prompt from "#cli/modules/Prompts";
 import Decimal from "decimal.js";
 
 //+--------------------------------------------------------------------------------------+

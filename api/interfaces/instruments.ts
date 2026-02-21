@@ -4,15 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
-import type { IInstrument } from "db/interfaces/instrument";
-import type { ICurrency } from "db/interfaces/currency";
+import type { IPublishResult } from "#api";
+import type { IInstrument, ICurrency } from "#db";
 
-import { Session } from "module/session";
-
-import * as Instrument from "db/interfaces/instrument";
-import * as InstrumentDetail from "db/interfaces/instrument_detail";
-import * as InstrumentPeriod from "db/interfaces/instrument_period";
+import { Instrument, InstrumentDetail, InstrumentPeriod } from "#db";
+import { Session } from "#module/session";
 
 export interface IInstrumentAPI {
   instId: string;
@@ -61,7 +57,7 @@ const publish = async (props: Array<IInstrumentAPI>) => {
 
   const published: Array<IPublishResult<IInstrument>> = await Promise.all(results);
   const suspended: Array<IPublishResult<ICurrency>> = await Instrument.Suspense(
-    props.map((i) => ({ symbol: i.instId, status: i.state === "live" ? "Enabled" : "Suspended" }))
+    props.map((i) => ({ symbol: i.instId, status: i.state === "live" ? "Enabled" : "Suspended" })),
   );
 
   await InstrumentPeriod.Import();
@@ -87,7 +83,7 @@ export const Fetch = async () => {
       console.log(
         `-> [Error] Instrument.Fetch: failed to retrieve instruments; error returned:`,
         result.code || -1,
-        result.msg ? `response: `.concat(result.msg) : ``
+        result.msg ? `response: `.concat(result.msg) : ``,
       );
     } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {
@@ -113,7 +109,7 @@ export const Import = async () => {
       console.log(
         `-> [Error] Instrument.Import: failed to retrieve instruments; error returned:`,
         result.code || -1,
-        result.msg ? `response: `.concat(result.msg) : ``
+        result.msg ? `response: `.concat(result.msg) : ``,
       );
     } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
   } catch (error) {

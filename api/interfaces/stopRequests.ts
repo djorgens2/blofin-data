@@ -4,15 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse, IStopsAPI } from "api";
-import type { IStopRequest } from "db/interfaces/stop_request";
+import type { IPublishResult, TResponse, IStopOrderAPI } from "#api";
+import type { IStopRequest } from "#db";
 
-import { API_POST, ApiError } from "api";
-import { PrimaryKey } from "api/api.util";
-import { hexify } from "lib/crypto.util";
+import { PrimaryKey } from "#db";
+import { API_POST, ApiError } from "#api";
+import { hexify } from "#lib/crypto.util";
 
-import * as Request from "db/interfaces/stop_request";
-import * as Orders from "db/interfaces/stops";
+import { StopRequest, StopOrder } from "#db";
 
 type TResponseAPI = {
   orderId: string;
@@ -41,7 +40,7 @@ const publish = async (response: Array<TResponseAPI>, config: IPublishConfig): P
 
   const orders = await Promise.all(
     response.map(async (request) => {
-      const exists = await Orders.Fetch({ stop_request: hexify(request.clientOrderId! || parseInt(request.orderId!), 5) });
+      const exists = await StopOrder.Fetch({ stop_request: hexify(request.clientOrderId! || parseInt(request.orderId!), 5) });
 
       if (!exists) {
         throw new ApiError(457, `Stop Order not found for Request: ${request.clientOrderId || request.orderId}`);
@@ -62,13 +61,13 @@ const publish = async (response: Array<TResponseAPI>, config: IPublishConfig): P
           message: request.msg,
         } as TRequestResponse,
       };
-    })
+    }),
   );
 
   return Promise.all(
     orders.map(async ({ success, current, request }) => {
       const { code, message, ...updates } = request;
-      const result = await Request.Publish('API', current, updates);
+      const result = await StopRequest.Publish("API", current, updates);
 
       return {
         key: PrimaryKey(request, ["stop_request"]),
@@ -80,14 +79,14 @@ const publish = async (response: Array<TResponseAPI>, config: IPublishConfig): P
           code: success ? 0 : result.response.success ? code || 0 : request.code || 0,
         },
       };
-    })
+    }),
   );
 };
 
 /**
  * Cancels open orders through the API
  */
-export const Cancel = async (requests: Array<Partial<IStopsAPI>>) => {
+export const Cancel = async (requests: Array<Partial<IStopOrderAPI>>) => {
   if (!requests.length) return [];
   console.log(`-> Cancel [API]`);
 
@@ -107,7 +106,7 @@ export const Cancel = async (requests: Array<Partial<IStopsAPI>>) => {
 /**
  * Submits new requests through the API
  */
-export const Submit = async (request: Partial<IStopsAPI>) => {
+export const Submit = async (request: Partial<IStopOrderAPI>) => {
   if (!request) return [];
   console.log(`-> Submit [API]`);
 

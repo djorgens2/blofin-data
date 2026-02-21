@@ -4,21 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TPositionState, TSystem } from "db/interfaces/state";
-import type { IPublishResult } from "api";
-import type { TOptions } from "db/query.utils";
+import type { TPositionState, TSystem } from "#db/interfaces/state";
+import type { IPublishResult } from "#api";
+import type { TOptions } from "#db";
 
-import { Select, Update, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hasValues, isEqual } from "lib/std.util";
-import { hashKey } from "lib/crypto.util";
-import { Session } from "module/session";
+import { Select, Update, Insert, PrimaryKey } from "#db";
+import { State, Period, Instrument } from "#db";
 
-import * as State from "db/interfaces/state";
-import * as Period from "db/interfaces/period";
-import * as Instrument from "db/interfaces/instrument";
-
-export type TPosition = `long` | `short` | `net`;
+import { hasValues, isEqual } from "#lib/std.util";
+import { hashKey } from "#lib/crypto.util";
+import { Session } from "#module/session";
 
 export interface IInstrumentPosition {
   account: Uint8Array;
@@ -32,7 +27,7 @@ export interface IInstrumentPosition {
   base_symbol: string;
   quote_currency: Uint8Array;
   quote_symbol: string;
-  position: TPosition;
+  position: `long` | `short` | `net`;
   hedging: boolean;
   state: Uint8Array;
   status: TPositionState;
@@ -65,9 +60,10 @@ export interface IInstrumentPosition {
 //+--------------------------------------------------------------------------------------+
 //| Sets the Status for the Instrument Position once updated via API/WSS ;               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrumentPosition>): Promise<IPublishResult<IInstrumentPosition>> => {
+export const Publish = async (props: Partial<IInstrumentPosition>, context = "Instrument.Position"): Promise<IPublishResult<IInstrumentPosition>> => {
+  context = `${context}.Publish`;
   if (!hasValues(props)) {
-    return { key: undefined, response: { success: false, code: 413, response: `null_query`, rows: 0, context: "Instrument.Position.Publish" } };
+    return { key: undefined, response: { success: false, code: 413, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
   }
 
   const exists = await Fetch({
@@ -137,7 +133,7 @@ export const Fetch = async (
   options?: TOptions<IInstrumentPosition>,
 ): Promise<Array<Partial<IInstrumentPosition>> | undefined> => {
   const result = await Select<IInstrumentPosition>(props, { ...options, table: `vw_instrument_positions` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -145,7 +141,8 @@ export const Fetch = async (
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrumentPosition>): Promise<IInstrumentPosition["instrument_position"] | undefined> => {
   if (hasValues<Partial<IInstrumentPosition>>(props)) {
-    const [result] = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
-    return result ? result.instrument_position : undefined;
-  } else return undefined;
+    const result = await Select<IInstrumentPosition>(props, { table: `vw_instrument_positions` });
+    return result.success && result.data?.length ? result.data[0].instrument_position : undefined;
+  }
+  return undefined;
 };

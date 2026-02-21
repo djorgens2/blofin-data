@@ -4,17 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IAccount } from "db/interfaces/account";
+import type { IAccount } from "#db/interfaces/account";
 
-import { parseJSON } from "lib/std.util";
-import { uniqueKey } from "lib/crypto.util";
+import { parseJSON } from "#lib/std.util";
+import { uniqueKey } from "#lib/crypto.util";
 import { createHmac } from "node:crypto";
 import { TextEncoder } from "node:util";
-import { Select } from "db/query.utils";
 
-import { Positions, Accounts, Orders } from "api";
-import * as Account from "db/interfaces/account";
-import * as Execute from "module/trades";
+import { Select } from "#db";
+
+import { Positions, Accounts, Orders } from "#api";
+import { Account } from "#db";
+
+import * as Execute from "#module/trades";
 
 interface ILogConfig {
   select: boolean;
@@ -123,8 +125,10 @@ const parseEnvAccounts = (envVar: string | undefined): Array<Partial<ISession>> 
 //+--------------------------------------------------------------------------------------+
 //| configures environment/application/globals on session opened with supplied keys;     |
 //+--------------------------------------------------------------------------------------+
-export const config = async (props: Partial<IAccount>, symbol: string) => {
-  const [accountConfig, sessionConfig] = await Promise.all([await Account.Fetch(props), await Select<ISession>({}, { table: "app_config" })]);
+export const Config = async (props: Partial<IAccount>, symbol: string) => {
+  console.log({props})
+  const [accountConfig, sessionConfig] = await Promise.all([await Account.Fetch(props), await Select<ISession>({}, { table: "app_config" }, "Session.Config")]);
+  console.log("accountConfig:", {accountConfig, sessionConfig})
 
   if (!accountConfig || !sessionConfig.success) {
     console.warn("[Error] Session.Config: Unknown/missing account; application configuration failed");

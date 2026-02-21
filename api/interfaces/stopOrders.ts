@@ -1,27 +1,21 @@
 //+--------------------------------------------------------------------------------------+
-//|                                                                      [api]  stops.ts |
+//|                                                                 [api]  stopOrders.ts |
 //|                                                     Copyright 2018, Dennis Jorgenson |
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { TRequestState, TPositionState } from "#db/interfaces/state";
+import type { IPublishResult } from "#api";
+import type { TRefKey, IStopOrder } from "#db";
 
-import type { TRequestState } from "db/interfaces/state";
-import type { TPositionState } from "db/interfaces/state";
-import type { IStopOrder } from "db/interfaces/stops";
-import type { TRefKey } from "db/interfaces/reference";
+import { Session, setSession } from "#module/session";
+import { hexify } from "#lib/crypto.util";
+import { delay, fileWrite, format } from "#lib/std.util";
+import { API_GET, ApiError, ApiResult } from "#api";
 
-import { Session, setSession } from "module/session";
-import { hexify } from "lib/crypto.util";
-import { delay, fileWrite, format } from "lib/std.util";
-import { API_GET, ApiError, ApiResult } from "api";
+import { Reference, InstrumentPosition, StopOrder, StopRequest } from "#db";
 
-import * as Stops from "db/interfaces/stops";
-import * as Requests from "db/interfaces/stop_request";
-import * as Reference from "db/interfaces/reference";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
-
-export interface IStopsAPI {
+export interface IStopOrderAPI {
   account: Uint8Array;
   stop_request: Uint8Array;
   status: TRequestState;
@@ -52,13 +46,13 @@ export interface IStopsAPI {
 /**
  * Stops.Publish: Flattens TP/SL pairs into normalized, parallel IPublishResult streams.
  */
-const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promise<Array<IPublishResult<IStopOrder>>> => {
+const Publish = async (source: string, props: Array<Partial<IStopOrderAPI>>): Promise<Array<IPublishResult<IStopOrder>>> => {
   if (!props?.length) return [];
   const context = `Stops.Import.${source}.Publish`;
   console.log(`-> ${context}`);
 
   // Build de-duplication map to pre-filter latest orders
-  const orders = new Map<string, Partial<IStopsAPI>>();
+  const orders = new Map<string, Partial<IStopOrderAPI>>();
   for (const order of props) {
     const key = order.clientOrderId ? (order.clientOrderId.startsWith("0x") ? order.clientOrderId : `0x${order.clientOrderId}`) : order.tpslId || "0";
     const existing = orders.get(key);
@@ -122,7 +116,7 @@ const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promis
           update_time: new Date(parseInt(order.createTime!)),
         };
 
-        const [orderResult, request] = await Promise.all([Stops.Publish(revised), Stops.Fetch({ stop_request })]);
+        const [orderResult, request] = await Promise.all([StopOrder.Publish(revised), StopOrder.Fetch({ stop_request })]);
         const [current] = request ?? [{}];
         const key = order.tpslId || "";
 
@@ -140,7 +134,7 @@ const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promis
             revised.status = pending ? "Hold" : mapped.status;
           } else revised.status = mapped.status;
 
-          requestResult = await Requests.Publish(source, current, revised);
+          requestResult = await StopRequest.Publish(source, current, revised);
         }
 
         return requestResult ? [orderResult, ...requestResult].flat() : [orderResult];
@@ -150,14 +144,14 @@ const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promis
           error instanceof ApiError
             ? {
                 key: undefined,
-                response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0, context },
+                response: { success: false, code: error.code, state: `error`, message: error.message, rows: 0, context },
               }
             : {
                 key: undefined,
                 response: {
                   success: false,
                   code: -1,
-                  response: `error`,
+                  state: `error`,
                   message: "Network or System failure",
                   rows: 0,
                   context,
@@ -175,14 +169,14 @@ const Publish = async (source: string, props: Array<Partial<IStopsAPI>>): Promis
 /**
  * Fetches history recursively until no more data is found or limit is reached
  */
-const History = async (): Promise<Array<Partial<IStopsAPI>>> => {
+const History = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
   const limit = Session().orders_max_fetch || 20;
-  const history: Array<Partial<IStopsAPI>> = [];
+  const history: Array<Partial<IStopOrderAPI>> = [];
 
   while (true) {
     console.error("-> [Info] Fetching Stops History from ID:", Session().audit_stops);
     const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}&limit=${limit}`;
-    const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stop.Order.History.API");
+    const result = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.History.API");
 
     if (result && result.length > 0) {
       history.push(...result);
@@ -200,8 +194,8 @@ const History = async (): Promise<Array<Partial<IStopsAPI>>> => {
 /**
  * Pending - retrieves all active orders, paginating if count > Session().orders_max_fetch;
  */
-const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
-  const pending: Array<Partial<IStopsAPI>> = [];
+const Pending = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
+  const pending: Array<Partial<IStopOrderAPI>> = [];
   const limit = Session().orders_max_fetch || 20;
 
   let afterId = "0";
@@ -210,7 +204,7 @@ const Pending = async (): Promise<Array<Partial<IStopsAPI>>> => {
     const path = `/api/v1/trade/orders-tpsl-pending?before=${afterId}&limit=${limit}`;
 
     try {
-      const result = await API_GET<Array<Partial<IStopsAPI>>>(path, "Stop.Order.Pending.API");
+      const result = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.Pending.API");
       if (result && result.length > 0) {
         pending.push(...result);
         afterId = Math.max(...result.map((o) => parseInt(o.tpslId!))).toString();
@@ -244,12 +238,12 @@ export const oldImport = async () => {
         response: {
           success: history.length ? true : false,
           code: 203,
-          response: `total`,
+          state: `total`,
           rows: history.length,
           context: `${context}.History`,
           message: history.length ? "[Info] History retrieval successful" : "[Warning] No history retrieved",
         },
-        ...historyResult
+        ...historyResult,
       });
     }
 
@@ -260,7 +254,7 @@ export const oldImport = async () => {
         response: {
           success: pending.length ? true : false,
           code: 203,
-          response: `total`,
+          state: `total`,
           rows: history.length,
           context: `${context}.Pending`,
           message: history.length ? "[Info] Pending retrieval successful" : "[Info] No pending retrieved",
@@ -281,23 +275,14 @@ export const Import = async () => {
 
   try {
     const [history, pending] = await Promise.all([History(), Pending()]);
-    
+
     // Process results into a flat array
-    const results = await Promise.all([
-      history.length ? Publish("History", history) : [],
-      pending.length ? Publish("Pending", pending) : []
-    ]);
+    const results = await Promise.all([history.length ? Publish("History", history) : [], pending.length ? Publish("Pending", pending) : []]);
 
     // Construct the final array using the factory
-    return [
-      ApiResult(`${context}.History`, history, 203),
-      ...results[0],
-      ApiResult(`${context}.Pending`, pending, 203),
-      ...results[1],
-    ].flat();
-
+    return [ApiResult(`${context}.History`, history, 203), ...results[0], ApiResult(`${context}.Pending`, pending, 203), ...results[1]].flat();
   } catch (error) {
     // Standardized Error Response Factory
-    return [ApiResult(`${context}.Error`, [], -1)]; 
+    return [ApiResult(`${context}.Error`, [], -1)];
   }
 };

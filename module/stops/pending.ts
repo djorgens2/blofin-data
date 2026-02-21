@@ -4,17 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopOrder } from "db/interfaces/stops";
+import type { IStopOrder } from "#db";
 
-import { Session } from "module/session";
-import { Fetch } from "db/interfaces/stops";
-import { Submit } from "db/interfaces/stop_request";
+import { Session } from "#module/session";
+import { StopOrder, StopRequest } from "#db";
 
 //-- [Process.Stops] Closes pending stop orders on closed positions
 type Accumulator = { pending: Partial<IStopOrder>[]; expired: Partial<IStopOrder>[] };
 
 export const Pending = async () => {
-  const requests = await Fetch({ status: "Pending", account: Session().account });
+  const requests = await StopOrder.Fetch({ status: "Pending", account: Session().account });
 
   if (requests) {
     const { pending, expired } = requests.reduce(
@@ -33,7 +32,7 @@ export const Pending = async () => {
       { pending: [] as Partial<IStopOrder>[], expired: [] as Partial<IStopOrder>[] }
     );
 
-    const [verified, expiring] = await Promise.all([Promise.all(pending.map((p) => Submit(p))), Promise.all(expired.map((e) => Submit(e)))]);
+    const [verified, expiring] = await Promise.all([Promise.all(pending.map((p) => StopRequest.Submit(p))), Promise.all(expired.map((e) => StopRequest.Submit(e)))]);
 
     return {
       size: requests.length,

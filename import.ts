@@ -4,57 +4,48 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
-import type { IMessage } from "lib/app.util";
+import type { IInstrumentPosition } from "#db";
+import type { IMessage } from "#lib/app.util";
 
-import { clear } from "lib/app.util";
-import { hexify } from "lib/crypto.util";
-import { Session, config } from "module/session";
+import { clear } from "#lib/app.util";
+import { hexify } from "#lib/crypto.util";
+import { Session, config } from "#module/session";
 
-import * as Activity from "db/interfaces/activity";
-import * as Authority from "db/interfaces/authority";
-import * as Broker from "db/interfaces/broker";
-import * as Environment from "db/interfaces/environment";
-import * as InstrumentPeriod from "db/interfaces/instrument_period";
-import * as Period from "db/interfaces/period";
-import * as References from "db/interfaces/reference";
-import * as RoleAuthority from "db/interfaces/role_authority";
-import * as State from "db/interfaces/state";
-import * as SubjectAreas from "db/interfaces/subject_area";
-import * as Roles from "db/interfaces/role";
+import { Activity, Authority, Broker, Environment, InstrumentPeriod, Period, Reference, RoleAuthority, State, SubjectArea, Role } from "#db";
+import { Candles, Instruments, InstrumentPositions } from "#api";
 
-import { Candles, Instruments, InstrumentPositions } from "api";
-import * as db from "db/query.utils";
+import * as db from "#db/query.utils";
 
 //+--------------------------------------------------------------------------------------+
 //| Installs seed data during initialization of a new database;                          |
 //+--------------------------------------------------------------------------------------+
 export const Import = async () => {
-  await SubjectAreas.Import();
+  await SubjectArea.Import();
   await Activity.Import();
   await Authority.Import();
   await Broker.Import();
   await Environment.Import();
   await Period.Import();
-  await References.Import();
-  await Roles.Import();
+  await Reference.Import();
+  await Role.Import();
   await State.Import();
   await RoleAuthority.Import({ status: `Enabled` });
   await Instruments.Import();
   await InstrumentPositions.Import();
   await InstrumentPeriod.Import();
 
-  const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+  const authorized= await db.Distinct<IInstrumentPosition>(
     { account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
     { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
   );
 
-  console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));
+  console.log(`-> Imports Authorized:`, authorized.data?.map((auth) => auth.symbol).join(","));
 
-  const promises = authorized.map(async (instrument) => {
+  const promises = (authorized.data || []).map(async (instrument) => {
     const { symbol, timeframe } = instrument;
 
-    if (symbol && timeframe) {
+    if (!symbol || !timeframe) return undefined;
+
       const startTime = 0;
       const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
 
@@ -62,7 +53,7 @@ export const Import = async () => {
 
       return Candles.Import(message, { symbol, timeframe, startTime });
     }
-  });
+  );
   const published = await Promise.all(promises);
 
   published.forEach((message) => {
@@ -75,7 +66,7 @@ export const Import = async () => {
 
   //-------------------------------- candles Import ---------------------------------------//
   const importCandles = async () => {
-    const promises = authorized.map(async (instrument) => {
+    const promises = (authorized.data || []).map(async (instrument) => {
       const { symbol, timeframe } = instrument;
 
       if (symbol && timeframe) {
@@ -87,7 +78,7 @@ export const Import = async () => {
 
     if (published) {
       console.log("In Candles.Publish [API]:", new Date().toLocaleString());
-      console.log(`-> Authorized Symbols:`, authorized.map((auth) => auth.symbol).join(","));
+      console.log(`-> Authorized Symbols:`, authorized.data?.map((auth) => auth.symbol).join(","));
 
       published.forEach((message) => {
         if (message?.db) {

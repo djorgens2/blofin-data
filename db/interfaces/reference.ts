@@ -4,15 +4,12 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TRequestState } from "db/interfaces/state";
-import type { TOptions } from "db/query.utils";
+import type { TRequestState } from "#db/interfaces/state";
+import type { TOptions } from "#db";
 
-import { Select, Insert } from "db/query.utils";
-import { hashKey, hexify } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
-
-export type TRefKey = Uint8Array;
-export type TRefText = string;
+import { Select, Insert } from "#db/query.utils";
+import { hashKey, hexify } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IReference {
   table: string;
@@ -134,7 +131,7 @@ export const Add = async (table: string, props: { [key: string]: any }) => {
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IReference>, options: TOptions<IReference>): Promise<Array<Partial<IReference>> | undefined> => {
   const result = await Select<IReference>(props, options);
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -142,7 +139,8 @@ export const Fetch = async (props: Partial<IReference>, options: TOptions<IRefer
 //+--------------------------------------------------------------------------------------+
 export const Key = async <T>(props: Partial<IReference>, options: TOptions<IReference>): Promise<T | undefined> => {
   if (hasValues<Partial<IReference>>(props)) {
-    const [key] = await Select<IReference>(props, options);
-    return key ? (Object.values(key)[0] as T) : undefined;
-  } else return undefined;
+    const result = await Select<IReference>(props, options);
+    return result.success ? (Object.values(result.data![0]) as T) : undefined;
+  }
+  return undefined;
 };

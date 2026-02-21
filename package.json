@@ -6,18 +6,32 @@
     "main": "npx tsx app > app.log",
     "test": "npx tsx ./test/modules/$TEST_SCRIPT",
     "import": "npx tsx import.ts > import.log",
-    "cli": "npx tsx ./app/cli",
+    "cli:dev": "node --experimental-strip-types --env-file=.env.local.devel ./app/cli.ts",
     "build": "esbuild ./app.ts --bundle --platform=node --format=esm --target=node22 --outfile=./build/js/app.js --tsconfig=./tsconfig.json",
-    "prod": "node ./build/js/app.js"
+    "prod": "node ./build/js/app.js",
+    "start:dev": "node --experimental-strip-types --env-file=.env.local.devel app.ts",
+    "start:prod": "node --experimental-strip-types --env-file=.env.local.prod test.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
+  "imports": {
+    "#api": "./api/index.ts",
+    "#api/*": "./api/*.ts",
+    "#app/*": "./app/*.ts",
+    "#db": "./db/index.ts",
+    "#db/*": "./db/*.ts",
+    "#lib/*": "./lib/*.ts",
+    "#module/*": "./module/*.ts",
+    "#cli/*": "./cli/*.ts",
+    "#fcrt/*": "./fcrt/*.ts",
+    "#stops": "./module/stops/index.ts",
+    "#requests": "./module/requests/index.ts"
+  },
   "dependencies": {
     "console-log-colors": "^0.5.0",
     "decimal.js": "^10.6.0",
-    "dotenv": "^16.5.0",
     "mysql2": "^3.13.0",
     "nanoid": "^3.3.9",
     "prompts": "^2.4.2"

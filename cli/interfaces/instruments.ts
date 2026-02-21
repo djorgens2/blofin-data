@@ -4,26 +4,26 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "module/session";
-import type { IAccount } from "db/interfaces/account";
-import type { TAccess } from "db/interfaces/state";
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
+import type { ISession } from "#module/session";
+import type { IAccount } from "#db/interfaces/account";
+import type { TAccess } from "#db/interfaces/state";
+import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
 
 import { green, red, yellow, cyan, gray, bold, dim } from "console-log-colors";
-import { formatterUSD, getLengths, Pause } from "lib/std.util";
+import { formatterUSD, getLengths, Pause } from "#lib/std.util";
 
 import prompts from "prompts";
-import Prompt from "cli/modules/Prompts";
+import Prompt from "#cli/modules/Prompts";
 
-import { setHeader } from "cli/modules/Header";
-import { setState } from "cli/modules/State";
-import { setBroker } from "cli/interfaces/broker";
-import { setUser } from "cli/interfaces/user";
-import { setEnviron } from "cli/modules/Environ";
+import { setHeader } from "#cli/modules/Header";
+import { setState } from "#cli/modules/State";
+import { setBroker } from "#cli/interfaces/broker";
+import { setUser } from "#cli/interfaces/user";
+import { setEnviron } from "#cli/modules/Environ";
 
-import * as InstrumentPosition from "db/interfaces/instrument_position";
-import * as Accounts from "db/interfaces/account";
-import * as db from "db/query.utils";
+import * as InstrumentPosition from "#db/interfaces/instrument_position";
+import * as Accounts from "#db/interfaces/account";
+import * as db from "#db/query.utils";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves accounts from local server; if new, prompts to create;                     |
@@ -169,7 +169,7 @@ export const accountSelect = async () => {
 export const symbolSelect = async (alias: string) => {
   setHeader("Authorized Instruments");
 
-  const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+  const authorized = await db.Distinct<IInstrumentPosition>(
     { alias, symbol: undefined, environ: undefined },
     { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
   );
@@ -181,7 +181,7 @@ export const symbolSelect = async (alias: string) => {
       symbol: 12,
       colBuffer: 5,
     },
-    authorized!,
+    authorized.data!,
   );
 
   console.log(
@@ -191,8 +191,8 @@ export const symbolSelect = async (alias: string) => {
       `${bold("Symbol".padEnd(keylen.symbol, " "))}`,
   );
 
-  if (authorized.length) {
-    const choices = authorized.map((i) => ({
+  if (authorized.success) {
+    const choices = authorized?.data?.map((i) => ({
       title:
         `${gray(alias.padEnd(keylen.alias, " "))}` + `${gray(i.environ!.padEnd(keylen.environ, " "))}` + `${gray(i.symbol!.padEnd(keylen.symbol, " "))}`,
       value: i.symbol,

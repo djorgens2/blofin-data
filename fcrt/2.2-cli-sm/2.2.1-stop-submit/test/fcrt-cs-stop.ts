@@ -1,14 +1,14 @@
 //----------------------------- stop order test  -------------------------------------------------------//
-import type { IStopRequest } from "db/interfaces/stop_request";
-import type { IPublishResult } from "api";
+import type { IStopRequest } from "#db/interfaces/stop_request";
+import type { IPublishResult } from "#api";
 
-import { Session, config } from "module/session";
-import { hexify } from "lib/crypto.util";
+import { Session, config } from "#module/session";
+import { hexify } from "#lib/crypto.util";
 import { req_fcrt_2a, req_fcrt_2c, req_fcrt_3b, req_fcrt_3c } from "./request";
 
-import * as IPos from "db/interfaces/instrument_position";
-import * as StopRequest from "db/interfaces/stop_request";
-import * as StopOrder from "db/interfaces/stops";
+import * as IPos from "#db/interfaces/instrument_position";
+import * as StopRequest from "#db/interfaces/stop_request";
+import * as StopOrder from "#db/interfaces/stop_order";
 
 const args = process.argv.slice(2); // get account id
 

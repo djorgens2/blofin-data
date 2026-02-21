@@ -1,14 +1,14 @@
 //----------------------------- order test  -------------------------------------------------------//
-import type { IRequest } from "db/interfaces/request";
-import type { IPublishResult } from "api";
+import type { IRequest } from "#db/interfaces/request";
+import type { IPublishResult } from "#api";
 
-import { Session, setSession } from "module/session";
-import { hexify } from "lib/crypto.util";
-import { Select } from "db/query.utils";
+import { Session, setSession } from "#module/session";
+import { hexify } from "#lib/crypto.util";
+import { Select } from "#db/query.utils";
 
-import * as IPos from "db/interfaces/instrument_position";
-import * as Requests from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
+import * as IPos from "#db/interfaces/instrument_position";
+import * as Requests from "#db/interfaces/request";
+import * as Orders from "#db/interfaces/order";
 import * as Request from "./request";
 
 interface TAuditRequest {
@@ -34,12 +34,14 @@ if (cli_account && cli_test) {
   const submit = async (): Promise<[IPublishResult<IRequest>, Partial<IRequest>]> => {
     const instrument_position = await IPos.Key({ account: Session().account, symbol: Request.req_fcrt_1a.symbol, position: Request.req_fcrt_1a.position });
     const audit = await Select<TAuditRequest>({ instrument_position }, { table: "vw_audit_requests" });
-    const valid = audit.filter((ipos) => ["Queued", "Pending", "Hold", "Rejected"].includes(ipos.status!) && ipos.occurs! > 0);
+    const valid = audit.data?.filter((ipos) => ["Queued", "Pending", "Hold", "Rejected"].includes(ipos.status!) && ipos.occurs! > 0);
 
     console.log({ instrument_position });
 
+    if (!valid || !valid?.length) throw new Error("[Error] No matching order")
+
     if (cli_test === "1a") {
-      if (valid.length === 0) {
+      if (valid?.length === 0) {
         const submitted = await Requests.Submit({ ...Request.req_fcrt_1a, memo: `Test ${cli_test}: Starting Order: Results in Rejected status` });
         console.log(`[Info] Starting Order: submitting request [Request.req_fcrt_1a]`, {
           account: Session().account,
@@ -49,7 +51,7 @@ if (cli_account && cli_test) {
         return [submitted, { ...Request.req_fcrt_1a, memo: `Test ${cli_test}: Starting Order: Results in Rejected status` }];
       }
       throw new Error(`[Error] No Order: Test ${cli_test} failed; Active request exists for this instrument;`);
-    } else if (valid.length > 0) {
+    } else if (valid?.length > 0) {
       //   const queued = await Orders.Fetch({ status: "Queued" });
       if (cli_test === "1b") {
         const request = await Orders.Fetch({ status: "Rejected" });

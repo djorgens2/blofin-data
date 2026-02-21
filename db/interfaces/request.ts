@@ -4,21 +4,16 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IOrder } from "db/interfaces/order";
-import type { TRefKey } from "db/interfaces/reference";
-import type { IRequestState, TRequestState } from "db/interfaces/state";
-import type { IPublishResult } from "api";
+import type { TRefKey, IOrder } from "#db";
+import type { IRequestState, TRequestState } from "#db/interfaces/state";
+import type { IPublishResult } from "#api";
 
-import { Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hasValues, isEqual, setExpiry } from "lib/std.util";
-import { hashKey } from "lib/crypto.util";
-import { Session } from "module/session";
+import { Insert, Update, PrimaryKey } from "#db";
+import { hasValues, isEqual, setExpiry } from "#lib/std.util";
+import { hashKey } from "#lib/crypto.util";
+import { Session } from "#module/session";
 
-import * as Orders from "db/interfaces/order";
-import * as States from "db/interfaces/state";
-import * as References from "db/interfaces/reference";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import { Order, State, Reference, InstrumentPosition } from "#db";
 
 export interface IRequest {
   request: Uint8Array;
@@ -53,7 +48,7 @@ export interface IRequest {
 export const Publish = async (source: string, current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (hasValues<Partial<IOrder>>(current)) {
     if (hasValues<Partial<IOrder>>(props)) {
-      const state = props.status === "Hold" ? undefined : (await States.Key<IRequestState>({ status: props.status })) || props.state || current.state;
+      const state = props.status === "Hold" ? undefined : (await State.Key<IRequestState>({ status: props.status })) || props.state || current.state;
 
       if (props.update_time! > current.update_time!) {
         const revised: Partial<IOrder> = {
@@ -70,7 +65,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
         const result = await Update(revised, { table: `request`, keys: [[`request`]], context: `Request.Publish.${source}` });
 
         if (result.success || !isEqual(props.expiry_time! || current.expiry_time, current.expiry_time!)) {
-          const state = result.success && props.status === "Hold" ? await States.Key<IRequestState>({ status: "Hold" }) : undefined;
+          const state = result.success && props.status === "Hold" ? await State.Key<IRequestState>({ status: "Hold" }) : undefined;
           const memo = !result.success ? `[Info] Request expiry updated to ${props.expiry_time?.toLocaleString()}` : undefined;
           const confirmed = await Update(
             {
@@ -83,12 +78,12 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
             { table: `request`, keys: [[`request`]], context: `Request.Publish.${source}` },
           );
 
-          return { key: PrimaryKey(current, [`request`]), response: confirmed };
+          return { key: PrimaryKey(current, [`request`]),response: confirmed };
         }
       }
       return {
         key: PrimaryKey(current, [`request`]),
-        response: { success: false, code: 200, response: `exists`, message: `Request unchanged`, rows: 0, context: `Request.Publish.${source}` },
+        response: { success: false, code: 200, state: `exists`, message: `Request unchanged`, rows: 0, context: `Request.Publish.${source}` },
       };
     }
 
@@ -97,7 +92,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
       response: {
         success: false,
         code: 400,
-        response: `null_query`,
+        state: `null_query`,
         message: `[Error] Request: No update properties provided from ${source}; request unchanged`,
         rows: 0,
         context: `Request.Publish.${source}`,
@@ -107,8 +102,8 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
 
   if (hasValues<Partial<IRequest>>(props)) {
     const process_time = new Date();
-    const queued = await States.Key<IRequestState>({ status: "Queued" });
-    const request_type = await References.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
+    const queued = await State.Key<IRequestState>({ status: "Queued" });
+    const request_type = await Reference.Key<TRefKey>({ source_ref: props.order_type || `limit` }, { table: `request_type` });
     const request: Partial<IRequest> = {
       request: props.request || hashKey(12),
       instrument_position: props.instrument_position,
@@ -134,7 +129,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
     response: {
       success: false,
       code: 400,
-      response: `null_query`,
+      state: `null_query`,
       message: "[Error] Request.Publish: Nothing to publish",
       rows: 0,
       context: `Request.Publish.${source}`,
@@ -146,7 +141,7 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
 //| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
 //+--------------------------------------------------------------------------------------+
 export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResult<IRequest>>> => {
-  const orders = await Orders.Fetch(props.request ? { request: props.request } : props);
+  const orders = await Order.Fetch(props.request ? { request: props.request } : props);
 
   if (!orders) {
     console.log("[Error]: Unauthorized cancellation attempt");
@@ -156,7 +151,7 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
         response: {
           success: false,
           code: 400,
-          response: `null_query`,
+          state: `null_query`,
           message: "[Error] Request.Cancel: Nothing to cancel",
           rows: 0,
           context: "Request.Cancel",
@@ -187,7 +182,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
     return {
       key: undefined,
-      response: { success: false, code: 400, response: `null_query`, message: `No request properties provided`, rows: 0, context: "Request.Submit" },
+      response: { success: false, code: 400, state: `null_query`, message: `No request properties provided`, rows: 0, context: "Request.Submit" },
     };
   }
 
@@ -200,13 +195,13 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     console.log(">> [Error] Request.Submit: Invalid request; missing instrument position; request rejected");
     return {
       key: undefined,
-      response: { success: false, code: 404, response: `error`, message: `Instrument position not found`, rows: 0, context: "Request.Submit" },
+      response: { success: false, code: 404, state: `error`, message: `Instrument position not found`, rows: 0, context: "Request.Submit" },
     };
   }
 
   const [{ instrument_position, auto_status, leverage, margin_mode, open_request }] = exists;
   const search: Partial<IRequest> = props.request ? { request: props.request } : { instrument_position, status: open_request ? "Pending" : "Queued" };
-  const found = await Orders.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
+  const found = await Order.Fetch(search, { suffix: `ORDER BY update_time DESC LIMIT 1` });
 
   if (!found) {
     return await Publish(
@@ -226,7 +221,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
 
   if (props.update_time > current.update_time!) {
     if (auto_status === "Enabled") {
-      const queue = await Orders.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
+      const queue = await Order.Fetch({ instrument_position }, { suffix: `AND status IN ("Pending", "Queued")` });
 
       if (queue) {
         await Promise.all(
@@ -254,7 +249,7 @@ export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<I
     response: {
       success: true,
       code: 201,
-      response: `exists`,
+      state: `exists`,
       message: `-> [Info] Request.Submit: Queued request verified`,
       rows: 0,
       context: "Request.Submit",

@@ -1,5 +1,5 @@
-import type { IRequest } from "db/interfaces/request";
-import { setExpiry } from "lib/std.util";
+import type { IRequest } from "#db/interfaces/request";
+import { setExpiry } from "#lib/std.util";
 
 //-- Test 1a: request reject on size, resub, then edit and resub
 export const req_fcrt_1a: Partial<IRequest> = {

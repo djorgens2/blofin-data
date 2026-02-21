@@ -4,12 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TAccess, IAccess } from "db/interfaces/state";
-import type { TResponse } from "api";
+import type { TAccess, IAccess } from "#db/interfaces/state";
+import type { TResponse } from "#api";
 
-import { Select, Distinct, Update, Load } from "db/query.utils";
-
-import * as State from "db/interfaces/state";
+import { Select, Distinct, Update, Load } from "#db";
+import { State } from "#db";
 
 export interface IRoleAuthority {
   role: Uint8Array;
@@ -33,18 +32,18 @@ export const Import = async (props: { status: TAccess }) => {
   const role_authority = await Select<IRoleAuthority>({}, { table: `vw_audit_role_authority` });
   const state = await State.Key({ status: props.status });
 
-  if (role_authority.length && state) {
+  if (role_authority.success && role_authority.data?.length && state) {
     console.log("In Role.Authority.Import:", new Date().toLocaleString());
-    role_authority.forEach((auth) => (auth.state = state));
-    Load<IRoleAuthority>(role_authority, { table: `role_authority` });
-    console.log("   # Role Authority imports: ", role_authority.length, "verified");
+    role_authority.data.forEach((auth) => (auth.state = state));
+    Load<IRoleAuthority>(role_authority.data, { table: `role_authority` });
+    console.log("   # Role Authority imports: ", role_authority.data.length, "verified");
   }
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Disables authority based on supplied properties;                                     |
 //+--------------------------------------------------------------------------------------+
-export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse> => {
+export const Disable = async (props: Partial<IRoleAuthority>, context = "Role.Authority"): Promise<TResponse> => {
   const { role, authority, activity } = props;
 
   if (role && authority && activity) {
@@ -59,13 +58,14 @@ export const Disable = async (props: Partial<IRoleAuthority>): Promise<TResponse
       keys: [[`role`], [`authority`], [`activity`]],
       context: "Role.Authority.Disable",
     });
-  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Disable" };
+  } else return { success: false, code: 400, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context: "Role.Authority.Disable" };
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Enables authority based on supplied properties;                                      |
 //+--------------------------------------------------------------------------------------+
-export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse> => {
+export const Enable = async (props: Partial<IRoleAuthority>, context = "Role.Authority"): Promise<TResponse> => {
+  context = `${context}.Enable`;
   const { role, authority, activity } = props;
 
   if (role && authority && activity) {
@@ -80,7 +80,7 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse>
       keys: [[`role`], [`authority`], [`activity`]],
       context: "Role.Authority.Enable",
     });
-  } else return { success: false, code: 400, response: `null_query`, rows: 0, context: "Role.Authority.Enable" };
+  } else return { success: false, code: 400, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -88,7 +88,7 @@ export const Enable = async (props: Partial<IRoleAuthority>): Promise<TResponse>
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
   const result = await Select<IRoleAuthority>(props, { table: `vw_role_authority` });
-  return result.length ? result : [];
+  return result.success ? result.data! : [];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -100,7 +100,7 @@ export const Subjects = async (props: Partial<IRoleAuthority>): Promise<Array<Pa
     { table: `vw_role_authority`, keys: [[`role`], [`status`]] },
   );
 
-  return result.length ? result : [];
+  return result.success ? result.data! : [];
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -111,5 +111,5 @@ export const Privileges = async (props: Partial<IRoleAuthority>): Promise<Array<
     { role: props.role, authority: undefined, privilege: undefined, status: props.status },
     { table: `vw_role_authority`, keys: [[`role`], [`status`]] },
   );
-  return result.length ? result : [];
+  return result.success ? result.data! : [];
 };

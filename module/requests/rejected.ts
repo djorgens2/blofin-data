@@ -4,19 +4,18 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequest } from "db/interfaces/request";
-import type { IPublishResult } from "api";
+import type { IRequest } from "#db";
+import type { IPublishResult } from "#api";
 
-import { Session } from "module/session";
+import { Session } from "#module/session";
 
-import * as Request from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
+import { Request, Order } from "#db";
 
 //-- [Process.Orders] Resubmits rejected requests to broker for execution; closes rejects beyond expiry
 type Accumulator = { requeue: Partial<IRequest>[]; expire: Partial<IRequest>[] };
 
 export const Rejected = async (): Promise<Array<IPublishResult<IRequest>>> => {
-  const rejects = await Orders.Fetch({ status: "Rejected", account: Session().account });
+  const rejects = await Order.Fetch({ status: "Rejected", account: Session().account });
 
   if (!rejects) return [];
   console.log(`-> Requests.Rejected: Processing ${rejects.length} rejected orders`);
@@ -42,12 +41,12 @@ export const Rejected = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const results = await Promise.all([
     ...requeue.map(async (request) => {
       const result = await Request.Submit(request);
-      result.response.outcome = "requeued";
+      result.response.state = "requeued";
       return result;
     }),
     ...expire.map(async (request) => {
       const result = await Request.Submit(request);
-      result.response.outcome = "expired";
+      result.response.state = "expired";
       return result;
     }),
   ]);

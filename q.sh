@@ -111,6 +111,6 @@ fi
 json=$(echo $2,$3,$4,$5 | sed -r 's/\{/\{\"/g' | sed -r 's/\}/\"}/g' | sed -r 's/:/\":\"/g' | sed -r 's/,/\",\"/g')
 json=$(echo "${json%\}*}"})
 
-(cd $path && npx tsx query $1 "$json")
+(cd $path && npx tsx --experimental-strip-types --env-file=.env.local.devel ./query.ts $1 "$json")
 
 #echo $json

@@ -4,15 +4,14 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISubjectArea } from "db/interfaces/subject_area";
-import type { IPublishResult } from "api";
+import type { ISubjectArea } from "#db";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
-import * as SubjectArea from "db/interfaces/subject_area";
+import { SubjectArea } from "#db";
 
 export interface IActivity extends ISubjectArea {
   activity: Uint8Array;
@@ -50,7 +49,17 @@ export const Import = async () => {
 //+--------------------------------------------------------------------------------------+
 export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IActivity>> => {
   if (props.activity) {
-    return { key: PrimaryKey(props, ["activity"]), response: { success: false, code: 200, response: `exists`, rows: 0, context: "Activity.Add" } };
+    return {
+      key: PrimaryKey(props, ["activity"]),
+      response: {
+        success: false,
+        code: 200,
+        state: `exists`,
+        message: `[Error] Activity add failed; duplicate activity found`,
+        rows: 0,
+        context: "Activity.Add",
+      },
+    };
   }
 
   const subject_area = await SubjectArea.Key({ title: props.title });
@@ -61,7 +70,7 @@ export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IAc
     return { key: PrimaryKey({ activity }, ["activity"]), response: result };
   }
   console.log("Unauthorized data import attempt; Subject Area not found;");
-  return { key: undefined, response: { success: false, code: 404, response: `not_found`, rows: 0, context: "Activity.Add" } };
+  return { key: undefined, response: { success: false, code: 404, state: `not_found`, message: ``, rows: 0, context: "Activity.Add" } };
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -69,8 +78,8 @@ export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IAc
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
   if (hasValues<Partial<IActivity>>(props)) {
-    const [result] = await Select<IActivity>(props, { table: `activity` });
-    return result ? result.activity : undefined;
+    const result = await Select<IActivity>(props, { table: `activity` });
+    return result.success && result.data?.length ? result.data[0].activity : undefined;
   } else return undefined;
 };
 
@@ -79,5 +88,5 @@ export const Key = async (props: Partial<IActivity>): Promise<IActivity["activit
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IActivity>): Promise<Array<Partial<IActivity>> | undefined> => {
   const result = await Select<IActivity>(props, { table: `activity` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

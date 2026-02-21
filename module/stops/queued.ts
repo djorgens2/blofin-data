@@ -4,20 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IStopsAPI } from "api";
+import type { IStopOrderAPI } from "#api";
 
-import { ApiError } from "api/api.util";
-import { hexString } from "lib/std.util";
+import { ApiError } from "#api";
+import { hexString } from "#lib/std.util";
 
-import * as API from "api/interfaces/stop_requests";
-import * as Queue from "db/interfaces/stops";
-import * as Request from "db/interfaces/stop_request";
+import { StopRequests, StopOrders } from "#api";
+import { StopOrder } from "#db";
 
 //+----------------------------------------------------------------------------------------+
 //| Handle processing related to Queued stops; TP/SL;                                      |
 //+----------------------------------------------------------------------------------------+
 export const Queued = async () => {
-  const requests = await Queue.API(`Queued`);
+  const requests = await StopOrder.API(`Queued`);
 
   if (!requests || requests.length === 0) return [];
   console.log(`-> Stop.Requests.Queued: Processing ${requests.length} stop requests`);
@@ -30,7 +29,7 @@ export const Queued = async () => {
 
       // 1. Singleton/Zombie Guard: If position is already closed, kill the request
       if (request.position_status === "Closed") {
-        return await Request.Submit({
+        return await StopRequests.Submit({
           stop_request: request.stop_request,
           status: "Closed",
           memo: `[Info]: Queued request on closed position; local state Closed`,
@@ -39,7 +38,7 @@ export const Queued = async () => {
 
       // 2. Map View data to API Interface
       // Use the 'request' value to decide if we populate the 'api' field
-      const api: Partial<IStopsAPI> = {
+      const api: Partial<IStopOrderAPI> = {
         instId: request.instId,
         marginMode: request.marginMode,
         positionSide: request.positionSide,
@@ -57,7 +56,7 @@ export const Queued = async () => {
       if (request.slOrderPrice) api.slOrderPrice = request.slOrderPrice;
 
       // 3. Fire to Broker
-      return await API.Submit(api);
+      return await StopRequests.Submit(api);
     } catch (error) {
       console.error(`-> [Error] Stop.Order.Queue:`, error);
       return [

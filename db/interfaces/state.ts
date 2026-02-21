@@ -3,12 +3,13 @@
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
 "use strict";
-import type { IPublishResult } from "api";
-import { PrimaryKey } from "api";
 
-import { Select, Insert } from "db/query.utils";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import type { IPublishResult } from "#api";
+import type { TOptions } from "#db";
+
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export type TSystem = "Enabled" | "Disabled" | "Halted";
 export type TRequestState = "Expired" | "Queued" | "Pending" | "Fulfilled" | "Rejected" | "Canceled" | "Hold" | "Closed";
@@ -82,15 +83,15 @@ export const Add = async (props: Partial<IState>): Promise<IPublishResult<IState
 //+--------------------------------------------------------------------------------------+
 export const Key = async <T extends IState>(props: Partial<T>): Promise<T["state"] | undefined> => {
   if (hasValues<Partial<T>>(props)) {
-    const [key] = await Select<T>(props, { table: `state` });
-    return key ? key.state : undefined;
+    const result = await Select<T>(props, { table: `state` });
+    return result.success ? result.data?.[0].state : undefined;
   } else return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Executes a query in priority sequence based on supplied seek params; returns key;    |
 //+--------------------------------------------------------------------------------------+
-export const Fetch = async <T extends IState>(props: Partial<T>): Promise<Array<Partial<T>> | undefined> => {
+export const Fetch = async <T extends IState>(props: Partial<T>, options?: TOptions<IState>): Promise<Array<Partial<T>> | undefined> => {
   const result = await Select<T>(props, { table: `state` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

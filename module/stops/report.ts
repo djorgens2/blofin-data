@@ -4,8 +4,8 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api";
-import type { IStopOrder } from "db/interfaces/stops";
+import type { IPublishResult, TResponse } from "#api";
+import type { IStopOrder } from "#db";
 
 /**
  * Returns aggregated TResponses grouped by {context, response, success}
@@ -21,7 +21,7 @@ export const Summary = (results: (TResponse | undefined | null)[]) => {
       if (!curr) return acc;
 
       // Create a composite key to group by
-      const key = `${curr.context}|${curr.response}|${curr.success}`;
+      const key = `${curr.context}|${curr.state}|${curr.success}`;
 
       if (!acc[key]) {
         acc[key] = {

@@ -5,21 +5,30 @@
 "use strict";
 
 import type { ResultSetHeader, PoolConnection } from "mysql2/promise";
-import type { TOptions, TPrimaryKey, TKey } from "db";
-import type { TResponse } from "api";
+import type { TOptions, TPrimaryKey, TKey } from "#db";
+import type { TResponse } from "#api";
 
-import { hasValues } from "lib/std.util";
-import { Log } from "module/session";
+import { hasValues } from "#lib/std.util";
+import { Log } from "#module/session";
 
-import { ApiResult } from "api";
-import { DB_SCHEMA } from "db";
-
-import pool from "db/db.config";
+import { ApiResult } from "#api";
+import { pool, DB_SCHEMA } from "#db";
 
 /**
- * PrimaryKey
+ * Generates a structured primary key object for database operations.
+ * 
+ * Extracts specified keys from a source object to build a formatted 
+ * `TPrimaryKey`. This supports both simple and composite keys, ensuring
+ * that only defined properties are included in the final response.
  *
- * Builds and formats the TResponse pkey for a all db Primary Keys including composites
+ * @template T - The type of the source object.
+ * @param obj  - The source data object containing potential key values.
+ * @param keys - An array of property names that constitute the primary key.
+ * @returns TPrimaryKey<T> - A partial object containing only the specified 
+ *          primary key attributes present in the source object.
+ * @example
+ * // For a composite key of account_id and currency_code
+ * const pkey = PrimaryKey(accountObj, ['account_id', 'currency_code']);
  */
 export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
   const cpk: TPrimaryKey<T> = {};
@@ -320,10 +329,6 @@ export const Update = async <T extends object>(props: Partial<T>, options: TOpti
  */
 export const Select = async <T extends object>(props: Partial<T>, options: TOptions<T>, context = `Query.Utils`): Promise<TResponse & { data?: T[] }> => {
   context = `${context}.Select`;
-
-  if (!hasValues<Partial<T>>(props)) {
-    return ApiResult(false, context, { code: 400, message: `null_query` });
-  }
 
   const { table, keys, suffix, limit } = options;
   const [fields, args] = parseKeys(props, keys);

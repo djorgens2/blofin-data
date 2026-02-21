@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IMessage } from "lib/app.util";
+import type { IMessage } from "#lib/app.util";
 
-import { CFractal } from "module/fractal";
-import { Session, config } from "module/session";
-import { parseJSON } from "lib/std.util";
-import { hexify } from "lib/crypto.util";
-import { Candles } from "api";
+import { CFractal } from "#module/fractal";
+import { Session, Config } from "#module/session";
+import { parseJSON } from "#lib/std.util";
+import { hexify } from "#lib/crypto.util";
 
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import { InstrumentPosition } from "#db";
+import { Candles } from "#api";
 
 //+--------------------------------------------------------------------------------------+
 //| Process - Main processing loop for updating/monitoring enabled instruments;          |
@@ -21,7 +21,7 @@ export const Process = async () => {
   const [cli_message] = process.argv.slice(2);
   const message: Partial<IMessage> = parseJSON<IMessage>(cli_message) ?? {};
 
-  message.account && (await config({ account: hexify(message.account) }, message.symbol!));
+  message.account && (await Config({ account: hexify(message.account) }, message.symbol!));
 
   const instrument_position = await InstrumentPosition.Fetch({
     account: Session().account,

@@ -4,16 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse, IOrderAPI } from "api";
-import type { IOrder } from "db/interfaces/order";
-import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse, IOrderAPI } from "#api";
+import type { IOrder, IRequest } from "#db";
 
-import { hexString } from "lib/std.util";
-import { Session } from "module/session";
+import { Order, Request } from "#db";
+import { Requests} from "#api";
+import { Session } from "#module/session";
 
-import * as API from "api/interfaces/requests";
-import * as Order from "db/interfaces/order";
-import * as Request from "db/interfaces/request";
+import { hexString } from "#lib/std.util";
 
 //-- [Process.Orders] Submit Cancel requests to the API for orders in canceled state
 type Accumulator = { cancel: Partial<IOrderAPI>[]; closure: Partial<IOrder>[] };
@@ -31,19 +29,19 @@ export const Canceled = async (): Promise<Array<IPublishResult<IRequest>>> => {
       isPending ? acc.cancel.push({ instId: order.symbol, orderId }) : acc.closure.push(order);
       return acc;
     },
-    { cancel: [] as IOrderAPI[], closure: [] as IOrder[] }
+    { cancel: [] as IOrderAPI[], closure: [] as IOrder[] },
   );
 
   const promises = [
     ...closure.map(async (request) => {
       const result = await Request.Submit({ ...request, update_time: new Date() });
-      result.response.outcome = "closed";
+      result.response.state = "closed";
       return result;
     }),
 
     (async () => {
       if (cancel.length === 0) return [];
-      const cancels = await API.Cancel(cancel);
+      const cancels = await Requests.Cancel(cancel);
 
       return cancels.map((c) => ({
         ...c,

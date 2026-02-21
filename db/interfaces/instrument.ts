@@ -4,18 +4,16 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TSymbol } from "db/interfaces/state";
-import type { ICurrency } from "db/interfaces/currency";
-import type { TOptions } from "db/query.utils";
-import type { IPublishResult } from "api";
+import type { TSymbol } from "#db/interfaces/state";
+import type { TOptions, ICurrency } from "#db";
+import type { IPublishResult } from "#api";
 
-import { PrimaryKey } from "api";
-import { Select, Insert, Distinct } from "db/query.utils";
-import { splitSymbol } from "lib/app.util";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, Distinct, PrimaryKey } from "#db";
+import { Currency } from "#db";
 
-import * as Currency from "db/interfaces/currency";
+import { splitSymbol } from "#lib/app.util";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IInstrument {
   instrument: Uint8Array;
@@ -45,9 +43,10 @@ export interface IInstrument {
 //+--------------------------------------------------------------------------------------+
 //| Publishes new instruments to the database; returns Key                               |
 //+--------------------------------------------------------------------------------------+
-export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResult<IInstrument>> => {
+export const Publish = async (props: Partial<IInstrument>, context = "Instruments"): Promise<IPublishResult<IInstrument>> => {
+  context = `${context}.Publish`;
   if (!props.symbol) {
-    return { key: undefined, response: { success: false, code: 412, response: `null_query`, rows: 0, context: "Instrument.Publish" } };
+    return { key: undefined, response: { success: false, code: 412, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
   }
 
   const instrument = await Key({ symbol: props.symbol });
@@ -55,7 +54,7 @@ export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResu
   if (instrument) {
     return {
       key: PrimaryKey({ instrument }, [`instrument`]),
-      response: { success: true, code: 201, response: `exists`, rows: 0, context: "Instrument.Publish" },
+      response: { success: true, code: 201, state: `exists`, message: `[Error] ${context}:`, rows: 0, context },
     };
   }
 
@@ -75,9 +74,10 @@ export const Publish = async (props: Partial<IInstrument>): Promise<IPublishResu
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["instrument"] | undefined> => {
   if (hasValues<Partial<IInstrument>>(props)) {
-    const [result] = await Select<IInstrument>(props, { table: `vw_instruments` });
-    return result ? result.instrument : undefined;
-  } else return undefined;
+    const result = await Select<IInstrument>(props, { table: `vw_instruments` });
+    return result.success && result.data?.length ? result.data[0].instrument : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -85,15 +85,16 @@ export const Key = async (props: Partial<IInstrument>): Promise<IInstrument["ins
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IInstrument>, options?: TOptions<IInstrument>): Promise<Array<Partial<IInstrument>> | undefined> => {
   const result = await Select<IInstrument>(props, { ...options, table: options?.table || `vw_instruments` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
 //| Audits instrument records for discrepancies; returns array of corrected instruments; |
 //+--------------------------------------------------------------------------------------+
-export const Suspense = async (props: Array<Partial<IInstrument>>): Promise<Array<IPublishResult<ICurrency>>> => {
+export const Suspense = async (props: Array<Partial<IInstrument>>, context = `Instrument.Suspense`): Promise<Array<IPublishResult<ICurrency>>> => {
+  context = `${context}.Suspense`;
   if (!hasValues(props)) {
-    return [{ key: undefined, response: { success: false, code: 400, response: `null_query`, rows: 0, context: "Instrument.Suspense" } }];
+    return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, message: `[Error] ${context}`, rows: 0, context } }];
   }
 
   const current = await Distinct<IInstrument>(
@@ -101,7 +102,7 @@ export const Suspense = async (props: Array<Partial<IInstrument>>): Promise<Arra
     { table: `vw_instruments`, keys: [[`status`, "<>"]] },
   );
   const api = props.filter((p) => p.status === `Enabled`);
-  const suspense = current
+  const suspense = current.data!
     .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
     .map((instrument) =>
       Currency.Publish({

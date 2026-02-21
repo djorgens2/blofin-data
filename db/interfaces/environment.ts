@@ -4,12 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IEnvironment {
   environment: Uint8Array;
@@ -46,9 +45,10 @@ export const Add = async (props: Partial<IEnvironment>): Promise<IPublishResult<
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IEnvironment>): Promise<IEnvironment["environment"] | undefined> => {
   if (hasValues<Partial<IEnvironment>>(props)) {
-    const [result] = await Select<IEnvironment>(props, { table: `environment` });
-    return result ? result.environment : undefined;
-  } else return undefined;
+    const result = await Select<IEnvironment>(props, { table: `environment` });
+    return result.success && result.data?.length ? result.data[0].environment : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -56,5 +56,5 @@ export const Key = async (props: Partial<IEnvironment>): Promise<IEnvironment["e
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IEnvironment>): Promise<Array<Partial<IEnvironment>> | undefined> => {
   const result = await Select<IEnvironment>(props, { table: `environment` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

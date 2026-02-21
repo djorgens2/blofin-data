@@ -10,16 +10,6 @@ CREATE  TABLE devel.api_error (
 	error_message        VARCHAR(200)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE devel.app_config ( 
-	candle_max_fetch     SMALLINT UNSIGNED DEFAULT (1440)  NOT NULL   ,
-	leverage_max_fetch   SMALLINT UNSIGNED DEFAULT (20)  NOT NULL   ,
-	orders_max_fetch     SMALLINT UNSIGNED DEFAULT (20)  NOT NULL   ,
-	default_sma          SMALLINT UNSIGNED DEFAULT (60)  NOT NULL   ,
-	default_leverage     SMALLINT UNSIGNED DEFAULT (0)  NOT NULL   
- ) engine=InnoDB;
-
-ALTER TABLE devel.app_config COMMENT 'General configuration parameters';
-
 CREATE  TABLE devel.audit_request ( 
 	request              BINARY(6)       ,
 	old_state            BINARY(3)       ,
@@ -340,6 +330,16 @@ CREATE  TABLE devel.activity (
 
 CREATE INDEX fk_a_subject_area ON devel.activity ( subject_area );
 
+CREATE  TABLE devel.config_param ( 
+	config_param         VARCHAR(64)    NOT NULL   PRIMARY KEY,
+	default_param_value  VARCHAR(24)    NOT NULL   ,
+	value_type           ENUM('int','string','bin','date','bool')  DEFAULT ('_utf8mb4'string'')  NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
+	CONSTRAINT fk_cp_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_cp_state ON devel.config_param ( state );
+
 CREATE  TABLE devel.currency ( 
 	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
 	symbol               VARCHAR(20)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -570,6 +570,20 @@ CREATE  TABLE devel.account_detail (
 
 CREATE INDEX fk_ad_currency ON devel.account_detail ( currency );
 
+CREATE  TABLE devel.app_config ( 
+	account              BINARY(3)    NOT NULL   ,
+	config_param         VARCHAR(64)    NOT NULL   ,
+	param_value          VARCHAR(24)       ,
+	priority             TINYINT UNSIGNED DEFAULT (_utf8mb4'0')     ,
+	create_time          DATETIME(3)  DEFAULT (now(3))     ,
+	update_time          DATETIME(3)  DEFAULT (now(3)) ON UPDATE CURRENT_TIMESTAMP(3)    ,
+	CONSTRAINT pk_app_config PRIMARY KEY ( account, config_param ),
+	CONSTRAINT fk_ac_config_param FOREIGN KEY ( config_param ) REFERENCES devel.config_param( config_param ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ac_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_ac_config_param ON devel.app_config ( config_param );
+
 CREATE  TABLE devel.candle ( 
 	instrument           BINARY(3)    NOT NULL   ,
 	period               BINARY(3)    NOT NULL   ,
@@ -667,7 +681,7 @@ select
 	a.private_wss_url AS private_wss_url,
 	a.public_wss_url AS public_wss_url,
 	c.currency AS currency,
-	c.symbol AS symbol,
+	c.symbol AS account_currency,
 	c.image_url AS currency_image_url,
 	c.state AS currency_state,
 	cs.status AS currency_status,
@@ -852,6 +866,21 @@ join devel.state ps on
 join devel.state s on
 	((s.state = sr.state)));
 
+CREATE VIEW devel.vw_app_config AS
+select
+	ac.account AS account,
+	ac.config_param AS config_param,
+	ac.priority AS priority,
+	coalesce(ac.param_value, cp.default_param_value) AS param_value,
+	cp.value_type AS value_type,
+	cp.state AS state,
+	ac.create_time AS create_time,
+	ac.update_time AS update_time
+from
+	(devel.app_config ac
+join devel.config_param cp on
+	((cp.config_param = ac.config_param)));
+
 CREATE VIEW devel.vw_audit_instrument_periods AS
 select
 	missing.instrument AS instrument,
@@ -1021,15 +1050,11 @@ select
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	c.timestamp AS timestamp,
-	cfg.candle_max_fetch AS candle_max_fetch
+	cast(ac.param_value as unsigned) AS candle_max_fetch
 from
 	((((((devel.instrument_position ipos
-join (
-	select
-		devel.app_config.candle_max_fetch AS candle_max_fetch
-	from
-		devel.app_config
-	limit 1) cfg)
+join devel.app_config ac on
+	(((ac.account = ipos.account) and (ac.config_param = 'candleMaxFetch'))))
 join devel.instrument i on
 	((i.instrument = ipos.instrument)))
 join devel.currency b on
@@ -1095,11 +1120,11 @@ select
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
 	a.margin_mode AS margin_mode,
-	if((ipos.leverage = 0), cfg.default_leverage, ipos.leverage) AS leverage,
+	coalesce(nullif(ipos.leverage, 0), cast(devel.dleverage.param_value as unsigned)) AS leverage,
 	id.max_leverage AS max_leverage,
 	coalesce(ipos.lot_scale, 0) AS lot_scale,
 	coalesce(ipos.martingale, 0) AS martingale,
-	if((ipos.sma = 0), cfg.default_sma, ipos.sma) AS sma,
+	coalesce(nullif(ipos.sma, 0), cast(devel.dsma.param_value as unsigned)) AS sma,
 	coalesce(ipos.strict_stops, 0) AS strict_stops,
 	coalesce(ipos.strict_targets, 0) AS strict_targets,
 	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
@@ -1110,10 +1135,13 @@ select
 	ipos.close_time AS close_time,
 	ipos.update_time AS update_time
 from
-	((((((((((((((devel.account a
-join devel.app_config cfg)
+	(((((((((((((((devel.account a
 join devel.instrument_position ipos on
 	((ipos.account = a.account)))
+join devel.vw_app_config dsma on
+	(((devel.dsma.account = ipos.account) and (devel.dsma.config_param = 'defaultSMA'))))
+join devel.vw_app_config dleverage on
+	(((devel.dleverage.account = ipos.account) and (devel.dleverage.config_param = 'defaultLeverage'))))
 join devel.instrument i on
 	((i.instrument = ipos.instrument)))
 join devel.environment e on
@@ -1596,7 +1624,6 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
-
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

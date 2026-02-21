@@ -4,19 +4,17 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse } from "api";
-import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse } from "#api";
+import type { IRequest } from "#db";
 
-import { Session } from "module/session";
-
-import * as Request from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
+import { Session } from "#module/session";
+import { Request, Order } from "#db";
 
 //-- [Process.Orders] Closes pending orders beyond expiry
 type Accumulator = { verify: Partial<IRequest>[]; expire: Partial<IRequest>[] };
 
 export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
-  const requests = await Orders.Fetch({ status: "Pending", account: Session().account });
+  const requests = await Order.Fetch({ status: "Pending", account: Session().account });
 
   if (!requests) return [];
   console.log(`-> Requests.Pending: Processing ${requests.length} pending orders`);
@@ -36,7 +34,7 @@ export const Pending = async (): Promise<Array<IPublishResult<IRequest>>> => {
   const promises = [
     ...verify.map(async (order) => {
       const result = await Request.Submit({ ...order, status: order.request_status, update_time: expiry });
-      result.response.outcome = "pending";
+      result.response.state = "pending";
       return result;
     }),
 

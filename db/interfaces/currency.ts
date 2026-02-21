@@ -4,15 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISymbol } from "db/interfaces/state";
-import type { IPublishResult, TResponse, TKey } from "api";
+import type { ISymbol } from "#db/interfaces/state";
+import type { IPublishResult, TResponse } from "#api";
+import type { TKey } from "#db";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api/api.util";
-import { hashKey } from "lib/crypto.util";
-import { hasValues, isEqual } from "lib/std.util";
+import { Select, Insert, Update, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues, isEqual } from "#lib/std.util";
 
-import * as States from "db/interfaces/state";
+import * as States from "#db/interfaces/state";
 
 export interface ICurrency {
   currency: Uint8Array;
@@ -28,7 +28,7 @@ export interface ICurrency {
 export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult<ICurrency>> => {
   const context = "Currency.Publish";
   if (!props || !(props.symbol || props.currency)) {
-    return { key: undefined, response: { success: false, code: 411, response: `null_query`, rows: 0, context } };
+    return { key: undefined, response: { success: false, code: 411, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
   }
 
   const currency = await Fetch(props.currency ? { currency: props.currency } : { symbol: props.symbol });
@@ -64,9 +64,10 @@ export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<ICurrency>): Promise<ICurrency["currency"] | undefined> => {
   if (hasValues<Partial<ICurrency>>(props)) {
-    const [result] = await Select<ICurrency>(props, { table: `vw_currency` });
-    return result ? result.currency : undefined;
-  } else return undefined;
+    const result = await Select<ICurrency>(props, { table: `vw_currency` });
+    return result.success && result.data?.length ? result.data[0].currency : undefined;
+  }
+  return undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -74,7 +75,7 @@ export const Key = async (props: Partial<ICurrency>): Promise<ICurrency["currenc
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<ICurrency>): Promise<Array<Partial<ICurrency>> | undefined> => {
   const result = await Select<ICurrency>(props, { table: `vw_currency` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 /**
@@ -113,7 +114,7 @@ export const Suspend = async (props: Array<Partial<ICurrency>>): Promise<Array<I
           response: {
             success: false,
             code: -1,
-            response: "error",
+            state: "error",
             message: error instanceof Error ? error.message : "Suspension failure",
             rows: 0,
             context: "Currency.Suspend",

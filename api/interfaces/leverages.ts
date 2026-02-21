@@ -4,18 +4,18 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPosition, TPosition } from "db/interfaces/instrument_position";
-import type { IPublishResult } from "api";
+import type { IInstrumentPosition } from "#db";
+import type { IPublishResult } from "#api";
 
-import { hasValues } from "lib/std.util";
-import { API_GET, API_POST, ApiError } from "api";
+import { API_GET, API_POST, ApiError } from "#api";
+import { hasValues } from "#lib/std.util";
 
-import * as InstrumentPosition from "db/interfaces/instrument_position";
+import { InstrumentPosition } from "#db";
 
 export interface ILeverageAPI {
   instId: string;
   marginMode: "cross" | "isolated";
-  positionSide: TPosition;
+  positionSide: `long` | `short` | `net`;
   leverage: string;
 }
 
@@ -26,7 +26,7 @@ const publish = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IIn
   if (!hasValues(props) || !props.instId || !props.positionSide || !props.leverage) {
     return {
       key: undefined,
-      response: { success: false, code: 400, response: `null_query`, message: `Undefined leverage data provided`, rows: 0, context: "Leverage.Publish.API" },
+      response: { success: false, code: 400, state: `null_query`, message: `Undefined leverage data provided`, rows: 0, context: "Leverage.Publish.API" },
     };
   }
   console.log("-> Leverage.Publish.API");
@@ -52,7 +52,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
         response: {
           success: false,
           code: error.code,
-          response: `error`,
+          state: `error`,
           message: error.msg,
           rows: 0,
           context,
@@ -66,7 +66,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
       response: {
         success: false,
         code: error instanceof ApiError ? error.code : -1,
-        response: "error",
+        state: "error",
         message: error instanceof ApiError ? error.message : "Network or System failure",
         rows: 0,
         context,

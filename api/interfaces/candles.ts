@@ -4,16 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IMessage } from "lib/app.util";
-import type { ICandle } from "db/interfaces/candle";
+import type { IMessage } from "#lib/app.util";
+import type { ICandle } from "#db/interfaces/candle";
 
-import { Session } from "module/session";
-import { Select, Load } from "db/query.utils";
-import { isEqual } from "lib/std.util";
+import { Candle, Period, Instrument } from "#db";
+import { Session } from "#module/session";
 
-import * as Candle from "db/interfaces/candle";
-import * as Period from "db/interfaces/period";
-import * as Instrument from "db/interfaces/instrument";
+import { Select, Load } from "#db";
+import { isEqual } from "#lib/std.util";
+
 
 export interface ICandleAPI {
   symbol?: string;
@@ -131,8 +130,8 @@ export const Publish = async (message: IMessage) => {
     { table: "vw_instrument_candles" },
   );
 
-  if (instrument.length) {
-    const [current] = instrument;
+  if (instrument.success && instrument.data?.length) {
+    const [current] = instrument.data;
 
     try {
       const { instrument, symbol, period, timeframe, timeframe_units, timestamp, candle_max_fetch } = current;

@@ -4,40 +4,30 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
-import type { IMessage } from "lib/app.util";
+import type { IInstrumentPosition } from "#db";
+import type { IMessage } from "#lib/app.util";
 
-import { clear } from "lib/app.util";
-import { Session } from "module/session";
-import { Distinct } from "db/query.utils";
+import { clear } from "#lib/app.util";
+import { Session } from "#module/session";
+import { Distinct } from "#db/query.utils";
 
-import * as Activity from "db/interfaces/activity";
-import * as Authority from "db/interfaces/authority";
-import * as Broker from "db/interfaces/broker";
-import * as Environment from "db/interfaces/environment";
-import * as Period from "db/interfaces/period";
-import * as References from "db/interfaces/reference";
-import * as RoleAuthority from "db/interfaces/role_authority";
-import * as State from "db/interfaces/state";
-import * as SubjectAreas from "db/interfaces/subject_area";
-import * as Roles from "db/interfaces/role";
-
-import { Candles, Instruments, InstrumentPositions, Positions } from "api";
+import { Activity, Authority, Broker, Environment, Period, Reference, RoleAuthority, State, SubjectArea, Role } from "#db";
+import { Candles, Instruments, InstrumentPositions, Positions } from "#api";
 
 //+--------------------------------------------------------------------------------------+
 //| Imports full-candle history; follows up with a candle refresh;                       |
 //+--------------------------------------------------------------------------------------+
 export const importCandles = async () => {
-  const authorized: Array<Partial<IInstrumentPosition>> = await Distinct<IInstrumentPosition>(
+  const authorized = await Distinct<IInstrumentPosition>(
     { account: Session().account, auto_status: "Enabled", symbol: undefined, timeframe: undefined },
     { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
   );
 
-  console.log(`-> Imports Authorized:`, authorized.map((auth) => auth.symbol).join(","));
+  console.log(`-> Imports Authorized:`, authorized.data?.map((auth) => auth.symbol).join(","));
 
   //-- Full candle load/syncronization
   const loadCandles = async () => {
-    const promises = authorized.map(async (instrument) => {
+    const promises = (authorized.data || []).map(async (instrument) => {
       const { symbol, timeframe } = instrument;
 
       if (symbol && timeframe) {
@@ -62,7 +52,7 @@ export const importCandles = async () => {
 
   //-- Refresh (bring current) candles following a full import;
   const refreshCandles = async () => {
-    const promises = authorized.map(async (instrument) => {
+    const promises = (authorized.data || []).map(async (instrument) => {
       const { symbol, timeframe } = instrument;
       if (symbol && timeframe) {
         const message: IMessage = clear({ state: "init", account: Session().account!, symbol, timeframe });
@@ -73,7 +63,7 @@ export const importCandles = async () => {
 
     if (published) {
       console.log("In Candles.Publish [API]:", new Date().toLocaleString());
-      console.log(`-> Authorized Symbols:`, authorized.map((auth) => auth.symbol).join(","));
+      console.log(`-> Authorized Symbols:`, (authorized.data || []).map((auth) => auth.symbol).join(","));
 
       published.forEach((message) => {
         if (message?.db) {
@@ -102,14 +92,14 @@ export const importInstruments = async () => {
 //| Installs seed data during initialization of a new database;                          |
 //+--------------------------------------------------------------------------------------+
 export const importSeed = async () => {
-  await SubjectAreas.Import();
+  await SubjectArea.Import();
   await Activity.Import();
   await Authority.Import();
   await Broker.Import();
   await Environment.Import();
   await Period.Import();
-  await References.Import();
-  await Roles.Import();
+  await Reference.Import();
+  await Role.Import();
   await State.Import();
   await RoleAuthority.Import({ status: `Enabled` });
 };

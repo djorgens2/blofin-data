@@ -4,15 +4,11 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IInstrument } from "db/interfaces/instrument";
+import type { IInstrument } from "#db";
 
-import { Insert, Update } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { isEqual } from "lib/std.util";
-
-import * as Instrument from "db/interfaces/instrument";
-import * as InstrumentType from "db/interfaces/instrument_type";
-import * as ContractType from "db/interfaces/contract_type";
+import { Insert, Update, PrimaryKey } from "#db/query.utils";
+import { isEqual } from "#lib/std.util";
+import { Instrument, InstrumentType, ContractType } from "#db";
 
 //+--------------------------------------------------------------------------------------+
 //| Inserts Instrument Details on receipt of a new Instrument from Blofin; returns key;  |

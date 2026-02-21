@@ -4,10 +4,10 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TKey, TOptions } from "db/query.utils";
+import type { TKey, TOptions } from "#db";
 
-import { Select, Insert, Update } from "db/query.utils";
-import { isEqual } from "lib/std.util";
+import { Select, Insert, Update } from "#db";
+import { isEqual } from "#lib/std.util";
 
 export interface ICandle {
   instrument: Uint8Array;
@@ -83,7 +83,7 @@ export const Publish = async (props: Partial<ICandle>) => {
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<ICandle>, options?: TOptions<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
   const result = await Select<ICandle>(props, { table: options?.table || `vw_candles`, suffix: options?.suffix });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };
 
 //+--------------------------------------------------------------------------------------+
@@ -97,5 +97,5 @@ export const History = async (props: Partial<ICandle>): Promise<Array<Partial<IC
   props.timestamp && keys.push(["timestamp", "<="]);
   const result = await Select<ICandle>(columns, { table: `vw_candles`, keys, suffix });
 
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

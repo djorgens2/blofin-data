@@ -4,20 +4,15 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IOrder } from "db/interfaces/order";
-import type { IRequest } from "db/interfaces/request";
-import type { TRefKey } from "db/interfaces/reference";
-import type { IPublishResult, IRequestAPI } from "api";
+import type { TRefKey, IOrder, IRequest } from "#db";
+import type { IPublishResult, IRequestAPI } from "#api";
 
-import { Session, setSession } from "module/session";
-import { delay, format, hexString } from "lib/std.util";
-import { hexify } from "lib/crypto.util";
-import { API_GET, ApiError, isApiError } from "api";
+import { Session, setSession } from "#module/session";
+import { API_GET, ApiError, isApiError } from "#api";
+import { delay, format, hexString } from "#lib/std.util";
+import { hexify } from "#lib/crypto.util";
 
-import * as Requests from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
-import * as Reference from "db/interfaces/reference";
-import * as InstrumentPositions from "db/interfaces/instrument_position";
+import { Request, Order, Reference, InstrumentPosition } from "#db";
 
 export interface IOrderAPI extends IRequestAPI {
   instType: string;
@@ -38,7 +33,9 @@ export interface IOrderAPI extends IRequestAPI {
 /**
  * Orders.Publish: Flattens Merges changes received by API/WSS; returns parallel IPublishResult streams.
  */
-export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>): Promise<Array<IPublishResult<IOrder>>> => {
+export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>, context = "Order"): Promise<Array<IPublishResult<IOrder>>> => {
+  context = `${source}.${context}.Publish`;
+  
   if (!props?.length) return [];
   console.log(`-> Orders.Publish.${source}`);
 
@@ -63,7 +60,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
         if (!order_id || !request) throw new ApiError(451, `Invalid Order ID ${order.orderId} or Request ${order.clientOrderId}; order not processed`);
 
         const [required, cancel_source, order_category, request_type, order_states] = await Promise.all([
-          InstrumentPositions.Fetch({ account: Session().account, symbol: order.instId, position: order.positionSide }),
+          InstrumentPosition.Fetch({ account: Session().account, symbol: order.instId, position: order.positionSide }),
           Reference.Key<TRefKey>({ source_ref: order.cancelSource || "not_canceled" }, { table: `cancel_source` }),
           Reference.Key<TRefKey>({ source_ref: order.orderCategory || "normal" }, { table: `order_category` }),
           Reference.Key<TRefKey>({ source_ref: order.orderType }, { table: `request_type` }),
@@ -77,7 +74,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
 
         const [mapped] = order_states;
 
-        const orderResult = await Orders.Publish({
+        const orderResult = await Order.Publish({
           order_id,
           client_order_id: hexify(order.clientOrderId!, 6),
           order_state: mapped.order_state,
@@ -91,7 +88,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
         });
 
         const [{ instrument_position, auto_status }] = required;
-        const [current] = (await Orders.Fetch({ request })) ?? [{}];
+        const [current] = (await Order.Fetch({ request })) ?? [{}];
         const key = hexString(request, 12);
 
         const create_time = new Date(parseInt(order.createTime!));
@@ -134,7 +131,7 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
             revised.status = pending ? "Hold" : mapped.status;
           } else revised.status = mapped.status;
 
-          requestResult = await Requests.Publish(source, current, revised);
+          requestResult = await Request.Publish(source, current, revised);
         }
 
         return requestResult ? [orderResult, requestResult] : [orderResult];
@@ -144,11 +141,11 @@ export const Publish = async (source: string, props: Array<Partial<IOrderAPI>>):
           error instanceof ApiError
             ? {
                 key: undefined,
-                response: { success: false, code: error.code, response: `error`, message: error.message, rows: 0, context: `Order.Publish.${source}` },
+                response: { success: false, code: error.code, state: `error`, message: error.message, rows: 0, context },
               }
             : {
                 key: undefined,
-                response: { success: false, code: -1, response: `error`, message: "Network or System failure", rows: 0, context: `Order.Publish.${source}` },
+                response: { success: false, code: -1, state: `error`, message: "Network or System failure", rows: 0, context },
               };
         return [errorBody];
       }

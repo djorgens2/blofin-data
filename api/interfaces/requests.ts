@@ -4,15 +4,14 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult, TResponse, IApiEnvelope } from "api";
-import type { TRequestState } from "db/interfaces/state";
-import type { IRequest } from "db/interfaces/request";
+import type { IPublishResult, TResponse, IApiEnvelope } from "#api";
+import type { TRequestState } from "#db/interfaces/state";
+import type { IRequest } from "#db";
 
-import { API_POST, ApiError, isApiError, PrimaryKey } from "api";
-import { hexify } from "lib/crypto.util";
+import { API_POST, ApiError, isApiError, PrimaryKey } from "#api";
+import { hexify } from "#lib/crypto.util";
 
-import * as Request from "db/interfaces/request";
-import * as Orders from "db/interfaces/order";
+import { Request, Order } from "#db";
 
 export interface IRequestAPI {
   account: Uint8Array;
@@ -68,7 +67,7 @@ const publish = async (response: Array<TResponseData>, config: PublishConfig): P
 
   const orders = await Promise.all(
     response.map(async (request) => {
-      const exists = await Orders.Fetch({ request: hexify(request.clientOrderId! || parseInt(request.orderId!), 6) });
+      const exists = await Order.Fetch({ request: hexify(request.clientOrderId! || parseInt(request.orderId!), 6) });
 
       if (!exists) {
         throw new ApiError(454, `Order not found for Request: ${request.clientOrderId || request.orderId}`);
@@ -103,7 +102,7 @@ const publish = async (response: Array<TResponseData>, config: PublishConfig): P
           ...result.response,
           context: config.context,
           outcome: success ? config.outcomes.success : config.outcomes.fail,
-          message: success ? request.memo : result.response.success ? message : request.memo,
+          message: String(success ? request.memo : result.response.success ? message : request.memo || ""),
           code: success ? 0 : result.response.success ? code || 0 : request.code || 0,
         },
       };
@@ -118,9 +117,9 @@ export const Cancel = async (requests: Array<Partial<IRequestAPI>>) => {
   if (!requests.length) return [];
 
   const cancels = requests.map(({ instId, orderId }) => ({ instId, orderId }));
-  const result = await API_POST<TResponseAPI>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
+  const result = await API_POST<Array<TResponseData>>("/api/v1/trade/cancel-batch-orders", cancels, "Request.Cancel");
 
-  return await publish(result.data, {
+  return await publish(result, {
     context: "Request.Publish.Cancel",
     states: { success: "Closed", fail: "Canceled" },
     outcomes: { success: "closed", fail: "error" },
@@ -138,9 +137,9 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
   if (!requests.length) return [];
 
   try {
-    const result = await API_POST<TResponseAPI>("/api/v1/trade/batch-orders", requests, "Request.Submit");
-    console.log("Success Result:",requests, result);
-    return await publish(result.data, {
+    const result = await API_POST<Array<TResponseData>>("/api/v1/trade/batch-orders", requests, "Requests.Submit");
+    console.log("Success Result:", requests, result);
+    return await publish(result, {
       context: "Request.Publish.Submit",
       states: { success: "Pending", fail: "Rejected" },
       outcomes: { success: "pending", fail: "rejected" },
@@ -151,16 +150,8 @@ export const Submit = async (requests: Array<Partial<IRequestAPI>>) => {
     });
   } catch (error) {
     if (isApiError<TResponseData>(error)) {
-      console.log("Fail Result:",requests, error?.code, error.message, error.data);
-      return await publish(error.data, {
-        context: "Request.Publish.Submit.Partial",
-        states: { success: "Pending", fail: "Rejected" },
-        outcomes: { success: "pending", fail: "rejected" },
-        messages: {
-          success: "[Info] Order submitted successfully",
-          fail: "[Error] Order submission failed",
-        },
-      });
+      console.log("Fail Result:", requests, error?.code, error.message, error.data);
     }
+    throw error;
   }
 };

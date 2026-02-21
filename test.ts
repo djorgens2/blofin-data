@@ -4,14 +4,14 @@
 //import { parseColumns, parseKeys } from "db/query.utils";
 // import { ILeverageAPI, Instruments } from "api/instruments";
 // import { IInstrument } from "db/interfaces/instrument";
-import type { IPublishResult, ILeverageAPI } from "api";
-import type { TPosition } from "db/interfaces/instrument_position";
-import type { PrimaryKey } from "api";
-import { Distinct } from "db/query.utils";
-import { hexify } from "lib/crypto.util";
-import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
-import { config, Session } from "module/session";
-import { parse } from "path";
+//import type { IPublishResult, ILeverageAPI } from "api";
+//import type { TPosition } from "db/interfaces/instrument_position";
+//import type { PrimaryKey } from "api";
+// import { Distinct } from "db/query.utils";
+import { hexify } from "#lib/crypto.util";
+// import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
+// import { config, Session } from "module/session";
+// import { parse } from "path";
 
 // async function getKeys<T extends IKeyProps>(props: T)  {
 // const keyset: IKeyProps = await KeySet(props);
@@ -2484,41 +2484,112 @@ import { parse } from "path";
 // };
 
 //---------------------------------- Session config pulling account and symbol/? from env ----------------------------------------//
-import * as app from "module/session";
-const args = process.argv.slice(2); // get account id
-const run = async () => {
-  const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
-  await app.config({ account }, "XRP-USDT");
-};
-run();
+// import * as app from "module/session";
+// const args = process.argv.slice(2); // get account id
+// const run = async () => {
+//   const account = hexify(args[0] || process.env.SEED_ACCOUNT || `???`);
+//   await app.config({ account }, "XRP-USDT");
+// };
+// run();
+
+// // //---------------------------------- Distinct test ----------------------------------------//
+// import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
+// import * as db from "#db/query.utils";
+
+// (async () => {
+//   const symbols: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
+//     { account: Session().account, auto_status: "Enabled", symbol: undefined },
+//     { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
+//   );
+
+//   const authorized = await db.Distinct<IInstrumentPosition>(
+//     { alias: `Blofin Demo`, symbol: undefined, environ: undefined },
+//     { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
+//   );
+
+//   const like: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
+//     { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
+//     { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
+//   );
+
+//   const ingroup: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
+//     { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
+//     { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
+//   );
+
+//   authorized.data?.map((i) => console.error(i.alias, i.environ, i.symbol));
+//   if (authorized.data?.length) {
+//     console.log(`Success:`, authorized);
+//   }
+// })();
+
+//------------------------------------------ test new database access revisions -------------------------------------------//
+/**
+ * @module tests/preflight
+ * @description Verifies DB handshake and transaction logic.
+ */
+// import { pool, Begin, Commit, DB_SCHEMA } from "#db";
+// //import { State } from "db";
+// import { State } from "#db";
+
+// async function runTest() {
+//   process.stdout.write(`>> Testing Handshake: ${DB_SCHEMA}...\n`);
+
+//   let connection;
+//   try {
+//     // 1. Basic Connectivity
+//     const [rows] = await pool.execute("SELECT 1 as connected");
+//     process.stdout.write(`>> Connection: [OK]\n`);
+
+//     // 2. Transaction Logic Test
+//     process.stdout.write(`>> Testing Transactional Begin/Commit...\n`);
+//     connection = await Begin();
+
+//     // Simple query inside transaction
+//     await connection.execute("SELECT 1");
+
+//     // Simple module fetch inside transaction
+//     const states = await State.Fetch({}, { connection });
+//     console.log(states);
+
+//     await Commit(connection);
+//     process.stdout.write(`>> Transaction Handlers: [OK]\n`);
+
+//     process.stdout.write(`\n>> PRE-FLIGHT SUCCESSFUL. Ready for CRUD review.\n`);
+//   } catch (err) {
+//     process.stderr.write(`\n!! [FATAL] Connectivity Test Failed:\n${err}\n`);
+//     process.exit(1);
+//   } finally {
+//     // Keep the pool open for the app, but close this test process
+//     process.exit(0);
+//   }
+// }
+
+// runTest();
 
 //---------------------------------- Distinct test ----------------------------------------//
-import type { IInstrumentPosition } from "db/interfaces/instrument_position";
-import * as db from "db/query.utils";
+import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
+import * as db from "#db/query.utils";
+import { Config } from "#module/session";
 
-(async () => {
-  const symbols: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
-    { account: Session().account, auto_status: "Enabled", symbol: undefined },
-    { table: `vw_instrument_positions`, keys: [[`account`], [`auto_status`]] },
-  );
+//const account = hexify(process.env.account!);
+console.log("account:", process.env.account);
+const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
+console.log("account (hexified)", account);
 
-  const authorized: Array<Partial<IInstrumentPosition>> = await db.Distinct<IInstrumentPosition>(
-    { alias: `Blofin Demo`, symbol: undefined, environ: undefined },
-    { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
-  );
+Config({ account }, "test")
+  .then(async () => {
+    const authorized = await db.Distinct<IInstrumentPosition>(
+      { alias: `Blofin Demo`, symbol: undefined, environ: undefined },
+      { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
+      "Test.Insane.Machine",
+    );
 
-  const like: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
-    { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
-    { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
-  );
-
-  const ingroup: Array<Partial<IInstrumentPosition>> = await db.Select<IInstrumentPosition>(
-    { alias: `Blofin Demo`, symbol: "%XRP%", environ: undefined },
-    { table: `vw_instrument_positions`, keys: [[`alias`], [`symbol`, `LIKE`]], suffix: `ORDER BY SYMBOL` },
-  );
-
-  authorized.map((i) => console.error(i.alias, i.environ, i.symbol));
-  if (authorized.length) {
-    console.log(`Success:`, authorized);
-  }
-})();
+    authorized.data?.map((i) => console.error("Blofin Demo", i.environ, i.symbol));
+    if (authorized.data?.length) {
+      console.log(`Success:`, authorized);
+    }
+  })
+  .finally(() => {
+    process.exit(0);
+  });

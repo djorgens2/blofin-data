@@ -4,19 +4,19 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IUser } from "db/interfaces/user";
+import type { IUser } from "#db/interfaces/user";
 import type { Answers } from "prompts";
-import Prompt, { type IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
 
 import { green, red, yellow, cyan, bold } from "console-log-colors";
 
-import { setState } from "cli/modules/State";
-import { setHeader } from "cli/modules/Header";
-import { getLengths } from "lib/std.util";
-import { Session } from "module/session";
+import { setState } from "#cli/modules/State";
+import { setHeader } from "#cli/modules/Header";
+import { getLengths } from "#lib/std.util";
+import { Session } from "#module/session";
 
-import * as Users from "db/interfaces/user";
-import * as Roles from "db/interfaces/role";
+import * as Users from "#db/interfaces/user";
+import * as Roles from "#db/interfaces/role";
 
 interface IUserToken {
   username: string;

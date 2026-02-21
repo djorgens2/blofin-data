@@ -4,37 +4,36 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IRequestAPI } from "api/interfaces/requests";
-import type { TOptions } from "db/types";
-import type { IAuthority } from "db/interfaces/authority";
-import type { IStopOrder } from "db/interfaces/stops";
-import type { IStopsAPI } from "api/interfaces/stops";
+import type { TOptions, IAuthority, IStopOrder } from "#db";
+import type { IRequestAPI, IStopOrderAPI } from "#api";
 
-import * as Candle from "db/interfaces/candle";
-import * as Instrument from "db/interfaces/instrument";
-import * as Broker from "db/interfaces/broker";
-import * as Role from "db/interfaces/role";
-import * as Contract from "db/interfaces/contract_type";
-import * as Currency from "db/interfaces/currency";
-import * as Type from "db/interfaces/instrument_type";
-import * as Period from "db/interfaces/period";
-import * as State from "db/interfaces/state";
-import * as User from "db/interfaces/user";
-import * as Area from "db/interfaces/subject_area";
-import * as Environ from "db/interfaces/environment";
-import * as Account from "db/interfaces/account";
-import * as Order from "db/interfaces/order";
-import * as Reference from "db/interfaces/reference";
-import * as Activity from "db/interfaces/activity";
-import * as Authority from "db/interfaces/authority";
-import * as Positions from "db/interfaces/positions";
-import * as InstrumentPeriods from "db/interfaces/instrument_period";
-import * as InstrumentPosition from "db/interfaces/instrument_position";
-import * as Stops from "db/interfaces/stops";
+import {
+  Candle,
+  Instrument,
+  Broker,
+  Role,
+  ContractType,
+  Currency,
+  InstrumentType,
+  Period,
+  State,
+  User,
+  SubjectArea,
+  Environment,
+  Account,
+  Order,
+  Reference,
+  Activity,
+  Authority,
+  Positions,
+  InstrumentPeriod,
+  InstrumentPosition,
+  StopOrder,
+} from "#db";
 
-import { NormalizeHex, parseJSON } from "lib/std.util";
-import { hexify } from "lib/crypto.util";
-import { Select } from "db/query.utils";
+import { NormalizeHex, parseJSON } from "#lib/std.util";
+import { hexify } from "#lib/crypto.util";
+import { Select } from "#db/query.utils";
 
 enum Subject {
   Account = "-a",
@@ -92,10 +91,10 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Contract: {
-      const props = parseJSON<Contract.IContractType>(args);
+      const props = parseJSON<ContractType.IContractType>(args);
       props!.contract_type && Object.assign(props!, { ...props, contract_type: hexify(props!.contract_type) });
-      const key = await Contract.Key(props!);
-      const rows = await Contract.Fetch(props!);
+      const key = await ContractType.Key(props!);
+      const rows = await ContractType.Fetch(props!);
       console.log("Fetch contract types:", props, key, rows);
       return "ok";
     }
@@ -116,10 +115,10 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Type: {
-      const props = parseJSON<Type.IInstrumentType>(args);
+      const props = parseJSON<InstrumentType.IInstrumentType>(args);
       props!.instrument_type && Object.assign(props!, { ...props, instrument_type: hexify(props!.instrument_type) });
-      const key = await Type.Key(props!);
-      const rows = await Type.Fetch(props!);
+      const key = await InstrumentType.Key(props!);
+      const rows = await InstrumentType.Fetch(props!);
       console.log("Fetch type:", props, { key }, rows);
       return "ok";
     }
@@ -149,18 +148,18 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Area: {
-      const props = parseJSON<Area.ISubjectArea>(args);
+      const props = parseJSON<SubjectArea.ISubjectArea>(args);
       props!.subject_area && Object.assign(props!, { ...props, subject: hexify(props!.subject_area) });
-      const key = await Area.Key(props!);
-      const rows = await Area.Fetch(props!);
+      const key = await SubjectArea.Key(props!);
+      const rows = await SubjectArea.Fetch(props!);
       console.log("Fetch Subject:", props, { key }, rows);
       return "ok";
     }
     case Subject.Environ: {
-      const props = parseJSON<Environ.IEnvironment>(args);
+      const props = parseJSON<Environment.IEnvironment>(args);
       props!.environment && Object.assign(props!, { ...props, environment: hexify(props!.environment) });
-      const key = await Environ.Key(props!);
-      const rows = await Environ.Fetch(props!);
+      const key = await Environment.Key(props!);
+      const rows = await Environment.Fetch(props!);
       console.log("Fetch Environments:", props, { key }, rows);
       return "ok";
     }
@@ -207,12 +206,12 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.StopsQueue: {
-      const props = parseJSON<IStopsAPI>(args);
+      const props = parseJSON<IStopOrderAPI>(args);
       Object.assign(props!, {
         ...props,
         account: hexify(props?.account!),
       });
-      const rows = await Select<IStopsAPI>(props!, { table: `vw_api_stop_requests` });
+      const rows = await Select<IStopOrderAPI>(props!, { table: `vw_api_stop_requests` });
       console.log(`Fetch Stop Request Queue [API] [ ${Object.keys(props!).length} ]:`, props, rows);
       return "ok";
     }
@@ -249,13 +248,13 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.InstrumentPeriod: {
-      const props = parseJSON<InstrumentPeriods.IInstrumentPeriod>(args);
+      const props = parseJSON<InstrumentPeriod.IInstrumentPeriod>(args);
       Object.assign(props!, {
         ...props,
         instrument: hexify(props?.instrument!),
         period: hexify(props?.period!),
       });
-      const key = await InstrumentPeriods.Fetch(props!);
+      const key = await InstrumentPeriod.Fetch(props!);
       console.log(`Fetch Instrument Periods [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }
@@ -289,7 +288,7 @@ const show = async (subject: string, args: string): Promise<string> => {
         stop_type: hexify(props?.stop_type!),
         tpsl_id: hexify(props?.tpsl_id!),
       });
-      const key = await Stops.Fetch(props!);
+      const key = await StopOrder.Fetch(props!);
       console.log(`Fetch Stop Orders [ ${Object.keys(props!).length} ]:`, props, key);
       return "ok";
     }

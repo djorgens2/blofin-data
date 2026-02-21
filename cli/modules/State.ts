@@ -4,18 +4,18 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import type { TStates, IState } from "db/interfaces/state";
-import Prompt, { type IOption } from "cli/modules/Prompts";
-import { isEqual } from "lib/std.util";
+import type { TStates, IState } from "#db/interfaces/state";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
+import { isEqual } from "#lib/std.util";
 
-import * as States from "db/interfaces/state";
+import { State } from "#db";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves state values (filtered) in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
 export const setState = async () => {
-  const states = await States.Fetch<IState>({});
-  const options:Array<TStates> = ["Disabled", "Enabled"];
+  const states = await State.Fetch<IState>({});
+  const options: Array<TStates> = ["Disabled", "Enabled"];
   const choices: Array<IOption> = [];
 
   if (states) {

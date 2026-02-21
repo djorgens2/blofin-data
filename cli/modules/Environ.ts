@@ -4,26 +4,26 @@
 //+--------------------------------------------------------------------------------------+
 "use strict";
 
-import Prompt, { type IOption } from "cli/modules/Prompts";
+import Prompt, { type IOption } from "#cli/modules/Prompts";
 import type { Answers } from "prompts";
 
-import * as Environs from "db/interfaces/environment";
+import { Environment } from "#db";
 
 //+--------------------------------------------------------------------------------------+
 //| Retrieves environment assignments in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
 export const setEnviron = async <T extends Answers<string>>(props: T) => {
   const count = async () => {
-    const environs = await Environs.Fetch({});
+    const environs = await Environment.Fetch({});
     if (environs) {
-      await Environs.Import();
+      await Environment.Import();
       return 1;
     }
     return undefined;
   };
   await count();
 
-  const environment = await Environs.Fetch({});
+  const environment = await Environment.Fetch({});
   const choices: Array<IOption> = [];
 
   if (environment) {

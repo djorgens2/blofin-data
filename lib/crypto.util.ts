@@ -4,22 +4,14 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { ISession } from "module/session";
+import type { ISession } from "#module/session";
 
 import { createHmac, createHash } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { TextEncoder } from "node:util";
-import { fileURLToPath } from 'url';
 
-import dotenv from "dotenv";
-import path from "path";
+import * as User from "#db/interfaces/user";
 
-import * as User from "db/interfaces/user";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 //+--------------------------------------------------------------------------------------+
 //| returns a fully rendered hmac encryption key specifically for Blofin;                |
@@ -66,7 +58,7 @@ export const hexify = (key: string | Uint8Array | number | object, size?: number
       key.slice(0, 7) === "<Buffer" && (key = key.slice(8, 15).split(" ").join(""));
 
       const regex = /^[0-9A-Fa-f]+$/;
-      const bytes = new Uint8Array(key.length / 2);
+//      const bytes = new Uint8Array(key.length / 2);
 
       if (regex.test(key)) {
         size && (key = prefix.concat(key.padStart(size * 2, "0")));

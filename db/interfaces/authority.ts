@@ -4,12 +4,11 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
-import type { IPublishResult } from "api";
+import type { IPublishResult } from "#api";
 
-import { Select, Insert } from "db/query.utils";
-import { PrimaryKey } from "api";
-import { hashKey } from "lib/crypto.util";
-import { hasValues } from "lib/std.util";
+import { Select, Insert, PrimaryKey } from "#db";
+import { hashKey } from "#lib/crypto.util";
+import { hasValues } from "#lib/std.util";
 
 export interface IAuthority {
   authority: Uint8Array;
@@ -47,8 +46,8 @@ export const Add = async (props: Partial<IAuthority>): Promise<IPublishResult<IA
 //+--------------------------------------------------------------------------------------+
 export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["authority"] | undefined> => {
   if (hasValues<Partial<IAuthority>>(props)) {
-    const [result] = await Select<IAuthority>(props, { table: `authority` });
-    return result ? result.authority : undefined;
+    const result = await Select<IAuthority>(props, { table: `authority` });
+        return result.success && result.data?.length ? result.data[0].authority : undefined;
   } else return undefined;
 };
 
@@ -57,5 +56,5 @@ export const Key = async (props: Partial<IAuthority>): Promise<IAuthority["autho
 //+--------------------------------------------------------------------------------------+
 export const Fetch = async (props: Partial<IAuthority>): Promise<Array<Partial<IAuthority>> | undefined> => {
   const result = await Select<IAuthority>(props, { table: `authority` });
-  return result.length ? result : undefined;
+  return result.success ? result.data : undefined;
 };

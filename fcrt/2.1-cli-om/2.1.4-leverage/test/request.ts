@@ -1,5 +1,5 @@
-import type { IRequest } from "db/interfaces/request";
-import { setExpiry } from "lib/std.util";
+import type { IRequest } from "#db/interfaces/request";
+import { setExpiry } from "#lib/std.util";
 
 //-- Test 2a: submit request with '1d' expiry; with new leverage
 export const req_fcrt_2a: Partial<IRequest> = {
