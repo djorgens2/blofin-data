@@ -1,8 +1,10 @@
 /**
- * api.util.ts
+ * @file api.util.ts
+ * @summary Unified Exchange API & Envelope Factory
  *
- * Copyright 2018, Dennis Jorgenson
+ * @copyright 2018-2026, Dennis Jorgenson
  */
+
 "use strict";
 
 import type { TResponse } from "#api";
@@ -61,7 +63,7 @@ export class ApiError<T> extends Error {
 
   constructor(code: string | number, msg: string, data?: T) {
     super(`[API] Code ${code}: ${msg}`);
-    
+
     this.code = code;
     this.msg = msg;
     this.data = data;
@@ -73,23 +75,27 @@ export class ApiError<T> extends Error {
 }
 
 /**
- * API_POST
+ * Executes a signed POST request to the exchange.
  *
- * API_POST: Handles signing and API POST calls
+ * @template T - Expected shape of the 'data' payload.
+ * @param path - The API endpoint.
+ * @param body - The payload to be stringified and sent.
+ * @param context - Traceable path for logs.
+ * @returns {Promise<TResponse & { data?: T }>} Enveloped response.
  */
-export const API_POST = async <T>(path: string, data: unknown, context: string): Promise<T> => {
-  const method = "POST";
-  const body = JSON.stringify(data);
-  const { api, phrase, rest_api_url } = Session();
+export const API_POST = async <T>(path: string, body: any, context: string): Promise<TResponse & { data?: T }> => {
+  const { api, phrase, rest_api_url, secret, config } = Session();
 
-  if (!api || !phrase || !rest_api_url) {
-    throw new ApiError(401, `${context}: Incomplete Session: API credentials or URL missing.`);
+  if (!api || !phrase || !rest_api_url || !secret) {
+    return ApiResult(false, context, { code: 401, message: "Missing Credentials" });
   }
 
   try {
-    const { sign, timestamp, nonce } = await signRequest(method, path, body);
+    const jsonBody = JSON.stringify(body);
+    const { sign, timestamp, nonce } = await signRequest("POST", path, jsonBody);
+
     const response = await fetch(`${rest_api_url}${path}`, {
-      method,
+      method: "POST",
       headers: {
         "ACCESS-KEY": api,
         "ACCESS-SIGN": sign,
@@ -98,34 +104,44 @@ export const API_POST = async <T>(path: string, data: unknown, context: string):
         "ACCESS-PASSPHRASE": phrase,
         "Content-Type": "application/json",
       },
-      body,
+      body: jsonBody,
+      signal: AbortSignal.timeout(config?.apiTimeoutTimeMs ?? 30000),
     });
 
-    if (!response.ok) throw new ApiError(response.status, `HTTP ${response.status}: ${response.statusText}`);
-
     const result = await response.json();
+
+    // Blofin API Success Check
     if (result.code !== "0") {
-      console.log("[Error]", result);
-      // result.data is inferred as T[] here
-      throw new ApiError<T>(result.code, result.msg, result.data);
+      return ApiResult(false, context, {
+        code: result.code,
+        message: result.msg,
+        state: "Rejected",
+      });
     }
 
-    return result.data as T;
+    return ApiResult(true, context, {
+      data: result.data as T,
+      state: "Complete",
+    });
   } catch (error) {
-    console.log(`-> [Error] ${context}:`, error instanceof ApiError ? error.message : error);
-    throw error;
+    const msg = error instanceof Error ? error.message : "Network/Timeout Error";
+    return ApiResult(false, context, { code: "HTTP_ERR", message: msg });
   }
 };
 
 /**
- * API_GET
+ * Executes a signed GET request to the exchange.
  *
- * handles signing and API GET calls;
+ * @template T - Expected shape of the 'data' payload.
+ * @param path - The API endpoint (e.g., '/api/v1/account/balance').
+ * @param context - Traceable path for logs.
+ * @returns {Promise<TResponse & { data?: T }>} Enveloped response.
  */
-export const API_GET = async <T>(path: string, context: string): Promise<T> => {
-  const { api, phrase, rest_api_url } = Session();
-  if (!api || !phrase || !rest_api_url) {
-    throw new ApiError(401, `${context}: Incomplete Session: API credentials or URL missing.`);
+export const API_GET = async <T>(path: string, context: string): Promise<TResponse & { data?: T }> => {
+  const { api, phrase, rest_api_url, secret } = Session();
+
+  if (!api || !phrase || !rest_api_url || !secret) {
+    return ApiResult(false, context, { code: 401, message: "Missing Credentials" });
   }
 
   try {
@@ -133,19 +149,35 @@ export const API_GET = async <T>(path: string, context: string): Promise<T> => {
     const response = await fetch(`${rest_api_url}${path}`, {
       method: "GET",
       headers: {
-        "ACCESS-KEY": api!,
-        "ACCESS-SIGN": sign!,
-        "ACCESS-TIMESTAMP": timestamp!,
-        "ACCESS-NONCE": nonce!,
-        "ACCESS-PASSPHRASE": phrase!,
+        "ACCESS-KEY": api,
+        "ACCESS-SIGN": sign,
+        "ACCESS-TIMESTAMP": timestamp,
+        "ACCESS-NONCE": nonce,
+        "ACCESS-PASSPHRASE": phrase,
       },
+      // Native Node 22: Add a timeout signal from your DB config
+      signal: AbortSignal.timeout(Session().config?.apiTimeoutTimeMs || 30000),
     });
 
+    // SAFETY: Check if response is actually JSON before parsing
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      return ApiResult(false, context, {
+        code: response.status,
+        message: `Exchange returned non-JSON response: ${response.statusText}`,
+      });
+    }
+
     const result = await response.json();
-    if (result.code !== "0") throw new ApiError(parseInt(result.code), result.msg);
-    return result.data as T;
+
+    // Blofin uses code "0" for success
+    if (result.code !== "0") {
+      return ApiResult(false, context, { code: result.code, message: result.msg, state: "Rejected" });
+    }
+
+    return ApiResult(true, context, { data: result.data as T, state: "Complete" });
   } catch (error) {
-    console.log(`-> [Error] ${context}:`, error instanceof ApiError ? error.message : error);
-    throw error;
+    const msg = error instanceof Error ? error.message : "Unknown Network Error";
+    return ApiResult(false, context, { code: "HTTP_ERR", message: msg });
   }
 };

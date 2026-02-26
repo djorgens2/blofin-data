@@ -1,5 +1,13 @@
 /**
  * @file api/index.ts
+ * @summary Master API & Interface Service Registry
+ * @description 
+ * Acts as the centralized 'Gateway' for all Exchange and Database interactions.
+ * Organizes services into semantic namespaces (e.g., `Orders`, `Positions`)
+ * to ensure logical separation during the 500ms heartbeat.
+ * 
+ * @module API
+ * @category Framework
  */
 
 // 1. Logic Exports (The Functions - Runtime)
@@ -15,7 +23,7 @@ export * as StopRequests from "#api/interfaces/stopRequests";
 export * as StopOrders from "#api/interfaces/stopOrders";
 
 export type * from "#api/types";
-export * from "#api/api.util"; // Factories like AsResult
+export * from "#api/api.util"; // Factories like ApiResult
 
 // 2. Type Exports (The Blueprints - Compile-time Only)
 export type { IAccountAPI } from "#api/interfaces/accounts";

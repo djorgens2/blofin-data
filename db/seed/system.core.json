@@ -1,0 +1,125 @@
+{
+  "state": {
+    "pkey": "state",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "status": "Enabled", "description": "Enabled for trading" },
+      { "status": "Disabled", "description": "Disabled from trading" },
+      { "status": "Halted", "description": "Adverse event halt" },
+      { "status": "Restricted", "description": "Restricted use" },
+      { "status": "Suspended", "description": "Suspended by broker" },
+      { "status": "Deleted", "description": "Deleted pending removal" },
+      { "status": "Expired", "description": "Expired; order requests, tokens, keys, et al" },
+      { "status": "Queued", "description": "Queued; request queued for handling" },
+      { "status": "Pending", "description": "Pending; request is live/pending" },
+      { "status": "Fulfilled", "description": "Fulfilled; order fullfilled; check orders for completion" },
+      { "status": "Rejected", "description": "Rejected; request denied; check error log" },
+      { "status": "Canceled", "description": "Canceled; request canceled;" },
+      { "status": "Hold", "description": "Hold; request on hold pending cancel;" },
+      { "status": "Closed", "description": "Closed; request is closed;" },
+      { "status": "Open", "description": "Open; order/position is open;" }
+    ]
+  },
+  "activity": {
+    "pkey": "activity",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "title": "Instruments", "task": "Manage Instruments" },
+      { "title": "Instruments", "task": "View/Modify Contracts" },
+      { "title": "Instruments", "task": "View/Modify Instrument Types" },
+      { "title": "Trading", "task": "Configure trading options" },
+      { "title": "Users", "task": "Manage Users" },
+      { "title": "Accounts", "task": "Account Administration" },
+      { "title": "Jobs", "task": "Configure jobs" },
+      { "title": "Jobs", "task": "Monitor jobs" }
+    ]
+  },
+  "authority": {
+    "pkey": "authority",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "privilege": "View", "priority": 0 },
+      { "privilege": "Edit", "priority": 1 },
+      { "privilege": "Create", "priority": 2 },
+      { "privilege": "Delete", "priority": 3 },
+      { "privilege": "Operate", "priority": 4 },
+      { "privilege": "Configure", "priority": 5 }
+    ]
+  },
+  "broker": {
+    "pkey": "broker",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [{ "name": "Blofin", "image_url": "./images/broker/blofin.png", "website_url": "https://blofin.com/" }]
+  },
+  "environment": {
+    "pkey": "environment",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [{ "environ": "Production" }, { "environ": "Development" }, { "environ": "Test" }, { "environ": "Quality Assurance (QA)" }]
+  },
+  "period": {
+    "pkey": "period",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "timeframe": "1m", "description": "1 Minute", "timeframe_units": 1 },
+      { "timeframe": "3m", "description": "3 Minutes", "timeframe_units": 3 },
+      { "timeframe": "5m", "description": "5 Minutes", "timeframe_units": 5 },
+      { "timeframe": "15m", "description": "15 Minutes", "timeframe_units": 15 },
+      { "timeframe": "30m", "description": "30 Minutes", "timeframe_units": 30 },
+      { "timeframe": "1H", "description": "1 Hour", "timeframe_units": 60 },
+      { "timeframe": "2H", "description": "2 Hours", "timeframe_units": 120 },
+      { "timeframe": "4H", "description": "4 Hours", "timeframe_units": 240 },
+      { "timeframe": "6H", "description": "6 Hours", "timeframe_units": 360 },
+      { "timeframe": "8H", "description": "8 Hours", "timeframe_units": 480 },
+      { "timeframe": "12H", "description": "12 Hours", "timeframe_units": 720 },
+      { "timeframe": "1D", "description": "1 Day", "timeframe_units": 1440 },
+      { "timeframe": "3D", "description": "3 Days", "timeframe_units": 4320 },
+      { "timeframe": "1W", "description": "1 Week", "timeframe_units": 10080 },
+      { "timeframe": "1M", "description": "1 Month", "timeframe_units": 0 }
+    ]
+  },
+  "role": {
+    "pkey": "role",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      {
+        "role": 0,
+        "title": "Admin",
+        "auth_rank": 40
+      },
+      {
+        "role": 0,
+        "title": "Editor",
+        "auth_rank": 20
+      },
+      {
+        "role": 0,
+        "title": "Operator",
+        "auth_rank": 30
+      },
+      {
+        "role": 0,
+        "title": "Viewer",
+        "auth_rank": 10
+      }
+    ]
+  },
+  "subject_area": {
+    "pkey": "subject_area",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "title": "Instruments", "description": "Administration of Instruments including currencies, types, and contracts;" },
+      { "title": "Trading", "description": "Job/Symbol operations and parameter configuration;" },
+      { "title": "Users", "description": "User management and administration including roles, privileges, and authorized activities;" },
+      { "title": "Accounts", "description": "Account administration including keys, brokers, and operational availability;" },
+      { "title": "Jobs", "description": "Operational management of Jobs including starts, stoppages, and monitoring;" }
+    ]
+  }
+}

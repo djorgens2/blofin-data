@@ -1,49 +1,90 @@
-//+---------------------------------------------------------------------------------------+
-//|                                                                          positions.ts |
-//|                                                      Copyright 2018, Dennis Jorgenson |
-//+---------------------------------------------------------------------------------------+
+/**
+ * Market Position Ledger (DCA Bucket Management).
+ * 
+ * Manages the persistence of active market exposure. Since the broker 
+ * decouples orders from positions and relies on Dollar-Cost-Averaging (DCA), 
+ * this module serves as the authoritative record for current average price, 
+ * total size, and liquidation risk.
+ * 
+ * @module db/positions
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { TPositionState } from "#db/interfaces/state";
 import type { IPublishResult } from "#api";
-
 import { Select, Insert, Update, PrimaryKey } from "#db";
 import { hasValues, isEqual } from "#lib/std.util";
 import { Session } from "#module/session";
 
+/**
+ * Interface representing a synthesized market position (DCA Bucket).
+ */
 export interface IPositions {
+  /** Foreign Key: Link to the active account hash. */
   account: Uint8Array;
+  /** Primary Key: Unique hexified position identifier from the exchange. */
   positions: Uint8Array;
+  /** Foreign Key: Link to the parent instrument-position mapping. */
   instrument_position: Uint8Array;
+  /** Foreign Key: Link to the underlying instrument master. */
   instrument: Uint8Array;
   symbol: string;
+  /** Direction of the synthesized position. */
   position: "short" | "long" | "net";
+  /** Foreign Key: Current state identifier. */
   state: Uint8Array;
+  /** Human-readable status (e.g., 'Open', 'Closed'). */
   status: TPositionState;
   instrument_type: Uint8Array;
+  /** Primary action required to increase this position. */
   action: "buy" | "sell";
+  /** Primary action required to close/reduce this position. */
   counter_action: "buy" | "sell";
+  /** Total quantity currently held in the DCA bucket. */
   size: number;
+  /** Quantity available for reduction/closure. */
   size_available: number;
+  /** Applied leverage for this synthesized position. */
   leverage: number;
   margin_mode: "cross" | "isolated";
+  /** Current margin collateral utilized. */
   margin_used: number;
+  /** Health ratio based on maintenance margin requirements. */
   margin_ratio: number;
   margin_initial: number;
   margin_maint: number;
+  /** The Dollar-Cost-Average (DCA) entry price. */
   average_price: number;
+  /** Calculated price at which the bucket faces liquidation. */
   liquidation_price: number;
+  /** Current index mark price used for PnL calculation. */
   mark_price: number;
+  /** Current floating profit or loss. */
   unrealized_pnl: number;
+  /** PnL expressed as a percentage of utilized margin. */
   unrealized_pnl_ratio: number;
+  /** Auto-Deleveraging (ADL) priority ranking. */
   adl: number;
   create_time: Date;
   update_time: Date;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Inserts or updates positions; returns positions key;                                 |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Synchronizes real-time position data (typically from WSS) with the database.
+ * 
+ * Performance Logic:
+ * 1. Validates that the payload contains identifying data.
+ * 2. Lookup: Searches for an existing position within the current {@link Session}.
+ * 3. Update Path: Performs an extensive "diff-check" to ensure only volatile 
+ *    metrics (PnL, Prices, ADL) trigger a database write.
+ * 4. Insert Path: Records newly initialized DCA buckets.
+ * 
+ * @param props - Partial position metrics from the market source.
+ * @param context - Tracing context for logging.
+ * @returns A promise resolving to the publication result and composite keys.
+ */
 export const Publish = async (props: Partial<IPositions>, context = "Positions"): Promise<IPublishResult<IPositions>> => {
   context = `${context}.Publish`;
   if (!hasValues(props)) {
@@ -87,9 +128,12 @@ export const Publish = async (props: Partial<IPositions>, context = "Positions")
   };
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Fetches requests from local db that meet props criteria;                             |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Retrieves position records from the `vw_positions` view.
+ * 
+ * @param props - Query filters (e.g., specific symbol or status).
+ * @returns An array of matching partial position records or undefined.
+ */
 export const Fetch = async (props: Partial<IPositions>): Promise<Array<Partial<IPositions>> | undefined> => {
   const result = await Select<IPositions>(props, { table: `vw_positions` });
   return result.success ? result.data : undefined;

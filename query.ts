@@ -315,7 +315,7 @@ const [cli_props] = process.argv.slice(3);
 const [cli_extended_props] = process.argv.slice(4);
 
 const run = async () => {
-  const run = await show(cli_subject, cli_props);
+  await show(cli_subject, cli_props);
   process.exit(0);
 };
 

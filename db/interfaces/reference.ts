@@ -1,146 +1,101 @@
-//+---------------------------------------------------------------------------------------+
-//|                                                                          reference.ts |
-//|                                                      Copyright 2018, Dennis Jorgenson |
-//+---------------------------------------------------------------------------------------+
+/**
+ * Generic Referential Integrity Hydrator.
+ * 
+ * Manages the seeding and retrieval of static exchange and system constants.
+ * This module is designed to be highly malleable, allowing new referential 
+ * tables (e.g., cancel_source, order_category) to be hydrated via JSON seeds 
+ * without modifying core logic.
+ * 
+ * @module db/reference
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { TRequestState } from "#db/interfaces/state";
 import type { TOptions } from "#db";
-
 import { Select, Insert } from "#db/query.utils";
-import { hashKey, hexify } from "#lib/crypto.util";
+import { hashKey } from "#lib/crypto.util";
 import { hasValues } from "#lib/std.util";
 
+/**
+ * Interface representing a generic referential record.
+ * Supports dynamic keys to accommodate varied lookup table schemas.
+ */
 export interface IReference {
+  /** The target database table for the operation. */
   table: string;
+  /** State identifier hash. */
   state: Uint8Array;
+  /** Order execution state hash. */
   order_state: Uint8Array;
+  /** Request classification hash. */
   request_type: Uint8Array;
+  /** Cancellation origin hash. */
   cancel_source: Uint8Array;
+  /** Order classification hash (normal, algo, etc.). */
   order_category: Uint8Array;
+  /** Broker-specific reference string. */
   source_ref: string;
+  /** Primary human-readable status. */
   status: TRequestState;
+  /** Secondary mapping/transition status. */
   map_ref: TRequestState;
+  /** Dynamic property support for varied referential schemas. */
   [key: string]: unknown;
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Imports period seed data to the database;                                            |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  console.log("In Reference.Import:", new Date().toLocaleString());
-
-  const counts = {
-    orderState: 0,
-    requestType: 0,
-    cancelSource: 0,
-    priceType: 0,
-    marginMode: 0,
-    hedging: 0,
-    stopType: 0,
-    position: 0,
-    orderCategory: 0,
-  };
-
-  [
-    { order_state: 0, source_ref: "live", status: "Pending", description: "Live" },
-    { order_state: 0, source_ref: "effective", status: "Pending", description: "Effective" },
-    { order_state: 0, source_ref: "canceled", status: "Closed", description: "Canceled" },
-    { order_state: 0, source_ref: "order_failed", status: "Rejected", description: "Order Failed" },
-    { order_state: 0, source_ref: "filled", status: "Fulfilled", description: "Filled" },
-    { order_state: 0, source_ref: "partially_canceled", status: "Closed", description: "Partially Canceled" },
-    { order_state: 0, source_ref: "partially_filled", status: "Pending", description: "Partially Filled" },
-  ].forEach((state) => {
-    (Add("order_state", state), counts.orderState++);
-  });
-  [
-    { request_type: 0, source_ref: "market", description: "Market order" },
-    { request_type: 0, source_ref: "limit", description: "Limit order" },
-    { request_type: 0, source_ref: "post_only", description: "Post-only order" },
-    { request_type: 0, source_ref: "fok", description: "Fill-or-kill order" },
-    { request_type: 0, source_ref: "ioc", description: "Immediate-or-cancel order" },
-    { request_type: 0, source_ref: "trigger", description: "Trigger or algo order" },
-  ].forEach((type) => {
-    (Add("request_type", type), counts.requestType++);
-  });
-  [
-    { cancel_source: 0, source_ref: "not_canceled", source: "None" },
-    { cancel_source: 0, source_ref: "user_canceled", source: "User" },
-    { cancel_source: 0, source_ref: "system_canceled", source: "System" },
-  ].forEach((type) => {
-    (Add("cancel_source", type), counts.cancelSource++);
-  });
-  ["last", "index", "mark"].forEach((price_type) => {
-    (Add("price_type", { price_type }), counts.priceType++);
-  });
-  [
-    { hedging: true, source_ref: "long_short_mode", description: "Hedged" },
-    { hedging: false, source_ref: "net_mode", description: "Unhedged" },
-  ].forEach((mode) => {
-    (Add("hedging", mode), counts.hedging++);
-  });
-  ["cross", "isolated"].forEach((margin_mode) => {
-    (Add("margin_mode", { margin_mode }), counts.marginMode++);
-  });
-  [
-    { stop_type: hexify("e4"), source_ref: "tp", prefix: "e4", description: "Take Profit" },
-    { stop_type: hexify("df"), source_ref: "sl", prefix: "df", description: "Stop Loss" },
-  ].forEach((stop_type) => {
-    (Add("stop_type", { stop_type }), counts.stopType++);
-  });
-  ["long", "short", "net"].forEach((position) => {
-    (Add("position", { position }), counts.position++);
-  });
-  [
-    { order_category: 0, source_ref: "normal", description: "Normal" },
-    { order_category: 0, source_ref: "full_liquidation", description: "Full Liquidation" },
-    { order_category: 0, source_ref: "partial_liquidation", description: "Partial Liquidation" },
-    { order_category: 0, source_ref: "adl", description: "Auto-Deleveraging" },
-    { order_category: 0, source_ref: "tp", description: "Take Profit" },
-    { order_category: 0, source_ref: "sl", description: "Stop Loss" },
-  ].forEach((category) => {
-    (Add("order_category", category), counts.orderCategory++);
-  });
-
-  Object.entries(counts).forEach(([Key, value]) =>
-    console.log(
-      `   # ${
-        Key.charAt(0).toUpperCase() +
-        Key.slice(1)
-          .replace(/([a-z])([A-Z])/g, "$1 $2")
-          .split(" ")
-          .join(" ")
-      } imports:  ${value} verified`,
-    ),
-  );
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Adds seed references for fk's/referential integrity to local database;               |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Adds seed references for foreign key integrity to the specified table.
+ * 
+ * Logic Flow:
+ * 1. Inspects the first property of the `props` object.
+ * 2. If the value is strictly `0`, it is automatically replaced with a 
+ *    new 6-character hash. This allows JSON seeds to trigger hash generation.
+ * 3. Performs an {@link Insert} with the `ignore` flag to prevent duplicate seeding.
+ * 
+ * @param table - The name of the referential table (e.g., `cancel_source`).
+ * @param props - The key-value pairs representing the seed record.
+ * @returns A promise resolving to the database operation result.
+ */
 export const Add = async (table: string, props: { [key: string]: any }) => {
   if (Object.keys(props).length) {
-    props[Object.keys(props)[0]] === 0 && (props[Object.keys(props)[0]] = hashKey(6));
+    // Legacy Seed Pattern: Values of 0 trigger cryptographic hash generation
+    const firstKey = Object.keys(props)[0];
+    props[firstKey] === 0 && (props[firstKey] = hashKey(6));
+    
     const result = await Insert<IReference>(props, { table, ignore: true });
     return result;
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns data;   |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Retrieves reference records matching the provided criteria.
+ * 
+ * @param props - Search parameters.
+ * @param options - Query configuration, including the target `table`.
+ * @returns An array of matching partial reference records or undefined.
+ */
 export const Fetch = async (props: Partial<IReference>, options: TOptions<IReference>): Promise<Array<Partial<IReference>> | undefined> => {
   const result = await Select<IReference>(props, options);
   return result.success ? result.data : undefined;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Executes a query in priority sequence based on supplied seek params; returns key;    |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Resolves a specific primary key (hash) for a reference record.
+ * 
+ * Note: This method assumes the primary key is the first column 
+ * returned by the database query.
+ * 
+ * @template T - The expected return type (typically `Uint8Array`).
+ * @param props - Search parameters (e.g., `{ source_ref: 'canceled_by_user' }`).
+ * @param options - Query configuration, including the target `table`.
+ * @returns The first value of the found record cast to type `T`, or undefined.
+ */
 export const Key = async <T>(props: Partial<IReference>, options: TOptions<IReference>): Promise<T | undefined> => {
   if (hasValues<Partial<IReference>>(props)) {
     const result = await Select<IReference>(props, options);
-    return result.success ? (Object.values(result.data![0]) as T) : undefined;
+    return result.success && result.data?.length ? (Object.values(result.data[0])[0] as T) : undefined;
   }
   return undefined;
 };

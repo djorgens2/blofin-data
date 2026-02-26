@@ -43,6 +43,15 @@ ALTER TABLE devel.cancel_source COMMENT 'not_canceled
 user_canceled
 system_canceled';
 
+CREATE  TABLE devel.config_param ( 
+	config_param         VARCHAR(64)    NOT NULL   PRIMARY KEY,
+	default_param_value  VARCHAR(24)    NOT NULL   ,
+	value_type           ENUM('int','string','bin','date','bool')  DEFAULT ('_utf8mb4'string'')  NOT NULL   ,
+	state                BINARY(3)    NOT NULL   
+ ) engine=InnoDB;
+
+CREATE INDEX fk_cp_state ON devel.config_param ( state );
+
 CREATE  TABLE devel.contract_type ( 
 	contract_type        BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -330,15 +339,19 @@ CREATE  TABLE devel.activity (
 
 CREATE INDEX fk_a_subject_area ON devel.activity ( subject_area );
 
-CREATE  TABLE devel.config_param ( 
-	config_param         VARCHAR(64)    NOT NULL   PRIMARY KEY,
-	default_param_value  VARCHAR(24)    NOT NULL   ,
-	value_type           ENUM('int','string','bin','date','bool')  DEFAULT ('_utf8mb4'string'')  NOT NULL   ,
-	state                BINARY(3)    NOT NULL   ,
-	CONSTRAINT fk_cp_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
+CREATE  TABLE devel.app_config ( 
+	account              BINARY(3)    NOT NULL   ,
+	config_param         VARCHAR(64)    NOT NULL   ,
+	param_value          VARCHAR(24)       ,
+	priority             TINYINT UNSIGNED DEFAULT (_utf8mb4'0')     ,
+	create_time          DATETIME(3)  DEFAULT (now(3))     ,
+	update_time          DATETIME(3)  DEFAULT (now(3)) ON UPDATE CURRENT_TIMESTAMP(3)    ,
+	CONSTRAINT pk_app_config PRIMARY KEY ( account, config_param ),
+	CONSTRAINT fk_ac_config_param FOREIGN KEY ( config_param ) REFERENCES devel.config_param( config_param ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ac_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_cp_state ON devel.config_param ( state );
+CREATE INDEX fk_ac_config_param ON devel.app_config ( config_param );
 
 CREATE  TABLE devel.currency ( 
 	currency             BINARY(3)    NOT NULL   PRIMARY KEY,
@@ -426,6 +439,22 @@ CREATE INDEX fk_ipos_position ON devel.instrument_position ( position );
 CREATE INDEX fk_ipos_instrument ON devel.instrument_position ( instrument );
 
 CREATE INDEX fk_ipos_period ON devel.instrument_position ( period );
+
+CREATE  TABLE devel.job_control ( 
+	instrument_position  BINARY(3)    NOT NULL   PRIMARY KEY,
+	user               BINARY(3)    NOT NULL   ,
+	process_pid          INT    NOT NULL   ,
+	process_state        ENUM('running','stopped','error')  DEFAULT ('stopped') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	command              ENUM('none','start','stop','restart')  DEFAULT ('none') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	auto_start           BOOLEAN  DEFAULT (false)  NOT NULL   ,
+	message              VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	start_time           DATETIME(3)    NOT NULL   ,
+	stop_time            DATETIME(3)    NOT NULL   ,
+	CONSTRAINT fk_job_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_job_user FOREIGN KEY ( user ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_job_user ON devel.job_control ( user );
 
 CREATE  TABLE devel.positions ( 
 	positions            BINARY(6)    NOT NULL   PRIMARY KEY,
@@ -569,20 +598,6 @@ CREATE  TABLE devel.account_detail (
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ad_currency ON devel.account_detail ( currency );
-
-CREATE  TABLE devel.app_config ( 
-	account              BINARY(3)    NOT NULL   ,
-	config_param         VARCHAR(64)    NOT NULL   ,
-	param_value          VARCHAR(24)       ,
-	priority             TINYINT UNSIGNED DEFAULT (_utf8mb4'0')     ,
-	create_time          DATETIME(3)  DEFAULT (now(3))     ,
-	update_time          DATETIME(3)  DEFAULT (now(3)) ON UPDATE CURRENT_TIMESTAMP(3)    ,
-	CONSTRAINT pk_app_config PRIMARY KEY ( account, config_param ),
-	CONSTRAINT fk_ac_config_param FOREIGN KEY ( config_param ) REFERENCES devel.config_param( config_param ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ac_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_ac_config_param ON devel.app_config ( config_param );
 
 CREATE  TABLE devel.candle ( 
 	instrument           BINARY(3)    NOT NULL   ,
@@ -1116,6 +1131,8 @@ select
 	coalesce(s.status, disabled.status) AS status,
 	if((ipos.period is null), disabled.state, if((qs.status = 'Suspended'), qs.state, bs.state)) AS auto_state,
 	if((ipos.period is null), disabled.status, if((qs.status = 'Suspended'), qs.status, bs.status)) AS auto_status,
+	if((qs.status = 'Suspended'), qs.state, bs.state) AS instrument_state,
+	if((qs.status = 'Suspended'), qs.status, bs.status) AS instrument_status,
 	p.period AS period,
 	p.timeframe AS timeframe,
 	p.timeframe_units AS timeframe_units,
@@ -1235,6 +1252,32 @@ left join devel.instrument_type it on
 	((it.instrument_type = id.instrument_type)))
 left join devel.contract_type ct on
 	((ct.contract_type = id.contract_type)));
+
+CREATE VIEW devel.vw_job_control AS
+select
+	jc.instrument_position AS instrument_position,
+	ipos.account AS account,
+	ipos.instrument AS instrument,
+	ipos.position AS position,
+	concat(b.symbol, '-', q.symbol) AS symbol,
+	jc.user AS user,
+	jc.process_pid AS process_pid,
+	jc.process_state AS process_state,
+	jc.command AS command,
+	jc.auto_start AS auto_start,
+	jc.message AS message,
+	jc.start_time AS start_time,
+	jc.stop_time AS stop_time
+from
+	((((devel.job_control jc
+join devel.instrument_position ipos on
+	((ipos.instrument_position = jc.instrument_position)))
+join devel.instrument i on
+	((i.instrument = ipos.instrument_position)))
+join devel.currency b on
+	((b.currency = i.base_currency)))
+join devel.currency q on
+	((q.currency = i.quote_currency)));
 
 CREATE VIEW devel.vw_order_states AS
 select
@@ -1543,6 +1586,27 @@ left join devel.state rs on
 left join devel.order_category oc on
 	((oc.order_category = so.order_category)));
 
+CREATE VIEW devel.vw_user_authority AS
+select
+	u.user AS user,
+	u.username AS username,
+	sa.title AS subject_area,
+	sa.description AS description,
+	a.task AS task,
+	auth.privilege AS privilege
+from
+	(((((devel.user u
+join devel.role r on
+	((r.role = u.role)))
+join devel.role_authority ra on
+	((ra.role = r.role)))
+join devel.authority auth on
+	((auth.authority = ra.authority)))
+join devel.activity a on
+	((a.activity = ra.activity)))
+join devel.subject_area sa on
+	((sa.subject_area = a.subject_area)));
+
 CREATE VIEW devel.vw_users AS
 select
 	u.user AS user,
@@ -1624,6 +1688,7 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
+
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

@@ -170,7 +170,7 @@ const Publish = async (source: string, props: Array<Partial<IStopOrderAPI>>): Pr
  * Fetches history recursively until no more data is found or limit is reached
  */
 const History = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
-  const limit = Session().orders_max_fetch || 20;
+  const limit = Session().config?.orderMaxfetch || 20;
   const history: Array<Partial<IStopOrderAPI>> = [];
 
   while (true) {
@@ -196,7 +196,7 @@ const History = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
  */
 const Pending = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
   const pending: Array<Partial<IStopOrderAPI>> = [];
-  const limit = Session().orders_max_fetch || 20;
+  const limit = Session().config?.orderMaxFetch || 20;
 
   let afterId = "0";
 

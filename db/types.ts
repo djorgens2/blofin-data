@@ -2,10 +2,10 @@
  * db/types.ts
  * (c) 2018, Dennis Jorgenson
  */
-"use strict"
+"use strict";
 
 import type { PoolConnection } from "mysql2/promise";
-import type { TResponse } from "#api";
+// import type { TResponse } from "#api";
 
 export type TRefKey = Uint8Array;
 export type TRefText = string;
@@ -35,3 +35,11 @@ export type TOptions<T> = {
  */
 export type TPrimaryKey<T> = Partial<T>;
 
+export interface IUserAuthority {
+  user: Uint8Array;
+  username: string;
+  subject_area: string;
+  description: string;
+  task: string;
+  privilege: string;
+}

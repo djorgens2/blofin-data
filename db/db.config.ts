@@ -74,7 +74,7 @@ type IExtConfig = Record<string, any>;
 export const getDbConfig = (): { config: Partial<IDbConfig>; extConfig: IExtConfig } => {
   try {
     const unverified: IExtConfig = process.env.DB_CONFIG ? { ...DEFAULT_CONFIG, ...JSON.parse(process.env.DB_CONFIG) } : undefined;
-    console.error({unverified})
+    //console.error({unverified})
 
     if (!unverified) throw new Error();
 

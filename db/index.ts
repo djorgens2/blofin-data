@@ -22,6 +22,7 @@ export * as InstrumentPeriod from "#db/interfaces/instrument_period";
 export * as InstrumentPosition from "#db/interfaces/instrument_position";
 export * as Instrument from "#db/interfaces/instrument";
 export * as InstrumentType from "#db/interfaces/instrument_type";
+export * as JobControl from "#db/interfaces/job_control";
 export * as Leverage from "#db/interfaces/leverage";
 export * as Order from "#db/interfaces/order";
 export * as Period from "#db/interfaces/period";
