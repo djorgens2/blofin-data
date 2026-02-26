@@ -1,23 +1,42 @@
-//+--------------------------------------------------------------------------------------+
-//|                                                                 instrument_detail.ts |
-//|                                                     Copyright 2018, Dennis Jorgenson |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Market Specification and Trading Constraints.
+ * 
+ * Manages the granular technical rules for instruments (tick size, lot size, 
+ * leverage limits). This module acts as a synchronization hub, ensuring 
+ * that associated Instrument and Contract Types are provisioned whenever 
+ * detail updates are processed.
+ * 
+ * @module db/instrument_detail
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { IInstrument } from "#db";
-
 import { Insert, Update, PrimaryKey } from "#db/query.utils";
 import { isEqual } from "#lib/std.util";
 import { Instrument, InstrumentType, ContractType } from "#db";
 
-//+--------------------------------------------------------------------------------------+
-//| Inserts Instrument Details on receipt of a new Instrument from Blofin; returns key;  |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Synchronizes detailed instrument specifications from the broker.
+ * 
+ * Logic Flow:
+ * 1. Validates the existence of the parent `instrument` hash.
+ * 2. Parallel Resolution: Checks for existing details while simultaneously 
+ *    triggering {@link InstrumentType.Publish} and {@link ContractType.Publish}.
+ * 3. If Missing: Performs an {@link Insert} including the resolved type hashes.
+ * 4. If Exists: Executes a "diff-check" to update only modified technical specs.
+ * 5. Confirmation: If the update succeeds, a final write stamps the `update_time`.
+ * 
+ * @param props - Full or partial instrument data received from the exchange API.
+ * @returns A promise resolving to the publication result and the instrument primary key.
+ */
 export const Publish = async (props: Partial<IInstrument>) => {
   if (!props.instrument) {
     return { key: undefined, response: { success: false, code: 414, category: `null_query`, rows: 0 } };
   }
 
+  // Resolves dependencies and checks for existing record in parallel
   const [exists, instrument_type, contract_type] = await Promise.all([
     Instrument.Fetch({ instrument: props.instrument }, { table: `instrument_detail` }),
     (await InstrumentType.Publish(props)).key?.instrument_type,
@@ -44,7 +63,10 @@ export const Publish = async (props: Partial<IInstrument>) => {
     list_time: isEqual(props.list_time!, current.list_time!) ? undefined : props.list_time,
     expiry_time: isEqual(props.expiry_time!, current.expiry_time!) ? undefined : props.expiry_time,
   };
+
   const result = await Update(revised, { table: `instrument_detail`, keys: [[`instrument`]], context: "Instrument.Detail.Publish" });
+  
+  // Double-Update Pattern: Confirms success before updating the timestamp
   if (result.success) {
     const confirm = await Update(
       { instrument: current.instrument, update_time: props.update_time || new Date() },
@@ -52,5 +74,6 @@ export const Publish = async (props: Partial<IInstrument>) => {
     );
     return { key: PrimaryKey(revised, ["instrument"]), response: confirm };
   }
+  
   return { key: PrimaryKey(revised, ["instrument"]), response: result };
 };

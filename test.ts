@@ -2568,28 +2568,200 @@ import { hexify } from "#lib/crypto.util";
 // runTest();
 
 //---------------------------------- Distinct test ----------------------------------------//
-import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
-import * as db from "#db/query.utils";
+// import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
+// import * as db from "#db/query.utils";
+// import { Config } from "#module/session";
+
+// const account = hexify(process.env.account!);
+// console.log("account:", process.env.account, "npm:", process.env.npm_config_account);
+// //const account = hexify(process.env.npm_config_account || process.env.account || process.env.SEED_ACCOUNT || `???`);
+// console.log("account (hexified)", account);
+
+// Config({ account }, "test").then(async () => {
+//   // test 1. basic distinct
+//   const authorized = await db.Distinct<IInstrumentPosition>(
+//     { account, symbol: undefined, status: undefined },
+//     { table: `vw_instrument_positions`, keys: [[`account`]], suffix: `ORDER BY SYMBOL` },
+//     "Test.Insane.Machine",
+//   );
+//   console.log("Authorized Symbols:", authorized.data?.map((i) => i.symbol));
+// });
+// authorized.data?.map((i) => console.error("Blofin Demo", i.environ, i.symbol));
+// if (authorized.data?.length) {
+//   console.log(`Success:`, authorized);
+// }
+// test 2. basic select
+// const select = await db.Select<IInstrumentPosition>({ account: Session().account, symbol: "XRP-USDTxxx" }, {table: `vw_job_control`}, "Test");
+// console.log("Select Result:", select);
+// const select = await db.Select<IInstrumentPosition>({ account: Session().account, symbol: "XRP-USDTxxx" }, {table: `vw_job_control`}, "Test");
+// console.log("Select Result:", select);
+// const select = await db.Select<IInstrumentPosition>({}, {table: `vw_job_control`}, "Test");
+// console.log("Select Result:", select);
+
+// authorized.data?.map((i) => console.error("Blofin Demo", i.environ, i.symbol));
+// if (authorized.data?.length) {
+//   console.log(`Success:`, authorized);
+// }
+// })
+// .finally(() => {
+//   console.log(Session().Log());
+//   process.exit(0);
+// });
+
+//---------------------------------- Loader test ----------------------------------------//
+const account = hexify(process.env.account!);
+import { Loader } from "#module/import";
 import { Config } from "#module/session";
+Config({ account }, "test").then(async () => {
+  await Loader("../db/seed/", "Test");
+});
 
-//const account = hexify(process.env.account!);
-console.log("account:", process.env.account);
-const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-console.log("account (hexified)", account);
+//---------------------------------- Instrument Load ----------------------------------------//
+// const account = hexify(process.env.account!);
+// import { Instruments } from "#api"
+// import { Config } from "#module/session";
+// Config({ account }, "test").then(async () => {
+//   await Instruments.Import();
+// });
 
-Config({ account }, "test")
-  .then(async () => {
-    const authorized = await db.Distinct<IInstrumentPosition>(
-      { alias: `Blofin Demo`, symbol: undefined, environ: undefined },
-      { table: `vw_instrument_positions`, keys: [[`alias`]], suffix: `ORDER BY SYMBOL` },
-      "Test.Insane.Machine",
-    );
+//---------------------------------- Instrument FAFO audit ----------------------------------------//
+// import * as fs from 'fs';
+// // Assuming 'chalk' is installed for better console output (npm install chalk)
+// import chalk from 'chalk';
+// import prompts from 'prompts';
 
-    authorized.data?.map((i) => console.error("Blofin Demo", i.environ, i.symbol));
-    if (authorized.data?.length) {
-      console.log(`Success:`, authorized);
-    }
-  })
-  .finally(() => {
-    process.exit(0);
-  });
+// // Define the exact type from the broker JSON structure
+// interface BrokerInstrument {
+//   instId: string;
+//   state: 'live' | 'suspended' | 'expired'; // Based on your JSON data
+//   // Add other fields as needed: baseCurrency, quoteCurrency, etc.
+// }
+
+// async function runAuditAndSync(localInstruments: Set<string>, brokerJsonPath: string) {
+//   console.log(chalk.blue('Starting instrument audit against production JSON...'));
+
+//   // 1. Load and parse the "Golden Set" (Data from your PDF input)
+//   const rawData = fs.readFileSync(brokerJsonPath, 'utf8');
+//   const brokerData: { data: BrokerInstrument[] } = JSON.parse(rawData);
+
+//   const goldenSetIds = new Set(brokerData.data
+//     .filter(i => i.state === 'live') // Only consider live instruments in golden set
+//     .map(i => i.instId)
+//   );
+
+//   // 2. Calculate the difference
+//   const toSuspend = Array.from(localInstruments).filter(id => !goldenSetIds.has(id));
+
+//   // 3. Implement the Circuit Breaker Safety Check
+//   const SUSPENSION_THRESHOLD = 50;
+//   if (toSuspend.length > SUSPENSION_THRESHOLD) {
+//     const confirm = await prompts({
+//       type: 'confirm',
+//       name: 'proceed',
+//       message: chalk.red(`\n🛑 SAFETY ALERT: ${toSuspend.length} instruments exceed the mass-suspension threshold. Proceed anyway?`),
+//       initial: false
+//     });
+
+//     if (!confirm.proceed) {
+//       return console.log(chalk.yellow('Audit cancelled by user.'));
+//     }
+//   }
+
+//   // 4. Proceed with safe sync logic
+//   console.log(chalk.green(`\nProceeding with synchronization of ${toSuspend.length} suspensions.`));
+//   // Call your database logic here:
+//   // await db.suspendInstruments(toSuspend);
+// }
+
+// Example usage assuming you pass the path to the JSON file
+// const myLocalInstruments = new Set(['BTC-USDC', 'ETH-USD', 'OLD-EXP-USD']);
+// runAuditAndSync(myLocalInstruments, './broker_instruments.json');
+
+// import type { IInstrumentAPI } from "#api";
+
+// import { Instrument } from "#db";
+// import { Config } from "#module/session";
+
+// import chalk from "chalk";
+// import * as fs from "fs";
+
+// interface ComparisonRow {
+//   Instrument: string;
+//   Database: string;
+//   Broker: string;
+//   Match: string;
+// }
+
+// // Helper to normalize IDs (removes the special   characters from Broker IDs)
+// const normalize = (id: string) => id.replace(/[^a-zA-Z0-9-]/g, "");
+// const account = hexify(process.env.account!);
+
+// const dbMap = new Map<string, string>();
+// const brokerMap = new Map<string, string>();
+
+// function displaySideBySide(dbInstruments: Map<string, string>, brokerInstruments: Map<string, string>) {
+//   // 1. Get a unique list of all Instrument IDs from both sources
+//   const allIds = Array.from(new Set([...dbInstruments.keys(), ...brokerInstruments.keys()]));
+
+//   const report: ComparisonRow[] = allIds.map((id) => {
+//     const dbStatus = dbInstruments.get(id) || "MISSING";
+//     const brokerStatus = brokerInstruments.get(id) || "PURGED";
+//     const isMatch = dbStatus === brokerStatus;
+
+//     return {
+//       Instrument: id,
+//       Database: isMatch ? dbStatus : chalk.yellow(dbStatus),
+//       Broker: isMatch ? brokerStatus : chalk.red(brokerStatus),
+//       Match: isMatch ? chalk.green("✔") : chalk.red("✘"),
+//     };
+//   });
+
+//   // 2. Sort to put mismatches at the top so they don't get lost
+//   report.sort((a, b) => (a.Match === b.Match ? 0 : a.Match === chalk.green("✔") ? 1 : -1));
+
+//   console.log(chalk.bold(`\n--- Side-by-Side Audit (Total: ${allIds.length}) ---`));
+
+//   // Use console.table for a quick, native grid
+//   console.table(report);
+// }
+
+// function runSideBySideAudit(dbMap: Map<string, string>, brokerMap: Map<string, string>) {
+//   const allSymbols = Array.from(new Set([...dbMap.keys(), ...brokerMap.keys()]));
+
+//   const comparison = allSymbols.map(sym => {
+//     const dbStatus = dbMap.get(sym) || 'MISSING';
+//     const brokerStatus = brokerMap.get(sym) || 'PURGED';
+
+//     // Logic: 'Enabled' in DB should match 'live' in Broker
+//     const isMatch = (dbStatus === 'Enabled' && brokerStatus === 'live') ||
+//                     (dbStatus === 'Suspended' && brokerStatus === 'PURGED');
+
+//     return {
+//       Symbol: sym,
+//       'DB Status': dbStatus,
+//       'Broker Status': brokerStatus,
+//       Match: isMatch ? '✔' : '✘'
+//     };
+//   });
+
+//   console.log(chalk.bold(`\n--- Side-by-Side Audit (Total: ${allSymbols.length}) ---`));
+//   console.table(comparison);
+// }
+
+// Config({ account }, "test").then(async () => {
+//   // 1. Load and parse the "Golden Set" (Data from your PDF input)
+//   const rawData = fs.readFileSync("./instruments.json", "utf8");
+//   const broker: { data: IInstrumentAPI[] } = JSON.parse(rawData);
+//   broker.data.forEach((item) => {
+//     const key = normalize(item.instId);
+//     brokerMap.set(key, item.state); // e.g., 'ENS-USDT' -> 'live'
+//   });
+
+//   await Instrument.Fetch({}).then((instruments) => {
+//     instruments?.forEach((inst) => {
+//       dbMap.set(inst.symbol!, inst.status!);
+//     });
+//   });
+
+//   runSideBySideAudit(dbMap, brokerMap);
+// });

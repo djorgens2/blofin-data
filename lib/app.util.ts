@@ -38,7 +38,7 @@ export type Role = (typeof Role)[keyof typeof Role];
 
 //-- IPC message header
 export interface IMessage {
-  state: `init` | `api` | `update` | `ready`;
+  state: `init` | `api` | `update` | `ready` | 'shutdown';
   account: Uint8Array;
   symbol: string;
   timeframe: string;

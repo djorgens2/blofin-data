@@ -1,52 +1,45 @@
-//+---------------------------------------------------------------------------------------+
-//|                                                                           activity.ts |
-//|                                                      Copyright 2018, Dennis Jorgenson |
-//+---------------------------------------------------------------------------------------+
+/**
+ * Activity and Task Management.
+ * 
+ * Manages the categorization of system and user tasks, linking specific 
+ * activities to their broader functional Subject Areas.
+ * 
+ * @module db/activity
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { ISubjectArea } from "#db";
 import type { IPublishResult } from "#api";
-
 import { Select, Insert, PrimaryKey } from "#db";
 import { hashKey } from "#lib/crypto.util";
 import { hasValues } from "#lib/std.util";
-
 import { SubjectArea } from "#db";
 
+/**
+ * Interface representing a specific system or user activity.
+ * Extends {@link ISubjectArea} to include parent categorization metadata.
+ */
 export interface IActivity extends ISubjectArea {
+  /** Primary Key: Unique 6-character hash identifier. */
   activity: Uint8Array;
+  /** Human-readable name or description of the specific task. */
   task: string;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Imports activity seed data to the database;                                          |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  console.log("In Activity.Import:", new Date().toLocaleString());
-
-  const activities: Array<Partial<IActivity>> = [
-    { title: "Instruments", task: "Manage Instruments" },
-    { title: "Instruments", task: "View/Modify Contracts" },
-    { title: "Instruments", task: "View/Modify Instrument Types" },
-    { title: "Trading", task: "Configure trading options" },
-    { title: "Users", task: "Manage Users" },
-    { title: "Accounts", task: "Account Administration" },
-    { title: "Jobs", task: "Configure jobs" },
-    { title: "Jobs", task: "Monitor jobs" },
-  ];
-
-  const result = await Promise.all(activities.map(async (activity) => Add(activity)));
-  const exists = result.filter((r) => r.response.code === 200);
-  console.log(
-    `-> Activity.Import complete:`,
-    exists.length - result.length ? `${result.filter((r) => r.response.success).length} new activities;` : `No new activities;`,
-    `${exists.length} activities verified;`,
-  );
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Add an activity to local database;                                                   |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Persists a new activity record to the database.
+ * 
+ * Logic Flow:
+ * 1. Checks for an existing `activity` key to prevent duplicates.
+ * 2. Resolves the parent `subject_area` hash using the provided title via {@link SubjectArea.Key}.
+ * 3. Generates a new 6-character unique hash for the activity.
+ * 4. Inserts the record into the `activity` table.
+ * 
+ * @param props - Activity details, including the parent `title` and specific `task` name.
+ * @returns A promise resolving to the publication result and the new activity primary key.
+ */
 export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IActivity>> => {
   if (props.activity) {
     return {
@@ -69,13 +62,20 @@ export const Add = async (props: Partial<IActivity>): Promise<IPublishResult<IAc
     const result = await Insert<IActivity>({ activity, subject_area, task: props.task }, { table: `activity`, ignore: true });
     return { key: PrimaryKey({ activity }, ["activity"]), response: result };
   }
+  
   console.log("Unauthorized data import attempt; Subject Area not found;");
-  return { key: undefined, response: { success: false, code: 404, state: `not_found`, message: ``, rows: 0, context: "Activity.Add" } };
+  return { 
+    key: undefined, 
+    response: { success: false, code: 404, state: `not_found`, message: ``, rows: 0, context: "Activity.Add" } 
+  };
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns an activity key using supplied params;                                       |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Searches for an activity's unique primary key based on provided criteria.
+ * 
+ * @param props - Query parameters (e.g., specific `task` name).
+ * @returns The Uint8Array primary key if found, otherwise undefined.
+ */
 export const Key = async (props: Partial<IActivity>): Promise<IActivity["activity"] | undefined> => {
   if (hasValues<Partial<IActivity>>(props)) {
     const result = await Select<IActivity>(props, { table: `activity` });
@@ -83,9 +83,12 @@ export const Key = async (props: Partial<IActivity>): Promise<IActivity["activit
   } else return undefined;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns activities meeting supplied criteria; returns all on empty prop set {};      |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Retrieves a collection of activity records matching the supplied criteria.
+ * 
+ * @param props - Filter criteria. Pass `{}` to retrieve all activities.
+ * @returns An array of partial activity records, or undefined if the query fails.
+ */
 export const Fetch = async (props: Partial<IActivity>): Promise<Array<Partial<IActivity>> | undefined> => {
   const result = await Select<IActivity>(props, { table: `activity` });
   return result.success ? result.data : undefined;

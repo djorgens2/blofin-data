@@ -1,25 +1,33 @@
-//+--------------------------------------------------------------------------------------+
-//|                                                        [api]  instrumentPositions.ts |
-//|                                                     Copyright 2018, Dennis Jorgenson |
-//+--------------------------------------------------------------------------------------+
+/**
+ * API-to-Database Synchronization for Instrument Positions.
+ * 
+ * Orchestrates the fetching of global instruments, retrieving account-specific 
+ * leverage for those instruments, and persisting the merged state to the local DB.
+ * 
+ * @module api/instrumentPositions
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { IPublishResult, IInstrumentAPI, ILeverageAPI } from "#api";
 import type { IInstrumentPosition } from "#db";
-
 import { hasValues } from "#lib/std.util";
-
 import { Account, Instrument, InstrumentPosition } from "#db";
 import { Leverages, Instruments } from "#api";
 import { Session } from "#module/session";
 
+/** Combined type representing raw API instrument data merged with leverage settings. */
 export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;
 
-//------------------ Private functions ---------------------//
+// --- Private Functions ---
 
-//+----------------------------------------------------------------------------------------+
-//| function to create batches of instruments (e.g., 20; max limit set by broker)          |
-//+----------------------------------------------------------------------------------------+
+/**
+ * Segments an array of instruments into smaller chunks to respect broker rate limits.
+ * 
+ * @param props - The full list of instruments to batch.
+ * @param batchSize - Maximum items per batch (default: 20).
+ */
 const createBatches = (props: Array<Partial<IInstrumentAPI>>, batchSize = 20) => {
   const batches = [];
   for (let i = 0; i < props.length; i += batchSize) {
@@ -28,9 +36,13 @@ const createBatches = (props: Array<Partial<IInstrumentAPI>>, batchSize = 20) =>
   return batches;
 };
 
-//+----------------------------------------------------------------------------------------+
-//| Merges leverage data with account-specific instrument data;                            |
-//+----------------------------------------------------------------------------------------+
+/**
+ * Performs a left-join between leverage settings and instrument definitions.
+ * 
+ * @param instruments - Array of base instrument data from the exchange.
+ * @param leverages - Array of leverage settings for the specific account.
+ * @returns A merged array of {@link TInstrumentLeverage}.
+ */
 const merge = (instruments: Partial<IInstrumentAPI>[], leverages: ILeverageAPI[]): TInstrumentLeverage[] => {
   const instrumentMap = new Map<string, Partial<IInstrumentAPI>>();
   for (const item of instruments) {
@@ -52,9 +64,12 @@ const merge = (instruments: Partial<IInstrumentAPI>[], leverages: ILeverageAPI[]
   return mergedData;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Updates instrument positions for the logged account;                                 |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Iterates through merged API data and persists it to the local `instrument_position` table.
+ * 
+ * @param props - The merged instrument and leverage data.
+ * @returns An array of results for each database publish operation.
+ */
 const publish = async (props: Array<TInstrumentLeverage>): Promise<Array<IPublishResult<IInstrumentPosition>>> => {
   if (hasValues(props)) {
     const results = (
@@ -80,19 +95,28 @@ const publish = async (props: Array<TInstrumentLeverage>): Promise<Array<IPublis
   return [] as Array<IPublishResult<IInstrumentPosition>>;
 };
 
-//------------------ Public functions ---------------------//
+// --- Public Functions ---
 
-// +----------------------------------------------------------------------------------------+
-// | Retrieves, validates, and updates local db with instrument position data from the API  |
-// +----------------------------------------------------------------------------------------+
+/**
+ * Main entry point for synchronizing exchange instrument data with the local database.
+ * 
+ * Logic flow:
+ * 1. Fetches all available instruments from the broker.
+ * 2. Retrieves the current account's margin mode.
+ * 3. Batches instruments and fetches specific leverage settings for each.
+ * 4. Merges instrument and leverage data.
+ * 5. Publishes the final state to the local DB via {@link publish}.
+ * 
+ * @returns A promise resolving to the collection of publish results.
+ */
 export const Import = async () => {
-  const instruments = await Instruments.Fetch();
+  const { success, data } = await Instruments.Fetch();
 
-  if (instruments) {
+  if (!success || !data || !data.length) {
     console.log("-> Instrument.Position.Import [API]");
 
     const [{ margin_mode }] = (await Account.Fetch({ account: Session().account })) ?? [];
-    const batches = createBatches(instruments, Session().leverage_max_fetch);
+    const batches = createBatches(data!, Session().config?.leverageMaxFetch);
     const merged = batches.map(async (batch) => {
       const symbols: string = batch.map((i: Partial<IInstrumentAPI>) => i.instId).join(",");
       const leverages = ((await Leverages.Import([{ symbol: symbols, margin_mode }])) as Array<ILeverageAPI>) ?? [];

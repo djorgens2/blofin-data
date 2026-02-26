@@ -1,15 +1,26 @@
-//+--------------------------------------------------------------------------------------+
-//|                                                                [api]  instruments.ts |
-//|                                                     Copyright 2018, Dennis Jorgenson |
-//+--------------------------------------------------------------------------------------+
+/**
+ * @module Instrument-API-Interface
+ * @description Orchestrates the ETL lifecycle for Market Instruments using a Unified API Client.
+ *
+ * Tracks:
+ * 1. Extract: Retrieves Session-authorized instrument metadata via API_GET.
+ * 2. Transform: Maps raw Blofin JSON schema to local relational interfaces.
+ * 3. Load: Persists Instrument Master, Detail, and Suspense states.
+ *
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
-import type { IPublishResult } from "#api";
-import type { IInstrument, ICurrency } from "#db";
+import type { IPublishResult, TResponse } from "#api";
+import type { IInstrument } from "#db";
 
-import { Instrument, InstrumentDetail, InstrumentPeriod } from "#db";
-import { Session } from "#module/session";
+import { Instrument, InstrumentDetail, InstrumentPeriod, InstrumentPosition } from "#db";
+import { API_GET, ApiResult } from "#api";
 
+/**
+ * Raw Instrument Schema from the Blofin REST API.
+ */
 export interface IInstrumentAPI {
   instId: string;
   baseCurrency: string;
@@ -28,14 +39,29 @@ export interface IInstrumentAPI {
   state: string;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Publish - Creates new instruments; populates periods on new Blofin receipts          |
-//+--------------------------------------------------------------------------------------+
+/** Internal endpoint for Blofin market data */
+const INSTRUMENT_PATH = "/api/v1/market/instruments";
+
+/**
+ * Internal Publication Sequence (Load Phase).
+ *
+ * Orchestrates a multi-track persistence flow:
+ * - Master: Initializes the symbol entry.
+ * - Detail: Populates contract specs (leverage, lot sizes, tick accuracy).
+ * - Suspense: Synchronizes 'live' API state to 'Enabled' DB status.
+ * - Period: Bootstraps standardized timeframe intervals.
+ *
+ * @private
+ * @async
+ * @param props - Array of validated instrument payloads from the exchange.
+ * @returns {Promise<any[]>} Flat array of publication results for the ETL trace.
+ */
 const publish = async (props: Array<IInstrumentAPI>) => {
   console.log("-> Instrument.Publish [API]");
 
   const results = props.map(async (api) => {
     const master = await Instrument.Publish({ symbol: api.instId });
+
     if (master.response.success) {
       const detail = await InstrumentDetail.Publish({
         instrument: master.key?.instrument,
@@ -52,67 +78,63 @@ const publish = async (props: Array<IInstrumentAPI>) => {
         expiry_time: new Date(parseInt(api.expireTime)),
       });
       return detail as IPublishResult<IInstrument>;
-    } else return master as IPublishResult<IInstrument>;
+    }
+    return master as IPublishResult<IInstrument>;
   });
 
-  const published: Array<IPublishResult<IInstrument>> = await Promise.all(results);
-  const suspended: Array<IPublishResult<ICurrency>> = await Instrument.Suspense(
-    props.map((i) => ({ symbol: i.instId, status: i.state === "live" ? "Enabled" : "Suspended" })),
+  const published = await Promise.all(results);
+
+  // Synchronize operational state (Live -> Enabled)
+  const suspended = await InstrumentPosition.Suspense(
+    props.map((i) => ({
+      symbol: i.instId,
+      instrument_status: i.state === "live" ? "Enabled" : "Suspended",
+    })),
   );
 
   await InstrumentPeriod.Import();
 
-  return results;
+  return [...published, ...suspended].flat();
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Fetches instruments specific to the account (demo/production)                        |
-//+--------------------------------------------------------------------------------------+
-export const Fetch = async () => {
-  console.log("-> Instruments.Fetch [API]:", new Date().toLocaleString());
-
-  try {
-    const response = await fetch(`${Session().rest_api_url}/api/v1/market/instruments`);
-
-    if (response.ok) {
-      const result = await response.json();
-      const json = result.data as Array<IInstrumentAPI>;
-      if (result.code === "0") {
-        return json;
-      }
-      console.log(
-        `-> [Error] Instrument.Fetch: failed to retrieve instruments; error returned:`,
-        result.code || -1,
-        result.msg ? `response: `.concat(result.msg) : ``,
-      );
-    } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);
-  }
+/**
+ * FETCH (Session View)
+ * Retrieves the subset of instruments authorized for the current API Key and Environment.
+ *
+ * @async
+ * @returns {PPromise<TResponse & { data?: IInstrumentAPI[] | undefined }>} Enveloped array of session-active instruments.
+ */
+export const Fetch = async (): Promise<TResponse & { data?: IInstrumentAPI[] | undefined }> => {
+  return await API_GET<IInstrumentAPI[]>(INSTRUMENT_PATH, "Instruments.Fetch");
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Import - Retrieve api Instrument, pass to publisher                                  |
-//+--------------------------------------------------------------------------------------+
-export const Import = async () => {
-  console.log("In Instruments.Import [API]:", new Date().toLocaleString());
+/**
+ * IMPORT (Hydration)
+ * Synchronizes the local Master Catalog with the current environment's available instruments.
+ *
+ * @note This uses the authenticated session client to ensure Sandbox Isolation
+ * (Dev accounts only see Dev instruments).
+ *
+ * @async
+ * @returns {Promise<TResponse>} Status envelope of the hydration process.
+ */
+export const Import = async (): Promise<TResponse> => {
+  const context = "Instruments.Import";
 
-  try {
-    const response = await fetch(`https://openapi.blofin.com/api/v1/market/instruments`);
+  // High-performance approach: Use the same signed client as Fetch
+  const response = await API_GET<IInstrumentAPI[]>(INSTRUMENT_PATH, context);
 
-    if (response.ok) {
-      const result = await response.json();
-      const json = result.data as Array<IInstrumentAPI>;
-      if (result.code === "0") {
-        return await publish(json);
-      }
-      console.log(
-        `-> [Error] Instrument.Import: failed to retrieve instruments; error returned:`,
-        result.code || -1,
-        result.msg ? `response: `.concat(result.msg) : ``,
-      );
-    } else throw new Error(`-> [Error] Instruments.Import: Bad response from instrument fetch: ${response.status} ${response.statusText}`);
-  } catch (error) {
-    console.log(`-> [Error] Instruments.Import: Error fetching instruments;`, error);
+  const { success, data } = response;
+
+  if (success && Array.isArray(data)) {
+    try {
+      const results = await publish(data);
+      return ApiResult(true, context, { data: results });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "DATABASE_WRITE_FAILURE";
+      return ApiResult(false, context, { message: `Local DB Publication failed: ${msg}` });
+    }
   }
+
+  return response;
 };

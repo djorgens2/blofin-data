@@ -1,7 +1,18 @@
-//+--------------------------------------------------------------------------------------+
-//|                                                                          std.util.ts |
-//|                                                     Copyright 2018, Dennis Jorgenson |
-//+--------------------------------------------------------------------------------------+
+/**
+ * @file std.util.ts
+ * @module StandardUtilities
+ * @description
+ * Core runtime utility suite for the 2026 Trading Engine. Provides data normalization,
+ * high-precision comparison (Decimal.js), binary-to-hex string formatting,
+ * and timeframe-based date arithmetic.
+ *
+ * Also contains logic for numeric comparisons, string manipulation, and 2026-compliant
+ * file I/O. Includes specialized CSV serialization for trading audits.
+ *
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
+
 "use strict";
 
 import { hexify } from "#lib/crypto.util";
@@ -9,25 +20,40 @@ import { hexify } from "#lib/crypto.util";
 import Prompt from "#cli/modules/Prompts";
 import Decimal from "decimal.js";
 
-//+--------------------------------------------------------------------------------------+
-//| Currency formatter; returns values formatted in USD;                                 |
-//+--------------------------------------------------------------------------------------+
+import * as fs from "node:fs";
+
+/**
+ * Standard USD Currency Formatter.
+ * Uses the Intl.NumberFormat API for locale-aware currency strings.
+ * @constant formatterUSD
+ */
 export const formatterUSD = Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
 
-//+--------------------------------------------------------------------------------------+
-//| Pauses console app execution;                                                        |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Pauses CLI execution and awaits user confirmation via an interactive prompt.
+ *
+ * @async
+ * @function Pause
+ * @param {string} message - The prompt message to display to the user.
+ * @returns {Promise<void>} Resolves on 'continue', terminates process on 'exit'.
+ */
 export const Pause = async (message: string) => {
   const { choice } = await Prompt(["choice"], { message, active: "continue", inactive: "exit", initial: true });
   if (!choice) process.exit(0);
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns a hex string for binary arrays; eg: 0xc0ffee returns '0xc0ffee'              |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Converts a Uint8Array (Buffer) into a standardized hex string.
+ *
+ * @function hexString
+ * @param {Uint8Array} uint8Array - The binary data to convert.
+ * @param {number} length - The total desired length of the hex portion (for padding).
+ * @param {string} [prefix="0x"] - Optional string prefix (default: 0x).
+ * @returns {string} Formatted hex string (e.g., "0x00c0ffee").
+ */
 export const hexString = (uint8Array: Uint8Array, length: number, prefix = "0x"): string => {
   if (uint8Array instanceof Uint8Array) {
     const hex = Array.from(uint8Array)
@@ -38,9 +64,13 @@ export const hexString = (uint8Array: Uint8Array, length: number, prefix = "0x")
   return `${prefix}`;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns a buffer string for binary arrays; eg: 0xc0ffee returns '<Buffer c0 ff ee>'  |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Converts a Uint8Array into a Node.js style buffer string representation.
+ *
+ * @function bufferString
+ * @param {Uint8Array} uint8Array - Binary data to format.
+ * @returns {string} Formatted string (e.g., "<Buffer c0 ff ee>").
+ */
 export const bufferString = (uint8Array: Uint8Array): string => {
   const hex = Array.from(uint8Array)
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -49,12 +79,21 @@ export const bufferString = (uint8Array: Uint8Array): string => {
 };
 
 /**
- * std.util.ts: Runtime data-type normalization
+ * RegEx pattern identifying database fields that must be stored as binary buffers.
+ * Matches keys ending in _id, account, request, instrument, etc.
+ * @constant HEX_FIELD_PATTERN
  */
-
-// Define the keys that should always be hexified across the system
 const HEX_FIELD_PATTERN = /(_id|account|request|instrument|state|category|source|position)$/i;
 
+/**
+ * Recursively scans an object and converts string identifiers into Uint8Arrays (Buffers).
+ * Essential for normalizing JSON data before database ingestion.
+ *
+ * @function NormalizeHex
+ * @template T
+ * @param {T} props - The object to normalize.
+ * @returns {T} A shallow copy of the object with identified fields hexified.
+ */
 export const NormalizeHex = <T extends object>(props: T): T => {
   const output = { ...props };
 
@@ -71,9 +110,15 @@ export const NormalizeHex = <T extends object>(props: T): T => {
   return output;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Parses supplied string into a JSON|props object of <T> typically xfer'd via cli      |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Safe JSON parser with whitelisted exceptions for non-standard exchange messages.
+ *
+ * @function parseJSON
+ * @template T
+ * @param {arg} arg - The string to attempt to parse.
+ * @returns {Required<T> | undefined} Parsed object or undefined on failure.
+ * @throws {Error} If the string is not valid JSON and not a whitelisted exception.
+ */
 export const parseJSON = <T extends object>(arg: string): Required<T> | undefined => {
   try {
     const json = JSON.parse(arg);
@@ -83,22 +128,23 @@ export const parseJSON = <T extends object>(arg: string): Required<T> | undefine
       return obj;
     }
   } catch (e) {
-    //--- whitelist exceptions
-    if (arg === "pong")
-      // @ts-ignore
-      return { event: "pong" };
+    // Whitelist: Handle raw WSS heartbeats or empty objects
+    if (arg === "pong") return { event: "pong" } as any;
+    if (arg === `{""}`) return {} as any;
 
-    if (arg === `{""}`)
-      // @ts-ignore
-      return {};
-    throw new Error(`Something jacked up; ${arg} is not a valid JSON;`);
+    throw new Error(`Critical JSON Parse Error: [${arg}] is not valid.`);
   }
   return undefined;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns date modified by timeframe from supplied date;                               |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Calculates a future Date object based on a timeframe period string.
+ *
+ * @function setExpiry
+ * @param {string} period - Timeframe string (e.g., "15s", "1h", "1d").
+ * @param {Date} [from] - Base date (defaults to now).
+ * @returns {Date} The calculated expiration date.
+ */
 export const setExpiry = (period: string, from?: Date) => {
   const expiry = from || new Date();
   const timeframe = period.slice(-1);
@@ -106,39 +152,80 @@ export const setExpiry = (period: string, from?: Date) => {
   return new Date(expiry.getTime() + units);
 };
 
+/**
+ * Returns a high-resolution 24h time string including milliseconds.
+ * Useful for precise audit logging in the 2026 engine.
+ *
+ * @function timeString
+ * @returns {string} Format: HH:MM:SS.mmm
+ */
 export const timeString = () => {
   const now = new Date();
   const time = now.toLocaleTimeString("en-US", { hour12: false }) + "." + String(now.getMilliseconds()).padStart(3, "0");
   return time;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns true if value is in bounds conclusively; inside the bounds exclusively       |
-//+--------------------------------------------------------------------------------------+
-export const isBetween = (source: number, bound1: number, bound2: number, inclusive = true, digits: number = 8): boolean => {
-  const highBound: number = parseFloat(Math.max(bound1, bound2).toFixed(digits));
-  const lowBound: number = parseFloat(Math.min(bound1, bound2).toFixed(digits));
-  const check: number = parseFloat(source.toFixed(digits));
+/**
+ * REFACTORED: High-precision corridor check using Decimal.js.
+ * Eliminates IEEE 754 noise by comparing values as fixed-precision strings.
+ * 
+ * @function isBetween
+ * @param {number | string} source - The value to check (e.g., Current Price).
+ * @param {number | string} bound1 - Corridor Boundary A (e.g., Upper Envelope).
+ * @param {number | string} bound2 - Corridor Boundary B (e.g., Lower Envelope).
+ * @param {boolean} [inclusive=true] - If true, returns true if source matches a boundary.
+ * @param {number} [digits=8] - Precision to normalize before comparison.
+ * @returns {boolean} True if the source is within the specified price corridor.
+ */
+export const isBetween = (
+  source: number | string,
+  bound1: number | string,
+  bound2: number | string,
+  inclusive = true,
+  digits: number = 8
+): boolean => {
+  try {
+    // 1. Normalize all inputs to fixed-point Decimals
+    const s = new Decimal(source).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    const b1 = new Decimal(bound1).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    const b2 = new Decimal(bound2).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
 
-  if (!inclusive) return check > lowBound && check < highBound;
+    // 2. Identify High/Low boundaries
+    const high = Decimal.max(b1, b2);
+    const low = Decimal.min(b1, b2);
 
-  return lowBound === check || highBound === check;
-};
-
-//+--------------------------------------------------------------------------------------+
-//| Returns true on equal comparison of values at specified precision                    |
-//+--------------------------------------------------------------------------------------+
-type ComparableValue = number | string | Uint8Array | Date | Decimal;
-export const isEqual = (source: ComparableValue, benchmark: ComparableValue, digits: number = 8, log: boolean = false): boolean => {
-  if (source == null && benchmark == null) {
-    return true;
-  }
-
-  if (source == null || benchmark == null) {
+    // 3. Comparison Logic (No native JS float operators used)
+    if (inclusive) {
+      // (low <= source <= high)
+      return s.greaterThanOrEqualTo(low) && s.lessThanOrEqualTo(high);
+    } else {
+      // (low < source < high)
+      return s.greaterThan(low) && s.lessThan(high);
+    }
+  } catch (e) {
+    console.error("[Error] std.util.isBetween: Invalid numeric input", { source, bound1, bound2 });
     return false;
   }
+};
 
-  // --- 1. Handle Uint8Array (Buffer/Binary data) ---
+/**
+ * Performs a high-precision equality comparison across multiple data types.
+ * Utilizes Decimal.js for floating-point accuracy to avoid JS rounding errors.
+ *
+ * @function isEqual
+ * @type {ComparableValue} number | string | Uint8Array | Date | Decimal
+ * @param {ComparableValue} source - Primary value.
+ * @param {ComparableValue} benchmark - Value to compare against.
+ * @param {number} [digits=8] - Precision for numeric comparisons.
+ * @param {boolean} [log=false] - Enable console logging for debugging.
+ * @returns {boolean} True if values match at the specified precision.
+ */
+type ComparableValue = number | string | Uint8Array | Date | Decimal;
+export const isEqual = (source: ComparableValue, benchmark: ComparableValue, digits: number = 8): boolean => {
+  if (source == null && benchmark == null) return true;
+  if (source == null || benchmark == null) return false;
+
+  // 1. Binary Comparison (Uint8Array)
   if (source instanceof Uint8Array) {
     if (benchmark instanceof Uint8Array) {
       if (source.length !== benchmark.length) return false;
@@ -147,160 +234,180 @@ export const isEqual = (source: ComparableValue, benchmark: ComparableValue, dig
     return false;
   }
 
-  // --- 2. Handle Date Objects (Compare timestamps numerically) ---
+  // 2. Date Comparison
   if (source instanceof Date || benchmark instanceof Date) {
     const sourceTime = source instanceof Date ? source.getTime() : new Date(source as string | number).getTime();
     const benchTime = benchmark instanceof Date ? benchmark.getTime() : new Date(benchmark as string | number).getTime();
     return sourceTime === benchTime;
   }
 
-  // --- 3. Handle Numeric/String values using Decimal.js ---
+  // 3. High-Precision Numeric Comparison (Decimal.js)
   try {
-    const arg1 = new Decimal(source as string | number | Decimal);
-    const arg2 = new Decimal(benchmark as string | number | Decimal);
-
-    log && console.log({ arg1, arg2 });
+    const arg1 = new Decimal(String(source));
+    const arg2 = new Decimal(String(benchmark));
 
     return arg1.toFixed(digits) === arg2.toFixed(digits);
   } catch (e) {
-    console.error("isEqual: Invalid input for Decimal conversion", { source, benchmark });
-    return false; // Return false if conversion fails (e.g., empty string)
+    return false;
   }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns true on higher number|precision of the soruce(new) to benchmark(old)         |
-//+--------------------------------------------------------------------------------------+
+/**
+ * REFACTORED: High-precision 'Greater Than' comparison using Decimal.js.
+ * Eliminates IEEE 754 floating-point rounding errors.
+ * 
+ * @function isHigher
+ * @param {number | string} source - The new/current value.
+ * @param {number | string} benchmark - The old/target value.
+ * @param {number} [digits=8] - Precision to trim before comparison.
+ * @returns {boolean} True if source > benchmark.
+ */
 export const isHigher = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
-  const arg1: number = Number(typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits));
-  const arg2: number = Number(typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits));
-
-  return arg1 > arg2;
+  try {
+    const s = new Decimal(source).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    const b = new Decimal(benchmark).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    return s.greaterThan(b);
+  } catch (e) {
+    return false;
+  }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns true on lower number|precision of the soruce(new) to benchmark(old)          |
-//+--------------------------------------------------------------------------------------+
+/**
+ * REFACTORED: High-precision 'Less Than' comparison using Decimal.js.
+ * 
+ * @function isLower
+ * @param {number | string} source - The new/current value.
+ * @param {number | string} benchmark - The old/target value.
+ * @param {number} [digits=8] - Precision to trim before comparison.
+ * @returns {boolean} True if source < benchmark.
+ */
 export const isLower = (source: number | string, benchmark: number | string, digits: number = 8): boolean => {
-  const arg1: number = Number(typeof source === "string" ? parseFloat(source).toFixed(digits) : source.toFixed(digits));
-  const arg2: number = Number(typeof benchmark === "string" ? parseFloat(benchmark).toFixed(digits) : benchmark.toFixed(digits));
-
-  return arg1 < arg2;
+  try {
+    const s = new Decimal(source).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    const b = new Decimal(benchmark).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
+    return s.lessThan(b);
+  } catch (e) {
+    return false;
+  }
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Returns a numeric value formatted to a specified precision                           |
-//+--------------------------------------------------------------------------------------+
+/**
+ * REFACTORED: Normalizes a value to a fixed-point STRING to prevent number casting noise.
+ * Use this for values intended for DB storage or API payloads.
+ * 
+ * @function format
+ * @param {number | string} value - Raw input.
+ * @param {number} [digits=14] - Target decimal places.
+ * @returns {number} The formatted number (defaults to 0 on error).
+ */
 export const format = (value: number | string, digits: number = 14): number => {
-  const formatted: string = typeof value === "string" ? parseFloat(value).toFixed(digits) : typeof value === "number" ? value.toFixed(digits) : value;
-
-  return isNaN(parseFloat(formatted)) ? 0 : Number(formatted);
+  try {
+    const decimalValue = typeof value === 'number' ? new Decimal(value.toFixed(digits)) : new Decimal(String(value));
+    return decimalValue.toNumber();
+  } catch (e) {
+    return 0;
+  }
 };
 
-export const toProperCase = (text: string) => {
-  text = text.toLowerCase();
-  
-  // Use replace with a regular expression to find the first letter of each word
-  // \b matches a word boundary, \w matches a word character
-  return text.replace(/\b\w/g, function(char) {
-    // Capitalize the matched first character
-    return char.toUpperCase();
-  });
-}
+/**
+ * NEW: Numeric cast helper for cases where a native number is MANDATORY.
+ * Use this only if a 3rd party library requires a number type, knowing the risk.
+ */
+export const toNumber = (value: number | string | Decimal, digits: number = 8): number => {
+  return parseFloat(new Decimal(value as any).toFixed(digits));
+};
 
-//+--------------------------------------------------------------------------------------+
-//| Returns the max length of each object key from array; default maximums in keylens;   |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Capitalizes the first letter of every word in a string.
+ * @function toProperCase
+ */
+export const toProperCase = (text: string): string => {
+  return text.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+/**
+ * Analyzes an array of objects to determine the maximum string length of each key.
+ * Used for dynamic CLI table formatting and log alignment.
+ * 
+ * @async
+ * @function getLengths
+ * @template T
+ * @param {Record<string, number>} keylens - Initial lengths and config (e.g., colBuffer).
+ * @param {Array<Partial<T>>} record - The dataset to analyze.
+ * @returns {Promise<Record<string, number>>} The updated length map.
+ */
 export const getLengths = async <T>(keylens: Record<string, number>, record: Array<Partial<T>>) => {
   if (record === undefined) return keylens;
   const { colBuffer } = keylens;
 
-  return record.reduce(
-    (maxLengthObj: Record<string, number>, currentObj) => {
-      Object.keys(currentObj).forEach((key) => {
-        const currentValue = currentObj[key as keyof T];
-
-        if (typeof currentValue === "string") {
-          const currentLength = currentValue.length;
-          const existingLength = maxLengthObj[key] || 0;
-
-          if (currentLength > existingLength) {
-            maxLengthObj[key] = currentLength + colBuffer;
-          }
+  return record.reduce((maxLengthObj, currentObj) => {
+    Object.keys(currentObj).forEach((key) => {
+      const currentValue = currentObj[key as keyof T];
+      if (typeof currentValue === "string") {
+        const currentLength = currentValue.length;
+        const existingLength = maxLengthObj[key] || 0;
+        if (currentLength > existingLength) {
+          maxLengthObj[key] = currentLength + colBuffer;
         }
-      });
-
-      return maxLengthObj;
-    },
-    { ...keylens } as Record<string, number>,
-  );
+      }
+    });
+    return maxLengthObj;
+  }, { ...keylens } as Record<string, number>);
 };
 
-//+--------------------------------------------------------------------------------------+
-//| True if supplied object has at minimum one key containing a value not undefined;     |
-//+--------------------------------------------------------------------------------------+
-export const hasValues = <T extends object>(props: T) => Object.keys(props).length && !Object.values(props).every((value) => value === undefined);
-
 /**
- * Delay timer used predominantly for api throttle control;
- *
+ * Validates if an object contains at least one defined value.
+ * @function hasValues
  */
-export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+export const hasValues = <T extends object>(props: T): boolean => 
+  Object.keys(props).length > 0 && !Object.values(props).every((v) => v === undefined);
 
 /**
- * Formats a value for CSV output, handling strings, numbers, booleans, and dates appropriately.
- *
+ * Standard non-blocking delay/sleep utility.
+ * @function delay
+ */
+export const delay = (ms: number): Promise<void> => new Promise((res) => setTimeout(res, ms));
+
+/**
+ * Internal helper for CSV value escaping and type-safe stringification.
+ * Handles Uint8Arrays by converting to hex strings.
  */
 const formatValue = (val: unknown): string => {
   if (val === null || val === undefined) return '""';
-
   if (val instanceof Uint8Array) return `"${Buffer.from(val).toString("hex")}"`;
-
-  // Handle Dates (Standard for Trading History)
   if (val instanceof Date) return `"${val.toISOString()}"`;
-
-  // Handle Numbers (Avoid quotes if you want them as numeric in Excel/CSV)
   if (typeof val === "number") return val.toString();
-
-  // Handle Booleans
   if (typeof val === "boolean") return val ? "true" : "false";
-
-  // Default: Escape quotes and wrap in quotes
-  const cleaned = String(val).replace(/"/g, '""');
-  return `"${cleaned}"`;
+  return `"${String(val).replace(/"/g, '""')}"`;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Writes arrays of any type to the supplied file                                       |
-//+--------------------------------------------------------------------------------------+
-import * as fs from "node:fs";
-
 /**
- * Optimized 2026 CSV/Text Writer
- * @param filePath Destination path
- * @param array Data to write (Array of Objects or Strings)
+ * Writes an array of strings or objects to a local file.
+ * Automatically converts object arrays into CSV format with headers.
+ * 
+ * @function fileWrite
+ * @template T
+ * @param {string} filePath - Absolute or relative path.
+ * @param {T[]} array - Data collection to persist.
  */
 export const fileWrite = <T extends object | string>(filePath: string, array: T[]): void => {
-  // Guard 1: Use Array.isArray directly (typeof Array.isArray is a common 2024 typo)
   if (!Array.isArray(array) || array.length === 0) return;
 
   try {
     let text: string;
-
-    // Type Guard: Check first element to determine if we need CSV conversion
     if (typeof array[0] === "object") {
       const headers = Object.keys(array[0] as object).join(",");
-      const rows = (array as object[]).map((obj) => Object.values(obj).map(formatValue).join(","));
+      const rows = (array as object[]).map((obj) => 
+        Object.keys(array[0] as object).map(key => formatValue((obj as any)[key])).join(",")
+      );
       text = [headers, ...rows].join("\n");
     } else {
-      // It's a simple array of strings/primitives
       text = array.join("\n");
     }
 
     fs.writeFileSync(filePath, text, "utf8");
     console.log(`-> [Success] fileWrite: ${array.length} records written to ${filePath}`);
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "Unknown file error";
-    console.error(`-> [Error] fileWrite to ${filePath}:`, msg);
+    console.error(`-> [Error] fileWrite to ${filePath}:`, error instanceof Error ? error.message : error);
   }
 };

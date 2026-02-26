@@ -1,50 +1,78 @@
-//+---------------------------------------------------------------------------------------+
-//|                                                                            request.ts |
-//|                                                      Copyright 2018, Dennis Jorgenson |
-//+---------------------------------------------------------------------------------------+
+/**
+ * Trade Request Management (The "Front-Loader").
+ * 
+ * Manages the initial intent of a trade before it is dispatched to a broker.
+ * This module handles request queuing, automated expiry (TTL), and state 
+ * management (e.g., Hold, Pending, Canceled).
+ * 
+ * @module db/request
+ * @copyright 2018-2026, Dennis Jorgenson
+ */
+
 "use strict";
 
 import type { TRefKey, IOrder } from "#db";
 import type { IRequestState, TRequestState } from "#db/interfaces/state";
 import type { IPublishResult } from "#api";
-
 import { Insert, Update, PrimaryKey } from "#db";
 import { hasValues, isEqual, setExpiry } from "#lib/std.util";
 import { hashKey } from "#lib/crypto.util";
 import { Session } from "#module/session";
-
 import { Order, State, Reference, InstrumentPosition } from "#db";
 
+/**
+ * Interface representing a trade request (Intent).
+ */
 export interface IRequest {
+  /** Primary Key: Unique 12-character hash identifier. */
   request: Uint8Array;
+  /** Foreign Key: Link to the specific instrument position. */
   instrument_position: Uint8Array;
   account: Uint8Array;
   instrument: Uint8Array;
   symbol: string;
+  /** Foreign Key: Current request state hash. */
   state: Uint8Array;
+  /** Human-readable status (e.g., 'Queued', 'Pending', 'Hold'). */
   status: TRequestState;
   request_state: Uint8Array;
   request_status: TRequestState;
   margin_mode: "cross" | "isolated";
   position: "short" | "long" | "net";
   action: "buy" | "sell";
+  /** Foreign Key: Mapping to request_type table. */
   request_type: Uint8Array;
   order_type: string;
   price: number;
   size: number;
   leverage: number;
   digits: number;
+  /** Internal log/note regarding request changes. */
   memo: string;
   reduce_only: boolean;
+  /** Identifier provided by the broker upon submission. */
   broker_id: string;
   create_time: Date;
+  /** Time at which the request is considered 'Expired' if not filled. */
   expiry_time: Date;
   update_time: Date;
 }
 
-//+--------------------------------------------------------------------------------------+
-//| Applies updates to request on select columns;                                        |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Synchronizes or initializes a trade request record.
+ * 
+ * Logic Flow:
+ * 1. **Update Path**: If the request exists, it performs a diff-check on price, size, 
+ *    leverage, and state. It prevents "stale" updates by checking `update_time`.
+ * 2. **Hold Logic**: If a status is "Hold", the state hash update is deferred.
+ * 3. **Insert Path**: If new, generates a 12-character hash, resolves the 
+ *    `request_type` reference, and sets a default 8-hour expiry.
+ * 
+ * @param source - The origin of the update (e.g., 'API', 'WSS', 'Cancel').
+ * @param current - The existing record state from the database.
+ * @param props - The new data to be applied.
+ * @returns A promise resolving to the publication result.
+ */
 export const Publish = async (source: string, current: Partial<IOrder>, props: Partial<IOrder>): Promise<IPublishResult<IOrder>> => {
   if (hasValues<Partial<IOrder>>(current)) {
     if (hasValues<Partial<IOrder>>(props)) {
@@ -137,9 +165,16 @@ export const Publish = async (source: string, current: Partial<IOrder>, props: P
   };
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Cancels requests in local db meeting criteria; initiates cancel to broker;           |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Marks requests as Canceled or Closed in the local database.
+ * 
+ * This triggers a cascaded update: 
+ * - 'Pending' orders move to 'Canceled'.
+ * - Active/Filled orders move to 'Closed'.
+ * 
+ * @param props - Filter criteria to identify orders/requests to cancel.
+ * @returns A promise resolving to an array of results for each request updated.
+ */
 export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResult<IRequest>>> => {
   const orders = await Order.Fetch(props.request ? { request: props.request } : props);
 
@@ -174,9 +209,24 @@ export const Cancel = async (props: Partial<IOrder>): Promise<Array<IPublishResu
   return cancels;
 };
 
-//+--------------------------------------------------------------------------------------+
-//| Verify/Configure order requests locally prior to posting request to broker;          |
-//+--------------------------------------------------------------------------------------+
+/**
+ * Validates, prepares, and queues a trade request for broker submission.
+ * 
+ * Logic Flow:
+ * 1. **Position Validation**: Ensures the target [InstrumentPosition](url) exists for the account.
+ * 2. **Deduplication**: Checks for existing 'Pending' or 'Queued' requests for this position.
+ * 3. **Auto-Trade Logic**: If `auto_status` is enabled, it automatically triggers a {@link Cancel} 
+ *    for all other active requests in the queue to prevent overlapping orders.
+ * 4. **State Transitions**:
+ *    - If the position is 'Auto-Enabled' and an order is 'Pending', the new request 
+ *      is placed on **'Hold'** to await the cancellation of the current order.
+ *    - Otherwise, it proceeds to {@link Publish} as a 'Submit' or 'Update'.
+ * 5. **Stale Check**: Uses `update_time` to ensure incoming UI/API updates are newer 
+ *    than the currently stored record.
+ * 
+ * @param props - The request parameters (price, size, leverage, etc.) to be submitted.
+ * @returns A promise resolving to the final submission result, 'Hold' status, or 'Exists' confirmation.
+ */
 export const Submit = async (props: Partial<IRequest>): Promise<IPublishResult<IRequest>> => {
   if (!hasValues(props)) {
     console.log(">> [Error] Request.Submit: No request properties provided; request rejected");
