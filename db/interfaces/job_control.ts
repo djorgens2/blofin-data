@@ -10,8 +10,11 @@
 
 "use strict";
 
+import { ApiError } from "#api";
+import { UserToken } from "#cli/interfaces/user";
 import type { TOptions } from "#db";
-import { Select, Insert, Update, PrimaryKey } from "#db";
+import { Select, Insert, Update, PrimaryKey, User } from "#db";
+import { isEqual } from "#lib/std.util";
 
 /**
  * Definition of a Trading Job's lifecycle and metadata.
@@ -19,30 +22,39 @@ import { Select, Insert, Update, PrimaryKey } from "#db";
 export interface IJobControl {
   /** PRIMARY KEY: Binary ID (3) of the instrument position */
   instrument_position: Uint8Array;
-  /** Binary ID (3) of the user issuing the command */
-  user: Uint8Array;
-  /** Binary ID (3) of the user issuing the command */
+  /** Binary ID (3) of the job account */
   account: Uint8Array;
-  /** Binary ID (3) of the user issuing the command */
+  alias: string;
+  nickname: string;
+  /** Binary ID (3) of the user */
+  user: Uint8Array;
+  /** Binary ID (3) of the job user */
   instrument: Uint8Array;
-  /** Binary ID (3) of the user issuing the command */
-  position: string;
-  /** Binary ID (3) of the user issuing the command */
   symbol: string;
+  /** Binary ID (3) of the user */
+  position: string;
   /** Current OS Process ID */
+  period: Uint8Array;
+  timeframe: string;
   process_pid: number;
+  /** Operational State Key */
+  process_state: Uint8Array
   /** Operational Status */
-  process_state: "running" | "stopped" | "error";
-  /** Control Intent: start | stop | restart | none */
-  command: "none" | "start" | "stop" | "restart";
-  /** SQL BOOLEAN: 0 (Disabled) or 1 (Enabled) */
-  auto_start: boolean;
+  process_status: "running" | "stopped" | "error" | "unprovisioned" | "starting" | "stopping";
+  /** Control Intent: start | stop | restart | pause | none */
+  auto_state: Uint8Array;
+  auto_status: string;
+  command: "none" | "start" | "stop" | "restart" | "pause";
   /** Feedback/Audit Message */
   message: string;
+  /** SQL BOOLEAN: 0 (Disabled) or 1 (Enabled) */
+  auto_start: boolean;
   /** Timestamp: Spawn success */
   start_time: Date;
   /** Timestamp: Graceful exit */
   stop_time: Date;
+  /** Calculated field: Total uptime in seconds */
+  system_up_time: number;
 }
 
 /**
@@ -51,6 +63,12 @@ export interface IJobControl {
  * @function Create
  */
 export const Create = async (props: Partial<IJobControl>) => {
+  if (!props.user || !isEqual(props.user!, UserToken().user)) {
+    throw new ApiError(1403,"Unauthorized Access: Cannot create a job for another user.");
+  }
+  const user = await User.Fetch({ user: props.user });
+
+  // We use Insert with IGNORE to prevent duplicates. The DB schema should enforce uniqueness on instrument_position.
   const result = await Insert<IJobControl>(props, { table: `job_control`, ignore: true, context: "Job.Control.Create" });
   return { key: PrimaryKey(props, ["instrument_position"]), response: result };
 };

@@ -20,6 +20,7 @@
     "#api": "./api/index.ts",
     "#api/*": "./api/*.ts",
     "#app/*": "./app/*.ts",
+    "#controller/*": "./controller/*.ts",
     "#db": "./db/index.ts",
     "#db/*": "./db/*.ts",
     "#lib/*": "./lib/*.ts",

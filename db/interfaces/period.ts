@@ -1,9 +1,9 @@
 /**
  * Timeframe and Candle Period Management.
- * 
- * Defines the standard time intervals (e.g., 1m, 5m, 1h, 1d) used for 
+ *
+ * Defines the standard time intervals (e.g., 1m, 5m, 1h, 1d) used for
  * market data aggregation, charting, and historical analysis.
- * 
+ *
  * @module db/period
  * @copyright 2018-2026, Dennis Jorgenson
  */
@@ -11,6 +11,7 @@
 "use strict";
 
 import type { IPublishResult } from "#api";
+import type { TOptions } from "#db";
 import { Select, Insert, PrimaryKey } from "#db";
 import { hashKey } from "#lib/crypto.util";
 import { hasValues } from "#lib/std.util";
@@ -31,12 +32,12 @@ export interface IPeriod {
 
 /**
  * Persists a new timeframe period to the database.
- * 
+ *
  * Logic Flow:
  * 1. Generates a new 6-character unique hash for the period.
  * 2. Assigns the hash to the provided properties object.
  * 3. Inserts the record into the `period` table.
- * 
+ *
  * @param props - Period details including `timeframe` label and `timeframe_units`.
  * @returns A promise resolving to the publication result and the new primary key.
  */
@@ -49,7 +50,7 @@ export const Add = async (props: Partial<IPeriod>): Promise<IPublishResult<IPeri
 /**
  * Searches for a period's unique primary key based on provided criteria.
  * Commonly used to resolve a string like "1h" to its internal hash.
- * 
+ *
  * @param props - Search parameters (typically the `timeframe` string).
  * @returns The Uint8Array primary key if found, otherwise undefined.
  */
@@ -63,11 +64,11 @@ export const Key = async (props: Partial<IPeriod>): Promise<IPeriod["period"] | 
 
 /**
  * Retrieves a collection of period records matching the supplied criteria.
- * 
+ *
  * @param props - Filter criteria. Pass `{}` to retrieve all periods.
  * @returns An array of partial period records, or undefined if the query fails.
  */
-export const Fetch = async (props: Partial<IPeriod>): Promise<Array<Partial<IPeriod>> | undefined> => {
-  const result = await Select<IPeriod>(props, { table: `period` });
+export const Fetch = async (props: Partial<IPeriod>, options?: TOptions<IPeriod>): Promise<Array<Partial<IPeriod>> | undefined> => {
+  const result = await Select<IPeriod>(props, { ...options, table: `period` });
   return result.success ? result.data : undefined;
 };

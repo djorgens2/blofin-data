@@ -38,7 +38,7 @@ export type TPrimaryKey<T> = Partial<T>;
 export interface IUserAuthority {
   user: Uint8Array;
   username: string;
-  subject_area: string;
+  task_group: string;
   description: string;
   task: string;
   privilege: string;

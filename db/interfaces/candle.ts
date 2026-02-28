@@ -113,7 +113,7 @@ export const Publish = async (props: Partial<ICandle>) => {
  * @returns An array of partial candle records or undefined.
  */
 export const Fetch = async (props: Partial<ICandle>, options?: TOptions<ICandle>): Promise<Array<Partial<ICandle>> | undefined> => {
-  const result = await Select<ICandle>(props, { table: options?.table || `vw_candles`, suffix: options?.suffix });
+  const result = await Select<ICandle>(props, { table: options?.table || `vw_candles`, limit: options?.limit, suffix: options?.suffix });
   return result.success ? result.data : undefined;
 };
 

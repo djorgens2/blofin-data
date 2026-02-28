@@ -25,8 +25,8 @@ export interface IRoleAuthority {
   /** Human-readable name of the role. */
   title: string;
   /** Foreign Key: Link to the functional Subject Area. */
-  subject_area: Uint8Array;
-  subject_area_title: string;
+  task_group: Uint8Array;
+  group_name: string;
   /** Foreign Key: Link to the specific Task/Activity. */
   activity: Uint8Array;
   /** Human-readable name of the task. */
@@ -136,7 +136,7 @@ export const Fetch = async (props: Partial<IRoleAuthority>): Promise<Array<Parti
  */
 export const Subjects = async (props: Partial<IRoleAuthority>): Promise<Array<Partial<IRoleAuthority>>> => {
   const result = await Distinct<IRoleAuthority>(
-    { role: props.role, subject_area: undefined, subject_area_title: undefined, status: props.status },
+    { role: props.role, task_group: undefined, group_name: undefined, status: props.status },
     { table: `vw_role_authority`, keys: [[`role`], [`status`]] },
   );
 

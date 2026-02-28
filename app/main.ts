@@ -161,9 +161,6 @@ export class CMain {
           default:
             console.warn(`[Error] App.Main: [${symbol}] sent unknown state: ${message.state}`);
         }
-        if (message.state === "init") app.send({ ...message, state: "api" });
-        else if (message.state === "api") app.send({ ...message, state: "update" });
-        else if (message.state === "update") Object.assign(ipc, clear({ ...message, state: "ready" }));
       });
 
       // Error Handling & Recovery
@@ -315,7 +312,7 @@ export class CMain {
 
         // 3. Initiate Sequence
         isAlreadyShuttingDown = true;
-        console.log(`\n[Main] Signal [${signal}] detected. Initiating 2026 Shutdown Sequence...`);
+        console.log(`\n[Main] Signal [${signal}] detected. Initiating Shutdown Sequence...`);
 
         try {
           // Use the non-null assertion (!) because we verified it's not null above

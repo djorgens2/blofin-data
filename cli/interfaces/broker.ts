@@ -7,7 +7,7 @@
 import Prompt, { type IOption } from "#cli/modules/Prompts";
 
 import { setHeader } from "#cli/modules/Header";
-import { green, red, yellow, cyan, bold } from "console-log-colors";
+import { red, yellow, cyan, bold } from "console-log-colors";
 
 import * as Accounts from "#db/interfaces/account";
 import * as Brokers from "#db/interfaces/broker";
@@ -47,28 +47,26 @@ export const menuViewBroker = async () => {
     `\n✔️ `,
     `${bold("Broker".padEnd(32, " "))}`,
     `${bold("Alias".padEnd(16, " "))}`,
-    `${bold("Owner".padEnd(10, " "))}`,
     `${bold("name".padEnd(12, " "))}`,
     `${bold("Websocket Address".padEnd(36, " "))}`,
     `${bold("REST API Address".padEnd(36, " "))}`,
-    `${bold("Installed".padEnd(12, " "))}`
+    `${bold("Installed".padEnd(12, " "))}`,
   );
   if (accounts)
     for (const account of accounts) {
-      const { broker_name, owner_name, status, private_wss_url, rest_api_url } = account;
+      const { broker_name, status, private_wss_url, rest_api_url } = account;
       const installed = "No";
       console.log(
         `${status! === "Enabled" ? "🔹" : "🔸"}`,
         `${broker_name!.padEnd(32, " ")}`,
-        `${owner_name!.padEnd(24, " ")}`,
         `${status === "Enabled" ? cyan(status!.padEnd(12, " ")) : status === "Disabled" ? red(status!.padEnd(12, " ")) : yellow(status!.padEnd(12, " "))}`,
         `${private_wss_url!.padEnd(36, " ")}`,
         `${rest_api_url!.padEnd(36, " ")}`,
-        `${installed!.padEnd(12, " ")}`
+        `${installed!.padEnd(12, " ")}`,
       );
     }
   console.log(``);
-  const { choice } = await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
+  await Prompt(["choice"], { message: ">", active: "Refresh", inactive: "Finished", initial: false });
 };
 
 //+--------------------------------------------------------------------------------------+

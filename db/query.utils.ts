@@ -55,7 +55,7 @@ export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
  * Helps isolate which Child PID triggered the query in the unified app.log.
  * @returns {TResponse & { data: [] }} - Guaranteed shape for destructuring.
  */
-const normalizeError = (e: any, args: Array<any>, context: string): TResponse & { data: [] } => {
+const normalizeError = (e: any, context: string): TResponse & { data: [] } => {
   Log().errors && console.error(`-> [Error] ${context} | ${e?.code || "DB_ERR"}: ${e?.message}`);
 
   return {
@@ -104,7 +104,7 @@ const select = async <T>(sql: string, args: Array<any>, context: string): Promis
     };
   } catch (e) {
     // Guaranteed to return { ..., data: [] }
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -133,7 +133,7 @@ const modify = async (sql: string, args: Array<any>, context: string): Promise<T
       changed, // Actually modified
     };
   } catch (e) {
-    return { ...normalizeError(e, args, context), changed: 0 };
+    return { ...normalizeError(e, context), changed: 0 };
   }
 };
 
@@ -157,7 +157,7 @@ const insert = async (sql: string, args: Array<any>, context: string): Promise<T
       rows: affectedRows,
     });
   } catch (e) {
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -182,7 +182,7 @@ const transact = async (sql: string, args: Array<any>, context: string, connecti
       rows: affectedRows,
     });
   } catch (e) {
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -310,7 +310,7 @@ export const Insert = async <T>(props: Partial<T>, options: TOptions<T>, context
 
     return ApiResult(!!result.rows, context, { code, message: responseMsg, rows: result.rows });
   } catch (e) {
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -363,7 +363,7 @@ export const Update = async <T extends object>(props: Partial<T>, options: TOpti
       rows: result.rows,
     });
   } catch (e) {
-    return normalizeError(e, [...values, ...args], context);
+    return normalizeError(e, context);
   }
 };
 
@@ -390,7 +390,7 @@ export const Select = async <T extends object>(props: Partial<T>, options: TOpti
 
     return await select<T>(sql, args, context);
   } catch (e) {
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -430,7 +430,7 @@ export const Distinct = async <T extends object>(props: Partial<T>, options: TOp
     return await select(sql, args, context);
   } catch (e) {
     console.error(`-> [Error] Distinct failed on ${table}`, e);
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };
 
@@ -457,6 +457,6 @@ export const Load = async <T>(props: Array<Partial<T>>, options: TOptions<T>, co
   try {
     return await insert(sql, [args], context);
   } catch (e) {
-    return normalizeError(e, args, context);
+    return normalizeError(e, context);
   }
 };

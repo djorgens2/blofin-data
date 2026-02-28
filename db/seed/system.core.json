@@ -21,21 +21,6 @@
       { "status": "Open", "description": "Open; order/position is open;" }
     ]
   },
-  "activity": {
-    "pkey": "activity",
-    "keylen": 6,
-    "resolver": "hashkey",
-    "data": [
-      { "title": "Instruments", "task": "Manage Instruments" },
-      { "title": "Instruments", "task": "View/Modify Contracts" },
-      { "title": "Instruments", "task": "View/Modify Instrument Types" },
-      { "title": "Trading", "task": "Configure trading options" },
-      { "title": "Users", "task": "Manage Users" },
-      { "title": "Accounts", "task": "Account Administration" },
-      { "title": "Jobs", "task": "Configure jobs" },
-      { "title": "Jobs", "task": "Monitor jobs" }
-    ]
-  },
   "authority": {
     "pkey": "authority",
     "keylen": 6,
@@ -60,6 +45,22 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [{ "environ": "Production" }, { "environ": "Development" }, { "environ": "Test" }, { "environ": "Quality Assurance (QA)" }]
+  },
+  "process_state": {
+    "pkey": "process_state",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "data": [
+      { "process_status": "running", "description": "Processes currently heartbeating in the OS." },
+      { "process_status": "stopped", "description": "Existing jobs that are currently shut down." },
+      { "process_status": "error", "description": "Processes that exited with non-zero codes." },
+      { "process_status": "unprovisioned", "description": "Enabled instruments with no entry in job_control." },
+      { "process_status": "starting", "description": "Processes actively attempting to boot up." },
+      { "process_status": "stopping", "description": "Processes attempting to shutdown" },
+      { "process_status": "paused", "description": "Paused processes waiting for restart" },
+      { "process_status": "halted", "description": "Halted and unable to restart." },
+      { "process_status": "inactive", "description": "Processes inactivated and pending remvoal" }
+    ]
   },
   "period": {
     "pkey": "period",
@@ -110,16 +111,32 @@
       }
     ]
   },
-  "subject_area": {
-    "pkey": "subject_area",
+  "task_group": {
+    "pkey": "task_group",
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      { "title": "Instruments", "description": "Administration of Instruments including currencies, types, and contracts;" },
-      { "title": "Trading", "description": "Job/Symbol operations and parameter configuration;" },
-      { "title": "Users", "description": "User management and administration including roles, privileges, and authorized activities;" },
-      { "title": "Accounts", "description": "Account administration including keys, brokers, and operational availability;" },
-      { "title": "Jobs", "description": "Operational management of Jobs including starts, stoppages, and monitoring;" }
+      { "group_name": "Instruments", "description": "Administration of Instruments including currencies, types, and contracts;" },
+      { "group_name": "Trading", "description": "Job/Symbol operations and parameter configuration;" },
+      { "group_name": "Users", "description": "User management and administration including roles, privileges, and authorized activities;" },
+      { "group_name": "Accounts", "description": "Account administration including keys, brokers, and operational availability;" },
+      { "group_name": "Jobs", "description": "Operational management of Jobs including starts, stoppages, and monitoring;" }
+    ]
+  },
+  "activity": {
+    "pkey": "activity",
+    "keylen": 6,
+    "resolver": "hashkey",
+    "refers": ["task_group", "group_name"],
+    "data": [
+      { "task_group": "Instruments", "task_name": "Manage Instruments" },
+      { "task_group": "Instruments", "task_name": "View/Modify Contracts" },
+      { "task_group": "Instruments", "task_name": "View/Modify Instrument Types" },
+      { "task_group": "Trading", "task_name": "Configure trading options" },
+      { "task_group": "Users", "task_name": "Manage Users" },
+      { "task_group": "Accounts", "task_name": "Account Administration" },
+      { "task_group": "Jobs", "task_name": "Configure jobs" },
+      { "task_group": "Jobs", "task_name": "Monitor jobs" }
     ]
   }
 }

@@ -1,4 +1,4 @@
-//+---------------------------------------------------------------------------------------+
+//+--------------------------------------------------------------------------------------+
 //|                                                                              query.ts |
 //|                                                      Copyright 2018, Dennis Jorgenson |
 //+---------------------------------------------------------------------------------------+
@@ -18,7 +18,7 @@ import {
   Period,
   State,
   User,
-  SubjectArea,
+  TaskGroup,
   Environment,
   Account,
   Order,
@@ -47,6 +47,7 @@ enum Subject {
   Bars = "-bars",
   Broker = "-b",
   Role = "-r",
+  Job = "-job",
   Order = "-ord",
   StopsQueue = "-soq",
   Queue = "-q",
@@ -148,11 +149,11 @@ const show = async (subject: string, args: string): Promise<string> => {
       return "ok";
     }
     case Subject.Area: {
-      const props = parseJSON<SubjectArea.ISubjectArea>(args);
-      props!.subject_area && Object.assign(props!, { ...props, subject: hexify(props!.subject_area) });
-      const key = await SubjectArea.Key(props!);
-      const rows = await SubjectArea.Fetch(props!);
-      console.log("Fetch Subject:", props, { key }, rows);
+      const props = parseJSON<TaskGroup.ITaskGroup>(args);
+      props!.task_group && Object.assign(props!, { ...props, task_group: hexify(props!.task_group) });
+      const key = await TaskGroup.Key(props!);
+      const rows = await TaskGroup.Fetch(props!);
+      console.log("Fetch Task Group:", props, { key }, rows);
       return "ok";
     }
     case Subject.Environ: {
@@ -312,7 +313,7 @@ const show = async (subject: string, args: string): Promise<string> => {
 
 const [cli_subject] = process.argv.slice(2);
 const [cli_props] = process.argv.slice(3);
-const [cli_extended_props] = process.argv.slice(4);
+//const [cli_extended_props] = process.argv.slice(4);
 
 const run = async () => {
   await show(cli_subject, cli_props);

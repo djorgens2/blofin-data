@@ -73,7 +73,7 @@
     ]
   },
   "cancel_source": {
-    "pkey": "request_type",
+    "pkey": "cancel_source",
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
@@ -94,7 +94,7 @@
   "price_type": {
     "pkey": "price_type",
     "resolver": "text",
-    "data": ["last", "index", "mark"]
+    "data": [{ "price_type": "last" }, { "price_type": "index" }, { "price_type": "mark" }]
   },
   "hedging": {
     "pkey": "hedging",
@@ -115,10 +115,10 @@
   "margin_mode": {
     "pkey": "margin_mode",
     "resolver": "text",
-    "data": ["cross", "isolated"]
+    "data": [{ "margin_mode": "cross" }, { "margin_mode": "isolated" }]
   },
   "stop_type": {
-    "pkey": "margin_mode",
+    "pkey": "stop_type",
     "resolver": "text",
     "data": [
       {
@@ -138,7 +138,7 @@
   "position": {
     "pkey": "position",
     "resolver": "text",
-    "data": ["long", "short", "net"]
+    "data": [{ "position": "long" }, { "position": "short" }, { "position": "net" }]
   },
   "order_category": {
     "pkey": "order_category",

@@ -15,7 +15,7 @@ import type { IAccess, TAccess } from "#db/interfaces/state";
 import type { IPublishResult, TResponse } from "#api";
 
 import UserToken, { setUserToken } from "#cli/interfaces/user";
-import { State, User, Broker, Environment } from "#db";
+import { State, Broker, Environment } from "#db";
 import { Session } from "#module/session";
 
 import { Select, Insert, Update, PrimaryKey } from "#db";
@@ -34,9 +34,6 @@ export interface IAccount {
   /** Foreign Key: Reference to the Broker table. */
   broker: Uint8Array;
   broker_name: string;
-  /** Foreign Key: Reference to the User (Owner) table. */
-  owner: Uint8Array;
-  owner_name: string;
   /** Foreign Key: Access state hash. */
   state: Uint8Array;
   /** Human-readable access status (e.g., 'Enabled', 'Restricted'). */
@@ -125,7 +122,7 @@ export const Available = async (filter: "New" | "All"): Promise<Array<Partial<IS
  * Process Flow:
  * 1. Validates that the account does not already exist via HMAC lookup.
  * 2. Generates a unique 3-byte primary key using a random slot and HMAC buffer.
- * 3. Resolves foreign keys for Owner, Broker, State, and Environment by name/alias.
+ * 3. Resolves foreign keys for Broker, State, and Environment by name/alias.
  * 4. Persists the master record with initialized equity values.
  * 
  * @param props - Metadata for the account (alias, URLs, status).
@@ -148,7 +145,6 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
     const account: Partial<IAccount> = {
       account: hash,
       alias: props.alias,
-      owner: props.owner || (await User.Key({ username: props.owner_name })) || undefined,
       broker: props.broker || (await Broker.Key({ name: props.broker_name })) || undefined,
       state: props.state || (props.status ? await State.Key<IAccess>({ status: props.status }) : undefined) || undefined,
       environment: props.environment || (await Environment.Key({ environ: props.environ })) || undefined,
@@ -297,7 +293,7 @@ export const Key = async (props: Partial<ISession>): Promise<IAccount["account"]
 /**
  * Retrieves account records from the comprehensive `vw_accounts` database view.
  * 
- * @param props - Query filters (e.g., specific account hash or owner). 
+ * @param props - Query filters (e.g., specific account hash). 
  *                Pass `{}` to fetch all accounts accessible to the system.
  * @returns An array of partial account records or undefined if the query fails.
  */

@@ -5,7 +5,11 @@
  * Orchestrates local state hydration, candle data publication, and
  * fractal calculation updates via IPC (Inter-Process Communication).
  *
- * @copyright 2018, Dennis Jorgenson
+ * #version 1.0.0 - Initial implementation of the fractal worker process.
+ * #version 1.1.0 - Added graceful shutdown handling and error reporting.
+ * @version 1.2.0 - Refactored for clearer separation of initialization and update logic.
+ *
+ * @copyright 2018-2026, Dennis Jorgenson
  */
 
 "use strict";

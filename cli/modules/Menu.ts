@@ -29,12 +29,12 @@ export const setMenu = async (): Promise<IOption[]> => {
 
   // PERFORMANCE: Use Promise.all to fetch all sub-menus in parallel
   const menuTree = await Promise.all(auths.map(async (auth) => {
-    const { subject_area, subject_area_title } = auth;
+    const { task_group, group_name } = auth;
 
     // 2. Fetch specific actions for this specific area
     const privs = await RoleAuths.Privileges({
       role,
-      subject_area,
+      task_group,
       status: "Enabled",
     });
 
@@ -42,7 +42,7 @@ export const setMenu = async (): Promise<IOption[]> => {
       title: priv.privilege!,       // CLI Display: "View"
       value: priv.authority!,       // DB Reference
       func: priv.privilege!,        // Maps to 'Actions' Registry
-      area: subject_area_title!,    // Contextual target (e.g. "Users")
+      area: group_name!,    // Contextual target (e.g. "Users")
     }));
 
     // Navigation breadcrumb for Esc/Manual return
@@ -52,8 +52,8 @@ export const setMenu = async (): Promise<IOption[]> => {
     });
 
     return {
-      title: subject_area_title!,
-      value: subject_area!,
+      title: group_name!,
+      value: task_group!,
       choices: submenu,
     };
   }));
