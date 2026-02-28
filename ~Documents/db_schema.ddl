@@ -209,6 +209,13 @@ last: last price
 index: index price
 mark: mark price';
 
+CREATE  TABLE devel.process_state ( 
+	process_state        BINARY(3)    NOT NULL   PRIMARY KEY,
+	process_status       VARCHAR(15)    NOT NULL   ,
+	description          VARCHAR(50)    NOT NULL   ,
+	CONSTRAINT ak_process_state UNIQUE ( process_status ) 
+ ) engine=InnoDB;
+
 CREATE  TABLE devel.request_type ( 
 	request_type         BINARY(3)    NOT NULL   PRIMARY KEY,
 	source_ref           VARCHAR(10)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
@@ -265,11 +272,11 @@ CREATE  TABLE devel.stop_type (
 	CONSTRAINT ak_stop_type UNIQUE ( source_ref ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE  TABLE devel.subject_area ( 
-	subject_area         BINARY(3)    NOT NULL   PRIMARY KEY,
-	title                VARCHAR(20)    NOT NULL   ,
+CREATE  TABLE devel.task_group ( 
+	task_group           BINARY(3)    NOT NULL   PRIMARY KEY,
+	group_name           VARCHAR(20)    NOT NULL   ,
 	description          VARCHAR(200)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_subject_area UNIQUE ( title ) 
+	CONSTRAINT ak_task_group UNIQUE ( group_name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE  TABLE devel.user ( 
@@ -284,8 +291,8 @@ CREATE  TABLE devel.user (
 	create_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	update_time          DATETIME(3)  DEFAULT (now(3))  NOT NULL   ,
 	CONSTRAINT ak_user UNIQUE ( username, email ) ,
-	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_u_role ON devel.user ( role );
@@ -295,7 +302,6 @@ CREATE INDEX fk_u_state ON devel.user ( state );
 CREATE  TABLE devel.account ( 
 	account              BINARY(3)    NOT NULL   PRIMARY KEY,
 	alias                VARCHAR(100)    NOT NULL   ,
-	owner                BINARY(3)    NOT NULL   ,
 	broker               BINARY(3)    NOT NULL   ,
 	state                BINARY(3)    NOT NULL   ,
 	environment          BINARY(3)    NOT NULL   ,
@@ -312,7 +318,6 @@ CREATE  TABLE devel.account (
 	CONSTRAINT fk_a_broker FOREIGN KEY ( broker ) REFERENCES devel.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_environment FOREIGN KEY ( environment ) REFERENCES devel.environment( environment ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_a_owner FOREIGN KEY ( owner ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_margin_mode FOREIGN KEY ( margin_mode ) REFERENCES devel.margin_mode( margin_mode ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_a_hedging FOREIGN KEY ( hedging ) REFERENCES devel.hedging( hedging ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
@@ -323,21 +328,19 @@ CREATE INDEX fk_a_broker ON devel.account ( broker );
 
 CREATE INDEX fk_a_environment ON devel.account ( environment );
 
-CREATE INDEX fk_a_owner ON devel.account ( owner );
-
 CREATE INDEX fk_a_margin_mode ON devel.account ( margin_mode );
 
 CREATE INDEX fk_a_hedging ON devel.account ( hedging );
 
 CREATE  TABLE devel.activity ( 
 	activity             BINARY(3)    NOT NULL   PRIMARY KEY,
-	subject_area         BINARY(3)    NOT NULL   ,
-	task                 VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	CONSTRAINT ak_activity UNIQUE ( task ) ,
-	CONSTRAINT fk_a_subject_area FOREIGN KEY ( subject_area ) REFERENCES devel.subject_area( subject_area ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	task_group           BINARY(3)    NOT NULL   ,
+	task_name            VARCHAR(60)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	CONSTRAINT ak_activity UNIQUE ( task_name ) ,
+	CONSTRAINT fk_a_task_group FOREIGN KEY ( task_group ) REFERENCES devel.task_group( task_group ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_a_subject_area ON devel.activity ( subject_area );
+CREATE INDEX fk_a_task_group ON devel.activity ( task_group );
 
 CREATE  TABLE devel.app_config ( 
 	account              BINARY(3)    NOT NULL   ,
@@ -442,19 +445,18 @@ CREATE INDEX fk_ipos_period ON devel.instrument_position ( period );
 
 CREATE  TABLE devel.job_control ( 
 	instrument_position  BINARY(3)    NOT NULL   PRIMARY KEY,
-	user               BINARY(3)    NOT NULL   ,
 	process_pid          INT    NOT NULL   ,
-	process_state        ENUM('running','stopped','error')  DEFAULT ('stopped') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	command              ENUM('none','start','stop','restart')  DEFAULT ('none') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	process_state        BINARY(3)    NOT NULL   ,
+	command              ENUM('none','start','stop','restart')  DEFAULT ('_utf8mb4'none'') COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	auto_start           BOOLEAN  DEFAULT (false)  NOT NULL   ,
 	message              VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	start_time           DATETIME(3)    NOT NULL   ,
 	stop_time            DATETIME(3)    NOT NULL   ,
-	CONSTRAINT fk_job_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_job_user FOREIGN KEY ( user ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_jc_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_jc_process_state FOREIGN KEY ( process_state ) REFERENCES devel.process_state( process_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE INDEX fk_job_user ON devel.job_control ( user );
+CREATE INDEX fk_jc_process_state ON devel.job_control ( process_state );
 
 CREATE  TABLE devel.positions ( 
 	positions            BINARY(6)    NOT NULL   PRIMARY KEY,
@@ -565,13 +567,21 @@ CREATE INDEX fk_sr_margin_mode ON devel.stop_request ( margin_mode );
 CREATE  TABLE devel.user_account ( 
 	user               BINARY(3)    NOT NULL   ,
 	account              BINARY(3)    NOT NULL   ,
+	role                 BINARY(3)    NOT NULL   ,
+	state                BINARY(3)    NOT NULL   ,
 	nickname             VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	CONSTRAINT pk_user_account PRIMARY KEY ( user, account ),
 	CONSTRAINT fk_ua_user FOREIGN KEY ( user ) REFERENCES devel.user( user ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ua_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ua_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_ua_account ON devel.user_account ( account );
+
+CREATE INDEX fk_ua_role ON devel.user_account ( role );
+
+CREATE INDEX fk_ua_state ON devel.user_account ( state );
 
 CREATE  TABLE devel.account_detail ( 
 	account              BINARY(3)    NOT NULL   ,
@@ -687,9 +697,6 @@ select
 	b.name AS broker_name,
 	b.image_url AS broker_image_url,
 	b.website_url AS broker_website_url,
-	u.username AS owner_name,
-	u.email AS owner_email,
-	u.image_url AS owner_image_url,
 	a.total_equity AS total_equity,
 	a.isolated_equity AS isolated_equity,
 	a.rest_api_url AS rest_api_url,
@@ -717,33 +724,31 @@ select
 	ad.liability AS liability,
 	ad.update_time AS update_time
 from
-	(((((((devel.account a
+	((((((devel.account a
 left join devel.account_detail ad on
 	((a.account = ad.account)))
 left join devel.currency c on
 	((ad.currency = c.currency)))
 left join devel.state cs on
 	((c.state = cs.state)))
-join devel.user u on
-	((u.user = a.owner)))
 join devel.environment e on
 	((a.environment = e.environment)))
 join devel.broker b on
 	((a.broker = b.broker)))
 join devel.state s on
-	((a.state = s.state)));
+	((s.state = a.state)));
 
 CREATE VIEW devel.vw_activity AS
 select
-	sa.subject_area AS subject_area,
-	sa.title AS title,
-	sa.description AS description,
+	tg.task_group AS task_group,
+	tg.group_name AS group_name,
+	tg.description AS description,
 	a.activity AS activity,
-	a.task AS task
+	a.task_name AS task_name
 from
-	(devel.subject_area sa
+	(devel.task_group tg
 join devel.activity a on
-	((a.subject_area = sa.subject_area)));
+	((a.task_group = tg.task_group)));
 
 CREATE VIEW devel.vw_api_requests AS
 select
@@ -1255,29 +1260,59 @@ left join devel.contract_type ct on
 
 CREATE VIEW devel.vw_job_control AS
 select
-	jc.instrument_position AS instrument_position,
-	ipos.account AS account,
+	ipos.instrument_position AS instrument_position,
+	ua.account AS user_account,
+	ua.user AS user,
+	a.alias AS alias,
+	ua.nickname AS nickname,
 	ipos.instrument AS instrument,
-	ipos.position AS position,
 	concat(b.symbol, '-', q.symbol) AS symbol,
-	jc.user AS user,
+	ipos.position AS position,
+	p.period AS period,
+	p.timeframe AS timeframe,
 	jc.process_pid AS process_pid,
-	jc.process_state AS process_state,
+	coalesce(ps.process_state, unprovisioned.process_state) AS process_state,
+	ifnull(ps.process_status, 'unprovisioned') AS process_status,
+	if((ipos.period is null), disabled.state, if((qs.status = 'Suspended'), qs.state, bs.state)) AS auto_state,
+	if((ipos.period is null), disabled.status, if((qs.status = 'Suspended'), qs.status, bs.status)) AS auto_status,
 	jc.command AS command,
-	jc.auto_start AS auto_start,
 	jc.message AS message,
+	jc.auto_start AS auto_start,
 	jc.start_time AS start_time,
-	jc.stop_time AS stop_time
+	jc.stop_time AS stop_time,
+	(jc.stop_time - jc.start_time) AS system_up_time
 from
-	((((devel.job_control jc
-join devel.instrument_position ipos on
-	((ipos.instrument_position = jc.instrument_position)))
+	(((((((((((((((devel.instrument_position ipos
+join devel.user_account ua on
+	((ua.account = ipos.account)))
+join devel.role r on
+	((r.role = ua.role)))
+join devel.account a on
+	((a.account = ua.account)))
 join devel.instrument i on
-	((i.instrument = ipos.instrument_position)))
+	((i.instrument = ipos.instrument)))
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
-	((q.currency = i.quote_currency)));
+	((q.currency = i.quote_currency)))
+join devel.state bs on
+	((bs.state = b.state)))
+join devel.state qs on
+	((qs.state = q.state)))
+join devel.state disabled on
+	((disabled.status = 'Disabled')))
+join devel.process_state unprovisioned on
+	((unprovisioned.process_status = 'unprovisioned')))
+join devel.vw_app_config vac on
+	(((devel.vac.config_param = 'defaultTimeframe') and (devel.vac.account = ua.account))))
+join devel.period defaultPeriod on
+	((defaultPeriod.timeframe = devel.vac.param_value)))
+left join devel.period p on
+	((p.period = coalesce(ipos.period, defaultPeriod.period))))
+left join devel.job_control jc on
+	((jc.instrument_position = ipos.instrument_position)))
+left join devel.process_state ps on
+	((ps.process_state = jc.process_state)));
 
 CREATE VIEW devel.vw_order_states AS
 select
@@ -1436,11 +1471,11 @@ CREATE VIEW devel.vw_role_authority AS
 select
 	r.role AS role,
 	r.title AS title,
-	sa.subject_area AS subject_area,
-	sa.title AS subject_area_title,
-	sa.description AS description,
+	tg.task_group AS task_group,
+	tg.group_name AS group_name,
+	tg.description AS description,
 	a.activity AS activity,
-	a.task AS task,
+	a.task_name AS task_name,
 	auth.authority AS authority,
 	auth.privilege AS privilege,
 	auth.priority AS priority,
@@ -1452,34 +1487,34 @@ join devel.role r on
 	((r.role = ra.role)))
 join devel.activity a on
 	((a.activity = ra.activity)))
-join devel.subject_area sa on
-	((sa.subject_area = a.subject_area)))
+join devel.task_group tg on
+	((tg.task_group = a.task_group)))
 join devel.authority auth on
 	((auth.authority = ra.authority)))
 join devel.state s on
 	((s.state = ra.state)));
 
-CREATE VIEW devel.vw_role_subject_areas AS
+CREATE VIEW devel.vw_role_task_groups AS
 select
 	ra.role AS role,
 	ra.authority AS authority,
 	ra.activity AS activity,
 	ra.state AS state,
-	rsa.title AS subject_area_title
+	tg.group_name AS group_name
 from
 	(devel.role_authority ra
 join (
 	select
 		a.activity AS activity,
-		sa.subject_area AS subject_area,
-		sa.title AS title
+		tg.task_group AS task_group,
+		tg.group_name AS group_name
 	from
 		(devel.activity a
-	join devel.subject_area sa)
+	join devel.task_group tg)
 	group by
 		a.activity,
-		sa.subject_area) rsa on
-	((ra.activity = rsa.activity)));
+		tg.task_group) tg on
+	((ra.activity = tg.activity)));
 
 CREATE VIEW devel.vw_stop_orders AS with Instruments as (
 select
@@ -1590,9 +1625,9 @@ CREATE VIEW devel.vw_user_authority AS
 select
 	u.user AS user,
 	u.username AS username,
-	sa.title AS subject_area,
-	sa.description AS description,
-	a.task AS task,
+	tg.group_name AS group_name,
+	tg.description AS description,
+	a.task_name AS task_name,
 	auth.privilege AS privilege
 from
 	(((((devel.user u
@@ -1604,8 +1639,8 @@ join devel.authority auth on
 	((auth.authority = ra.authority)))
 join devel.activity a on
 	((a.activity = ra.activity)))
-join devel.subject_area sa on
-	((sa.subject_area = a.subject_area)));
+join devel.task_group tg on
+	((tg.task_group = a.task_group)));
 
 CREATE VIEW devel.vw_users AS
 select

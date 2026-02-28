@@ -11,8 +11,9 @@ import { clear } from "#lib/app.util";
 import { Session } from "#module/session";
 import { Distinct } from "#db/query.utils";
 
-import { Activity, Authority, Broker, Environment, Period, Reference, RoleAuthority, State, SubjectArea, Role } from "#db";
+import { RoleAuthority } from "#db";
 import { Candles, Instruments, InstrumentPositions, Positions } from "#api";
+import { Loader } from "#db/loader.util";
 
 //+--------------------------------------------------------------------------------------+
 //| Imports full-candle history; follows up with a candle refresh;                       |
@@ -92,14 +93,6 @@ export const importInstruments = async () => {
 //| Installs seed data during initialization of a new database;                          |
 //+--------------------------------------------------------------------------------------+
 export const importSeed = async () => {
-  await SubjectArea.Import();
-  await Activity.Import();
-  await Authority.Import();
-  await Broker.Import();
-  await Environment.Import();
-  await Period.Import();
-  await Reference.Import();
-  await Role.Import();
-  await State.Import();
+  await Loader("#db/seed/", "Initialization");
   await RoleAuthority.Import({ status: `Enabled` });
 };

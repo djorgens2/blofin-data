@@ -8,9 +8,8 @@
 
 import type { ISession } from "#module/session";
 import type { IAccount } from "#db/interfaces/account";
-import type { TAccess } from "#db/interfaces/state";
 import type { ITableConfig } from "#cli/modules/Renderer";
-import { green, red, yellow, cyan, gray, bold, dim } from "console-log-colors";
+import { green, red, yellow, cyan, bold, dim } from "console-log-colors";
 import { formatterUSD, Pause } from "#lib/std.util";
 import { setHeader } from "#cli/modules/Header";
 import { setState } from "#cli/modules/State";
@@ -18,12 +17,11 @@ import { setBroker } from "#cli/interfaces/broker";
 import { setUser } from "#cli/interfaces/user";
 import { setEnviron } from "#cli/modules/Environ";
 import { renderTable } from "#cli/modules/Renderer";
-import * as Accounts from "#db/interfaces/account";
 import Prompt from "#cli/modules/Prompts";
+import * as Accounts from "#db/interfaces/account";
 
 const schema: ITableConfig<IAccount>[] = [
   { key: "alias", label: "Account" },
-  { key: "owner_name", label: "Holder" },
   { key: "environ", label: "Env" },
   {
     key: "status",
@@ -52,7 +50,7 @@ const schema: ITableConfig<IAccount>[] = [
  */
 export const setAccount = async (props: any) => {
   const alias = await Prompt(["text"], { name: "alias", message: "  Nickname for Account?", initial: props?.alias ?? "" });
-  const owner = await setUser({ title: "Admin" });
+  const user = await setUser({ title: "Admin" });
   const broker = await setBroker();
   const state = await setState();
   const environ = await setEnviron({});
@@ -73,7 +71,7 @@ export const setAccount = async (props: any) => {
     await Accounts.Add(
       {
         ...alias,
-        ...owner,
+        ...user,
         ...broker,
         state: state?.state,
         status: state?.status,

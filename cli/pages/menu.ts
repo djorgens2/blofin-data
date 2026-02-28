@@ -1,10 +1,10 @@
 /**
  * @module Administrative-Menu-Router
  * @description Core navigation and command orchestration for the Command Bridge.
- * 
- * Implements a Recursive Menu Pattern with an Action-Router to 
+ *
+ * Implements a Recursive Menu Pattern with an Action-Router to
  * map database-driven privileges to TypeScript execution paths.
- * 
+ *
  * @copyright 2018-2026, Dennis Jorgenson
  */
 
@@ -14,23 +14,41 @@ import Prompt, { type IOption } from "#cli/modules/Prompts";
 import { setHeader } from "#cli/modules/Header";
 import { setMenu } from "#cli/modules/Menu";
 import { isEqual } from "#lib/std.util";
+import { Log } from "#module/session";
 
 // Interface Imports
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "#cli/interfaces/user";
-import { menuCreateAccount, menuEditAccount, menuDropAccount } from "#cli/interfaces/account";
+import { menuCreateAccount } from "#cli/interfaces/account";
+
 import * as Account from "#cli/interfaces/account";
 import * as Instrument from "#cli/interfaces/instruments";
+import * as JobControl from "#cli/interfaces/jobControl";
 
 /**
  * Dispatches to the appropriate View Page based on subject area.
  * @param area - The database subject (e.g., "Users", "Accounts").
  */
 export const menuView = async (area: string) => {
+  Log().errors && console.error(`\n>> [DEBUG] menuView called with area: ${area}`); // Debug log
   switch (area) {
-    case "Users": await menuViewUser(); break;
-    case "Accounts": await Account.View(); break;
-    case "Instruments": await Instrument.View(); break;
-    default: console.log(`${area} view not enabled.`);
+    case "Users":
+      Log().errors && console.error(`\n>> [DEBUG] Submenu Users called with area: ${area}`); // Debug log
+      await menuViewUser();
+      break;
+    case "Accounts":
+      Log().errors && console.error(`\n>> [DEBUG] Submenu Accounts called with area: ${area}`); // Debug log
+      await Account.View();
+      break;
+    case "Instruments":
+      Log().errors && console.error(`\n>> [DEBUG] Submenu Instruments called with area: ${area}`); // Debug log
+      await Instrument.View();
+      break;
+    case "Jobs":
+      Log().errors && console.error(`\n>> [DEBUG] Submenu Jobs called with area: ${area}`); // Debug log
+      await JobControl.View();
+      break;
+    default:
+      console.log(`${area} view not enabled.`);
   }
 };
 
@@ -40,8 +58,11 @@ export const menuView = async (area: string) => {
  */
 export const menuEdit = async (area: string) => {
   switch (area) {
-    case "Users": await menuEditUser(); break;
-    default: console.log(`${area} editor not enabled.`);
+    case "Users":
+      await menuEditUser();
+      break;
+    default:
+      console.log(`${area} editor not enabled.`);
   }
 };
 
@@ -51,9 +72,14 @@ export const menuEdit = async (area: string) => {
  */
 export const menuCreate = async (area: string) => {
   switch (area) {
-    case "Users": await menuCreateUser(); break;
-    case "Accounts": await menuCreateAccount(); break;
-    default: console.log(`${area} creation not enabled.`);
+    case "Users":
+      await menuCreateUser();
+      break;
+    case "Accounts":
+      await menuCreateAccount();
+      break;
+    default:
+      console.log(`${area} creation not enabled.`);
   }
 };
 
@@ -63,8 +89,11 @@ export const menuCreate = async (area: string) => {
  */
 export const menuDrop = async (area: string) => {
   switch (area) {
-    case "Users": await menuDropUser(); break;
-    default: console.log(`${area} removal not enabled.`);
+    case "Users":
+      await menuDropUser();
+      break;
+    default:
+      console.log(`${area} removal not enabled.`);
   }
 };
 
@@ -74,7 +103,8 @@ export const menuDrop = async (area: string) => {
  */
 export const menuConfigure = async (area: string) => {
   switch (area) {
-    default: console.log(`${area} configuration not enabled.`);
+    default:
+      console.log(`${area} configuration not enabled.`);
   }
 };
 
@@ -84,7 +114,8 @@ export const menuConfigure = async (area: string) => {
  */
 export const menuOperate = async (area: string) => {
   switch (area) {
-    default: console.log(`${area} operations not enabled.`);
+    default:
+      console.log(`${area} operations not enabled.`);
   }
 };
 
@@ -104,13 +135,13 @@ const Actions: Record<string, (area: string) => Promise<void>> = {
 
 /**
  * Primary Administrative Loop.
- * 
+ *
  * Logic Flow:
  * 1. Fetch authorized Menu structure via DB RBAC.
  * 2. Prompt for Subject Area selection.
  * 3. Prompt for Action selection (Sub-menu).
  * 4. Execute mapped function or handle 'Back/Esc' navigation.
- * 
+ *
  * @async
  */
 export const Menu = async () => {

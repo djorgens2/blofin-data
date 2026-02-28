@@ -34,7 +34,7 @@ export * as Role from "#db/interfaces/role";
 export * as State from "#db/interfaces/state";
 export * as StopRequest from "#db/interfaces/stop_request";
 export * as StopOrder from "#db/interfaces/stop_order";
-export * as SubjectArea from "#db/interfaces/subject_area";
+export * as TaskGroup from "#db/interfaces/task_group";
 export * as User from "#db/interfaces/user";
 
 // Export in-module types
@@ -60,6 +60,6 @@ export type { IRole } from '#db/interfaces/role'
 export type { IState } from '#db/interfaces/state'
 export type { IStopRequest } from '#db/interfaces/stop_request'
 export type { IStopOrder } from '#db/interfaces/stop_order'
-export type { ISubjectArea } from '#db/interfaces/subject_area'
+export type { ITaskGroup } from '#db/interfaces/task_group'
 export type { IUser } from '#db/interfaces/user'
 

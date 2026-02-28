@@ -20,6 +20,7 @@ import * as Users from "#db/interfaces/user";
 import * as Roles from "#db/interfaces/role";
 
 interface IUserToken {
+  user: Uint8Array;
   username: string;
   title: string;
   role: Uint8Array;
@@ -31,6 +32,7 @@ interface IUserToken {
  * Internal state for the currently active administrative session.
  */
 const userToken: IUserToken = {
+  user: Buffer.from([0, 0, 0]),
   username: ``,
   title: ``,
   role: Buffer.from([0, 0, 0]),

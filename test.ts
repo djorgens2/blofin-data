@@ -2609,12 +2609,12 @@ import { hexify } from "#lib/crypto.util";
 // });
 
 //---------------------------------- Loader test ----------------------------------------//
-const account = hexify(process.env.account!);
-import { Loader } from "#module/import";
-import { Config } from "#module/session";
-Config({ account }, "test").then(async () => {
-  await Loader("../db/seed/", "Test");
-});
+// const account = hexify(process.env.account!);
+// import { Loader } from "#module/import";
+// import { Config } from "#module/session";
+// Config({ account }, "test").then(async () => {
+//   await Loader("../db/seed/", "Test");
+// });
 
 //---------------------------------- Instrument Load ----------------------------------------//
 // const account = hexify(process.env.account!);
@@ -2765,3 +2765,11 @@ Config({ account }, "test").then(async () => {
 
 //   runSideBySideAudit(dbMap, brokerMap);
 // });
+
+//---------------------------------- New Query test ----------------------------------------//
+const account = hexify(process.env.account!);
+import { Loader } from "#db/loader.util";
+import { Config } from "#module/session";
+Config({ account }, "test").then(async () => {
+  await Loader("./seed/", "Test");
+});
