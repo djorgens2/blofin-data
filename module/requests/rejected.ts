@@ -7,7 +7,7 @@
 import type { IRequest } from "#db";
 import type { IPublishResult } from "#api";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import { Request, Order } from "#db";
 

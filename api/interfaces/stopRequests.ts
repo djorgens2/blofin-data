@@ -34,7 +34,7 @@ interface IPublishConfig {
  */
 const publish = async (response: Array<TResponseAPI>, config: IPublishConfig): Promise<Array<IPublishResult<IStopRequest>>> => {
   if (!Array.isArray(response) || !response.length) {
-    console.error(`-> [Error] ${config.context}: Invalid response format`, response);
+    Log().error(`-> [Error] ${config.context}: Invalid response format`, response);
     return [];
   }
 

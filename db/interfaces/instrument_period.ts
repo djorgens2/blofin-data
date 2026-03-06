@@ -21,7 +21,7 @@ export interface IInstrumentPeriod {
   quote_symbol: string;
   period: Uint8Array;
   timeframe: string;
-  timeframe_units: number;
+  timeframe_minutes: number;
 }
 
 /**

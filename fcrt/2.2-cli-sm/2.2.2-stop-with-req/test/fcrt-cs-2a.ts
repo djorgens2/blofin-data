@@ -2,7 +2,7 @@
 import type { TRefKey } from "#db";
 import type { IRequest } from "#db/interfaces/request";
 
-import { Session, config } from "#module/session";
+import { Session, config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { setExpiry } from "#lib/std.util";
 import { req_fcrt_2a } from "./request";
@@ -34,11 +34,11 @@ if (args.length) {
   submit(req_fcrt_2a)
     .then(async (submitted) => {
       if (submitted === undefined) {
-        console.error(Session());
-        console.error("Test 2a: Request submission failed.");
-        console.error("Check if the request was already submitted or if there was an error in the submission process.");
-        console.error("Request details:", req_fcrt_2a);
-        console.error("Exiting process with code 1.");
+        Log().error(Session());
+        Log().error("Test 2a: Request submission failed.");
+        Log().error("Check if the request was already submitted or if there was an error in the submission process.");
+        Log().error("Request details:", req_fcrt_2a);
+        Log().error("Exiting process with code 1.");
         process.exit(1);
       }
       await Orders.Fetch({ request: submitted?.key } as Partial<IRequest>).then((order) => {
@@ -48,8 +48,8 @@ if (args.length) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error("Test 2a: Error during request submission:", error);
+      Log().error("Test 2a: Error during request submission:", error);
       process.exit(1);
     });
-} else console.error("[Error] Account must be passed as first parameter");
+} else Log().error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

@@ -12,9 +12,11 @@
 
 import type { IInstrumentPosition } from "#db";
 import type { IPublishResult } from "#api";
+
+import { InstrumentPosition } from "#db";
 import { API_GET, API_POST, ApiError } from "#api";
 import { hasValues } from "#lib/std.util";
-import { InstrumentPosition } from "#db";
+import { Log } from "#lib/log.util"
 
 /**
  * Leverage data structure as defined by the Broker/Exchange API.
@@ -90,7 +92,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
       };
     }
 
-    console.error(`-> [System Error] ${context}:`, error);
+    Log().error(`-> [System Error] ${context}:`, error);
     return {
       key: undefined,
       response: {
@@ -129,9 +131,9 @@ export const Import = async (props: Array<Partial<IInstrumentPosition>>): Promis
     return data;
   } catch (error) {
     if (error instanceof ApiError) {
-      console.error(`-> [API Error] ${context}:`, error.msg);
+      Log().error(`-> [API Error] ${context}:`, error.msg);
     } else {
-      console.error(`-> [System Error] ${context}:`, error);
+      Log().error(`-> [System Error] ${context}:`, error);
     }
 
     return [];

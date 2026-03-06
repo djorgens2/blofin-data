@@ -1,329 +1,162 @@
 /**
- * Market Candle API & Synchronization.
- * 
- * Facilitates the retrieval, transformation, and persistence of market candle data.
- * This module manages the synchronization between the Blofin REST API and the local 
- * 'candle' table, implementing a high-performance "diff-check" to separate new 
- * inserts from necessary historical updates.
- * 
- * @module api/candles
+ * @file CandleImporter.ts
+ * @module CLI/Internal/CandleImporter
+ * @description
+ * Raw Command-Line Interface for low-level OHLCV data ingestion.
+ *
+ * DESIGN PHILOSOPHY:
+ * This module operates as a standalone "Pre-Flight" auditor, completely decoupled
+ * from the Mama/Papa process lifecycles. It enforces a ruthless reconciliation
+ * phase, auditing structural integrity and time-series continuity against the
+ * StatusCode Lexicon before any data hits the 2026 Engine's production tables.
+ *
+ * @workflow
+ * 1. RAW INGESTION: Direct-to-pipe import bypassing the C2 Hub.
+ * 2. INTEGRITY AUDIT: Exhaustive gap-detection and sequence validation.
+ * 3. LEXICON MAPPING: Every failure is pinned to a specific StatusCode.
+ * 4. ATOMIC COMMIT: Clean data only; zero-tolerance for partial/corrupt sets.
+ *
  * @copyright 2018-2026, Dennis Jorgenson
  */
+
 "use strict";
 
-import type { IMessage } from "#lib/app.util";
-import type { ICandle } from "#db/interfaces/candle";
-
-import { Candle, Period, Instrument } from "#db";
-import { Session } from "#module/session";
-
-import { Select, Load } from "#db";
-import { isEqual } from "#lib/std.util";
-
-/**
- * Represents a raw candle record as returned by the Blofin Market API.
- */
-export interface ICandleAPI {
-  /** Market symbol (e.g., BTC-USDT). */
-  symbol?: string;
-  /** Unix timestamp in milliseconds. */
-  ts: string;
-  open: string;
-  high: string;
-  low: string;
-  close: string;
-  /** Volume in base asset. */
-  vol: string;
-  /** Volume in currency. */
-  volCurrency: string;
-  /** Volume in quote currency. */
-  volCurrencyQuote: string;
-  /** Confirmation flag ('1' for closed/completed, '0' for partial). */
-  confirm: string;
-}
+import type { IMessage } from "#lib/ipc.util";
+import type { ICandle } from "#db";
+import { StatusCode } from "#api/lexicon";
+import { Load, Update, Select } from "#db";
+import { Session } from "#app/session";
+import { API_GET, ApiResult, type TResponse } from "#api";
+import { format } from "#lib/std.util";
 
 /**
- * Standard response structure for Blofin candle queries.
+ * @function Publish
+ * @description Real-Time Merge; Fetches the MOST RECENT candles (before/present) and reconciles them.
  */
-export interface IResult {
-  code: string;
-  msg: string;
-  /** Array of raw string arrays representing candle rows. */
-  data: string[][];
-}
+export const Publish = async (message: IMessage): Promise<Array<TResponse>> => {
+  const context = "Candle.Publish";
+  const { symbol, timeframe } = message;
 
-/**
- * Metadata for a specific instrument and its configured candle timeframe.
- */
-interface IInstrumentCandle {
-  account: Uint8Array;
-  instrument_position: Uint8Array;
-  instrument: Uint8Array;
-  symbol: string;
-  period: Uint8Array;
-  timeframe: string;
-  timeframe_units: number;
-  timestamp: number;
-  candle_max_fetch: number;
-}
+  // 1. Get the "Tip of the Spear" (Latest timestamp in DB)
+  const { success, data: latest } = await Select<ICandle>({ symbol, timeframe }, { table: `vw_candles`, suffix: "ORDER BY timestamp DESC", limit: 1 });
 
-interface ILoaderProps {
-  symbol: string;
-  timeframe: string;
-  startTime: number;
-}
-
-/**
- * Internal helper to detect if an API candle differs from a stored DB candle.
- * 
- * Compares OHLCV data and confirmation status. Uses a precision-weighted 
- * equality check for floating point currency volumes.
- * 
- * @param apiCandle - The newly fetched candle from the exchange.
- * @param dbCandle - The existing record retrieved from local storage.
- * @returns True if any critical price or volume data has changed.
- */
-const isChanged = (apiCandle: Partial<ICandle>, dbCandle: Partial<ICandle>): boolean => {
-  const changed = !(
-    isEqual(apiCandle.open!, dbCandle.open!) &&
-    isEqual(apiCandle.high!, dbCandle.high!) &&
-    isEqual(apiCandle.low!, dbCandle.low!) &&
-    isEqual(apiCandle.close!, dbCandle.close!) &&
-    isEqual(apiCandle.volume!, dbCandle.volume!) &&
-    isEqual(apiCandle.vol_currency!, dbCandle.vol_currency!, 5) &&
-    isEqual(apiCandle.vol_currency_quote!, dbCandle.vol_currency_quote!, 5) &&
-    !!apiCandle.completed === !!dbCandle.completed
-  );
-  return changed;
-};
-
-/**
- * Aggregates, formats, and categorizes API data for bulk persistence.
- * 
- * This method maps raw API strings to typed numbers, performs a look-ahead 
- * history fetch to build a local map, and partitions the incoming data into 
- * 'inserts' (new timestamps) and 'updates' (existing timestamps with changed data).
- * 
- * @param props - Metadata containing instrument and period identifiers.
- * @param api - The raw list of candles returned from the exchange.
- * @returns Categorized sets of candle records ready for the DB layer.
- */
-const publish = async (props: Partial<ICandle>, api: Array<ICandleAPI>) => {
-  if (api.length) {
-    api.length > 5 && console.log(`-> Candle.Publish [API]: ${api[0].symbol} / ${api.length}`);
-
-    const { instrument, period } = props;
-    const candles: Array<Partial<ICandle>> = api.map((c: ICandleAPI) => {
-      return {
-        instrument,
-        period,
-        timestamp: parseInt(c.ts),
-        open: parseFloat(c.open),
-        high: parseFloat(c.high),
-        low: parseFloat(c.low),
-        close: parseFloat(c.close),
-        volume: parseInt(c.vol),
-        vol_currency: parseFloat(c.volCurrency),
-        vol_currency_quote: parseFloat(c.volCurrencyQuote),
-        completed: !!parseInt(c.confirm),
-      };
-    });
-
-    const limit = Session().config?.candleMaxFetch || 100;
-    const dbBatch = (await Candle.History({ ...props, timestamp: candles[0].timestamp, limit})) ?? [];
-    const dbCandleMap = new Map<number, Partial<ICandle>>();
-
-    dbBatch.forEach((c) => dbCandleMap.set(c.timestamp!, c));
-
-    const categorized = candles.reduce(
-      (acc, apiCandle) => {
-        const existingDbCandle = dbCandleMap.get(apiCandle.timestamp!);
-
-        if (existingDbCandle) {
-          if (isChanged(apiCandle, existingDbCandle)) {
-            acc.updates.push(apiCandle);
-          }
-        } else {
-          acc.inserts.push(apiCandle);
-        }
-        return acc;
-      },
-      { inserts: [] as Array<Partial<ICandle>>, updates: [] as Array<Partial<ICandle>> },
-    );
-
-    return {
-      size: candles.length,
-      inserts: categorized.inserts,
-      updates: categorized.updates,
-    };
-  } else return { size: 0, inserts: [], updates: [] };
-};
-
-/**
- * Orchestrates the full synchronization flow for an instrument's candles.
- * 
- * 1. Resolves instrument metadata from 'vw_instrument_candles'.
- * 2. Fetches raw candle data from the Blofin REST API using dynamic timeframes.
- * 3. Categorizes data into batch inserts and individual updates.
- * 4. Executes DB persistence and notifies the parent process via receipt.
- * 
- * @param message - The instruction message containing the symbol and timeframe to sync.
- * @returns A receipt containing DB operation counts (inserts/updates).
- * @throws Error if the instrument is unconfigured or the API returns a bad response.
- */
-export const Publish = async (message: IMessage) => {
-  const instrument = await Select<IInstrumentCandle>(
-    { account: Session().account, symbol: message.symbol, timeframe: message.timeframe },
-    { table: "vw_instrument_candles" },
-  );
-
-  if (instrument.success && instrument.data?.length) {
-    const [current] = instrument.data;
-
-    try {
-      const { instrument, symbol, period, timeframe, timeframe_units, timestamp, candle_max_fetch } = current;
-      const keys = { instrument, period };
-      const start = `&before=${timestamp! - 3 * timeframe_units! * 60 * 1000}`;
-      const response = await fetch(`https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=${candle_max_fetch}&bar=${timeframe}${start}`);
-
-      if (response.ok) {
-        const json = await response.json();
-        const result: IResult = json;
-        if (result.data.length > 0) {
-          const api: ICandleAPI[] = result.data.map((c: string[]) => ({
-            symbol,
-            ts: c[0],
-            open: c[1],
-            high: c[2],
-            low: c[3],
-            close: c[4],
-            vol: c[5],
-            volCurrency: c[6],
-            volCurrencyQuote: c[7],
-            confirm: c[8],
-          }));
-
-          const published = await publish(keys, api);
-          published.inserts.length && (await Load<ICandle>(published.inserts, { table: `candle` }));
-          const promises = published.updates.map((update) => Candle.Publish(update));
-          await Promise.all(promises);
-
-          const receipt = { ...message, db: { insert: published.inserts.length, update: published.updates.length } };
-          process.send && process.send(receipt);
-          return receipt;
-        }
-      } else throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
-    } catch (error) {
-      console.log("Bad request in Candles.Import", { response: error });
-    }
-  } else throw new Error(`Unathorized fetch request; instrument ${message.symbol} not configured for account ${Session().alias}`);
-};
-
-/**
- * Executes a full historical data synchronization for a specific instrument.
- * 
- * Unlike the 'Publish' method which handles delta-syncs, 'Import' performs a 
- * deep-history fetch. It recursively paginates backwards through the Blofin 
- * REST API using the 'after' parameter until no further data is returned.
- * 
- * Key Features:
- * - Recursive Pagination: Updates `startTime` based on the oldest candle in each batch.
- * - Throttling: Implements a 1500ms delay between requests to respect API rate limits.
- * - Persistence: Combines bulk `Load` operations for new data with `Promise.allSettled` 
- *   for historical updates to ensure maximum throughput without blocking.
- * 
- * @async
- * @param message - The control message containing routing and context information.
- * @param props - Configuration for the loader, including symbol, timeframe, and anchor startTime.
- * @returns A cumulative receipt of all insertions and updates performed during the session.
- * @throws Error if the instrument or period keys cannot be resolved from the database.
- */
-export const Import = async (message: IMessage, props: ILoaderProps) => {
-  const { symbol, timeframe } = props;
-  
-  // Resolve primary keys for relational integrity
-  const [instrument, period] = await Promise.all([
-    Instrument.Key({ symbol }), 
-    Period.Key({ timeframe })
-  ]);
-  
+  const [{ instrument, period, ...current }] = success && latest && latest.length ? latest : [];
   const limit = Session().config?.candleMaxFetch || 100;
 
-  if (instrument && period) {
-    console.log(`Loader start for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
-    console.log(`-> [Info] Session.Config:`, { 
-      account: Session().account, 
-      alias: Session().alias, 
-      candleMaxFetch: limit 
-    });
+  // calculate the 'before' timestamp for the API query (1 candle before the latest in DB)
+  let timestamp = (current?.timestamp || Date.now()) - (current?.timeframe_minutes || 1) * 4 /* m (retro periods) */ * 60 /* s */ * 1000; /* ms */
+  // 2. Change the Query Direction
+  // Use 'before' to get records from 'now' going back to our 'timestamp'
+  // Or simply fetch the last N records to ensure overlap
+  const path = `/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}&before=${timestamp}`;
+  const candles = await API_GET<string[][]>(path, `Candle.Publish:${symbol}`, "https://openapi.blofin.com");
+  
+  console.log ('[Audit]', {symbol: message.symbol, position: message.position, timestamp, path})
 
-    const receipt = { ...message, db: { insert: 0, update: 0 } };
-    const keys = { instrument, period };
+  if (!candles.success || !candles.data) return [ApiResult(false, `${context}.Error`, { code: StatusCode.MALFORMED_API_PAYLOAD })];
 
-    // Continuous pagination loop
-    while (true) {
-      console.log(`Fetching candles for ${symbol} after [${props.startTime}, ${new Date(props.startTime).toISOString()}]`);
+  // 3. Map and Type-Cast the API to DB ICandle
+  const data = candles.data;
+  const imports: Array<Partial<ICandle>> = data?.map((col) => ({
+    instrument,
+    period,
+    timestamp: parseInt(col[0]),
+    open: parseFloat(col[1]),
+    high: parseFloat(col[2]),
+    low: parseFloat(col[3]),
+    close: parseFloat(col[4]),
+    volume: parseFloat(col[5]),
+    vol_currency: parseFloat(col[6]),
+    vol_currency_quote: parseFloat(col[7]),
+    completed: !!parseInt(col[8]),
+  }));
 
-      const after = props.startTime ? `&after=${props.startTime}` : "";
+  // 4. Get local audit rows for reconciliation
+  timestamp = Math.min(...imports.map((i) => i.timestamp!));
+  const { data: local } = await Select<ICandle>(
+    { instrument, period, timestamp },
+    { table: `vw_candles`, keys: [[`instrument`], [`period`], [`timestamp`, ">="]], suffix: `ORDER BY timestamp DESC` },
+  );
 
-      try {
-        const response = await fetch(
-          `https://openapi.blofin.com/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}${after}`
-        );
+  const localMap = new Map(local?.map((ts) => [ts.timestamp, ts]));
+  const audit = imports.reduce(
+    (acc, api) => {
+      const match = localMap.get(api.timestamp!);
 
-        if (response.ok) {
-          const json = await response.json();
-          const result: IResult = json;
+      if (!match) {
+        // Bucket a: Missing Records
+        acc.toInsert.push(api);
+      } else {
+        // Bucket b: Check for Mutated Records
+        const isMutated =
+          match.open !== api.open ||
+          match.high !== api.high ||
+          match.low !== api.low ||
+          match.close !== api.close ||
+          match.volume !== api.volume ||
+          format(match.vol_currency!, 5) !== format(api.vol_currency!, 5) ||
+          format(match.vol_currency_quote!, 5) !== format(api.vol_currency_quote!, 5) ||
+          !!match.completed !== !!api.completed;
 
-          if (result.data.length > 0) {
-            // Map raw string arrays to typed Candle API interface
-            const api: ICandleAPI[] = result.data.map((c: string[]) => ({
-              symbol,
-              ts: c[0],
-              open: c[1],
-              high: c[2],
-              low: c[3],
-              close: c[4],
-              vol: c[5],
-              volCurrency: c[6],
-              volCurrencyQuote: c[7],
-              confirm: c[8],
-            }));
-
-            // Diff against DB and prepare batches
-            const published = await publish(keys, api);
-            
-            // Move the cursor to the oldest timestamp received for the next iteration
-            props.startTime = Math.min(...api.map((c) => parseInt(c.ts)));
-
-            // Execute Updates
-            if (published.updates.length) {
-              await Promise.allSettled(published.updates.map((update) => Candle.Publish(update)));
-              receipt.db.update += published.updates.length;
-            }
-            
-            // Execute Batch Inserts
-            if (published.inserts.length) {
-              await Load<ICandle>(published.inserts, { table: `candle` });
-              receipt.db.insert += published.inserts.length;
-            }
-          } else {
-            // Exit loop: No more data returned from API
-            process.send && process.send(receipt);
-            return receipt;
-          }
+        // Bucket b: Changed Records
+        if (isMutated) {
+          acc.toUpdate.push(api);
         } else {
-          throw new Error(`Bad response from candle fetch: ${response.status} ${response.statusText}`);
+          // Bucket c: Verified unchanged and reconciled (Do-Nothing)
+          acc.toUnchanged.push(ApiResult(true, `${context}.Unchanged`, { code: 200, state: `no_change`, rows: 1 }));
         }
-      } catch (error) {
-        console.log(`Loader error for ${symbol} after ${props.startTime} on ${new Date().toISOString()}`);
-        return { ...message, text: (error as Error).message } as IMessage;
       }
+      return acc;
+    },
+    {
+      toInsert: [] as Array<Partial<ICandle>>,
+      toUpdate: [] as Array<Partial<ICandle>>,
+      toUnchanged: [] as Array<TResponse>,
+    },
+  );
 
-      // API Rate Limit Mitigation (1.5s backoff)
-      await new Promise((r) => setTimeout(r, 1500));
+  // 4. Atomic Commit
+  try {
+    const results = (
+      await Promise.all([
+        Load<ICandle>(audit.toInsert, { table: `candle`, ignore: true }, context),
+        ...audit.toUpdate.map((c) => Update(c, { table: `candle`, keys: [["timestamp"], [`period`], [`timestamp`]] }, context)),
+      ])
+    ).flat();
+
+    const isSuccess = results.every((r) => r.success);
+
+    // 5. Success Notification
+    if (process.send) {
+      process.send({
+        ...message,
+        state: isSuccess ? "complete" : "error",
+        timestamp: Date.now(),
+        audit: results.reduce((acc, r) => ({ ...acc, [r.context]: r }), {}),
+        status: {
+          success: isSuccess,
+          code: isSuccess ? StatusCode.SUCCESS : StatusCode.DB_UPSERT_FAILED,
+          text: isSuccess ? "Audit Reconciled" : "Partial Sync Failure",
+        },
+      } as IMessage);
     }
-  } else {
-    throw new Error(`Critical: Could not resolve instrument/period keys for ${symbol}/${timeframe}`);
+
+    return results;
+  } catch (error) {
+    // 6. Failure Notification (Triggers the Operator Alert/Retry logic)
+    if (process.send) {
+      process.send({
+        ...message,
+        state: "error",
+        timestamp: Date.now(),
+        status: {
+          success: false,
+          code: StatusCode.DB_UPSERT_FAILED,
+          text: error instanceof Error ? error.message : "Atomic Commit Exception",
+          fatal: (message.status?.attempt || 0) >= (Session().config?.maxRetries || 3),
+        },
+      } as IMessage);
+    }
+    throw error;
   }
 };

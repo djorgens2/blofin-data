@@ -16,7 +16,7 @@ import prompts from "prompts";
 //import * as InstrumentPosition from "#db/interfaces/instrument_position";
 import * as Accounts from "#db/interfaces/account";
 import { manageJobs } from "#cli/modules/JobManager";
-import { Log } from "#module/session";
+import { Log } from "#lib/log.util";
 import { hexString } from "#lib/std.util";
 import UserToken from "#cli/interfaces/user";
 
@@ -63,7 +63,7 @@ import UserToken from "#cli/interfaces/user";
 //     console.log(`\n-> [Success] ${action.toUpperCase()} signal sent to Watchdog for ${selection.symbol}`);
 //   } catch (err) {
 //     // This catches Constraint 1 (Role) or Constraint 3 (Disabled)
-//     console.error(`\n-> [Denied] ${err.message}`);
+//     Log().error(`\n-> [Denied] ${err.message}`);
 //   }
 // };
 
@@ -96,7 +96,7 @@ export const accountSelect = async (): Promise<string | undefined> => {
  * Aggregates selections and renders the final grid.
  */
 export const View = async () => {
-  Log().errors && console.error(`\n>> [DEBUG] Job View called with user [${hexString(UserToken().user, 12)}]: ${UserToken().username}`); // Debug log
+  Log().errors && Log().error(`\n>> [DEBUG] Job View called with user [${hexString(UserToken().user, 12)}]: ${UserToken().username}`); // Debug log
 
   setHeader("Job Control | View And Monitor Active Jobs");
 

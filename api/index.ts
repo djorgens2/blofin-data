@@ -27,7 +27,6 @@ export * from "#api/api.util"; // Factories like ApiResult
 
 // 2. Type Exports (The Blueprints - Compile-time Only)
 export type { IAccountAPI } from "#api/interfaces/accounts";
-export type { ICandleAPI } from "#api/interfaces/candles";
 export type { IInstrumentAPI } from "#api/interfaces/instruments";
 export type { ILeverageAPI } from "#api/interfaces/leverages";
 export type { IOrderAPI } from "#api/interfaces/orders";

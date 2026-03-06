@@ -8,7 +8,7 @@ import type { IPublishResult, IRequestAPI } from "#api";
 import type { IRequest, IInstrumentPosition } from "#db";
 
 import { Select } from "#db";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 
 import { Request, Leverage } from "#db";

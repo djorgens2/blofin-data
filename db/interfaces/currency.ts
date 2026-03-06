@@ -67,6 +67,9 @@ export const Publish = async (props: Partial<ICurrency>): Promise<IPublishResult
       { table: `currency`, keys: [[`currency`]], context },
     );
 
+    if (!result.success && result.code === 200  /* no update */ ) {
+      Object.assign(result, { success: true, code: 201, state: `exists`, message: `[Info] ${context}: No update required.` });
+    }
     return { key: PrimaryKey(current, ["currency"]), response: result };
   }
 

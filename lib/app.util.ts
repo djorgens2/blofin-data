@@ -36,58 +36,6 @@ export type Action = (typeof Action)[keyof typeof Action];
 export type Bias = (typeof Bias)[keyof typeof Bias];
 export type Role = (typeof Role)[keyof typeof Role];
 
-//-- IPC message header
-export interface IMessage {
-  state: `init` | `api` | `update` | `ready` | 'shutdown';
-  account: Uint8Array;
-  symbol: string;
-  timeframe: string;
-  code?: number;
-  success?: boolean;
-  text?: string;
-  timestamp?: EpochTimeStamp;
-  db?: {
-    insert?: number;
-    update?: number;
-  };
-  events?: {
-    fractal?: number;
-    sma?: number;
-  };
-  trades?: {
-    open?: number;
-    close?: number;
-  };
-}
-
-//+--------------------------------------------------------------------------------------+
-//| Returns initialized Message header (clone) with identity retention (symbol);         |
-//+--------------------------------------------------------------------------------------+
-export const clear = (message: IMessage): IMessage => {
-  return {
-    state: message.state,
-    account: message.account,
-    symbol: message.symbol,
-    timeframe: message.timeframe,
-    code: 0,
-    success: true,
-    text: "",
-    timestamp: Date.now(),
-    db: {
-      insert: 0,
-      update: 0,
-    },
-    events: {
-      fractal: 0,
-      sma: 0,
-    },
-    trades: {
-      open: 0,
-      close: 0,
-    },
-  };
-};
-
 //+--------------------------------------------------------------------------------------+
 //| Returns Blofin instrument symbols from pair; forces 'USDT' on empty second           |
 //+--------------------------------------------------------------------------------------+

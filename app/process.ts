@@ -7,127 +7,89 @@
  *
  * #version 1.0.0 - Initial implementation of the fractal worker process.
  * #version 1.1.0 - Added graceful shutdown handling and error reporting.
- * @version 1.2.0 - Refactored for clearer separation of initialization and update logic.
+ * #version 1.2.0 - Refactored for clearer separation of initialization and update logic.
+ * @version 1.3.0 - Refactored worker entry point. Uses O(1) Session access and reactive IPC state management.
  *
  * @copyright 2018-2026, Dennis Jorgenson
  */
 
 "use strict";
 
-import type { IMessage } from "#lib/app.util";
+import type { IMessage } from "#lib/ipc.util";
 
-import { CFractal } from "#module/fractal";
-import { Session, Config } from "#module/session";
-import { parseJSON } from "#lib/std.util";
-import { hexify } from "#lib/crypto.util";
-import { InstrumentPosition } from "#db";
+//import { CFractal } from "#module/fractal";
+import { Log } from "#lib/log.util";
+import { IpcHeader } from "#lib/ipc.util";
+import { Session, setSession } from "#app/session";
 import { Candles } from "#api";
-import { isProcessing, startController } from "../controller/worker";
+import { delay } from "#lib/std.util";
 
 /**
- * Main execution loop for the instrument worker process.
- *
- * @async
- * @function Process
- * @description
- * 1. Parses CLI arguments to retrieve initial {@link IMessage} configuration.
- * 2. Hydrates the local {@link Session} via {@link Config}.
- * 3. Fetches the {@link InstrumentPosition} from the database.
- * 4. Initializes the {@link CFractal} engine for entry/exit calculations.
- * 5. Listens for IPC messages from the master process to trigger updates.
- *
- * @returns {Promise<void>}
+ * 1. INITIALIZATION: Handshake with Papa
+ * We capture the "Birth Certificate" from ARGV immediately.
  */
-export const Process = async () => {
-  // Extract the JSON payload passed from the master fork() call
-  const [cli_message] = process.argv.slice(2);
-  const message: Partial<IMessage> = parseJSON<IMessage>(cli_message) ?? {};
+const setup = process.argv[2] ? JSON.parse(process.argv[2]) : {};
+const message: IMessage = IpcHeader(setup, "init");
 
-  // Re-hydrate session configuration locally for this process
-  message.account && (await Config({ account: hexify(message.account) }, message.symbol!));
+/** 2. Cool-down timer properties */
+let LAST_RECEIPT = 0;
+const MIN_GAP = message?.config?.apiCooldownMs || 1500;
 
-  /**
-   * Retrieve the specific position/setting metadata for this fractal
-   * from the database to ensure we have the latest 'Enabled' parameters.
-   */
-  const instrument_position = await InstrumentPosition.Fetch({
-    account: Session().account,
-    symbol: message.symbol,
-    timeframe: message.timeframe,
-  });
+// Lock the identity into the local singleton immediately
+setSession(message);
 
-  if (instrument_position && process.send) {
-    const [current] = instrument_position;
+/**
+ * 2. EXECUTION: The Logic Heartbeat
+ * Mama stays alive and responds to Papa's state transitions.
+ */
+process.on("message", async (message: IMessage) => {
+  // Update local session with any incoming deltas (auth, config, etc)
+  const ipc = IpcHeader(message, message.state);
+  setSession(ipc);
 
-    /**
-     * PHASE 1: THE HEAVY LIFT
-     * We await the full initialization of the Fractal Engine.
-     * This includes historical bar processing and indicator warming.
-     */
-    const Fractal = await CFractal(message, current);
-
-    /**
-     * PHASE 2: THE HEARTBEAT
-     * Only once the Fractal logic is "Warm", we start the 5000ms loop.
-     * This prevents the Controller from trying to 'Trade' on null/cold data.
-     */
-    startController();
-
-    /**
-     * PHASE 3:
-     * IPC Message Listener
-     * Responds to state transitions (init -> api -> update) sent from main.ts
-     */
-    process.on("message", async (message: IMessage) => {
-      // 1. SHUTDOWN SIGNAL
-      if (message.state === "shutdown") {
-        console.log(`[Mama] ${message.symbol} received Ceasefire. Checking Mutex...`);
-
-        // We poll the local semaphore to ensure the 500ms fractal cycle is done
-        const shutdownCheck = setInterval(() => {
-          if (!isProcessing) {
-            clearInterval(shutdownCheck);
-            console.log(`[Mama] ${message.symbol} local cycle finished. Exiting PID ${process.pid}.`);
-
-            /**
-             * PRO-TIP: Close any local DB connections here if Mama
-             * has her own private pool, otherwise just exit.
-             */
-            process.exit(0);
-          }
-        }, 100);
-        return;
+  try {
+    // 3. CHATTERBOX PROTECTION
+    // We only throttle data-heavy or rate-limited states
+    if (["api", "update"].includes(ipc.state)) {
+      const elapsed = Date.now() - LAST_RECEIPT;
+      if (elapsed < MIN_GAP) {
+        const snooze = MIN_GAP - elapsed;
+        // console.log(`[Mama] Cooldown: Sleeping ${snooze}ms for ${ipc.symbol}`);
+        await delay(snooze);
       }
+      LAST_RECEIPT = Date.now(); // Reset the clock AFTER the wait
+    }
+    switch (ipc.state) {
+      case "api":
+        /**
+         * Mama now uses Session() internally for credentials.
+         * Sync historical candle data.
+         */
+        await Candles.Publish(ipc);
+        break;
 
-      try {
-        if (message.state === `api`) {
-          // Trigger candle history synchronization for this symbol
-          await Candles.Publish(message);
-        } else if (message.state === `update`) {
-          // Trigger the core fractal entry/exit logic update
-          await Fractal.Update(message);
-        }
+      case "update":
+        /**
+         * Core fractal logic update cycle.
+         * Logic moved to reactive handlers to keep this switch clean.
+         */
+        // await Fractal.Update(ipc);
+        break;
 
-        // Acknowledge completion back to the master process
-        process.send && process.send(message);
-      } catch (error) {
-        console.error(`[Error] Worker PID ${process.pid} - [${message.state}]:`, error);
-        // Notify master of a failure in this specific cycle
-        process.send && process.send({ ...message, state: "error" });
-      }
-    });
+      case "shutdown":
+        console.log(`[Mama] ${Session<IMessage>().symbol} shutting down...`);
+        // Add Mutex/isProcessing check here if needed before exit
+        process.exit(0);
+        break;
+    }
 
-    /** Exit handler for logging/cleanup */
-    process.on("exit", (code) => {
-      console.log(`[process] Symbol: [${message!.symbol}] exit; PID: ${process.pid} exited with code ${code}`);
-    });
-
-    // Notify master that initialization is complete and worker is ready for 'api' state
-    process.send(message);
-  } else {
-    console.error(`[Critical] Worker ${process.pid}: Missing critical instrument position data.`);
+    // Always ACK back to Papa so he knows the cycle finished
+    process.send?.(ipc);
+  } catch (error) {
+    Log().error(`[Mama Error] ${Session<IMessage>().symbol}:`, error);
+    process.send?.({ ...ipc, state: "error", error });
   }
-};
+});
 
-// Execute the process entry point
-Process();
+// Initial "I'm Alive" signal to Papa
+process.send?.(message);

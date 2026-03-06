@@ -16,7 +16,7 @@ import type { TPositionState } from "#db/interfaces/state";
 import type { IPublishResult } from "#api";
 import { Select, Insert, Update, PrimaryKey } from "#db";
 import { hasValues, isEqual } from "#lib/std.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 /**
  * Interface representing a synthesized market position (DCA Bucket).

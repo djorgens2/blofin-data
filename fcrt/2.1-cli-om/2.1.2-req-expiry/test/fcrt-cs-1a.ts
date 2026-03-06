@@ -2,7 +2,7 @@
 import type { IRequest } from "#db/interfaces/request";
 import type { IPublishResult } from "#api";
 
-import { config, Session } from "#module/session";
+import { config, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_1a } from "./request";
 
@@ -26,10 +26,10 @@ if (cli_account && cli_test) {
   submit({ ...req_fcrt_1a, memo: `Test ${cli_test}: request w/ expiry; w/o tpsl` })
     .then(async ([submitted, request]) => {
       if (!submitted.response.success) {
-        console.error("Test 1: Request submission failed.");
-        console.error("Check if the request was already submitted or if there was an error in the submission process.");
-        console.error("Submitted Request details:", {submitted, request});
-        console.error("Exiting process with code 1.");
+        Log().error("Test 1: Request submission failed.");
+        Log().error("Check if the request was already submitted or if there was an error in the submission process.");
+        Log().error("Submitted Request details:", {submitted, request});
+        Log().error("Exiting process with code 1.");
         process.exit(1);
       }
       await Orders.Fetch({ request: submitted.key?.request } as Partial<IRequest>).then((order) => {
@@ -39,8 +39,8 @@ if (cli_account && cli_test) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error(`Test ${cli_test}: Error during request submission:`, error);
+      Log().error(`Test ${cli_test}: Error during request submission:`, error);
       process.exit(1);
     });
-} else console.error("[Error] Account and Test Id missing from parameter list");
+} else Log().error("[Error] Account and Test Id missing from parameter list");
 //-----------------------------------------------------------------------------------------------------//

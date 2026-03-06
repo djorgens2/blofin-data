@@ -2,7 +2,7 @@
 import type { IRequest } from "#db/interfaces/request";
 import type { IPublishResult } from "#api";
 
-import { Session, setSession } from "#module/session";
+import { Session, setSession } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { Select } from "#db/query.utils";
 
@@ -124,9 +124,9 @@ if (cli_account && cli_test) {
   submit()
     .then(async ([submitted, request]) => {
       if (submitted === undefined) {
-        console.error(`Test ${cli_test}: Request submission failed.`);
-        console.error("Request details:", request);
-        console.error("Exiting process with code 1.");
+        Log().error(`Test ${cli_test}: Request submission failed.`);
+        Log().error("Request details:", request);
+        Log().error("Exiting process with code 1.");
         process.exit(1);
       }
       await Orders.Fetch({ request: submitted.key?.request } as Partial<IRequest>).then((order) => {
@@ -136,8 +136,8 @@ if (cli_account && cli_test) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error(`Test ${cli_test}: Error during request submission:`, error);
+      Log().error(`Test ${cli_test}: Error during request submission:`, error);
       process.exit(1);
     });
-} else console.error("[Error] Account and Test Id missing from parameter list");
+} else Log().error("[Error] Account and Test Id missing from parameter list");
 //-----------------------------------------------------------------------------------------------------//

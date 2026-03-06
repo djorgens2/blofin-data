@@ -178,8 +178,8 @@ CREATE INDEX ie_o_client_order_id ON devel.orders ( client_order_id );
 CREATE  TABLE devel.period ( 
 	period               BINARY(3)    NOT NULL   PRIMARY KEY,
 	timeframe            VARCHAR(3)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
+	timeframe_minutes    INT    NOT NULL   ,
 	description          VARCHAR(30)   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL   ,
-	timeframe_units      INT    NOT NULL   ,
 	CONSTRAINT ak_period UNIQUE ( timeframe ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
@@ -452,8 +452,8 @@ CREATE  TABLE devel.job_control (
 	message              VARCHAR(60)   COLLATE utf8mb4_0900_as_cs NOT NULL   ,
 	start_time           DATETIME(3)    NOT NULL   ,
 	stop_time            DATETIME(3)    NOT NULL   ,
-	CONSTRAINT fk_jc_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_jc_process_state FOREIGN KEY ( process_state ) REFERENCES devel.process_state( process_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_jc_process_state FOREIGN KEY ( process_state ) REFERENCES devel.process_state( process_state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_jc_instrument_position FOREIGN KEY ( instrument_position ) REFERENCES devel.instrument_position( instrument_position ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
 CREATE INDEX fk_jc_process_state ON devel.job_control ( process_state );
@@ -1022,6 +1022,7 @@ select
 	q.symbol AS quote_symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
+	p.timeframe_minutes AS timeframe_minutes,
 	c.timestamp AS timestamp,
 	from_unixtime((c.timestamp / 1000)) AS bar_time,
 	c.open AS open,
@@ -1068,7 +1069,7 @@ select
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	p.timeframe_units AS timeframe_units,
+	p.timeframe_minutes AS timeframe_minutes,
 	c.timestamp AS timestamp,
 	cast(ac.param_value as unsigned) AS candle_max_fetch
 from
@@ -1105,7 +1106,7 @@ select
 	q.symbol AS quote_symbol,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	p.timeframe_units AS timeframe_units
+	p.timeframe_minutes AS timeframe_minutes
 from
 	((((devel.instrument i
 join devel.instrument_period ip on
@@ -1140,7 +1141,7 @@ select
 	if((qs.status = 'Suspended'), qs.status, bs.status) AS instrument_status,
 	p.period AS period,
 	p.timeframe AS timeframe,
-	p.timeframe_units AS timeframe_units,
+	p.timeframe_minutes AS timeframe_minutes,
 	a.margin_mode AS margin_mode,
 	coalesce(nullif(ipos.leverage, 0), cast(devel.dleverage.param_value as unsigned)) AS leverage,
 	id.max_leverage AS max_leverage,
@@ -1261,10 +1262,13 @@ left join devel.contract_type ct on
 CREATE VIEW devel.vw_job_control AS
 select
 	ipos.instrument_position AS instrument_position,
-	ua.account AS user_account,
-	ua.user AS user,
+	ua.account AS account,
 	a.alias AS alias,
+	ua.user AS user,
 	ua.nickname AS nickname,
+	r.role AS role,
+	r.title AS title,
+	r.auth_rank AS auth_rank,
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	ipos.position AS position,
@@ -1280,7 +1284,7 @@ select
 	jc.auto_start AS auto_start,
 	jc.start_time AS start_time,
 	jc.stop_time AS stop_time,
-	(jc.stop_time - jc.start_time) AS system_up_time
+	if((jc.stop_time > jc.start_time),(jc.stop_time - jc.start_time),(now(3) - jc.start_time)) AS system_up_time
 from
 	(((((((((((((((devel.instrument_position ipos
 join devel.user_account ua on
@@ -1368,7 +1372,7 @@ select
 	r.broker_id AS broker_id,
 	ipos.period AS trade_period,
 	p.timeframe AS trade_timeframe,
-	p.timeframe_units AS timeframe_units,
+	p.timeframe_minutes AS timeframe_minutes,
 	r.memo AS memo,
 	r.create_time AS create_time,
 	r.expiry_time AS expiry_time,
@@ -1621,6 +1625,37 @@ left join devel.state rs on
 left join devel.order_category oc on
 	((oc.order_category = so.order_category)));
 
+CREATE VIEW devel.vw_user_accounts AS
+select
+	ua.account AS account,
+	a.alias AS alias,
+	ua.user AS user,
+	u.username AS username,
+	u.email AS email,
+	u.role AS role,
+	r.title AS title,
+	u.state AS state,
+	us.status AS status,
+	r.auth_rank AS auth_rank,
+	ua.role AS auth_role,
+	uar.title AS auth_title,
+	ua.state AS auth_state,
+	uas.status AS auth_status
+from
+	((((((devel.user_account ua
+join devel.account a on
+	((a.account = ua.account)))
+join devel.user u on
+	((u.user = ua.user)))
+join devel.state us on
+	((us.state = ua.state)))
+join devel.role r on
+	((r.role = ua.role)))
+join devel.state uas on
+	((uas.state = ua.state)))
+join devel.role uar on
+	((uar.role = ua.role)));
+
 CREATE VIEW devel.vw_user_authority AS
 select
 	u.user AS user,
@@ -1723,7 +1758,6 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
-
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);

@@ -88,7 +88,7 @@ export async function manageJobs() {
   if (!selection) return;
 
   // 1. Confirm / Override Timeframe
-  const timeframes = await Period.Fetch({}, { suffix: `WHERE timeframe_units > 0 ORDER BY timeframe_units ASC` });
+const timeframes = await Period.Fetch({timeframe_minutes: 0}, { keys: [[`timeframe_minutes`,">"]], suffix: `ORDER BY timeframe_minutes ASC` });
   const initialIndex = timeframes?.findIndex((p) => p.timeframe === selection.timeframe);
   const { selectPeriod } = await prompts({
     type: "select", // Or 'select' if you want a fixed picklist
@@ -97,7 +97,7 @@ export async function manageJobs() {
     initial: initialIndex || 0,
     choices: timeframes
       ? timeframes.map((p) => ({
-          title: `${cyan(p.timeframe?.padEnd(5))} ${gray("│ Units:")} ${p.timeframe_units?.toString().padStart(10)} ${gray("│")} ${p.description})`,
+          title: `${cyan(p.timeframe?.padEnd(5))} ${gray("│ Units:")} ${p.timeframe_minutes?.toString().padStart(10)} ${gray("│")} ${p.description})`,
           value: p.period, // This is the actual Binary that will be used in provisioning
         }))
       : [{ title: selection.timeframe, value: selection.timeframe }], // Fallback to the original if no periods found

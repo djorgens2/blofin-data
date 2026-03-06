@@ -17,6 +17,7 @@ import { hashKey, hexify } from "#lib/crypto.util";
 import { ApiResult } from "#api";
 import { Load, type TRefKey } from "#db";
 import { cyan, green, yellow, red, bold } from "console-log-colors";
+import { Log } from "#lib/log.util";
 import * as Reference from "#db/interfaces/reference";
 
 /**
@@ -109,7 +110,7 @@ export const Loader = async (seedFilePath = "./", context?: string): Promise<TRe
     return ApiResult(true, logContext, { message: "Universal hydration complete." });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "FS_SCAN_ERROR";
-    console.error(red(`\n[Critical] Hydration Failed: ${msg}`));
+    Log().error(red(`\n[Critical] Hydration Failed: ${msg}`));
     return ApiResult(false, logContext, { message: `Hydration failed: ${msg}` });
   }
 };

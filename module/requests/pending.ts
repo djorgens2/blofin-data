@@ -7,7 +7,7 @@
 import type { IPublishResult, TResponse } from "#api";
 import type { IRequest } from "#db";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { Request, Order } from "#db";
 
 //-- [Process.Orders] Closes pending orders beyond expiry

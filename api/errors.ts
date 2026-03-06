@@ -2,7 +2,7 @@
  * API error lexicon.
  *
  * @module errors.ts
- * @copyright 2018, Dennis Jorgenson
+ * @copyright 2018-2026, Dennis Jorgenson
  */
 
 /**
@@ -20,23 +20,51 @@
 "use strict";
 
 /**
- * Permanent lexicon of error codes for the Account API.
+ * Permanent lexicon of error codes for the WSS, REST API, and Database calls.
  */
-export const enum ErrorCode {
-  // 0-999: Success
+/**
+ * @file ErrorLexicon.ts
+ * @description Standardized C2 Hub Error/Status Codes.
+ * Range-bound categorization for the 2026 Engine.
+ */
+
+export enum StatusCode {
+  // 0-999: Pure Success
   SUCCESS = 0,
-  
-  // 1000-1999: Success with Warnings
+
+  // 1000-1999: Success with Warnings (Informational)
+  REQUIRED_FIELDS_MISSING = 1001,
   PARTIAL_SYNC_WARNING = 1100,
 
-  // 2000-2999: Client Side (Input)
+  // 2000-2999: Client/Interface Logic Errors (Input)
   MALFORMED_WSS_PAYLOAD = 2001,
   INVALID_ACCOUNT_SESSION = 2100,
 
-  // 4000-4999: Database Specific
+  // 4000-4999: Persistence Layer (Database)
   DB_UPSERT_FAILED = 4001,
   DB_CURRENCY_NOT_FOUND = 4002,
 }
+
+/**
+ * @description Type-safe mapping of StatusCodes to their verbose human/log strings.
+ */
+export const StatusMessage: Record<StatusCode, string> = {
+  [StatusCode.SUCCESS]: "Operation completed successfully.",
+  
+  [StatusCode.REQUIRED_FIELDS_MISSING]: "Validation failed: 'symbol' and 'timeframe' are mandatory for this operation.",
+  [StatusCode.PARTIAL_SYNC_WARNING]: "Operational sync incomplete: check downstream provider heartbeat.",
+
+  [StatusCode.MALFORMED_WSS_PAYLOAD]: "WSS Protocol Error: Unable to parse incoming JSON payload.",
+  [StatusCode.INVALID_ACCOUNT_SESSION]: "Auth Failure: Session expired or token signature invalid.",
+
+  [StatusCode.DB_UPSERT_FAILED]: "Persistence Error: Atomic upsert failed at the machine boundary.",
+  [StatusCode.DB_CURRENCY_NOT_FOUND]: "Registry Error: Specified currency key not found in devel.assets.",
+};
+
+/**
+ * @description Helper to check if a code is a warning-level success.
+ */
+export const isWarning = (code: StatusCode): boolean => code >= 1000 && code < 2000;
 
 // Example usage in your Publish function
 //if (!currency) {

@@ -26,7 +26,6 @@
       "#app/*": ["./app/*"],
       "#db/*": ["./db/*"],
       "#db": ["./db/index.ts"],
-      "#controller/*": ["./controller/*"],
       "#lib/*": ["./lib/*"],
       "#module/*": ["./module/*"],
       "#stops" : ["./module/stops/index.ts"],

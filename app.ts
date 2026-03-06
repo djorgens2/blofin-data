@@ -1,66 +1,84 @@
 /**
  * @file app.ts
  * @module ApplicationEntry
- * @description Entry point for the trading application. Handles environment
- * configuration, data synchronization, and application bootstrapping.
+ * @description
+ * Administrative Bootstrapper. Handles CLI authentication and
+ * dispatches detached Papa Hub processes for enabled accounts.
  *
- * @copyright 2018, Dennis Jorgenson
+ * DESIGN PHILOSOPHY:
+ * Operates as a "Launch-and-Detach" supervisor. Once credentials
+ * are verified, it spawns autonomous Papa Hubs and exits,
+ * ensuring no single point of failure at the CLI level.
+ *
+ * @copyright 2018-2026, Dennis Jorgenson
  */
 
 "use strict";
 
-import { importCandles, importInstruments } from "#app/import";
-import { Log, Session, Config } from "#module/session";
-import { hexify } from "#lib/crypto.util";
+import type { IUserAccounts } from "#db/types";
+import { Logon } from "#cli/pages/logon";
+import { setHeader } from "#cli/modules/Header";
+import { Select } from "#db";
 import { CMain } from "#app/main";
-import { Positions, Orders, StopOrders } from "#api";
-import { Loader } from "#db/loader.util";
+import { Log } from "#lib/log.util";
+//import { fork } from "child_process";
+//import { hexString } from "#lib/std.util";
+import UserToken from "#cli/interfaces/user";
 
 /**
- * @async
- * @function initialize
- * @description
- * Sequence:
- * 1. Synchronously waits for Seed data (required for subsequent calls).
- * 2. Concurrently imports instruments, candles, and account state.
- * 3. Finalizes bootstrap via CMain.
- * 
- * @throws {SeedNotFoundError} If the path "../db/seed/" is unreachable.
- * @throws {InitializationError} If parallel imports fail.
+ * @function Connect
+ * @description Interactive CLI User Authentication.
  */
-const initialize = async () => {
-  // 1. Critical Dependency: Load seed first
-  await Loader("../db/seed/", "Seed");
+const Connect = async () => {
+  const { username, title } = UserToken();
 
-  // 2. Parallel Load: All functions that depend on the seed
-  await Promise.all([importInstruments(), importCandles(), Positions.Import(), Orders.Import(), StopOrders.Import()]);
+  if (username && title) return;
 
-  setTimeout(async () => {
-    console.log("[Info] Application.Initialization finished:", new Date().toLocaleString());
+  try {
+    // 1. Authenticate against local DB (Authority/User tables)
+    await Logon();
 
-    const app = new CMain();
+    // 2. Verify user credentials; if UserToken signals an error, we block entry and terminate.
+    if (UserToken().error) {
+      setHeader(`Unauthorized Access`);
+      process.exit(1);
+    }
+  } catch (err) {
+    setHeader(">> [CRITICAL] CLI Administrative Error");
+    Log().error(`\n\n` + err);
+    process.exit(1);
+  }
+};
+
+/**
+ * @function Initialize
+ * @description
+ * 1. Queries all 'Enabled' accounts within the logged users' purview;
+ * 2. Spawns a detached Account-specific process for each.
+ * 3. Hands off the verified UserToken for administrative persistence.
+ */
+const Initialize = async () => {
+  const accounts = await Select<IUserAccounts>({ status: "Enabled", auth_status: "Enabled" }, { table: `vw_user_accounts` });
+
+  if (!accounts.success || !accounts.data?.length) {
+    Log().error(`[Error] App.Initialize: No Authorized Accounts to operate; check your permissions`);
+    return;
+  }
+
+  // Inside Grand-Papa
+  accounts.data.forEach(({ account }) => {
+    const app = new CMain(account); // Born with a Passport
     app.Start();
-  }, 1500);
+  });
 };
 
 /**
  * Application Self-Invoking Entry Point
- *
- * @constant account
- * @type {string}
- * @description The hex-encoded account identifier derived from environment variables.
- * Priority: `process.env.account` > `process.env.SEED_ACCOUNT` > fallback `???`.
+ * @description
+ * Connect - verifies user credentials against any (existing) user token (in memory); launches app on successful logon;
  */
-const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-
-/**
- * Initializes the Session Configuration.
- * If successful, logs session metadata and triggers the {@link initialize} sequence.
- */
-Config({ account }, "Start").then(async () => {
-  console.log("[Info] Application.Initialization start:", new Date().toLocaleString());
-  console.log(`-> Active.Session:`, Session().Log());
-  console.log(`-> Log.Config:`, Log());
-
-  await initialize();
-});
+try {
+  Connect().then(async () => Initialize());
+} catch (error) {
+  Log().error("[Fatal] Bootstrap aborted.", error);
+}

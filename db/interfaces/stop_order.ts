@@ -9,7 +9,7 @@ import type { IStopRequest, TOptions } from "#db";
 import type { IPublishResult, IStopOrderAPI } from "#api";
 
 import { Select, Insert, Update, PrimaryKey } from "#db";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { hasValues, isEqual } from "#lib/std.util";
 
 export interface IStopOrder extends IStopRequest {

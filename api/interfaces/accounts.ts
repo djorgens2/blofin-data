@@ -13,7 +13,7 @@
 
 "use strict";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { format } from "#lib/std.util";
 import { Account, Currency } from "#db";
 import { ApiError } from "#api";
@@ -96,7 +96,7 @@ export const Publish = async (props: IAccountAPI): Promise<void> => {
     props.details.map(async (d) => {
       const currency = await Currency.Publish({ symbol: d.currency });
       if (!currency.response.success) {
-        throw new ApiError(404, "Account.Publish.WSS: Currency not found", { symbol: d.currency });
+        throw new ApiError(404, "Account.Publish.WSS: Currency not found", { symbol: d.currency, currency_response: currency.response });
       }
     }),
   );

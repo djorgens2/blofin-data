@@ -9,7 +9,7 @@ import type { IOrder, IRequest } from "#db";
 
 import { Order, Request } from "#db";
 import { Requests} from "#api";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import { hexString } from "#lib/std.util";
 

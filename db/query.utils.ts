@@ -21,7 +21,7 @@ import type { TOptions, TPrimaryKey, TKey } from "#db";
 import type { TResponse } from "#api";
 
 import { hasValues } from "#lib/std.util";
-import { Log } from "#module/session";
+import { Log } from "#lib/log.util";
 
 import { ApiResult } from "#api";
 import { pool, DB_SCHEMA } from "#db";
@@ -56,7 +56,7 @@ export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
  * @returns {TResponse & { data: [] }} - Guaranteed shape for destructuring.
  */
 const normalizeError = (e: any, context: string): TResponse & { data: [] } => {
-  Log().errors && console.error(`-> [Error] ${context} | ${e?.code || "DB_ERR"}: ${e?.message}`);
+  Log().errors && Log().error(`-> [Error] ${context} | ${e?.code || "DB_ERR"}: ${e?.message}`);
 
   return {
     ...ApiResult(false, context, {
@@ -338,7 +338,7 @@ export const Update = async <T extends object>(props: Partial<T>, options: TOpti
   const [fields, values, defined] = parseColumns<T>(columns);
 
   if (fields.length === 0) {
-    return ApiResult(false, context, { code: 400, message: `no_update` });
+    return ApiResult(false, context, { code: 200, message: `no_update`, data: props });
   }
 
   const sql = `UPDATE ${DB_SCHEMA}.${table} SET ${fields.join(", ")}${
@@ -429,7 +429,7 @@ export const Distinct = async <T extends object>(props: Partial<T>, options: TOp
     Log().select && console.log(`-> [Info] Executing Distinct Select on ${table}`, { sql, args });
     return await select(sql, args, context);
   } catch (e) {
-    console.error(`-> [Error] Distinct failed on ${table}`, e);
+    Log().error(`-> [Error] Distinct failed on ${table}`, e);
     return normalizeError(e, context);
   }
 };

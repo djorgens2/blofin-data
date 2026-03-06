@@ -8,7 +8,7 @@ import type { TRequestState, TPositionState } from "#db/interfaces/state";
 import type { IPublishResult } from "#api";
 import type { TRefKey, IStopOrder } from "#db";
 
-import { Session, setSession } from "#module/session";
+import { Session, setSession } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { delay, fileWrite, format } from "#lib/std.util";
 import { API_GET, ApiError, ApiResult } from "#api";
@@ -174,7 +174,7 @@ const History = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
   const history: Array<Partial<IStopOrderAPI>> = [];
 
   while (true) {
-    console.error("-> [Info] Fetching Stops History from ID:", Session().audit_stops);
+    Log().error("-> [Info] Fetching Stops History from ID:", Session().audit_stops);
     const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}&limit=${limit}`;
     const result = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.History.API");
 
@@ -212,7 +212,7 @@ const Pending = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
 
       await delay(1500);
     } catch (error) {
-      console.error(">> [Error] Stops.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
+      Log().error(">> [Error] Stops.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
       break;
     }
   }
@@ -266,7 +266,7 @@ export const oldImport = async () => {
     // console.log(`-> Stops.Import complete; history stops processed: ${history.length}; open stops processed: ${pending.length};`);
     return result;
   } catch (error) {
-    console.error(">> [Error] Stops.Import: Operation failure", error);
+    Log().error(">> [Error] Stops.Import: Operation failure", error);
   }
 };
 

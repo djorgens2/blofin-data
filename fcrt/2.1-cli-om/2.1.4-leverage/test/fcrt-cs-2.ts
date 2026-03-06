@@ -3,7 +3,7 @@ import type { TRefKey } from "#db";
 import type { IRequest } from "#db/interfaces/request";
 import type { IPublishResult } from "#api";
 
-import { config, Session } from "#module/session";
+import { config, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { setExpiry } from "#lib/std.util";
 
@@ -38,11 +38,11 @@ if (args.length) {
     submit({ ...request, update_time: new Date() }, testId)
       .then(async ([submitted, request]) => {
         if (submitted === undefined) {
-          console.error(Session());
-          console.error(`Test ${testId}: Request submission failed.`);
-          console.error("Check if the request was already submitted or if there was an error in the submission process.");
-          console.error("Request details:", request);
-          console.error(`Exiting process with code 1 for test ${testId}.`);
+          Log().error(Session());
+          Log().error(`Test ${testId}: Request submission failed.`);
+          Log().error("Check if the request was already submitted or if there was an error in the submission process.");
+          Log().error("Request details:", request);
+          Log().error(`Exiting process with code 1 for test ${testId}.`);
           process.exit(1);
         }
         await Orders.Fetch({ request: submitted.key?.request } as Partial<IRequest>).then((order) => {
@@ -52,8 +52,8 @@ if (args.length) {
         process.exit(0);
       })
       .catch((error) => {
-        console.error(`Test ${testId}: Error during request submission:`, error);
+        Log().error(`Test ${testId}: Error during request submission:`, error);
         process.exit(1);
       });
-} else console.error("[Error] Account must be passed as first parameter");
+} else Log().error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

@@ -1,45 +1,17 @@
-
 /**
- * Trade request payload for the Broker API.
+ * API Integration and Synchronization for Trade Requests.
+ *
+ * This module orchestrates the transformation of raw exchange order data into
+ * localized Order and Request records. It handles state mapping, currency formatting,
+ * and ensures data integrity across high-frequency WSS updates and REST history imports.
+ *
+ * @module api/requests
+ * 
+ * @copyright 2018-2026, Dennis Jorgenson
  */
-export interface IRequestAPI {
-  /** Account identifier hash. */
-  account: Uint8Array;
-  /** Desired state of the request. */
-  status?: TRequestState;
-  /** Unique ID provided by the exchange for existing orders. */
-  orderId?: string;
-  /** Trading symbol (e.g., "BTC-USDT-PERP"). */
-  instId: string;
-  marginMode: "cross" | "isolated";
-  positionSide: "short" | "long" | "net";
-  side: "buy" | "sell";
-  /** Order types: "market", "limit", etc. */
-  orderType: string;
-  price: string;
-  size: string;
-  leverage: string;
-  reduceOnly: string;
-  /** Local unique identifier for request tracking. */
-  clientOrderId: string;
-  tpTriggerPrice: undefined | null;
-  tpOrderPrice: undefined | null;
-  slTriggerPrice: undefined | null;
-  slOrderPrice: undefined | null;
-  brokerId: string | undefined;
-  memo: string;
-  createTime: string;
-  updateTime: string;
-  expiry_time?: Date;
-}
 
-/** Configuration schema for mapping API responses to local database states. */
-interface PublishConfig {
-  context: string;
-  states: { success: string; fail: string };
-  outcomes: { success: string; fail: string };
-  messages: { success: string; fail: string };
-}
+"use strict";
+
 
 // --- Private Functions ---
 
@@ -49,9 +21,9 @@ import type { IRequest } from "#db";
 
 import { API_POST, ApiError, isApiError, PrimaryKey } from "#api";
 import { hexify } from "#lib/crypto.util";
+import { Log } from "#lib/log.util"
 
 import { Request, Order } from "#db";
-
 
 /**
  * Trade request payload for the Broker API.
@@ -120,7 +92,7 @@ interface PublishConfig {
  */
 const publish = async (response: Array<TResponseData>, config: PublishConfig): Promise<Array<IPublishResult<IRequest>>> => {
   if (!Array.isArray(response) || !response.length) {
-    console.error(`-> [Error] ${config.context}: Invalid response format`, response);
+    Log().error(`-> [Error] ${config.context}: Invalid response format`, response);
     return [];
   }
 

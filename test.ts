@@ -8,7 +8,7 @@
 //import type { TPosition } from "db/interfaces/instrument_position";
 //import type { PrimaryKey } from "api";
 // import { Distinct } from "db/query.utils";
-import { hexify } from "#lib/crypto.util";
+//import { hexify } from "#lib/crypto.util";
 // import { bufferString, delay, fileWrite, hexString, isEqual, setExpiry } from "lib/std.util";
 // import { config, Session } from "module/session";
 // import { parse } from "path";
@@ -2766,10 +2766,23 @@ import { hexify } from "#lib/crypto.util";
 //   runSideBySideAudit(dbMap, brokerMap);
 // });
 
-//---------------------------------- New Query test ----------------------------------------//
-const account = hexify(process.env.account!);
-import { Loader } from "#db/loader.util";
-import { Config } from "#module/session";
-Config({ account }, "test").then(async () => {
-  await Loader("./seed/", "Test");
-});
+//---------------------------------- New JSON Loader test ----------------------------------------//
+// const account = hexify(process.env.account!);
+// import { Loader } from "#db/loader.util";
+// import { Config } from "#module/session";
+// Config({ account }, "test").then(async () => {
+//   await Loader("./seed/", "Test");
+// });
+
+//---------------------------------- New Candle Loader test ----------------------------------------//
+// const account = hexify(process.env.account!);
+// import { Import } from "#module/audits/candles";
+// import { Config } from "#module/session";
+// import * as app from "#lib/app.util"
+// Config({ account }, "Load.Candle").then(async () => {
+//    account && await Import(app.clear({state: 'api', account, symbol: 'XRP-USDT', timeframe: "15m"}));
+// });
+
+
+import { Log } from "#lib/log.util";
+Log().error(`this is a test`);

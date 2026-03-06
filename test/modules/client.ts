@@ -81,7 +81,7 @@ ws.onclose = () => {
 };
 
 ws.onerror = (error) => {
-  console.error("WebSocket error:", error);
+  Log().error("WebSocket error:", error);
 };
 
 setInterval(()=> {
