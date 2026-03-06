@@ -6,7 +6,7 @@
 
 import type { IStopOrder } from "#db";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { StopOrder, StopRequest } from "#db";
 
 //-- [Process.Stops] Closes pending stop orders on closed positions

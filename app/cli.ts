@@ -42,7 +42,7 @@ const start = async () => {
     await Menu();
 
   } catch (err) {
-    console.error(">> [CRITICAL] CLI Administrative Error:", err);
+    Log().error(">> [CRITICAL] CLI Administrative Error:", err);
     process.exit(1);
   }
 };

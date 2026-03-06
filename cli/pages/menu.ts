@@ -14,7 +14,7 @@ import Prompt, { type IOption } from "#cli/modules/Prompts";
 import { setHeader } from "#cli/modules/Header";
 import { setMenu } from "#cli/modules/Menu";
 import { isEqual } from "#lib/std.util";
-import { Log } from "#module/session";
+import { Log } from "#app/session";
 
 // Interface Imports
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "#cli/interfaces/user";

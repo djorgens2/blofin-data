@@ -14,7 +14,7 @@
 import type { IPublishResult } from "#api";
 import type { IPositions } from "#db/interfaces/positions";
 import type { IInstrumentPosition } from "#db/interfaces/instrument_position";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { format, isEqual } from "#lib/std.util";
 import { Select } from "#db/query.utils";

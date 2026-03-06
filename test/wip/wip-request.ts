@@ -13,7 +13,7 @@ import { Insert, Update } from "#db/query.utils";
 import { PrimaryKey } from "#api";
 import { hasValues, isEqual, setExpiry } from "#lib/std.util";
 import { hashKey } from "#lib/crypto.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import * as Orders from "#db/interfaces/order";
 import * as States from "#db/interfaces/state";

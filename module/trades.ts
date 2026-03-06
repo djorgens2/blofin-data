@@ -84,6 +84,6 @@ export const Trades = async (): Promise<void> => {
     const duration = (performance.now() - start).toFixed(2);
     console.log(`[Info] Execute.Trades: Cycle Complete (${duration}ms)`);
   } catch (error) {
-    console.error(`[Error] Execute.Trades: Cycle failed:`, error);
+    Log().error(`[Error] Execute.Trades: Cycle failed:`, error);
   }
 };

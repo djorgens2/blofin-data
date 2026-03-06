@@ -6,7 +6,7 @@
 
 "use strict";
 
-import type { ISession } from "#module/session";
+import type { ISession } from "#app/session";
 import type { IAccount } from "#db/interfaces/account";
 import type { ITableConfig } from "#cli/modules/Renderer";
 import { green, red, yellow, cyan, bold, dim } from "console-log-colors";

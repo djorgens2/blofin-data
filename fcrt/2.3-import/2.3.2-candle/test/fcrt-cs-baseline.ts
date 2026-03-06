@@ -1,5 +1,5 @@
 //----------------------------- Instrument Baseline Test-------------------------------------------//
-import { Session, config } from "#module/session";
+import { Session, config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 
 import * as Import from "#app/import";

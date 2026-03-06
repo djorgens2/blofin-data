@@ -14,12 +14,12 @@
 import type { TRefKey, IOrder, IRequest } from "#db";
 import type { IPublishResult, IRequestAPI } from "#api";
 
-import { Session, setSession } from "#module/session";
+import { Request, Order, Reference, InstrumentPosition } from "#db";
+import { Session, setSession } from "#app/session";
 import { API_GET, ApiError } from "#api";
 import { delay, format, hexString } from "#lib/std.util";
 import { hexify } from "#lib/crypto.util";
-
-import { Request, Order, Reference, InstrumentPosition } from "#db";
+import { Log } from "#lib/log.util"
 
 /**
  * Extended Order data structure from the Broker API.
@@ -210,7 +210,7 @@ export const Pending = async (): Promise<Array<Partial<IOrderAPI>>> => {
 
       await delay(1500);
     } catch (error) {
-      console.error(">> [Error] Order.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
+      Log().error(">> [Error] Order.Pending: multi-fetch failure from API:", error instanceof Error ? error.message : error);
       break;
     }
   }
@@ -236,7 +236,7 @@ const History = async (): Promise<Array<Partial<IOrderAPI>>> => {
   const history: Array<Partial<IOrderAPI>> = [];
 
   while (true) {
-    console.error("-> [Info] Fetching Order History from ID:", Session().audit_order);
+    Log().error("-> [Info] Fetching Order History from ID:", Session().audit_order);
     const path = `/api/v1/trade/orders-history?before=${Session().audit_order}&limit=${limit}`;
     const { success, data } = await API_GET<Array<Partial<IOrderAPI>>>(path, "Order.History");
 
@@ -287,6 +287,6 @@ export const Import = async () => {
     console.log(`-> Orders.Import complete; history orders processed: ${history.length}; open orders processed: ${pending.length};`);
     return result;
   } catch (error) {
-    console.error(">> [Error] Orders.Import: Operation failure", error);
+    Log().error(">> [Error] Orders.Import: Operation failure", error);
   }
 };

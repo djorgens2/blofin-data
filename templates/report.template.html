@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>Query: {{SUBJECT}}</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #1a1a1a;
+        color: #eee;
+        padding: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+      }
+      /* Tablesort needs a pointer cursor to show it's clickable */
+      th {
+        background: #333;
+        position: sticky;
+        top: 0;
+        cursor: pointer;
+        user-select: none;
+      }
+      th:after {
+        content: " ↕";
+        font-size: 0.8em;
+        opacity: 0.5;
+      }
+      th,
+      td {
+        border: 1px solid #444;
+        padding: 8px 12px;
+        text-align: left;
+      }
+      tr:nth-child(even) {
+        background: #252525;
+      }
+      tr:hover {
+        background: #3d3d3d;
+      }
+      th {
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: #666;
+      }
+      td {
+        font-weight: 500;
+        color: #fff;
+      }
+      /* Highlight columns like 'status' or 'timeframe' */
+      td:contains("Enabled") {
+        color: #26a69a;
+      }
+      td:contains("Disabled") {
+        color: #ef5350;
+      }
+      td:contains("unprovisioned") {
+        color: #848e9c;
+        font-style: italic;
+        opacity: 0.7;
+      }
+      td:contains("running") {
+        color: #26a69a;
+        font-weight: bold;
+      }
+      .hex-cell {
+        font-family: monospace;
+        color: #848e9c;
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>{{SUBJECT}} Report - {{DATE}}</h2>
+    <table id="sort-table">
+      <thead>
+        <tr>
+          {{HEADERS}}
+        </tr>
+      </thead>
+      <tbody>
+        {{BODY}}
+      </tbody>
+    </table>
+    <script>
+      // Quick fix for colorizing status cells after the table renders
+      document.querySelectorAll("td").forEach((td) => {
+        if (td.innerText === "running" || td.innerText === "Enabled") td.style.color = "#26a69a";
+        if (td.innerText === "Disabled") td.style.color = "#ef5350";
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tablesort/5.2.1/tablesort.min.js"></script>
+    <script>
+      new Tablesort(document.getElementById("sort-table"));
+    </script>
+  </body>
+</html>

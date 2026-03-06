@@ -43,3 +43,20 @@ export interface IUserAuthority {
   task: string;
   privilege: string;
 }
+
+export interface IUserAccounts {
+  account: Uint8Array;
+  alias: string;
+  user: Uint8Array;
+  username: string;
+  email: string;
+  role: Uint8Array;
+  title: string;
+  state: Uint8Array;
+  status: string;
+  auth_rank: number;
+  auth_role: Uint8Array;
+  auth_title: string;
+  auth_state: Uint8Array;
+  auth_status: string;
+}

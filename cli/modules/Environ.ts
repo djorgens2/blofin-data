@@ -13,16 +13,6 @@ import { Environment } from "#db";
 //| Retrieves environment assignments in prompt format;                                  |
 //+--------------------------------------------------------------------------------------+
 export const setEnviron = async <T extends Answers<string>>(props: T) => {
-  const count = async () => {
-    const environs = await Environment.Fetch({});
-    if (environs) {
-      await Environment.Import();
-      return 1;
-    }
-    return undefined;
-  };
-  await count();
-
   const environment = await Environment.Fetch({});
   const choices: Array<IOption> = [];
 

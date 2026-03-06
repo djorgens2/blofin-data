@@ -15,7 +15,7 @@ import type { IInstrumentPosition } from "#db";
 import { hasValues } from "#lib/std.util";
 import { Account, Instrument, InstrumentPosition } from "#db";
 import { Leverages, Instruments } from "#api";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 /** Combined type representing raw API instrument data merged with leverage settings. */
 export type TInstrumentLeverage = ILeverageAPI & Partial<IInstrumentAPI>;

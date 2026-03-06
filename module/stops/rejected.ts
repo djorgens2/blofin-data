@@ -6,7 +6,7 @@
 
 import type { IStopOrder } from "#db";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { StopRequest, StopOrder } from "#db";
 
 //-- [Process.Stops] Resubmits rejected requests to broker for execution; closes rejects beyond expiry

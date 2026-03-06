@@ -4,6 +4,8 @@
 //+---------------------------------------------------------------------------------------+
 "use strict";
 
+import { Log } from "#lib/log.util"
+
 import * as fs from "fs";
 import * as path from "path";
 
@@ -23,7 +25,7 @@ function readJsonFile(filePath: string): ApiResponse {
     const data: ApiResponse = JSON.parse(jsonString);
     return data;
   } catch (error) {
-    console.error("Error reading or parsing JSON file:", error);
+    Log().error("Error reading or parsing JSON file:", error);
     throw error;
   }
 }
@@ -50,7 +52,7 @@ function writeCsvFile(filePath: string, csvContent: string): void {
     fs.writeFileSync(filePath, csvContent, "utf-8");
     console.log(`Successfully wrote CSV data to ${filePath}`);
   } catch (error) {
-    console.error("Error writing CSV file:", error);
+    Log().error("Error writing CSV file:", error);
     throw error;
   }
 }

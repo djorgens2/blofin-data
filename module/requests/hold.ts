@@ -8,7 +8,7 @@ import type { IPublishResult, TResponse, IRequestAPI } from "#api";
 import type { IRequest } from "#db";
 
 import { hexString } from "#lib/std.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { Order } from "#db";
 
 import { Requests }from "#api";

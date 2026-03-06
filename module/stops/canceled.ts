@@ -8,7 +8,7 @@ import type { IPublishResult, IStopOrderAPI } from "#api";
 import type { IStopRequest } from "#db";
 
 import { hexString } from "#lib/std.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import { StopRequests } from "#api";
 import { StopOrder, StopRequest } from "#db";

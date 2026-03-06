@@ -33,19 +33,19 @@ if (args.length) {
   submit(req_fcrt_3b)
     .then(async (submitted) => {
       if (submitted === undefined) {
-        console.error(Session());
-        console.error("Test 3b: Request submission failed.");
-        console.error("Check if the request was already submitted or if there was an error in the submission process.");
-        console.error("Request details:", req_fcrt_3b);
-        console.error("Exiting process with code 1.");
+        Log().error(Session());
+        Log().error("Test 3b: Request submission failed.");
+        Log().error("Check if the request was already submitted or if there was an error in the submission process.");
+        Log().error("Request details:", req_fcrt_3b);
+        Log().error("Exiting process with code 1.");
         process.exit(1);
       }
 
       process.exit(0);
     })
     .catch((error) => {
-      console.error("Test 3b: Error during request submission:", error);
+      Log().error("Test 3b: Error during request submission:", error);
       process.exit(1);
     });
-} else console.error("[Error] Account must be passed as first parameter");
+} else Log().error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

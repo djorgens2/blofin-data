@@ -2,7 +2,7 @@
 import type { IStopRequest } from "#db/interfaces/stop_request";
 import type { IPublishResult } from "#api";
 
-import { Session, config } from "#module/session";
+import { Session, config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_2a, req_fcrt_2c, req_fcrt_3b, req_fcrt_3c } from "./request";
 
@@ -31,11 +31,11 @@ if (args.length) {
     await submit(req)
       .then(async (submitted) => {
         if (submitted === undefined) {
-          console.error(Session());
-          console.error(`Test ${test}: Request submission failed.`);
-          console.error("Check if the request was already submitted or if there was an error in the submission process.");
-          console.error("Request details:", req);
-          console.error("Exiting process with code 1.");
+          Log().error(Session());
+          Log().error(`Test ${test}: Request submission failed.`);
+          Log().error("Check if the request was already submitted or if there was an error in the submission process.");
+          Log().error("Request details:", req);
+          Log().error("Exiting process with code 1.");
           process.exit(1);
         }
         const [current] = submitted;
@@ -44,15 +44,15 @@ if (args.length) {
             console.log(`[Info] Test ${test}: Request submitted, check db for results.`, submitted);
             console.log(`[Info] Fetched order from DB:`, orders);
           } else {
-            console.error(`Test ${test}: No order fetched from DB.`);
+            Log().error(`Test ${test}: No order fetched from DB.`);
           }
           process.exit(0);
         });
       })
       .catch((error) => {
-        console.error(`Test ${test}: Error during request submission:`, error);
+        Log().error(`Test ${test}: Error during request submission:`, error);
         process.exit(1);
       });
   });
-} else console.error("[Error] Account must be passed as first parameter");
+} else Log().error("[Error] Account must be passed as first parameter");
 //-----------------------------------------------------------------------------------------------------//

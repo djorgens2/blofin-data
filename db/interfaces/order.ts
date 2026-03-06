@@ -16,7 +16,7 @@ import type { IPublishResult } from "#api";
 import { Select, Insert, Update } from "#db";
 import { PrimaryKey } from "#api";
 import { hasValues, isEqual } from "#lib/std.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import * as References from "#db/interfaces/reference";
 
 /**

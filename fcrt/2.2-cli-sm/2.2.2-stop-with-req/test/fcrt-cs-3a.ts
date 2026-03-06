@@ -59,9 +59,9 @@ if (cli_account) {
   submit()
     .then(async ([submitted, request]) => {
       if (submitted === undefined) {
-        console.error(`Test 3a: Request submission failed.`);
-        console.error("Request details:", request);
-        console.error("Exiting process with code 1.");
+        Log().error(`Test 3a: Request submission failed.`);
+        Log().error("Request details:", request);
+        Log().error("Exiting process with code 1.");
         process.exit(1);
       }
       await Orders.Fetch({ request: submitted! } as Partial<IRequest>).then((order) => {
@@ -71,8 +71,8 @@ if (cli_account) {
       process.exit(0);
     })
     .catch((error) => {
-      console.error(`Test 3a: Error during request submission:`, error);
+      Log().error(`Test 3a: Error during request submission:`, error);
       process.exit(1);
     });
-} else console.error("[Error] Account and Test Id missing from parameter list");
+} else Log().error("[Error] Account and Test Id missing from parameter list");
 //-----------------------------------------------------------------------------------------------------//

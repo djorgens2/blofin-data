@@ -1,5 +1,5 @@
 //----------------------------- order test  -------------------------------------------------------//
-import { setSession, Session } from "#module/session";
+import { setSession, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_3a } from "./request";
 

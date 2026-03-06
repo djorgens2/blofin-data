@@ -13,7 +13,7 @@
 import { ApiError } from "#api";
 import { UserToken } from "#cli/interfaces/user";
 import type { TOptions } from "#db";
-import { Select, Insert, Update, PrimaryKey, User } from "#db";
+import { Select, Insert, Update, PrimaryKey } from "#db";
 import { isEqual } from "#lib/std.util";
 
 /**
@@ -66,8 +66,6 @@ export const Create = async (props: Partial<IJobControl>) => {
   if (!props.user || !isEqual(props.user!, UserToken().user)) {
     throw new ApiError(1403,"Unauthorized Access: Cannot create a job for another user.");
   }
-  const user = await User.Fetch({ user: props.user });
-
   // We use Insert with IGNORE to prevent duplicates. The DB schema should enforce uniqueness on instrument_position.
   const result = await Insert<IJobControl>(props, { table: `job_control`, ignore: true, context: "Job.Control.Create" });
   return { key: PrimaryKey(props, ["instrument_position"]), response: result };

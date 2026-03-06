@@ -11,9 +11,9 @@ import type { IStopOrder } from "#db";
  * Returns aggregated TResponses grouped by {context, response, success}
  */
 export const Summary = (results: (TResponse | undefined | null)[]) => {
-  console.error(
+  Log().error(
     "In Report",
-    results.map((r) => console.error(r)),
+    results.map((r) => Log().error(r)),
   );
 
   const aggregated = results.reduce(
@@ -40,7 +40,7 @@ export const Summary = (results: (TResponse | undefined | null)[]) => {
     {} as Record<string, TResponse>,
   );
 
-  console.error({aggregated})
+  Log().error({aggregated})
   return Object.values(aggregated);
   //  return aggregated;
 };
@@ -52,7 +52,7 @@ export const Summary = (results: (TResponse | undefined | null)[]) => {
  */
 export const Report = (results: Array<IPublishResult<IStopOrder>>) => {
   if (!results.length) return;
-  console.error("In Stops.Report");
+  Log().error("In Stops.Report");
 
   //--- Import History stats
   const reportHistory = () => {
@@ -66,11 +66,11 @@ export const Report = (results: Array<IPublishResult<IStopOrder>>) => {
       return r.response;
     });
 
-    console.error('History Details', response.length, Object.keys(response[0]))
+    Log().error('History Details', response.length, Object.keys(response[0]))
     const summary = Summary(response);
 
-    console.error(`-> Stops.API: Total Stops retreived: ${total.rows}`);
-    console.error(`-> Summary:`, summary);
+    Log().error(`-> Stops.API: Total Stops retreived: ${total.rows}`);
+    Log().error(`-> Summary:`, summary);
     // const errors = total.rows - historyPublished;
 
     // historyPublished && console.log(`   # [Info] Submitted: ${historyPublished}`);

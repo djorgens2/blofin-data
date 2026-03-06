@@ -12,10 +12,10 @@
  * @copyright 2018-2026, Dennis Jorgenson
  */
 
-
 "use strict";
 
 import { hexify } from "#lib/crypto.util";
+import { Log } from "#lib/log.util";
 
 import Prompt from "#cli/modules/Prompts";
 import Decimal from "decimal.js";
@@ -168,7 +168,7 @@ export const timeString = () => {
 /**
  * REFACTORED: High-precision corridor check using Decimal.js.
  * Eliminates IEEE 754 noise by comparing values as fixed-precision strings.
- * 
+ *
  * @function isBetween
  * @param {number | string} source - The value to check (e.g., Current Price).
  * @param {number | string} bound1 - Corridor Boundary A (e.g., Upper Envelope).
@@ -177,13 +177,7 @@ export const timeString = () => {
  * @param {number} [digits=8] - Precision to normalize before comparison.
  * @returns {boolean} True if the source is within the specified price corridor.
  */
-export const isBetween = (
-  source: number | string,
-  bound1: number | string,
-  bound2: number | string,
-  inclusive = true,
-  digits: number = 8
-): boolean => {
+export const isBetween = (source: number | string, bound1: number | string, bound2: number | string, inclusive = true, digits: number = 8): boolean => {
   try {
     // 1. Normalize all inputs to fixed-point Decimals
     const s = new Decimal(source).toDecimalPlaces(digits, Decimal.ROUND_HALF_UP);
@@ -203,7 +197,7 @@ export const isBetween = (
       return s.greaterThan(low) && s.lessThan(high);
     }
   } catch (e) {
-    console.error("[Error] std.util.isBetween: Invalid numeric input", { source, bound1, bound2 });
+    Log().error("[Error] std.util.isBetween: Invalid numeric input", { source, bound1, bound2 });
     return false;
   }
 };
@@ -255,7 +249,7 @@ export const isEqual = (source: ComparableValue, benchmark: ComparableValue, dig
 /**
  * REFACTORED: High-precision 'Greater Than' comparison using Decimal.js.
  * Eliminates IEEE 754 floating-point rounding errors.
- * 
+ *
  * @function isHigher
  * @param {number | string} source - The new/current value.
  * @param {number | string} benchmark - The old/target value.
@@ -274,7 +268,7 @@ export const isHigher = (source: number | string, benchmark: number | string, di
 
 /**
  * REFACTORED: High-precision 'Less Than' comparison using Decimal.js.
- * 
+ *
  * @function isLower
  * @param {number | string} source - The new/current value.
  * @param {number | string} benchmark - The old/target value.
@@ -294,7 +288,7 @@ export const isLower = (source: number | string, benchmark: number | string, dig
 /**
  * REFACTORED: Normalizes a value to a fixed-point STRING to prevent number casting noise.
  * Use this for values intended for DB storage or API payloads.
- * 
+ *
  * @function format
  * @param {number | string} value - Raw input.
  * @param {number} [digits=14] - Target decimal places.
@@ -302,7 +296,7 @@ export const isLower = (source: number | string, benchmark: number | string, dig
  */
 export const format = (value: number | string, digits: number = 14): number => {
   try {
-    const decimalValue = typeof value === 'number' ? new Decimal(value.toFixed(digits)) : new Decimal(String(value));
+    const decimalValue = typeof value === "number" ? new Decimal(value.toFixed(digits)) : new Decimal(String(value));
     return decimalValue.toNumber();
   } catch (e) {
     return 0;
@@ -328,7 +322,7 @@ export const toProperCase = (text: string): string => {
 /**
  * Analyzes an array of objects to determine the maximum string length of each key.
  * Used for dynamic CLI table formatting and log alignment.
- * 
+ *
  * @async
  * @function getLengths
  * @template T
@@ -340,27 +334,29 @@ export const getLengths = async <T>(keylens: Record<string, number>, record: Arr
   if (record === undefined) return keylens;
   const { colBuffer } = keylens;
 
-  return record.reduce((maxLengthObj, currentObj) => {
-    Object.keys(currentObj).forEach((key) => {
-      const currentValue = currentObj[key as keyof T];
-      if (typeof currentValue === "string") {
-        const currentLength = currentValue.length;
-        const existingLength = maxLengthObj[key] || 0;
-        if (currentLength > existingLength) {
-          maxLengthObj[key] = currentLength + colBuffer;
+  return record.reduce(
+    (maxLengthObj, currentObj) => {
+      Object.keys(currentObj).forEach((key) => {
+        const currentValue = currentObj[key as keyof T];
+        if (typeof currentValue === "string") {
+          const currentLength = currentValue.length;
+          const existingLength = maxLengthObj[key] || 0;
+          if (currentLength > existingLength) {
+            maxLengthObj[key] = currentLength + colBuffer;
+          }
         }
-      }
-    });
-    return maxLengthObj;
-  }, { ...keylens } as Record<string, number>);
+      });
+      return maxLengthObj;
+    },
+    { ...keylens } as Record<string, number>,
+  );
 };
 
 /**
  * Validates if an object contains at least one defined value.
  * @function hasValues
  */
-export const hasValues = <T extends object>(props: T): boolean => 
-  Object.keys(props).length > 0 && !Object.values(props).every((v) => v === undefined);
+export const hasValues = <T extends object>(props: T): boolean => Object.keys(props).length > 0 && !Object.values(props).every((v) => v === undefined);
 
 /**
  * Standard non-blocking delay/sleep utility.
@@ -384,7 +380,7 @@ const formatValue = (val: unknown): string => {
 /**
  * Writes an array of strings or objects to a local file.
  * Automatically converts object arrays into CSV format with headers.
- * 
+ *
  * @function fileWrite
  * @template T
  * @param {string} filePath - Absolute or relative path.
@@ -397,8 +393,10 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
     let text: string;
     if (typeof array[0] === "object") {
       const headers = Object.keys(array[0] as object).join(",");
-      const rows = (array as object[]).map((obj) => 
-        Object.keys(array[0] as object).map(key => formatValue((obj as any)[key])).join(",")
+      const rows = (array as object[]).map((obj) =>
+        Object.keys(array[0] as object)
+          .map((key) => formatValue((obj as any)[key]))
+          .join(","),
       );
       text = [headers, ...rows].join("\n");
     } else {
@@ -408,6 +406,6 @@ export const fileWrite = <T extends object | string>(filePath: string, array: T[
     fs.writeFileSync(filePath, text, "utf8");
     console.log(`-> [Success] fileWrite: ${array.length} records written to ${filePath}`);
   } catch (error) {
-    console.error(`-> [Error] fileWrite to ${filePath}:`, error instanceof Error ? error.message : error);
+    Log().error(`-> [Error] fileWrite to ${filePath}:`, error instanceof Error ? error.message : error);
   }
 };

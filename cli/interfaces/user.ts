@@ -9,12 +9,12 @@
 import type { IUser } from "#db/interfaces/user";
 import type { Answers } from "prompts";
 import Prompt, { type IOption } from "#cli/modules/Prompts";
-import { green, red, yellow, cyan, bold } from "console-log-colors";
+import { red, yellow, cyan, bold } from "console-log-colors";
 
 import { setState } from "#cli/modules/State";
 import { setHeader } from "#cli/modules/Header";
 import { getLengths } from "#lib/std.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import * as Users from "#db/interfaces/user";
 import * as Roles from "#db/interfaces/role";
@@ -26,6 +26,7 @@ interface IUserToken {
   role: Uint8Array;
   error: number;
   message: string;
+  isAdmin: () => boolean;
 }
 
 /**
@@ -38,6 +39,9 @@ const userToken: IUserToken = {
   role: Buffer.from([0, 0, 0]),
   error: 0,
   message: ``,
+  isAdmin: function () {
+    return this.title === "Admin";
+  },
 };
 
 /**
@@ -187,7 +191,7 @@ export const setPassword = async <T extends Answers<string>>(props: T) => {
       // User hit Esc
       return { verified: false, cancelled: true };
     }
-    
+
     const result = await Users.Login({ username, email, password: response.password });
     setUserToken(result);
     return { verified: true };
@@ -261,7 +265,7 @@ export const menuViewUser = async () => {
 
   console.log(``);
   // Re-render loop control
-  const { choice } = await Prompt(["choice"], {
+  await Prompt(["choice"], {
     message: "  ",
     active: "Refresh",
     inactive: "Finished",

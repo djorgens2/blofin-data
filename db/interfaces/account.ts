@@ -1,26 +1,28 @@
 /**
  * Core Account Management and Authentication.
- * 
+ *
  * Manages the primary trading account records, including credential validation,
  * master record creation, and metadata synchronization with users and brokers.
- * 
+ *
  * @module db/account
  * @copyright 2018-2026, Dennis Jorgenson
  */
 
 "use strict";
 
-import type { ISession } from "#module/session";
+import type { ISession } from "#app/session";
 import type { IAccess, TAccess } from "#db/interfaces/state";
 import type { IPublishResult, TResponse } from "#api";
 
-import UserToken, { setUserToken } from "#cli/interfaces/user";
 import { State, Broker, Environment } from "#db";
-import { Session } from "#module/session";
-
 import { Select, Insert, Update, PrimaryKey } from "#db";
+
+import { Session } from "#app/session";
 import { hashHmac } from "#lib/crypto.util";
 import { isEqual } from "#lib/std.util";
+import { Log } from "#lib/log.util";
+
+import UserToken, { setUserToken } from "#cli/interfaces/user";
 
 /**
  * Primary interface for the Account Master record.
@@ -86,8 +88,8 @@ export interface IAccount {
 
 /**
  * Parses and retrieves account credentials stored in environment variables.
- * 
- * @param filter - If set to 'New', returns only accounts not yet present in the DB. 
+ *
+ * @param filter - If set to 'New', returns only accounts not yet present in the DB.
  *                 If 'All', returns everything found in `APP_ACCOUNT`.
  * @returns A promise resolving to an array of session credentials.
  */
@@ -99,7 +101,7 @@ export const Available = async (filter: "New" | "All"): Promise<Array<Partial<IS
   try {
     sessions = JSON.parse(accounts);
   } catch (e) {
-    console.error("-> [Error] Failed to parse account keys");
+    Log().error("-> [Error] Failed to parse account keys");
     return [];
   }
 
@@ -118,13 +120,13 @@ export const Available = async (filter: "New" | "All"): Promise<Array<Partial<IS
 
 /**
  * Initializes a new trading account record in the local database.
- * 
+ *
  * Process Flow:
  * 1. Validates that the account does not already exist via HMAC lookup.
  * 2. Generates a unique 3-byte primary key using a random slot and HMAC buffer.
  * 3. Resolves foreign keys for Broker, State, and Environment by name/alias.
  * 4. Persists the master record with initialized equity values.
- * 
+ *
  * @param props - Metadata for the account (alias, URLs, status).
  * @param session - Security credentials used to derive the unique account hash.
  * @returns A promise resolving to the publication result and the new primary key.
@@ -166,11 +168,11 @@ export const Add = async (props: Partial<IAccount>, session: Partial<ISession>):
 
 /**
  * Synchronizes global account equity and status updates from the UI or API.
- * 
+ *
  * Performs a "diff-check" to ensure only changed fields are sent to the database.
- * Validates the incoming account hash against the current {@link Session} to 
+ * Validates the incoming account hash against the current {@link Session} to
  * prevent unauthorized cross-account data publication.
- * 
+ *
  * @param props - Partial account object containing updated equity or status.
  * @returns A promise resolving to the database update result and account key.
  * @throws {Error} If the provided account hash does not match the active session.
@@ -201,12 +203,12 @@ export const Publish = async (props: Partial<IAccount>): Promise<IPublishResult<
 
 /**
  * Updates granular asset-level metrics (balances, margin, PnL) per currency.
- * 
+ *
  * Logic Flow:
  * 1. Checks for existing data in the `account_detail` table for the account/currency pair.
  * 2. If present: Performs a field-by-field delta check and {@link Update}s only modified values.
  * 3. If absent: Performs an {@link Insert} to initialize tracking for the new asset.
- * 
+ *
  * @param props - Asset-specific metrics including balance, equity, and frozen funds.
  * @returns A promise resolving to the record's composite key (account + currency) and result.
  * @throws {Error} If both account and currency identifiers are not provided.
@@ -256,12 +258,12 @@ export const PublishDetail = async (props: Partial<IAccount>): Promise<IPublishR
 
 /**
  * Resolves the unique account hash for a set of API credentials.
- * 
+ *
  * This is a security-critical method that:
  * 1. If an `account` hash is provided, verifies its existence in the DB.
- * 2. If credentials (API/Secret/Phrase) are provided, it iterates through known 
+ * 2. If credentials (API/Secret/Phrase) are provided, it iterates through known
  *    accounts and re-derives the 3-byte HMAC hash to find a cryptographic match.
- * 
+ *
  * @param props - Session credentials or an existing account hash.
  * @returns The matching Uint8Array account key, or undefined if no match is found.
  */
@@ -292,13 +294,12 @@ export const Key = async (props: Partial<ISession>): Promise<IAccount["account"]
 };
 /**
  * Retrieves account records from the comprehensive `vw_accounts` database view.
- * 
- * @param props - Query filters (e.g., specific account hash). 
+ *
+ * @param props - Query filters (e.g., specific account hash).
  *                Pass `{}` to fetch all accounts accessible to the system.
  * @returns An array of partial account records or undefined if the query fails.
  */
 export const Fetch = async (props: Partial<IAccount>): Promise<Array<Partial<IAccount>> | undefined> => {
   const result = await Select<IAccount>(props, { table: `vw_accounts` });
-  console.log({account: props.account, fetchResult: result});
   return result.success ? result.data : undefined;
 };

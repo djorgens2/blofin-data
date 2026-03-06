@@ -16,7 +16,7 @@ import { Select, Update, Insert, PrimaryKey, Distinct } from "#db";
 import { State, Period, Instrument, Currency } from "#db";
 import { hasValues, isEqual } from "#lib/std.util";
 import { hashKey } from "#lib/crypto.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 /**
  * Core interface representing an Instrument Position record.
@@ -62,7 +62,7 @@ export interface IInstrumentPosition {
   /** Timeframe period identifier. */
   period: Uint8Array;
   timeframe: string;
-  timeframe_units: number;
+  timeframe_minutes: number;
   /** Precision digits for the instrument price. */
   digits: number;
   /** Enforcement of stop-loss orders. */

@@ -15,7 +15,7 @@ import type { IPublishResult, ILeverageAPI } from "#api";
 import type { IInstrumentPosition } from "#db";
 import { Leverages } from "#api";
 import { PrimaryKey, InstrumentPosition } from "#db";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { hasValues, isEqual } from "#lib/std.util";
 
 /**

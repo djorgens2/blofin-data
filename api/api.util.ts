@@ -8,7 +8,7 @@
 "use strict";
 
 import type { TResponse } from "#api";
-import { Session, signRequest } from "#module/session";
+import { Session, signRequest } from "#app/session";
 
 /**
  * Factory function to generate a canonical response object.
@@ -137,7 +137,7 @@ export const API_POST = async <T>(path: string, body: any, context: string): Pro
  * @param context - Traceable path for logs.
  * @returns {Promise<TResponse & { data?: T }>} Enveloped response.
  */
-export const API_GET = async <T>(path: string, context: string): Promise<TResponse & { data?: T }> => {
+export const API_GET = async <T>(path: string, context: string, UrlOverride?: string): Promise<TResponse & { data?: T }> => {
   const { api, phrase, rest_api_url, secret } = Session();
 
   if (!api || !phrase || !rest_api_url || !secret) {
@@ -146,7 +146,7 @@ export const API_GET = async <T>(path: string, context: string): Promise<TRespon
 
   try {
     const { sign, timestamp, nonce } = await signRequest("GET", path);
-    const response = await fetch(`${rest_api_url}${path}`, {
+    const response = await fetch(`${UrlOverride || rest_api_url}${path}`, {
       method: "GET",
       headers: {
         "ACCESS-KEY": api,

@@ -9,7 +9,7 @@ import type { IStopRequest } from "#db/interfaces/stop_request";
 
 import { StopOrder, StopRequest } from "#db";
 import { StopRequests } from "#api";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 
 import { hexString } from "#lib/std.util";
 

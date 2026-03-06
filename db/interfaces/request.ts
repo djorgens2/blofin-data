@@ -17,7 +17,7 @@ import type { IPublishResult } from "#api";
 import { Insert, Update, PrimaryKey } from "#db";
 import { hasValues, isEqual, setExpiry } from "#lib/std.util";
 import { hashKey } from "#lib/crypto.util";
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { Order, State, Reference, InstrumentPosition } from "#db";
 
 /**

@@ -12,7 +12,7 @@ import { Select, Insert, Update, PrimaryKey } from "#db";
 import { hexify, uniqueKey } from "#lib/crypto.util";
 import { hasValues, isEqual } from "#lib/std.util";
 
-import { Session } from "#module/session";
+import { Session } from "#app/session";
 import { ApiError } from "#api";
 
 import { StopOrder, State, Reference, InstrumentPosition } from "#db";

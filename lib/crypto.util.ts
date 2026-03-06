@@ -11,7 +11,7 @@
 
 "use strict";
 
-import type { ISession } from "#module/session";
+import type { ISession } from "#app/session";
 import { createHmac, createHash } from "node:crypto";
 import { customAlphabet } from "nanoid";
 import { TextEncoder } from "node:util";

@@ -58,7 +58,7 @@ export const Queued = async () => {
       // 3. Fire to Broker
       return await StopRequests.Submit(api);
     } catch (error) {
-      console.error(`-> [Error] Stop.Order.Queue:`, error);
+      Log().error(`-> [Error] Stop.Order.Queue:`, error);
       return [
         {
           key: undefined,
