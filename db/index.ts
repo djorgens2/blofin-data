@@ -7,6 +7,7 @@ export type * from "#db/types";
 
 export * from "#db/db.config";
 export * from "#db/query.utils";
+export * from "#db/loader.util"
 
 // Export the Interfaces (The 26 modules)
 export * as Account from "#db/interfaces/account";
@@ -18,7 +19,6 @@ export * as ContractType from "#db/interfaces/contract_type";
 export * as Currency from "#db/interfaces/currency";
 export * as Environment from "#db/interfaces/environment";
 export * as InstrumentDetail from "#db/interfaces/instrument_detail";
-export * as InstrumentPeriod from "#db/interfaces/instrument_period";
 export * as InstrumentPosition from "#db/interfaces/instrument_position";
 export * as Instrument from "#db/interfaces/instrument";
 export * as InstrumentType from "#db/interfaces/instrument_type";
@@ -46,7 +46,6 @@ export type { ICandle } from '#db/interfaces/candle'
 export type { IContractType } from '#db/interfaces/contract_type'
 export type { ICurrency } from '#db/interfaces/currency'
 export type { IEnvironment } from '#db/interfaces/environment'
-export type { IInstrumentPeriod } from '#db/interfaces/instrument_period'
 export type { IInstrumentPosition } from '#db/interfaces/instrument_position'
 export type { IInstrument } from '#db/interfaces/instrument'
 export type { IInstrumentType } from '#db/interfaces/instrument_type'

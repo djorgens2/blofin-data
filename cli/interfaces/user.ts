@@ -7,10 +7,16 @@
 "use strict";
 
 import type { IUser } from "#db/interfaces/user";
+import type { IOption } from "#cli/modules/Prompts";
 import type { Answers } from "prompts";
-import Prompt, { type IOption } from "#cli/modules/Prompts";
-import { red, yellow, cyan, bold } from "console-log-colors";
+import type { IPublishResult } from "#api";
+import type { ILogger } from "#lib/log.util";
 
+import { red, yellow, cyan, bold } from "console-log-colors";
+import Prompt from "#cli/modules/Prompts";
+
+import { withSystem } from "#lib/log.util";
+import { createResponse, SC } from "#api/lexicon";
 import { setState } from "#cli/modules/State";
 import { setHeader } from "#cli/modules/Header";
 import { getLengths } from "#lib/std.util";
@@ -48,6 +54,40 @@ const userToken: IUserToken = {
  * Returns the current User Token state.
  */
 export const UserToken = () => userToken;
+
+/**
+ * Administrative HOF for CLI-driven actions.
+ * Ensures a valid UserToken exists before execution.
+ */
+
+export const withUser = async <T = void>(
+  context: string,
+  callback: (log: ILogger, user: IUserToken) => Promise<T> | T
+): Promise<T | Array<IPublishResult<any>>> => {
+  
+  const user = UserToken();
+
+  if (!user.username || user.error) {
+    // Hard failure: No user, no log, no entry.
+    console.error(`\x1b[31m[Security]\x1b[0m ${context}: No valid UserToken.`);
+    return [{ key: undefined, response: createResponse(SC.INVALID_SESSION, context) }];
+  }
+
+  /**
+   * 1. Create a "User Logger"
+   * Instead of a System session, we pass a "Mock Session" that 
+   * represents the Administrative User.
+   */
+  const userSession = { 
+    account: user.user, // Use the User ID as the "Account" for the hex string
+    alias: user.username // Use the Username as the alias
+  } as ISession;
+
+  const log = internalLogger(userSession, context, getEnvFlags());
+  
+  // 2. Now the 'log' object is primed with the User's name and ID!
+  return await callback(log, user);
+};
 
 /**
  * Updates the global user session state.

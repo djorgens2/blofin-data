@@ -5,6 +5,7 @@ import type { IRequest } from "#db/interfaces/request";
 import { setSession, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_2a } from "./request.ts";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "#db/interfaces/instrument_position";
 import * as Orders from "#db/interfaces/order";

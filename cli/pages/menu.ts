@@ -14,7 +14,8 @@ import Prompt, { type IOption } from "#cli/modules/Prompts";
 import { setHeader } from "#cli/modules/Header";
 import { setMenu } from "#cli/modules/Menu";
 import { isEqual } from "#lib/std.util";
-import { Log } from "#app/session";
+import { Log } from "#lib/log.util";
+import * as job from "#db/interfaces/job_control";
 
 // Interface Imports
 import { menuCreateUser, menuEditUser, menuViewUser, menuDropUser } from "#cli/interfaces/user";
@@ -146,7 +147,9 @@ const Actions: Record<string, (area: string) => Promise<void>> = {
  */
 export const Menu = async () => {
   do {
-    setHeader(`Main Menu`);
+    //await UserToken().setStatus();
+
+    setHeader(`Main Menu`, {prod: false, demo: true});
 
     // Fetch dynamic menu based on current UserToken role
     const menu: Array<IOption> = await setMenu();

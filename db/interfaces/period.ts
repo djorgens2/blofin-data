@@ -24,10 +24,10 @@ export interface IPeriod {
   period: Uint8Array;
   /** Human-readable timeframe label (e.g., "1h", "4h", "1D"). */
   timeframe: string;
+  /** The duration of the timeframe expressed in seconds (e.g., 3600 for 1h). */
+  timeframe_minutes: number;
   /** Detailed description of the period usage. */
   description: string;
-  /** The duration of the timeframe expressed in seconds (e.g., 3600 for 1h). */
-  timeframe_units: number;
 }
 
 /**
@@ -38,7 +38,7 @@ export interface IPeriod {
  * 2. Assigns the hash to the provided properties object.
  * 3. Inserts the record into the `period` table.
  *
- * @param props - Period details including `timeframe` label and `timeframe_units`.
+ * @param props - Period details including `timeframe` label and `timeframe_minutes`.
  * @returns A promise resolving to the publication result and the new primary key.
  */
 export const Add = async (props: Partial<IPeriod>): Promise<IPublishResult<IPeriod>> => {

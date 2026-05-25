@@ -5,6 +5,7 @@ import type { IPublishResult } from "#api";
 import { Session, config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_2a, req_fcrt_2c, req_fcrt_3b, req_fcrt_3c } from "./request";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "#db/interfaces/instrument_position";
 import * as StopRequest from "#db/interfaces/stop_request";

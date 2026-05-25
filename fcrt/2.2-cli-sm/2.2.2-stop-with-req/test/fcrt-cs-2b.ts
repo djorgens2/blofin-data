@@ -4,6 +4,7 @@ import type { IStops } from "db/interfaces/stops";
 import { setSession, Session } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { req_fcrt_2b } from "./stops";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "db/interfaces/instrument_position";
 import * as Stops from "db/interfaces/stops";

@@ -1,6 +1,6 @@
 /**
- * @file CandleImporter.ts
- * @module CLI/Internal/CandleImporter
+ * @file candles.ts
+ * @module api/Candle
  * @description
  * Raw Command-Line Interface for low-level OHLCV data ingestion.
  *
@@ -23,11 +23,14 @@
 
 import type { IMessage } from "#lib/ipc.util";
 import type { ICandle } from "#db";
-import { StatusCode } from "#api/lexicon";
-import { Load, Update, Select } from "#db";
-import { Session } from "#app/session";
-import { API_GET, ApiResult, type TResponse } from "#api";
+import type { IPublishResult, TResponse } from "#api";
+
+import { createResponse, SC } from "#api/lexicon";
+import { Session, withSession } from "#app/session";
+import { Load, Update, Select, Instrument, Period, PrimaryKey } from "#db";
+import { API_GET, ApiResult } from "#api";
 import { format } from "#lib/std.util";
+import { Log } from "#lib/log.util";
 
 /**
  * @function Publish
@@ -49,11 +52,11 @@ export const Publish = async (message: IMessage): Promise<Array<TResponse>> => {
   // Use 'before' to get records from 'now' going back to our 'timestamp'
   // Or simply fetch the last N records to ensure overlap
   const path = `/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}&before=${timestamp}`;
-  const candles = await API_GET<string[][]>(path, `Candle.Publish:${symbol}`, "https://openapi.blofin.com");
-  
-  console.log ('[Audit]', {symbol: message.symbol, position: message.position, timestamp, path})
+  const candles = await API_GET<string[][]>(path, `Candle.Publish:${symbol}`);
 
-  if (!candles.success || !candles.data) return [ApiResult(false, `${context}.Error`, { code: StatusCode.MALFORMED_API_PAYLOAD })];
+  console.log("[Audit]", { symbol: message.symbol, position: message.position, timestamp, path });
+
+  if (!candles.success || !candles.data) return [ApiResult(false, `${context}.Error`, { code: SC.MALFORMED_API_PAYLOAD })];
 
   // 3. Map and Type-Cast the API to DB ICandle
   const data = candles.data;
@@ -135,7 +138,7 @@ export const Publish = async (message: IMessage): Promise<Array<TResponse>> => {
         audit: results.reduce((acc, r) => ({ ...acc, [r.context]: r }), {}),
         status: {
           success: isSuccess,
-          code: isSuccess ? StatusCode.SUCCESS : StatusCode.DB_UPSERT_FAILED,
+          code: isSuccess ? SC.SUCCESS : SC.DB_UPSERT_FAILED,
           text: isSuccess ? "Audit Reconciled" : "Partial Sync Failure",
         },
       } as IMessage);
@@ -151,7 +154,7 @@ export const Publish = async (message: IMessage): Promise<Array<TResponse>> => {
         timestamp: Date.now(),
         status: {
           success: false,
-          code: StatusCode.DB_UPSERT_FAILED,
+          code: SC.DB_UPSERT_FAILED,
           text: error instanceof Error ? error.message : "Atomic Commit Exception",
           fatal: (message.status?.attempt || 0) >= (Session().config?.maxRetries || 3),
         },
@@ -159,4 +162,183 @@ export const Publish = async (message: IMessage): Promise<Array<TResponse>> => {
     }
     throw error;
   }
+};
+
+/**
+ * @function Import
+ * @module api/Candles
+ * @file candles.ts
+ * @description
+ * High-performance OHLCV data ingestion and reconciliation engine. Perform the duties
+ * of a Deep Historical Auditor (Day 0). Recursively scans from present-day backward
+ * to establish a fully-reconciled history baseline. Uses a change-detection algorithm
+ * to minimize DB writes, ensuring only new or corrected data triggers I/O.
+ *
+ * @workflow
+ * 1. RAW INGESTION: Direct-to-pipe retrieval via API_GET, bypassing higher-level abstractions.
+ * 2. CHANGE DETECTION: O(1) Map-based comparison between API state and Local DB state.
+ * 3. TRIAGE (Anti-Upsert): Segregates data into three distinct buckets:
+ *    - toInsert: New time-series data.
+ *    - toUpdate: Mutated records (e.g., price corrections or 'completed' status flips).
+ *    - toUnchanged: Verified records requiring zero I/O.
+ * 4. ATOMIC COMMIT: Concurrent execution of categorized DB operations via Promise.all.
+
+ * @param {IMessage} message - Object containing 'symbol' (e.g., BTC-USDT) and 'timeframe' (e.g., 1m).
+ * @returns {Promise<Array<TResponse>>} A flattened array of API results representing
+ * every Load, Update, and Reconciliation action taken during the process.
+ * @throws {Error} Throws DB_UPSERT_FAILED if the batch commit fails or the cursor
+ * becomes corrupted.
+ *
+ */
+export const Import = async (message: IMessage): Promise<Array<IPublishResult<ICandle>>> => {
+  const context = `Candle.Import.${message.symbol}`;
+  const { symbol, timeframe } = message;
+
+  // 1. Validation Pre-check
+  if (!symbol || !timeframe) {
+    return [{ key: undefined, response: createResponse(SC.FIELDS_MISSING, context) }];
+  }
+
+  return withSession(context, async (session): Promise<IPublishResult<ICandle>[]> => {
+    const [instrument, period] = await Promise.all([Instrument.Key({ symbol }), Period.Key({ timeframe })]);
+
+    if (!instrument || !period) {
+      return [{ key: undefined, response: createResponse(SC.NOT_FOUND, context, `Instrument/Period mapping failed`) }];
+    }
+
+    const limit = session.config?.candleMaxFetch || 100;
+    const cooldown = session.config?.apiCooldownMs || 1500;
+
+    let timestamp: number = Date.now();
+
+    console.log(`\n\x1b[36m[Audit]\x1b[0m ${context}: Starting candle sync for timeframe ${timeframe}`);
+
+    while (true) {
+      // 1. Standardized API_GET Implementation
+      const after = timestamp ? `&after=${timestamp}` : ``;
+      const path = `/api/v1/market/candles?instId=${symbol}&limit=${limit}&bar=${timeframe}${after}`;
+      const candles = await API_GET<string[][]>(path, `Candle.Import:${symbol}`);
+
+      Log().info(after);
+
+      if (!candles.success || !candles.data?.length) {
+        Log().error(`Wow, leaving already? ${after}`)
+        break;
+      }
+
+      // 2. Map and Type-Cast the API to DB ICandle
+      const imports: Array<Partial<ICandle>> = candles.data.map((col) => ({
+        instrument,
+        period,
+        timestamp: parseInt(col[0]),
+        open: parseFloat(col[1]),
+        high: parseFloat(col[2]),
+        low: parseFloat(col[3]),
+        close: parseFloat(col[4]),
+        volume: parseFloat(col[5]),
+        vol_currency: parseFloat(col[6]),
+        vol_currency_quote: parseFloat(col[7]),
+        completed: !!parseInt(col[8]),
+      }));  
+      
+      Log().error(
+        `[Progress] ${symbol} (${timeframe}): Period: ${imports[0]?.timestamp} (${new Date(imports[0]?.timestamp || 0)}); Processed: ${imports.length}`,
+      );
+
+      // 3. Change-Detection (Anti-Upsert Logic)
+      //   > Retrieve existing records for this specific TS range to detect changes
+      //   > Create a lookup map for O(1) access
+      //   > Separate candles by a) New (insert), b) Changed (update), and c) Unchanged (no action)
+
+      const { data: local } = await Select<ICandle>(
+        { instrument, period, timestamp },
+        {
+          table: `vw_candles`,
+          keys: [[`instrument`], [`period`], [`timestamp`, "<="]],
+          suffix: `ORDER BY timestamp DESC`,
+          limit: parseInt((limit * 1.1).toFixed()),
+        },  
+      );  
+
+      const localMap = new Map(local?.map((ts) => [ts.timestamp, ts]));
+      const batch = imports.reduce(
+        (acc, api) => {
+          const match = localMap.get(api.timestamp!);
+
+          if (!match) {
+            // Bucket a: Missing Records
+            acc.toInsert.push(api);
+          } else {
+            // Bucket b: Check for Mutated Records
+            const isMutated =
+              match.open !== api.open ||
+              match.high !== api.high ||
+              match.low !== api.low ||
+              match.close !== api.close ||
+              match.volume !== api.volume ||
+              format(match.vol_currency!, 5) !== format(api.vol_currency!, 5) ||
+              format(match.vol_currency_quote!, 5) !== format(api.vol_currency_quote!, 5) ||
+              !!match.completed !== !!api.completed;
+
+            // Bucket b: Changed Records  
+            if (isMutated) {
+              acc.toUpdate.push(api);
+            } else {
+              // Bucket c: Verified unchanged and reconciled (Do-Nothing)
+              acc.toUnchanged.push(api);
+            }  
+          }  
+          return acc;
+        },  
+        {
+          toInsert: [] as Array<Partial<ICandle>>,
+          toUpdate: [] as Array<Partial<ICandle>>,
+          toUnchanged: [] as Array<Partial<ICandle>>,
+        },  
+      );  
+
+      // 4. Apply inserts and updates
+      const results: Array<TResponse> = (
+        await Promise.all([
+          Load<ICandle>(batch.toInsert, { table: `candle`, ignore: true }, context),
+          ...batch.toUpdate.map(async (candle) => Update(candle, { table: `candle`, keys: [[`instrument`], [`period`], [`timestamp`]] }, context)),
+          ...batch.toUnchanged.map(async () => createResponse(SC.KEY_EXISTS, `${context}.Unchanged`, `Candle data unchanged`)),
+        ])  
+      ).flat();
+
+      // 5. Test for exit - if we receive fewer records than the limit, we've reached the end of available data
+      if (imports?.length < limit) {
+        const total = results.reduce(
+          (acc, r) => {
+            if (r.context === `${context}.Load`) {
+              acc.load += r.rows;
+            } else if (r.context === `${context}.Update`) {
+              acc.update += r.rows;
+            } else if (r.context === `${context}.Unchanged`) {
+              acc.reconciled += r.rows;
+            } else {
+              console.log(`[Audit] Unrecognized context in result: ${r.context}`);
+              acc.other += r.rows;
+            }
+            acc.published += r.rows;
+            return acc;
+          },
+          { load: 0, update: 0, reconciled: 0, other: 0, published: 0 },
+        );
+        console.log(
+          `[Audit] ${symbol}.${timeframe}: New: ${total.load} | Updates: ${total.update} | Unchanged: ${total.reconciled} | Other: ${total.other} | Published: ${total.published}`,
+        );
+        return results;
+      }
+
+      // 5. Progress Management
+      timestamp = Math.min(...imports.map((c) => c.timestamp!));
+
+      // Api cooldown per your rate limit spec
+
+      await new Promise((r) => setTimeout(r, cooldown));
+    }
+    // Ensure a valid return type if the loop breaks without returning
+    return [];
+  });
 };

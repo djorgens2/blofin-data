@@ -3,11 +3,16 @@
  *
  */
 
-import { hexString } from "#lib/std.util";
+import type { ISession } from "#app/session";
+import type { IPublishResult } from "#api";
+
 import { Session } from "#app/session";
+import { hexString } from "#lib/std.util";
+import { SC } from "#api/lexicon";
 
 import UserToken from "#cli/interfaces/user";
 import fs from "fs";
+import type { IMessage } from "./ipc.util";
 
 /**
  * @interface ILogConfig
@@ -21,23 +26,85 @@ interface ILogConfig {
   account: boolean;
   errors: boolean;
   ok: boolean;
+}
 
-  // Identity Methods
-  session: (context?: string) => void;
-  error: (message: string, error?: any) => void;
-  success: (message: string, context?: string) => void;
+/**
+ * @interface ILogger
+ * A leaner, primed logging interface passed into callbacks.
+ */
+export interface ILogger {
+  success: (message: string, code?: number) => void;
+  warn: (message: string, code?: number) => void;
+  error: (message: string, code?: number, error?: any) => void;
+  info: (message: string) => void;
+  admin: <T>(callback: () => T) => T | undefined;
+  flags: typeof DEFAULT_LOGGING;
 }
 
 const DEFAULT_LOGGING = { select: false, update: false, insert: false, delete: false, account: false, errors: false, ok: false };
+
+export const getEnvFlags = (): ILogConfig => {
+  // 1. Parse Environmental Flags
+  let envFlags: ILogConfig = DEFAULT_LOGGING;
+  try {
+    if (process.env.APP_LOGGING) {
+      envFlags = { ...DEFAULT_LOGGING, ...JSON.parse(process.env.APP_LOGGING) };
+    }
+  } catch (e) {
+    console.error("-> [Error] LogConfig: Malformed APP_LOGGING JSON in .env");
+  }
+  return envFlags;
+};
+
+const internalLogger = (session: ISession | IMessage, context: string, flags: typeof DEFAULT_LOGGING): ILogger => {
+  const accountHex = hexString(session.account!, 6);
+
+  return {
+    flags,
+
+    success: (msg, code = SC.OK) => {
+      // 🚩 Filtered by .env "ok" flag
+      if (!flags.ok && code > 299) return;
+
+      console.log(`\x1b[32m[Success]\x1b[0m \x1b[36m${context}\x1b[0m [${accountHex}]: ${msg}`);
+    },
+
+    error: (msg, code = SC.OK, err) => {
+      // 🚩 Filtered by .env "errors" flag
+      if (!flags.errors && code < 300) return;
+
+      console.error(`\x1b[31m[Error]\x1b[0m \x1b[36m${context}\x1b[0m [${accountHex}]: ${msg}`, err || "");
+    },
+
+    warn: (msg, code = SC.OK) => {
+      // 🚩 Filtered by .env "errors" flag
+      if (!flags.errors && !(code > 0 && code < 300)) return;
+
+      console.error(`\x1b[31m[Error]\x1b[0m \x1b[36m${context}\x1b[0m [${accountHex}]: ${msg}`);
+    },
+
+    // Info is usually always printed for "Audit.Trace" purposes
+    info: (msg) => console.log(`\x1b[34m[Info]\x1b[0m ${context}: ${msg}`),
+
+    admin: <T>(cb: () => T): T | undefined => {
+      const isAdmin = UserToken().isAdmin();
+      if (!isAdmin) {
+        if (flags.errors) console.warn(`\x1b[33m[Security]\x1b[0m Unauthorized Admin attempt: ${context}`);
+        return undefined;
+      }
+      return cb();
+    },
+  };
+};
 
 /**
  * @function routeLogs
  * @description
  * Redirects console to file. Strips ANSI color codes and formats
  * multi-line output for "Whistle-Clean" readability.
- */
-export const routeLogs = (alias: string) => {
-  const logPath = `./logs/${alias.replace(/\s+/g, "_")}.audit.log`;
+*/
+export const routeLogs = (context: string) => {
+  const logPath = `./logs/${context.replace(/\s+/g, "_")}.log`;
   const logStream = fs.createWriteStream(logPath, { flags: "a" });
 
   // Regex to strip ANSI color codes (the [32m stuff)
@@ -45,7 +112,6 @@ export const routeLogs = (alias: string) => {
 
   const writeFormatted = (prefix: string, chunk: any) => {
     const timestamp = new Date().toISOString();
-    // Convert chunk to string, strip colors, and trim trailing newlines
     const cleanChunk = stripAnsi(String(chunk)).trim();
 
     if (!cleanChunk) return; // Skip empty pulses
@@ -75,81 +141,75 @@ export const routeLogs = (alias: string) => {
   console.log(`[Security] Console routed to persistent log: ${logPath}`);
 };
 
-/**
- * @function Log
- * @description
- * Multi-mode logger.
- *
- * Combined flags from .env and methods for identity-driven logging.
- * 1. Log().select -> returns boolean flag from .env
- * 2. Log(account).session() -> outputs redacted/full session to console
- * 3. Log(account).error() -> outputs redacted/full session to console
- *
- * Flags for DML transactions; logs all prepared SQL Statements and args
- *    ex: if (Log().select) {console.log("-> [Info] Executing Select on table...")}
- *
- * Inside a Mama Fork or Papa loop:
- *    ex: Log(account).session("Pre-Flight Check");
- *
- * In the catch block:
- *    ex: try {
- *        } catch (e) {
- *          Log(Session().account).error("Fractal Boundary Breach", e);
- *        }
- */
-export const Log = (account?: Uint8Array): ILogConfig => {
-  // 1. Parse Environmental Flags
-  let envFlags = DEFAULT_LOGGING;
+// logging.ts
+export const withLog = async <T = void>(
+  context: string,
+  callback: (log: ILogger, session: ISession) => Promise<T> | T
+): Promise<T | Array<IPublishResult<any>>> => {
+  
+  // 1. Get whatever "Pod" data we have so far (System, User, or Full Account)
+  const session = Session(); 
+
+  // 2. Build the tool using that data
+  const log = internalLogger(session, context, getEnvFlags());
+
+  // 3. Run the logic
   try {
-    if (process.env.APP_LOGGING) {
-      envFlags = { ...DEFAULT_LOGGING, ...JSON.parse(process.env.APP_LOGGING) };
-    }
-  } catch (e) {
-    console.error("-> [Error] LogConfig: Malformed APP_LOGGING JSON in .env");
+    return await callback(log, session as ISession);
+  } catch (err) {
+    log.error("Unhandled Exception", SC.UPSERT_FAIL, err);
+    throw err;
   }
-
-  // 2. Resolve Session & Authority
-  const _session = Session(account);
-  const isAdmin = UserToken().isAdmin();
-
-  return {
-    ...envFlags,
-
-    /**
-     * Outputs session state to stdout/stderr.
-     * Escalates to sensitive credentials only if UserToken is 'Admin'.
-     */
-    session: (context = "Audit.Trace") => {
-      if (!_session?.account) return; // Silent if no session
-
-      const output: any = {
-        alias: _session?.alias,
-        // symbol: s?.symbol,
-        // state: s?.state,
-        config: _session?.config,
-        audit: { order: _session?.audit_order, stops: _session?.audit_stops },
-      };
-
-      // Credential escalation (Admin Only)
-      if (isAdmin) {
-        output.credentials = {
-          api: _session?.api,
-          secret: _session?.secret ? _session?.secret.slice(0, 4) + "..." : "none",
-          phrase: _session?.phrase ? "****" : "none",
-        };
-      }
-
-      console.log(`\n--- ${context} [${hexString(_session?.account, 6)}] ---`);
-      console.dir(output, { depth: null, colors: true });
-      console.log(`------------------------------------------\n`);
-    },
-
-    error: (message: string, error?: any) => {
-      envFlags.errors && console.error(`[Error] ${hexString(account!, 6) || "System"}: ${message}`, error || "");
-    },
-
-    success: (message: string, context?: string) => {
-      envFlags.ok && console.log(`[Success] ${context ? context + `: ` : ``}${hexString(account!, 6) || "System"}: ${message}` || "");
-    },
-  };
 };
+
+/**
+ * Higher-Order Function to provide a session-aware, authenticated logger.
+ */
+// export const withLog = async <T>(context: string, callback: (log: ILogger, session: ISession) => Promise<T> | T): Promise<T | Array<IPublishResult<any>>> => {
+//   // 1. Get Environmental Flags (Parsed once here)
+//   const envFlags = getEnvFlags();
+
+//   return withSession<T>(context, async (session) => {
+//     // 2. Prime the logger with session AND flags
+//     const log = internalLogger(session, context, envFlags);
+
+//     return await callback(log, session);
+//   });
+// };
+
+/**
+ * A System-level HOF for boot/engine logic where no User Session exists yet.
+ */
+export const withSystem = async <T>(
+  context: string,
+  callback: (log: ILogger) => Promise<T> | T
+): Promise<T> => {
+  // We create the logger INTERNALLY so it stays private
+  const bootSession = { account: new Uint8Array(), alias: "SYSTEM" } as ISession;
+  const log = internalLogger(bootSession, context, getEnvFlags());
+  
+  return await callback(log);
+};
+
+/**
+ * Exported factory for System-level logging only.
+ */
+export const SystemLogger = (context: string): ILogger => {
+  const bootSession = { account: new Uint8Array(), alias: "SYSTEM" } as ISession;
+  return internalLogger(bootSession, context, getEnvFlags());
+};
+
+/** 
+ * COMPATIBILITY SHIM: 
+ * Temporary helper to prevent 171 build errors. 
+ * Redirects legacy Log() calls to the new system-level logger.
+ */
+export const Log = (account?: Uint8Array) => {
+  // Use a 'System' context for legacy logs until they are refactored
+  const session = { account: account || new Uint8Array(), alias: "LEGACY" } as ISession;
+  const flags = getEnvFlags(); // Your existing flag parser
+  
+  // Return an object that matches your OLD Log() interface
+  return internalLogger(session, "Legacy.Sync", flags);
+};
+

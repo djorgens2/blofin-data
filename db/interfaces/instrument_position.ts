@@ -12,11 +12,12 @@ import type { TPositionState, TSymbol, TSystem } from "#db/interfaces/state";
 import type { IPublishResult } from "#api";
 import type { TOptions } from "#db";
 
-import { Select, Update, Insert, PrimaryKey, Distinct } from "#db";
-import { State, Period, Instrument, Currency } from "#db";
+import { Select, Update, Insert, Distinct, PrimaryKey } from "#db";
+import { State, Period, Currency } from "#db";
 import { hasValues, isEqual } from "#lib/std.util";
 import { hashKey } from "#lib/crypto.util";
-import { Session } from "#app/session";
+import { withSession } from "#app/session";
+import { Log } from "#lib/log.util";
 
 /**
  * Core interface representing an Instrument Position record.
@@ -99,70 +100,70 @@ export interface IInstrumentPosition {
  * @param context - Log tracing context. Defaults to "Instrument.Position".
  * @returns A promise resolving to the database operation result and primary key.
  */
-  export const Publish = async (props: Partial<IInstrumentPosition>, context = "Instrument.Position"): Promise<IPublishResult<IInstrumentPosition>> => {
-    context = `${context}.Publish`;
-    if (!hasValues(props)) {
-      return { key: undefined, response: { success: false, code: 413, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
-    }
+export const Publish = async (props: Partial<IInstrumentPosition>, context = "Instrument.Position"): Promise<IPublishResult<IInstrumentPosition>> => {
+  context = `${context}.Publish`;
+  if (!hasValues(props)) {
+    return { key: undefined, response: { success: false, code: 413, state: `null_query`, message: `[Error] ${context}:`, rows: 0, context } };
+  }
 
-    const exists = await Fetch({
-      account: Session().account,
-      instrument_position: props.instrument_position,
-      instrument: props.instrument,
-      symbol: props.symbol,
-      position: props.position,
-    });
+  /** 1. Fetch Instruments belonging to the logged account */
+  const table = `instrument_position`;
+  const pkey = `instrument_position`;
+  const exists = await Fetch({
+    instrument_position: props.instrument_position,
+    instrument: props.instrument,
+    symbol: props.symbol,
+    position: props.position,
+  });
 
-    if (exists) {
-      const [current] = exists;
-      const state = props.state || (await State.Key({ status: props.status }));
-      const revised: Partial<IInstrumentPosition> = {
-        instrument_position: current.instrument_position,
-        state: isEqual(state!, current.state!) ? undefined : state,
-        margin_mode: props.margin_mode! === current.margin_mode! ? undefined : props.margin_mode,
-        leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
-        lot_scale: isEqual(props.lot_scale!, current.lot_scale!) ? undefined : props.lot_scale,
-        martingale: isEqual(props.martingale!, current.martingale!) ? undefined : props.martingale,
-        period: isEqual(props.period!, current.period!) ? undefined : props.period,
-        strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
-        strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
-        close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
-      };
-      const result = await Update(revised, { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" });
-
-      if (result.success) {
-        const confirm = await Update(
-          { instrument_position: current.instrument_position, update_time: props.update_time || new Date() },
-          { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" },
-        );
-        return { key: PrimaryKey(revised, ["instrument_position"]), response: confirm };
-      }
-      return { key: PrimaryKey(revised, ["instrument_position"]), response: result };
-    }
-
-    const instrument_position = hashKey(12);
-    const account = Session().account;
-    const instrument = props.instrument || (await Instrument.Key({ symbol: props.symbol }));
-    const state = props.state || (await State.Key({ status: props.status || "Closed" }));
-    const period = props.period || (await Period.Key({ timeframe: props.timeframe! }));
-    const missing: Partial<IInstrumentPosition> = {
-      instrument_position,
-      account,
-      instrument,
-      position: props.position,
-      state,
-      leverage: props.leverage,
-      lot_scale: props.lot_scale,
-      martingale: props.martingale,
-      period,
-      strict_stops: props.strict_stops,
-      strict_targets: props.strict_targets,
-      update_time: props.update_time || new Date(),
-      close_time: props.close_time || new Date(),
+  if (exists) {
+    const [current] = exists;
+    const state = props.state || (await State.Key({ status: props.status }));
+    const revised: Partial<IInstrumentPosition> = {
+      instrument_position: current.instrument_position,
+      state: isEqual(state!, current.state!) ? undefined : state,
+      margin_mode: props.margin_mode! === current.margin_mode! ? undefined : props.margin_mode,
+      leverage: isEqual(props.leverage!, current.leverage!) ? undefined : props.leverage,
+      lot_scale: isEqual(props.lot_scale!, current.lot_scale!) ? undefined : props.lot_scale,
+      martingale: isEqual(props.martingale!, current.martingale!) ? undefined : props.martingale,
+      period: isEqual(props.period!, current.period!) ? undefined : props.period,
+      strict_stops: !!props.strict_stops === !!current.strict_stops! ? undefined : props.strict_stops,
+      strict_targets: !!props.strict_targets === !!current.strict_targets! ? undefined : props.strict_targets,
+      close_time: isEqual(props.close_time!, current.close_time!) ? undefined : props.close_time,
     };
-    const result = await Insert(missing, { table: `instrument_position`, keys: [[`instrument_position`]], context: "Instrument.Position.Publish" });
-    return { key: PrimaryKey(missing, ["instrument_position"]), response: result };
+    const result = await Update(revised, { table, keys: [[pkey]], context });
+
+    if (result.success) {
+      const confirm = await Update(
+        { instrument_position: current.instrument_position, update_time: props.update_time || new Date() },
+        { table, keys: [[pkey]], context },
+      );
+      return { key: PrimaryKey(revised, [pkey]), response: confirm };
+    }
+    return { key: PrimaryKey(revised, [pkey]), response: result };
+  }
+
+  const instrument_position = hashKey(12);
+  const instrument = props.instrument;
+  const state = props.state || (await State.Key({ status: props.status || "Closed" }));
+  const period = props.period || (await Period.Key({ timeframe: props.timeframe! }));
+  const missing: Partial<IInstrumentPosition> = {
+    instrument_position,
+    instrument,
+    position: props.position,
+    state,
+    leverage: props.leverage,
+    lot_scale: props.lot_scale,
+    martingale: props.martingale,
+    period,
+    strict_stops: props.strict_stops,
+    strict_targets: props.strict_targets,
+    update_time: props.update_time || new Date(),
+    close_time: props.close_time || new Date(),
   };
+  const result = await Insert(missing, { table, keys: [[pkey]], context });
+  return { key: PrimaryKey(missing, [pkey]), response: result };
+};
 
 /**
  * Retrieves instrument position records from the `vw_instrument_positions` view.
@@ -195,45 +196,59 @@ export const Key = async (props: Partial<IInstrumentPosition>): Promise<IInstrum
 
 /**
  * Audits local instrument records against active API data to identify discrepancies.
- * 
+ *
  * This function performs a "suspense" check:
  * 1. Fetches all instruments from the local database that are NOT currently 'Suspended'.
  * 2. Filters the incoming `props` to identify which instruments the API considers 'Enabled'.
- * 3. Compares the two lists; any instrument present in the DB but missing/disabled in the API 
+ * 3. Compares the two lists; any instrument present in the DB but missing/disabled in the API
  *    is flagged for suspension.
  * 4. Triggers a `Currency.Publish` update to set the status of these instruments to 'Suspended'.
- * 
+ *
  * @param props - An array of instrument position objects representing the current state from the API.
  * @param context - Log tracing context for debugging. Defaults to `Instrument.Suspense`.
- * 
- * @returns A promise resolving to an array of publication results for each instrument 
+ *
+ * @returns A promise resolving to an array of publication results for each instrument
  *          successfully moved to the 'Suspended' state.
- * 
+ *
  * @example
  * // Reconcile local DB with a fresh list of enabled instruments from the broker
  * const auditResults = await Suspense(apiResponse.positions);
  */
-export const Suspense = async (props: Array<Partial<IInstrumentPosition>>, context = `Instrument.Suspense`): Promise<Array<IPublishResult<IInstrumentPosition>>> => {
-  context = `${context}.Suspense`;
+export const Suspense = async (
+  props: Array<Partial<IInstrumentPosition>>,
+  baseContext = `Instrument.Suspense`,
+): Promise<Array<IPublishResult<IInstrumentPosition>>> => {
+  const context = `${baseContext}.Suspense`;
+
+  /** 1. Immediate validation of input */
   if (!hasValues(props)) {
     return [{ key: undefined, response: { success: false, code: 400, state: `null_query`, message: `[Error] ${context}`, rows: 0, context } }];
   }
-  const current = await Distinct<IInstrumentPosition>(
-    { account: Session().account, symbol: undefined, instrument_status: `Suspended` },
-    { table: `vw_instrument_positions`, keys: [[`account`], [`instrument_status`, "<>"]] },
-    context,
-  );
-  const api = props.filter((p) => p.instrument_status === `Enabled`);
-  const suspense = current.data!
-    .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
-    .map((instrument) =>
-      Currency.Publish({
-        currency: instrument.base_currency,
-        status: `Suspended`,
-      }),
+
+  /** 2. Wrap logic to secure the session */
+  return withSession(context, async (session) => {
+    
+    // Now 'session.account' is guaranteed and typed
+    const current = await Distinct<IInstrumentPosition>(
+      { account: session.account, symbol: undefined, instrument_status: `Suspended` },
+      { table: `vw_instrument_positions`, keys: [[`account`], [`instrument_status`, "<>"]] },
+      context,
     );
 
-  const results = await Promise.all(suspense);
-  console.log(`-> Instrument.Suspense: Found ${suspense.length} instruments to suspend`);
-  return results as Array<IPublishResult<IInstrumentPosition>>;
+    const api = props.filter((p) => p.instrument_status === `Enabled`);
+    
+    const suspense = (current.data ?? [])
+      .filter((db) => !api.some((suspend) => suspend.symbol === db.symbol))
+      .map((instrument) =>
+        Currency.Publish({
+          currency: instrument.base_currency,
+          status: `Suspended`,
+        }),
+      );
+
+    const results = await Promise.all(suspense);
+    Log().info(`-> ${context}: Found ${suspense.length} instruments to suspend`);
+    
+    return results as Array<IPublishResult<IInstrumentPosition>>;
+  });
 };

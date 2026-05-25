@@ -31,8 +31,6 @@ import {
   ContractType,
   Currency,
   Environment,
-  InstrumentDetail,
-  InstrumentPeriod,
   InstrumentPosition,
   Instrument,
   InstrumentType,
@@ -73,8 +71,6 @@ const SubjectMap: Record<string, SubjectModule> = {
   "-ctype": ContractType,
   "-sym": Currency,
   "-e": Environment,
-  "-id": InstrumentDetail,
-  "-iper": InstrumentPeriod,
   "-ipos": InstrumentPosition,
   "-i": Instrument,
   "-itype": InstrumentType,
@@ -140,8 +136,6 @@ const PrettyNames: Record<string, string> = {
   "-ctype": "ContractType",
   "-sym": "Currency",
   "-e": "Environment",
-  "-id": "InstrumentDetail",
-  "-iper": "InstrumentPeriod",
   "-ipos": "InstrumentPosition",
   "-i": "Instrument",
   "-itype": "InstrumentType",
@@ -220,21 +214,25 @@ const launchChartReport = (rows: any[], displayName: string) => {
 
   // 2. Prepare Table Data (Build your HTML strings for the table)
   const tableHeaders = Object.keys(rows[0])
-    .map(k => `<th>${k}</th>`)
-    .join('');
+    .map((k) => `<th>${k}</th>`)
+    .join("");
 
-  const tableBody = rows.map(row => {
-    const cells = Object.entries(row).map(([key, val]) => {
-      let display = val;
-      if (hexKeys.includes(key)) {
-        // Ensure Buffers or raw strings are converted to 0x-prefixed hex
-        const hex = Buffer.isBuffer(val) ? val.toString('hex') : String(val).replace('0x', '');
-        display = `0x${hex}`;
-      }
-      return `<td>${display}</td>`;
-    }).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
+  const tableBody = rows
+    .map((row) => {
+      const cells = Object.entries(row)
+        .map(([key, val]) => {
+          let display = val;
+          if (hexKeys.includes(key)) {
+            // Ensure Buffers or raw strings are converted to 0x-prefixed hex
+            const hex = Buffer.isBuffer(val) ? val.toString("hex") : String(val).replace("0x", "");
+            display = `0x${hex}`;
+          }
+          return `<td>${display}</td>`;
+        })
+        .join("");
+      return `<tr>${cells}</tr>`;
+    })
+    .join("");
 
   // 3. Load and Inject
   const templatePath = join(__dirname, "templates", "chart.template.html");
@@ -290,12 +288,7 @@ async function run(retries = 3, backoff = 2000) {
     });
 
     if (!rows || rows.length === 0) {
-      if (retries > 0) {
-        console.error(`No data found (Tip of Spear). Papa Mama cooldown: ${backoff}ms...`);
-        await new Promise((res) => setTimeout(res, backoff));
-        return run(retries - 1, backoff * 2); // Exponential Backoff
-      }
-      console.error("Fetch failed after retries.");
+      console.error(`⚠️  No data found`);
       process.exit(0);
     }
 
@@ -303,7 +296,7 @@ async function run(retries = 3, backoff = 2000) {
     else if (process.argv.includes("--chart")) launchChartReport(rows, flag);
     else if (process.argv.includes("--tab")) console.table(rows.map((r) => ({ ...r, timestamp: new Date(r.timestamp - PST_OFFSET).toLocaleString() })));
     else console.log(rows);
-    
+
     process.exit(0);
   } catch (e: any) {
     console.error("Execution Error:", e.message);
