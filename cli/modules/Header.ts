@@ -22,48 +22,71 @@ const padLine = (text: string, width: number, indent: string = "") => {
   return `│${indent}${text}${padding}│`;
 };
 
-export const setHeader = (heading: string) => {
-  const { username, title, error, message } = UserToken();
+let currentHeader = "";
+export const setHeader = (heading?: string, status?: { prod: boolean; demo: boolean }) => {
+  const _user = UserToken();
   const boxWidth = 132;
   
+  currentHeader = heading ? heading : currentHeader;
+
+  // 1. Prepare the Status Indicators (Right Aligned)
+  let rightMarginStatus = "";
+  if (_user.isAdmin() && status) {
+    const pStatus = status.prod ? green("[ ONLINE ]") : red("[ OFFLINE ]");
+    const dStatus = status.demo ? green("[ ONLINE ]") : red("[ OFFLINE ]");
+    rightMarginStatus = `Prod: ${pStatus}  Demo: ${dStatus}   `;
+  }
+
   // 1. Center the Heading
-  const content = `**** ${heading} ****`;
+  const content = `**** ${currentHeader} ****`;
   const vLen = visibleLength(content);
   const padLeft = " ".repeat(Math.floor((boxWidth - vLen) / 2));
-  const centeredHeading = padLine(cyan(content), boxWidth, padLeft);
-
-  // 2. Status Label Logic
-  const statusLabel = 
-    error === 0 ? green("    Success: ") :
-    error < 200 ? cyan("  Confirmed: ") :
-    error < 300 ? yellow("*** Warning: ") :
-    error < 400 ? red("    *** Error: ") : "             ";
 
   console.clear();
   console.log(`┌${"─".repeat(boxWidth)}┐`);
-  console.log(`│${" ".repeat(boxWidth)}│`);
-  
+
   // Header Row
-  console.log(centeredHeading);
-  
-  console.log(`│${" ".repeat(boxWidth)}│`);
+  const mainHeader = padLine(cyan(content), boxWidth, padLeft);
+  console.log(mainHeader);
+
+  // Row 2: Right-aligned Status (One line below heading or same line if preferred)
+  if (rightMarginStatus) {
+    const sLen = visibleLength(rightMarginStatus);
+    const sPad = " ".repeat(boxWidth - sLen); // -2 for borders
+    console.log(`│${sPad}${rightMarginStatus}│`);
+  } else {
+    console.log(`│${" ".repeat(boxWidth)}│`);
+  }
 
   // Data Rows (Using padLine for guaranteed alignment)
   console.log(padLine(`${bold("Log Time:")} ${dim(new Date().toLocaleString())}`, boxWidth, "    "));
-  
-  if (username.length > 0) {
-    console.log(padLine(`User: ${green(username)}`, boxWidth, "        "));
+
+  if (_user.username.length > 0) {
+    console.log(padLine(`User: ${green(_user.username)}`, boxWidth, "        "));
   }
 
-  if (title.length > 0) {
-    console.log(padLine(`Role: ${green(title)}`, boxWidth, "        "));
+  if (_user.title.length > 0) {
+    console.log(padLine(`Role: ${green(_user.title)}`, boxWidth, "        "));
   }
+
+  // 2. Status Label Logic
+  const statusLabel =
+    _user.error === 0
+      ? green("    Success: ")
+      : _user.error < 200
+        ? cyan("  Confirmed: ")
+        : _user.error < 300
+          ? yellow("*** Warning: ")
+          : _user.error < 499
+            ? red("    *** Error: ")
+            : "             ";
 
   console.log(`│${" ".repeat(boxWidth)}│`);
-  
+  // console.log( statusLabel, _user );
+
   // Status Row
-  console.log(padLine(`${statusLabel}${message}`, boxWidth));
-  
+  console.log(padLine(`${statusLabel}${_user.message}`, boxWidth));
+
   console.log(`│${" ".repeat(boxWidth)}│`);
   console.log(`└${"─".repeat(boxWidth)}┘`);
   console.log(``);

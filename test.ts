@@ -2002,17 +2002,6 @@
 //   });
 // })();
 
-//---------------------------------- instrument position import test ----------------------------------------//
-// import * as InstrumentPosition from "api/instrumentPositions";
-
-// const args = process.argv.slice(2); // get account id
-
-// (async () => {
-//   await config({ account: hexify(args[0]) });
-//   await InstrumentPosition.Import();
-
-// })();
-
 //---------------------------------- Session config get multiple leverage test ----------------------------------------//
 // import type { IInstrumentPosition } from "db/interfaces/instrument_position";
 
@@ -2783,6 +2772,224 @@
 //    account && await Import(app.clear({state: 'api', account, symbol: 'XRP-USDT', timeframe: "15m"}));
 // });
 
+//import { Log } from "#lib/log.util";
+//Log().error(`this is a test`);
 
-import { Log } from "#lib/log.util";
-Log().error(`this is a test`);
+/**
+ * Step 3: View (The "Paint the Screen" Logic)
+ * Aggregates selections and renders the final grid.
+ */
+import { setHeader } from "#cli/modules/Header";
+import * as readline from "node:readline";
+import * as sysInfo from "systeminformation";
+
+/**
+ * Listens for a keypress and resolves only if it's in the allowed set.
+ * @param allowedKeys - Array of key names (e.g., ['up', 'down', 'return'])
+ */
+async function getMenuSelection(allowedKeys: string[]): Promise<string> {
+  // Setup stream
+  readline.emitKeypressEvents(process.stdin);
+  if (process.stdin.isTTY) process.stdin.setRawMode(true);
+  process.stdin.resume();
+
+  return new Promise((resolve) => {
+    const onKeypress = (chunk: any, key: readline.Key) => {
+      // Always allow Ctrl+C to exit
+      if (key.ctrl && key.name === "c") resolve("ctrl-c");
+
+      if (allowedKeys.includes(key.name || "")) {
+        // Cleanup: Stop listening and reset terminal mode
+        process.stdin.removeListener("keypress", onKeypress);
+        if (process.stdin.isTTY) process.stdin.setRawMode(false);
+        process.stdin.pause();
+
+        resolve(key.name!);
+      }
+    };
+
+    process.stdin.on("keypress", onKeypress);
+  });
+}
+export const View = async () => {
+  setHeader("Job Control | View And Monitor Active Jobs");
+
+  const data = [
+    { account: "24597A", alias: "Blofin Demo", broker: "C70CEA", state: "5834D5", status: "Enabled" },
+    { account: "304E6A", alias: "Test", broker: "C70CEA", state: "5834D5", status: "Enabled" },
+    // ... add the rest of your rows here
+  ];
+
+  const menuOptions = ["add", "remove", "delete", "view", "start/stop"];
+  let selectedIndex = 0;
+
+  // 1. Helper to render the static table
+  function renderTable() {
+    console.clear();
+    // Headers with fixed padding
+    console.log(`\x1b[1;34m%-10s %-15s %-10s %-10s %-10s\x1b[0m`, "account", "alias", "broker", "state", "status");
+    console.log("-".repeat(60));
+
+    data.forEach((row) => {
+      const statusColor = row.status === "Enabled" ? "\x1b[32m" : "\x1b[31m";
+      console.log(`%-10s %-15s %-10s %-10s ${statusColor}%-10s\x1b[0m`, row.account, row.alias, row.broker, row.state, row.status);
+    });
+    console.log("\n"); // Space before menu
+  }
+
+  // 2. The Horizontal Menu Logic
+  function renderMenu() {
+    process.stdout.write("\x1b[2K\x1b[0G"); // Clear current line
+    const menuLine = menuOptions
+      .map((opt, i) => {
+        return i === selectedIndex ? `\x1b[7m ${opt} \x1b[0m` : `  ${opt}  `;
+      })
+      .join(" ");
+
+    process.stdout.write(menuLine);
+  }
+
+  // Initial Render
+  renderTable();
+  renderMenu();
+  screen;
+
+  // Input handling (Standard Node.js)
+  do {
+    const key = await getMenuSelection(["left", "right", "return", "escape"]);
+    switch (key) {
+      case "left":
+        selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : menuOptions.length - 1;
+        renderMenu();
+        break;
+      case "right":
+        selectedIndex = selectedIndex < menuOptions.length - 1 ? selectedIndex + 1 : 0;
+        renderMenu();
+        break;
+      case "return":
+        process.stdout.write(`\n\nExecuting: ${menuOptions[selectedIndex]}...\n`);
+        process.exit();
+      case "escape":
+        console.log("\n\nI pressesd escape!");
+        process.exit();
+      case "ctrl-c":
+        console.log("\n\nI pressesd ctrl-c!");
+        process.exit();
+    }
+  } while (true);
+};
+
+//View().then(() => console.clear());
+
+//------------------------------------------ ui dimensions test -------------------------------------------//
+// console.log(screen.availHeight, screen.availWidth)
+// async function getScreenResolution() {
+//   try {
+//     const { displays } = await sysInfo.graphics();
+//     if (displays.length > 0) {
+//       console.log(`Screen Resolution: ${displays[0].currentResX} x ${displays[0].currentResY}`);
+//     }
+//     if (process.stdout.isTTY) {
+//       console.log("Terminal size:", process.stdout.columns + "x" + process.stdout.rows);
+//       process.stdout.on("resize", () => {
+//         console.log("Screen size has changed!");
+//         console.log(process.stdout.columns + "x" + process.stdout.rows);
+//         setHeader();
+//       });
+//     } else {
+//       console.log("stdout is not a terminal (TTY).");
+//     }
+//   } catch (e) {
+//     console.error(e);
+//   }
+// }
+
+// getScreenResolution();
+
+//------------------------------------------ ui input test ---------------------------------------------------//
+// import * as Keys from "#cli/ui/keypress"
+
+// do {
+//   const key = await Keys.keypress(["left", "right", "up", "down", "escape"]);
+//   if (key && key === 'ctrl-c') process.exit(1);
+// } while (true);
+
+//---------------------------------- instrument position import test ----------------------------------------//
+// import { Config } from "#app/session";
+// import { hexify } from "#lib/crypto.util";
+// import * as InstrumentPosition from "#api/interfaces/instrumentPositions";
+
+// const args = process.argv.slice(2); // get account id
+// console.log(process.argv)
+
+// Config({ account: hexify(args[0]) }).then(async () => {
+//   await InstrumentPosition.Import();
+//   console.log("Finished");
+//   process.exit(0);
+// });
+
+//---------------------------------- instrument position import test ----------------------------------------//
+// import { Config } from "#app/session";
+// import { hexify } from "#lib/crypto.util";
+// import * as Instruments from "#api/interfaces/instruments";
+
+// const args = process.argv.slice(2); // get account id
+// console.log(process.argv)
+
+// Config({ account: hexify(args[0]) }).then(async () => {
+//   await Instruments.Import();
+//   console.log("Finished");
+//   process.exit(0);
+// });
+
+//---------------------------------- instrument position import test ----------------------------------------//
+// import { Session, Config } from "#app/session";
+// import { hexify } from "#lib/crypto.util";
+// import cluster from "node:cluster";
+
+// const args = process.argv.slice(2); // get account id
+// console.log(process.argv);
+
+// Config({ account: hexify(args[0]) }).then(async () => {
+//   const account = hexify(args[0]);
+//   console.log(`${cluster.isWorker ? `Session is worker` : `Session is non-worker`}`, Session(), Session(account));
+//   console.log("Finished");
+//   process.exit(0);
+// });
+
+//-------------------------------- candles Import ---------------------------------------//
+import type { IMessage } from "#lib/ipc.util";
+import { IpcHeader } from "#lib/ipc.util";
+import { Config } from "#app/session";
+import { hexify } from "#lib/crypto.util";
+import * as Candles from "#api/interfaces/candles";
+
+const args = process.argv.slice(2); // get account id
+console.log(process.argv)
+
+Config({ account: hexify(args[0]) }).then(async () => {
+  const account = hexify(args[0]);
+  const ipc: IMessage = IpcHeader({ account, symbol: 'XRP-USDT', timeframe: '15m'}, `init`);
+  const results = await Candles.Import(ipc);
+  console.log(results.map(r => JSON.stringify(r)));
+  process.exit(0);
+});
+
+
+// async function importCandles() {
+//   const instruments = await Periods.Fetch({ active_collection: true });
+//   console.log("Fetch filtered period:", instruments);
+
+//   instruments?.forEach((db, id) => {
+//     const ipc = clear({ state: "init", symbol: db.symbol!, node: id });
+//     const props: Candles.IKeyProps = {
+//       instrument: db.instrument!,
+//       symbol: db.symbol!,
+//       period: db.period!,
+//       timeframe: db.timeframe!,
+//     };
+//     Import(ipc, { ...props, limit: 1440});
+//   });
+// }
+
+// importCandles();

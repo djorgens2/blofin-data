@@ -66,10 +66,10 @@ type IExtConfig = Record<string, any>;
  * Processes environment-sourced configuration data.
  * Merges DEFAULT_CONFIG with the DB_CONFIG JSON blob.
  *
- * @returns Object} result - Frozen configuration sets.
- * @returns Partial<IDbConfig> result.config - Verified core attributes.
- * @returns IExtConfig} result.extConfig - Unverified passthrough attributes.
- * @throws Error} Fails if JSON is malformed or credentials are missing.
+ * @returns {Object} result - Frozen configuration sets.
+ * @returns {Partial<IDbConfig>} result.config - Verified core attributes.
+ * @returns {IExtConfig} result.extConfig - Unverified passthrough attributes.
+ * @throws {Error} Fails if JSON is malformed or credentials are missing.
  */
 export const getDbConfig = (): { config: Partial<IDbConfig>; extConfig: IExtConfig } => {
   try {

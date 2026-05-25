@@ -6,7 +6,7 @@ import type { IPublishResult } from "#api";
 import { config, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { setExpiry } from "#lib/std.util";
-
+import { Log } from "#lib/log.util";
 import * as Request from "./request";
 
 import * as IPos from "#db/interfaces/instrument_position";

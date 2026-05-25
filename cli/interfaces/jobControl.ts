@@ -17,10 +17,11 @@ import prompts from "prompts";
 import * as Accounts from "#db/interfaces/account";
 import { manageJobs } from "#cli/modules/JobManager";
 import { Log } from "#lib/log.util";
-import { hexString } from "#lib/std.util";
+import { delay, hexString } from "#lib/std.util";
 import UserToken from "#cli/interfaces/user";
 
-// import { dispatchJobCommand } from "#controller/dispatcher";
+import * as readline from "node:readline";
+import { stdin as input, stdout as output } from "node:process"; // import { dispatchJobCommand } from "#controller/dispatcher";
 // import { JobControl } from "#db";
 // import Prompt from "#cli/modules/Prompts";
 
@@ -100,5 +101,63 @@ export const View = async () => {
 
   setHeader("Job Control | View And Monitor Active Jobs");
 
-  await manageJobs();
+  const data = [
+    { account: "24597A", alias: "Blofin Demo", broker: "C70CEA", state: "5834D5", status: "Enabled" },
+    { account: "304E6A", alias: "Test", broker: "C70CEA", state: "5834D5", status: "Enabled" },
+    // ... add the rest of your rows here
+  ];
+
+  const menuOptions = ["add", "remove", "delete", "view", "start/stop"];
+  let selectedIndex = 0;
+
+  // 1. Helper to render the static table
+  function renderTable() {
+    console.clear();
+    // Headers with fixed padding
+    console.log(`\x1b[1;34m%-10s %-15s %-10s %-10s %-10s\x1b[0m`, "account", "alias", "broker", "state", "status");
+    console.log("-".repeat(60));
+
+    data.forEach((row) => {
+      const statusColor = row.status === "Enabled" ? "\x1b[32m" : "\x1b[31m";
+      console.log(`%-10s %-15s %-10s %-10s ${statusColor}%-10s\x1b[0m`, row.account, row.alias, row.broker, row.state, row.status);
+    });
+    console.log("\n"); // Space before menu
+  }
+
+  // 2. The Horizontal Menu Logic
+  function renderMenu() {
+    process.stdout.write("\x1b[2K\x1b[0G"); // Clear current line
+    const menuLine = menuOptions
+      .map((opt, i) => {
+        return i === selectedIndex ? `\x1b[7m ${opt} \x1b[0m` : `  ${opt}  `;
+      })
+      .join(" ");
+
+    process.stdout.write(menuLine);
+  }
+
+  // Initial Render
+  renderTable();
+  renderMenu();
+
+  // Input handling (Standard Node.js)
+  readline.emitKeypressEvents(process.stdin);
+  if (process.stdin.isTTY) process.stdin.setRawMode(true);
+
+  process.stdin.on("keypress", (str, key) => {
+    if (key.name === "left") {
+      selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : menuOptions.length - 1;
+      renderMenu();
+    } else if (key.name === "right") {
+      selectedIndex = selectedIndex < menuOptions.length - 1 ? selectedIndex + 1 : 0;
+      renderMenu();
+    } else if (key.name === "return") {
+      process.stdout.write(`\n\nExecuting: ${menuOptions[selectedIndex]}...\n`);
+      process.exit();
+    } else if (key.ctrl && key.name === "c") {
+      process.exit();
+    }
+  });
+  await delay(15000)
+  //await manageJobs();
 };

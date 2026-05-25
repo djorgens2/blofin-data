@@ -29,7 +29,7 @@ import { User } from "#db";
  */
 export const Logon = async (): Promise<void> => {
   // Pre-flight check: Do we have a 'Command Bridge' pilot yet?
-  const users = await User.Fetch({ title: "Admin", status: "Enabled" });
+  const users = await User.Fetch({ status: "Enabled" });
 
   if (users) {
     // Normal Flow: Credentials verified at the DB layer

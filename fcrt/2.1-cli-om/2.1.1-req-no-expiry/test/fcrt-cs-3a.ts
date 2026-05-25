@@ -2,6 +2,7 @@
 import { setSession, Session } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { req_fcrt_3a } from "./request";
+import { Log } from "#lib/log.util";
 
 import * as Requests from "#db/interfaces/request";
 import * as Orders from "#db/interfaces/order";

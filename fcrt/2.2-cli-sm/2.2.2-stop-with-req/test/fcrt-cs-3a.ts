@@ -5,6 +5,7 @@ import { Session, setSession } from "module/session";
 import { hexify } from "lib/crypto.util";
 import { req_fcrt_3a } from "./request";
 import { Select } from "db/query.utils";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "db/interfaces/instrument_position";
 import * as Requests from "db/interfaces/request";

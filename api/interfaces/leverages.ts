@@ -1,9 +1,9 @@
 /**
  * API Integration for Account Leverage Management.
- * 
+ *
  * Provides methods to submit leverage changes to the exchange and import
  * current leverage settings for multiple instruments in bulk.
- * 
+ *
  * @module api/leverages
  * @copyright 2018-2026, Dennis Jorgenson
  */
@@ -16,7 +16,7 @@ import type { IPublishResult } from "#api";
 import { InstrumentPosition } from "#db";
 import { API_GET, API_POST, ApiError } from "#api";
 import { hasValues } from "#lib/std.util";
-import { Log } from "#lib/log.util"
+import { Log } from "#lib/log.util";
 
 /**
  * Leverage data structure as defined by the Broker/Exchange API.
@@ -36,7 +36,7 @@ export interface ILeverageAPI {
 
 /**
  * Internal helper to update the local database after a successful API response.
- * 
+ *
  * @param props - Validated leverage data from the API.
  * @returns A promise resolving to the local DB publication result.
  */
@@ -44,21 +44,21 @@ const publish = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IIn
   if (!hasValues(props) || !props.instId || !props.positionSide || !props.leverage) {
     return {
       key: undefined,
-      response: { 
-        success: false, 
-        code: 400, 
-        state: `null_query`, 
-        message: `Undefined leverage data provided`, 
-        rows: 0, 
-        context: "Leverage.Publish.API" 
+      response: {
+        success: false,
+        code: 400,
+        state: `null_query`,
+        message: `Undefined leverage data provided`,
+        rows: 0,
+        context: "Leverage.Publish.API",
       },
     };
   }
-  
-  return await InstrumentPosition.Publish({ 
-    symbol: props.instId, 
-    position: props.positionSide, 
-    leverage: parseInt(props.leverage) 
+
+  return await InstrumentPosition.Publish({
+    symbol: props.instId,
+    position: props.positionSide,
+    leverage: parseInt(props.leverage),
   });
 };
 
@@ -66,7 +66,7 @@ const publish = async (props: Partial<ILeverageAPI>): Promise<IPublishResult<IIn
 
 /**
  * Submits a leverage change request to the exchange for a specific instrument.
- * 
+ *
  * @param props - Desired leverage settings (instId, marginMode, leverage, etc).
  * @returns The result of the API call and subsequent local DB update.
  */
@@ -109,7 +109,7 @@ export const Submit = async (props: Partial<ILeverageAPI>): Promise<IPublishResu
 
 /**
  * Retrieves current leverage settings for a batch of instruments from the exchange.
- * 
+ *
  * @param props - Array of position objects containing the symbols to query.
  * @returns A promise resolving to an array of leverage settings from the API.
  */
@@ -122,7 +122,11 @@ export const Import = async (props: Array<Partial<IInstrumentPosition>>): Promis
   const context = "Leverage.Import";
 
   try {
-    const data = await API_GET<Array<ILeverageAPI>>(path, context);
+    const { success, data, code, message } = await API_GET<Array<ILeverageAPI>>(path, context);
+
+    if (!success) {
+      throw new ApiError(code, message);
+    }
 
     if (!Array.isArray(data)) {
       throw new ApiError(422, "Malformed Leverage data: Expected an array.");

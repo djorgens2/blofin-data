@@ -7,7 +7,7 @@ import * as Import from "#app/import";
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
 config({ account }, `Import`)
   .then(async () => {
-    console.log(Session().Log(true));
+    Log(account).session('');
   })
   .finally(async () => {
     await Import.importCandles()

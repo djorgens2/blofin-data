@@ -1,13 +1,14 @@
 //----------------------------- Instrument Baseline Test-------------------------------------------//
-import { Session, config } from "#app/session";
+import { Session, Config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
+import { Log } from "#lib/log.util";
 
 import * as Import from "#app/import";
 
 const account = hexify(process.env.account || process.env.SEED_ACCOUNT || `???`);
-config({ account }, `Import`)
+Config({ account }, `Import`)
   .then( async () => {
-    console.log(Session());
+    Log(account).session('');
     await Import.importInstruments()
       .then(() => {
         console.log("[Info] Import.Instruments: Successfully completed");

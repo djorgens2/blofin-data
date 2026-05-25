@@ -4,41 +4,13 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      {
-        "source_ref": "live",
-        "status": "Pending",
-        "description": "Live"
-      },
-      {
-        "source_ref": "effective",
-        "status": "Pending",
-        "description": "Effective"
-      },
-      {
-        "source_ref": "canceled",
-        "status": "Closed",
-        "description": "Canceled"
-      },
-      {
-        "source_ref": "order_failed",
-        "status": "Rejected",
-        "description": "Order Failed"
-      },
-      {
-        "source_ref": "filled",
-        "status": "Fulfilled",
-        "description": "Filled"
-      },
-      {
-        "source_ref": "partially_canceled",
-        "status": "Closed",
-        "description": "Partially Canceled"
-      },
-      {
-        "source_ref": "partially_filled",
-        "status": "Pending",
-        "description": "Partially Filled"
-      }
+      { "source_ref": "live", "status": "Pending", "description": "Live" },
+      { "source_ref": "effective", "status": "Pending", "description": "Effective" },
+      { "source_ref": "canceled", "status": "Closed", "description": "Canceled" },
+      { "source_ref": "order_failed", "status": "Rejected", "description": "Order Failed" },
+      { "source_ref": "filled", "status": "Fulfilled", "description": "Filled" },
+      { "source_ref": "partially_canceled", "status": "Closed", "description": "Partially Canceled" },
+      { "source_ref": "partially_filled", "status": "Pending", "description": "Partially Filled" }
     ]
   },
   "request_type": {
@@ -46,30 +18,12 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      {
-        "source_ref": "market",
-        "description": "Market order"
-      },
-      {
-        "source_ref": "limit",
-        "description": "Limit order"
-      },
-      {
-        "source_ref": "post_only",
-        "description": "Post-only order"
-      },
-      {
-        "source_ref": "fok",
-        "description": "Fill-or-kill order"
-      },
-      {
-        "source_ref": "ioc",
-        "description": "Immediate-or-cancel order"
-      },
-      {
-        "source_ref": "trigger",
-        "description": "Trigger or algo order"
-      }
+      { "source_ref": "market", "description": "Market order" },
+      { "source_ref": "limit", "description": "Limit order" },
+      { "source_ref": "post_only", "description": "Post-only order" },
+      { "source_ref": "fok", "description": "Fill-or-kill order" },
+      { "source_ref": "ioc", "description": "Immediate-or-cancel order" },
+      { "source_ref": "trigger", "description": "Trigger or algo order" }
     ]
   },
   "cancel_source": {
@@ -77,18 +31,9 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      {
-        "source_ref": "not_canceled",
-        "source": "None"
-      },
-      {
-        "source_ref": "user_canceled",
-        "source": "User"
-      },
-      {
-        "source_ref": "system_canceled",
-        "source": "System"
-      }
+      { "source_ref": "not_canceled", "source": "None" },
+      { "source_ref": "user_canceled", "source": "User" },
+      { "source_ref": "system_canceled", "source": "System" }
     ]
   },
   "price_type": {
@@ -100,16 +45,8 @@
     "pkey": "hedging",
     "resolver": "boolean",
     "data": [
-      {
-        "hedging": true,
-        "source_ref": "long_short_mode",
-        "description": "Hedged"
-      },
-      {
-        "hedging": false,
-        "source_ref": "net_mode",
-        "description": "Unhedged"
-      }
+      { "hedging": true, "source_ref": "long_short_mode", "description": "Hedged" },
+      { "hedging": false, "source_ref": "net_mode", "description": "Unhedged" }
     ]
   },
   "margin_mode": {
@@ -121,18 +58,8 @@
     "pkey": "stop_type",
     "resolver": "text",
     "data": [
-      {
-        "stop_type": "0xe4",
-        "source_ref": "tp",
-        "prefix": "e4",
-        "description": "Take Profit"
-      },
-      {
-        "stop_type": "0xdf",
-        "source_ref": "sl",
-        "prefix": "df",
-        "description": "Stop Loss"
-      }
+      { "stop_type": "0xe4", "source_ref": "tp", "prefix": "e4", "description": "Take Profit" },
+      { "stop_type": "0xdf", "source_ref": "sl", "prefix": "df", "description": "Stop Loss" }
     ]
   },
   "position": {
@@ -145,30 +72,12 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      {
-        "source_ref": "normal",
-        "description": "Normal"
-      },
-      {
-        "source_ref": "full_liquidation",
-        "description": "Full Liquidation"
-      },
-      {
-        "source_ref": "partial_liquidation",
-        "description": "Partial Liquidation"
-      },
-      {
-        "source_ref": "adl",
-        "description": "Auto-Deleveraging"
-      },
-      {
-        "source_ref": "tp",
-        "description": "Take Profit"
-      },
-      {
-        "source_ref": "sl",
-        "description": "Stop Loss"
-      }
+      { "source_ref": "normal", "description": "Normal" },
+      { "source_ref": "full_liquidation", "description": "Full Liquidation" },
+      { "source_ref": "partial_liquidation", "description": "Partial Liquidation" },
+      { "source_ref": "adl", "description": "Auto-Deleveraging" },
+      { "source_ref": "tp", "description": "Take Profit" },
+      { "source_ref": "sl", "description": "Stop Loss" }
     ]
   }
 }

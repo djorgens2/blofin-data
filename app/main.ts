@@ -22,7 +22,6 @@ import { Select, pool, InstrumentPosition } from "#db";
 import { initiateMasterShutdown, isMasterProcessing, startMasterController } from "#app/controllers/master";
 import { hexString } from "#lib/std.util";
 import { Log, routeLogs } from "#lib/log.util";
-import { Loader } from "#db/loader.util";
 
 /**
  * @interface ProcessMonitor
@@ -184,26 +183,26 @@ export class CMain {
       // 3. The New Lifecycle Protocol
       app.on("message", (message: IMessage) => {
         // Essential: Re-Hexify the incoming message identity
-        const msg = IpcHeader(message, message.state);
+        const ipc = IpcHeader(message, message.state);
 
-        switch (msg.state) {
+        switch (ipc.state) {
           case "init":
-            console.log(`[Info] ${authorization} Initialized. ID: ${hexString(msg.instrument, 6)}...`);
-            app.send(IpcHeader(msg, "api"));
+            console.log(`[Info] ${authorization} Initialized. ID: ${hexString(ipc.instrument, 6)}...`);
+            app.send(IpcHeader(ipc, "api"));
             break;
 
           case "complete": // Replacing 'update' with our new 'complete' state
-            console.log(`[Audit] ${authorization} Sync Complete. Inserts: ${msg.audit?.["Candle.Import.Load"]?.rows || 0}`);
+            console.log(`[Audit] ${authorization} Sync Complete. Inserts: ${ipc.audit?.["Candle.Import.Load"]?.rows || 0}`);
             // Stay in ready state or loop back to sync
             break;
 
           case "error":
-            Log().error(`[Alert] ${authorization} Reporting Error: ${msg.status.text}`);
-            if (msg.status.fatal) app.kill(); // Papa intervenes on fatal errors
+            Log(account).error(`[Alert] ${authorization} Reporting Error: ${ipc.status.text}`);
+            if (ipc.status.fatal) app.kill(); // Papa intervenes on fatal errors
             break;
 
           default:
-            console.log(`[Status] ${authorization} state: ${msg.state}`);
+            console.log(`[Status] ${authorization} state: ${ipc.state}`);
         }
       });
 
@@ -218,7 +217,7 @@ export class CMain {
 
       console.log(`[Spawn] ${authorization} [${timeframe}] PID: ${app.pid}`);
     } else {
-      Log().error(`[Error] Spawn failed: Missing Identity Keys for ${symbol}`);
+      Log(account).error(`[Error] Spawn failed: Missing Identity Keys for ${symbol}`);
     }
   }
 
@@ -292,9 +291,6 @@ export class CMain {
   async Start() {
     // start the wss service
     let wss = await this.setService();
-
-    // 1. Critical Dependency: Load seed first
-    await Loader("../db/seed/", "Seed");
 
     // Query for instruments where auto_status is "Enabled"
     const authorized = await Select<IInstrumentPosition>({ account: this.account, auto_status: "Enabled" }, { table: `vw_instrument_positions` });

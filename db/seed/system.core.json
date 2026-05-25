@@ -40,26 +40,80 @@
     "resolver": "hashkey",
     "data": [{ "name": "Blofin", "image_url": "./images/broker/blofin.png", "website_url": "https://blofin.com/" }]
   },
-  "environment": {
-    "pkey": "environment",
-    "keylen": 6,
-    "resolver": "hashkey",
-    "data": [{ "environ": "Production" }, { "environ": "Development" }, { "environ": "Test" }, { "environ": "Quality Assurance (QA)" }]
-  },
   "process_state": {
     "pkey": "process_state",
-    "keylen": 6,
+    "keylen": 4,
     "resolver": "hashkey",
     "data": [
-      { "process_status": "running", "description": "Processes currently heartbeating in the OS." },
-      { "process_status": "stopped", "description": "Existing jobs that are currently shut down." },
-      { "process_status": "error", "description": "Processes that exited with non-zero codes." },
-      { "process_status": "unprovisioned", "description": "Enabled instruments with no entry in job_control." },
-      { "process_status": "starting", "description": "Processes actively attempting to boot up." },
+      { "process_status": "running", "description": "Processes currently heartbeating in the OS" },
+      { "process_status": "stopped", "description": "Existing jobs that are currently shut down" },
+      { "process_status": "error", "description": "Processes that exited with non-zero codes" },
+      { "process_status": "unprovisioned", "description": "Enabled instruments with no entry in job_control" },
+      { "process_status": "starting", "description": "Processes actively attempting to boot up" },
       { "process_status": "stopping", "description": "Processes attempting to shutdown" },
       { "process_status": "paused", "description": "Paused processes waiting for restart" },
-      { "process_status": "halted", "description": "Halted and unable to restart." },
-      { "process_status": "inactive", "description": "Processes inactivated and pending remvoal" }
+      { "process_status": "halted", "description": "Halted and unable to restart" },
+      { "process_status": "inactive", "description": "Processes inactivated and pending remvoal" },
+      { "process_state": "0xdead", "process_status": "dead", "description": "Process was adversly halted" }
+    ]
+  },
+  "account_type": {
+    "pkey": "account_type",
+    "keylen": 2,
+    "resolver": "hashkey",
+    "data": [
+      { "account_type": "0x00", "ident": "PROD", "environment": "Production", "description": "Primary live production, real-money account" },
+      { "account_type": "0x01", "ident": "PROD", "environment": "Production", "description": "Online Redundancy live production, real-money account" },
+      {
+        "account_type": "0xB1",
+        "ident": "TEST",
+        "environment": "Test",
+        "description": "Non-attached with connection capability account for internal use only"
+      },
+      { "account_type": "0xC0", "ident": "COOP", "environment": "Continuity", "description": "Offline Continuity of Operations, DRP, production backup" },
+      { "account_type": "0xD1", "ident": "DEMO", "environment": "Demonstration", "description": "A live demonstration, paper trading account" },
+      { "account_type": "0xD2", "ident": "DEMO", "environment": "Demonstration", "description": "A live demonstration, paper trading account" },
+      { "account_type": "0xD3", "ident": "DEMO", "environment": "Demonstration", "description": "A live demonstration, paper trading account" },
+      { "account_type": "0xE1", "ident": "DEV1", "environment": "Development", "description": "Non-attached and non-connecting account for internal use only" },
+      { "account_type": "0xF0", "ident": "OFFP", "environment": "Fail-Over", "description": "Offline production failover reserve api keys" },
+      { "account_type": "0xF1", "ident": "OFFP", "environment": "Fail-Over", "description": "Offline production failover reserve api keys" },
+      { "account_type": "0xF2", "ident": "OFFP", "environment": "Fail-Over", "description": "Offline production failover reserve api keys" }
+    ]
+  },
+  "command": {
+    "pkey": "command",
+    "keylen": 2,
+    "resolver": "hashkey",
+    "data": [
+      { "execute": "start", "description": "Start a new job control process" },
+      { "execute": "stop", "description": "Stop a process by symbol" },
+      { "execute": "restart", "description": "Restart process by symbol" },
+      { "execute": "pause", "description": "Pause the execution of the symbol" },
+      { "execute": "resume", "description": "Resume the execution of the symbol" },
+      { "execute": "halt", "description": "Attempt a graceful shutdown of the master job" },
+      { "execute": "kill", "description": "Forcefully shutdown all processing" }
+    ]
+  },
+  "config_param": {
+    "pkey": "config_param",
+    "resolver": "text",
+    "lookup": {
+      "column": "state",
+      "table": "state",
+      "key": { "status": "Enabled" }
+    },
+    "data": [
+      { "config_param": "apiCooldownMs", "default_param_value": "1200", "value_type": "int" },
+      { "config_param": "apiTimeoutTimeMs", "default_param_value": "300000", "value_type": "int" },
+      { "config_param": "candleMaxFetch", "default_param_value": "1440", "value_type": "int" },
+      { "config_param": "defaultLeverage", "default_param_value": "10", "value_type": "int" },
+      { "config_param": "defaultSma", "default_param_value": "60", "value_type": "int" },
+      { "config_param": "defaultTimeframe", "default_param_value": "15m", "value_type": "string" },
+      { "config_param": "ipcPingTimeMs", "default_param_value": "500", "value_type": "int" },
+      { "config_param": "leverageMaxFetch", "default_param_value": "20", "value_type": "int" },
+      { "config_param": "masterCycleTimeMs", "default_param_value": "2000", "value_type": "int" },
+      { "config_param": "orderMaxFetch", "default_param_value": "100", "value_type": "int" },
+      { "config_param": "wssPingTimeMs", "default_param_value": "29000", "value_type": "int" }
     ]
   },
   "period": {
@@ -89,26 +143,10 @@
     "keylen": 6,
     "resolver": "hashkey",
     "data": [
-      {
-        "role": 0,
-        "title": "Admin",
-        "auth_rank": 40
-      },
-      {
-        "role": 0,
-        "title": "Editor",
-        "auth_rank": 20
-      },
-      {
-        "role": 0,
-        "title": "Operator",
-        "auth_rank": 30
-      },
-      {
-        "role": 0,
-        "title": "Viewer",
-        "auth_rank": 10
-      }
+      { "title": "Admin", "auth_rank": 40 },
+      { "title": "Editor", "auth_rank": 20 },
+      { "title": "Operator", "auth_rank": 30 },
+      { "title": "Viewer", "auth_rank": 10 }
     ]
   },
   "task_group": {

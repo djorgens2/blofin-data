@@ -10,8 +10,9 @@ import type { TRefKey, IStopOrder } from "#db";
 
 import { Session, setSession } from "#app/session";
 import { hexify } from "#lib/crypto.util";
-import { delay, fileWrite, format } from "#lib/std.util";
+import { delay, format } from "#lib/std.util";
 import { API_GET, ApiError, ApiResult } from "#api";
+import { Log } from "#lib/log.util";
 
 import { Reference, InstrumentPosition, StopOrder, StopRequest } from "#db";
 
@@ -176,11 +177,11 @@ const History = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
   while (true) {
     Log().error("-> [Info] Fetching Stops History from ID:", Session().audit_stops);
     const path = `/api/v1/trade/orders-tpsl-history?before=${Session().audit_stops}&limit=${limit}`;
-    const result = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.History.API");
+    const {success, data} = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.History.API");
 
-    if (result && result.length > 0) {
-      history.push(...result);
-      setSession({ audit_stops: Math.max(...result.map((api) => parseInt(api.tpslId!))).toString() });
+    if (success && data?.length) {
+      history.push(...data);
+      setSession({ audit_stops: Math.max(...data.map((api) => parseInt(api.tpslId!))).toString() });
     } else break;
 
     await delay(1500);
@@ -204,10 +205,10 @@ const Pending = async (): Promise<Array<Partial<IStopOrderAPI>>> => {
     const path = `/api/v1/trade/orders-tpsl-pending?before=${afterId}&limit=${limit}`;
 
     try {
-      const result = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.Pending.API");
-      if (result && result.length > 0) {
-        pending.push(...result);
-        afterId = Math.max(...result.map((o) => parseInt(o.tpslId!))).toString();
+      const {success, data} = await API_GET<Array<Partial<IStopOrderAPI>>>(path, "Stop.Order.Pending.API");
+      if (success && data?.length) {
+        pending.push(...data);
+        afterId = Math.max(...data.map((o) => parseInt(o.tpslId!))).toString();
       } else break;
 
       await delay(1500);
@@ -280,7 +281,7 @@ export const Import = async () => {
     const results = await Promise.all([history.length ? Publish("History", history) : [], pending.length ? Publish("Pending", pending) : []]);
 
     // Construct the final array using the factory
-    return [ApiResult(`${context}.History`, history, 203), ...results[0], ApiResult(`${context}.Pending`, pending, 203), ...results[1]].flat();
+    return [ApiResult(true, `${context}.History`, history), ...results[0], ApiResult(`${context}.Pending`, pending, 203), ...results[1]].flat();
   } catch (error) {
     // Standardized Error Response Factory
     return [ApiResult(`${context}.Error`, [], -1)];

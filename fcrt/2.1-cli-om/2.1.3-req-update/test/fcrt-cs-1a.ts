@@ -5,6 +5,7 @@ import type { IPublishResult } from "#api";
 import { Session, setSession } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { Select } from "#db/query.utils";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "#db/interfaces/instrument_position";
 import * as Requests from "#db/interfaces/request";

@@ -56,7 +56,7 @@ export const PrimaryKey = <T>(obj: T, keys: (keyof T)[]): TPrimaryKey<T> => {
  * @returns {TResponse & { data: [] }} - Guaranteed shape for destructuring.
  */
 const normalizeError = (e: any, context: string): TResponse & { data: [] } => {
-  Log().errors && Log().error(`-> [Error] ${context} | ${e?.code || "DB_ERR"}: ${e?.message}`);
+  log.errors(`-> [Error] ${context} | ${e?.code || "DB_ERR"}: ${e?.message}`);
 
   return {
     ...ApiResult(false, context, {
@@ -362,8 +362,8 @@ export const Update = async <T extends object>(props: Partial<T>, options: TOpti
       message: responseMsg,
       rows: result.rows,
     });
-  } catch (e) {
-    return normalizeError(e, context);
+  } catch (error) {
+    return normalizeError(error, context);
   }
 };
 

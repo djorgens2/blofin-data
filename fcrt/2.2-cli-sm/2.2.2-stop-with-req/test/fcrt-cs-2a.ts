@@ -6,6 +6,7 @@ import { Session, config } from "#app/session";
 import { hexify } from "#lib/crypto.util";
 import { setExpiry } from "#lib/std.util";
 import { req_fcrt_2a } from "./request";
+import { Log } from "#lib/log.util";
 
 import * as IPos from "#db/interfaces/instrument_position";
 import * as Orders from "#db/interfaces/order";

@@ -11,13 +11,15 @@
 "use strict";
 
 import type { TResponse } from "#api";
+import type { TRefKey } from "#db";
+import type { ILogger } from "#lib/log.util";
+
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { hashKey, hexify } from "#lib/crypto.util";
 import { ApiResult } from "#api";
-import { Load, type TRefKey } from "#db";
-import { cyan, green, yellow, red, bold } from "console-log-colors";
-import { Log } from "#lib/log.util";
+import { Load } from "#db";
+
 import * as Reference from "#db/interfaces/reference";
 
 /**
@@ -28,6 +30,7 @@ interface ISeedManifest {
   keylen?: number;
   resolver?: "hashkey" | "hexify" | "none";
   refers?: [string, string]; // e.g., { "account": "account_id" }
+  lookup?: { column: string; table: string; key: any };
   data: any[];
 }
 
@@ -39,19 +42,18 @@ interface ISeedManifest {
  * @param {string} [context] - Optional logging context.
  * @returns {Promise<TResponse>} Standard API Result with hydration metrics.
  */
-export const Loader = async (seedFilePath = "./", context?: string): Promise<TResponse> => {
-  const logContext = `Loader${context ? `.${context}` : ""}`;
+export const Loader = async (seedFilePath = "./", baseContext = "Seed", log?: ILogger): Promise<TResponse> => {
+  const context = `Loader.${baseContext}`;
 
   // Resolve absolute path for Node 22 ESM compatibility
-  const seedDirURL = new URL(seedFilePath, import.meta.url);
-  const seedDirPath = fileURLToPath(seedDirURL);
+  const seedDirPath = fileURLToPath(new URL(seedFilePath, import.meta.url));
 
   try {
     const files = await readdir(seedDirPath);
     const manifests = files.filter((f) => f.endsWith(".json")).sort(); // Sort ensures deterministic load order
     const resolutionCache = new Map<string, TRefKey>();
 
-    console.log(bold(cyan(`\n[Boot] ${logContext}:Initializing System Hydration...`)));
+    log?.info(`Initializing System Hydration [${manifests.length} files]`);
 
     for (const fileName of manifests) {
       const filePath = new URL(`${seedFilePath}${fileName}`, import.meta.url);
@@ -59,25 +61,29 @@ export const Loader = async (seedFilePath = "./", context?: string): Promise<TRe
       const fileData: Record<string, ISeedManifest> = JSON.parse(rawData);
 
       for (const [tableName, manifest] of Object.entries(fileData)) {
-        const { pkey, keylen, resolver, refers, data } = manifest;
+        const { pkey, keylen, resolver, refers, lookup, data } = manifest;
         const [refTable, refField] = refers || [];
 
         if (refTable && refField) {
-          console.log(`   # [${fileName}] -> ${tableName}: Resolving referential integrity for ${refTable}.${refField}...`);
+          log?.info(`   # [${fileName}] -> ${tableName}: Resolving referential integrity for ${refTable}.${refField}...`);
           const refData = await Reference.Fetch({}, { table: refTable });
           if (refData && refData.length === 0) {
-            console.warn(red(`   ! Referential data missing for ${refTable}. Skipping ${tableName} hydration.`));
+            log?.error(`   ⚠️ Referential data missing for ${refTable}. Skipping ${tableName} hydration.`);
             continue;
           }
           // Cache reference data for quick lookup during transformation
           refData?.forEach((row: any) => resolutionCache.set(row[refField], row[refTable]));
         }
 
+        const lookupResult = lookup ? await Reference.Fetch(lookup.key, { table: lookup.table }) : undefined;
+        const lookupColumn = lookupResult ? Object.entries(lookupResult[0]).find(([key]) => key === lookup?.column) : undefined;
+        const addColumn = lookupColumn ? { [lookupColumn[0]]: lookupColumn[1] } : undefined;
+
         // Transformation Layer (The 'T' in ETL)
         const hydrated = data.map((row: any) => {
           // If field is missing and resolver is hashkey, generate new binary ID
-          if (resolver === "hashkey" && !row[pkey]) {
-            row[pkey] = hashKey(keylen || 32);
+          if (resolver === "hashkey") {
+            row[pkey] = row[pkey] ? hexify(row[pkey]) : hashKey(keylen || 32);
           }
           // If field exists but needs hex conversion (e.g. from JSON string to Buffer)
           else if (resolver === "hexify" && row[pkey]) {
@@ -89,28 +95,29 @@ export const Loader = async (seedFilePath = "./", context?: string): Promise<TRe
             if (resolvedKey) {
               return { ...row, [refTable!]: resolvedKey! };
             } else {
-              console.warn(yellow(`      ! Failed to resolve UPC for [${row[refTable!]}] in ${refTable}`));
+              log?.error(`   ⚠️ Failed to resolve Primary Key for [${row[refTable!]}] in ${refTable}`);
               return row;
             }
           }
-          return row;
+          return { ...row, ...addColumn };
         });
 
         // Loading Layer (The 'L' in ETL)
         const result = await Load(hydrated, { table: tableName, ignore: true });
 
         if (result.rows > 0) {
-          console.log(green(`   # [${fileName}] -> ${tableName}: ${result.rows} new records added.`));
+          log?.success(`   # [${fileName}] -> ${tableName}: ${result.rows} new records added.`);
         } else {
-          console.log(`   # [${fileName}] -> ${tableName}: Verified (No changes).`);
+          log?.info(`   # [${fileName}] -> ${tableName}: Verified (No changes).`);
         }
       }
     }
 
-    return ApiResult(true, logContext, { message: "Universal hydration complete." });
+    log?.info(`✅ Universal hydration complete.`)
+    return ApiResult(true, context, { message: "Universal hydration complete." });
   } catch (error) {
     const msg = error instanceof Error ? error.message : "FS_SCAN_ERROR";
-    Log().error(red(`\n[Critical] Hydration Failed: ${msg}`));
-    return ApiResult(false, logContext, { message: `Hydration failed: ${msg}` });
+    log?.error(`⚠️ Hydration Failed: ${msg}`);
+    return ApiResult(false, context, { message: `Hydration failed: ${msg}` });
   }
 };
