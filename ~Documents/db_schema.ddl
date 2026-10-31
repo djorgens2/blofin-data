@@ -25,27 +25,6 @@ CREATE  TABLE devel.broker (
 	CONSTRAINT ak_broker UNIQUE ( name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-CREATE  TABLE devel.broker_api ( 
-	broker_api           BINARY(3)   NOT NULL    PRIMARY KEY,
-	broker               BINARY(3)   NOT NULL    ,
-	environment          VARCHAR(20)   NOT NULL    ,
-	ident                CHAR(4)   NOT NULL    ,
-	auth_rank            SMALLINT UNSIGNED  NOT NULL    ,
-	description          VARCHAR(100)   NOT NULL    ,
-	rest_api_url         VARCHAR(100)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs     ,
-	private_wss_url      VARCHAR(100)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs     ,
-	public_wss_url       VARCHAR(100)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs     ,
-	CONSTRAINT ak_broker_api UNIQUE ( broker, environment ) ,
-	CONSTRAINT uk_ba_ident UNIQUE ( ident ) ,
-	CONSTRAINT uk_ba_rest_api_url UNIQUE ( rest_api_url ) ,
-	CONSTRAINT uk_private_wss_url UNIQUE ( private_wss_url ) ,
-	CONSTRAINT fk_ba_broker FOREIGN KEY ( broker ) REFERENCES devel.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) engine=InnoDB;
-
-CREATE INDEX uk_public_wss_url ON devel.broker_api ( public_wss_url );
-
-CREATE INDEX fk_ba_broker ON devel.broker_api ( broker );
-
 CREATE  TABLE devel.cancel_source ( 
 	cancel_source        BINARY(3)   NOT NULL    PRIMARY KEY,
 	source_ref           VARCHAR(15)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
@@ -64,14 +43,10 @@ CREATE  TABLE devel.command (
 	CONSTRAINT ak_command UNIQUE ( execute ) 
  ) engine=InnoDB;
 
-CREATE  TABLE devel.config_param ( 
-	config_param         VARCHAR(64)   NOT NULL    PRIMARY KEY,
-	default_param_value  VARCHAR(24)   NOT NULL    ,
-	value_type           ENUM('int','string','bin','date','bool')   NOT NULL DEFAULT ('_utf8mb4'string'')   ,
-	state                BINARY(3)   NOT NULL    
+CREATE  TABLE devel.config_param_group ( 
+	config_param_group   BINARY(1)   NOT NULL    PRIMARY KEY,
+	group_name           VARCHAR(16)   NOT NULL    
  ) engine=InnoDB;
-
-CREATE INDEX fk_cp_state ON devel.config_param ( state );
 
 CREATE  TABLE devel.contract_type ( 
 	contract_type        BINARY(3)   NOT NULL    PRIMARY KEY,
@@ -321,13 +296,171 @@ CREATE  TABLE devel.task (
 	CONSTRAINT ak_task UNIQUE ( name ) 
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
+CREATE  TABLE devel.broker_api ( 
+	broker_api           BINARY(1)   NOT NULL    PRIMARY KEY,
+	broker               BINARY(3)   NOT NULL    ,
+	state                BINARY(3)   NOT NULL    ,
+	environment          VARCHAR(20)   NOT NULL    ,
+	description          VARCHAR(100)   NOT NULL    ,
+	version              VARCHAR(10)       ,
+	activation_time      DATETIME(3)       ,
+	deprecation_time     DATETIME(3)       ,
+	CONSTRAINT ak_broker_api UNIQUE ( broker, environment ) ,
+	CONSTRAINT fk_ba_broker FOREIGN KEY ( broker ) REFERENCES devel.broker( broker ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ba_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_ba_broker ON devel.broker_api ( broker );
+
+CREATE INDEX fk_ba_state ON devel.broker_api ( state );
+
+CREATE  TABLE devel.config_param ( 
+	config_param         VARCHAR(64)   NOT NULL    PRIMARY KEY,
+	config_param_group   BINARY(1)   NOT NULL    ,
+	state                BINARY(3)   NOT NULL    ,
+	default_param_value  VARCHAR(24)   NOT NULL    ,
+	value_type           ENUM('int','string','bin','date','bool')   NOT NULL DEFAULT ('_utf8mb4'string'')   ,
+	CONSTRAINT fk_cp_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_cp_config_param_group FOREIGN KEY ( config_param_group ) REFERENCES devel.config_param_group( config_param_group ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_cp_state ON devel.config_param ( state );
+
+CREATE INDEX fk_cp_config_param_group ON devel.config_param ( config_param_group );
+
+CREATE  TABLE devel.fractal_fibonacci ( 
+	fractal              BINARY(3)   NOT NULL    ,
+	fractal_type         CHAR(10)  COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	fibonacci            BINARY(3)   NOT NULL    ,
+	fractal_state        CHAR(10)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	price                DOUBLE   NOT NULL    ,
+	CONSTRAINT pk_fractal_fibonacci PRIMARY KEY ( fractal, fractal_type, fibonacci ),
+	CONSTRAINT fk_ff_fibonacci FOREIGN KEY ( fibonacci ) REFERENCES devel.fibonacci( fibonacci ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ff_fractal FOREIGN KEY ( fractal ) REFERENCES devel.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ff_fractal_state FOREIGN KEY ( fractal_state ) REFERENCES devel.fractal_state( fractal_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+ALTER TABLE devel.fractal_fibonacci ADD CONSTRAINT ck_ff_fractal_type CHECK ( fractal_type in (_utf8mb4'extension',_utf8mb4'retrace') );
+
+CREATE INDEX fk_ff_fibonacci ON devel.fractal_fibonacci ( fibonacci );
+
+CREATE INDEX fk_ff_fractal_state ON devel.fractal_fibonacci ( fractal_state );
+
+ALTER TABLE devel.fractal_fibonacci MODIFY fractal_type CHAR(10)  COLLATE utf8mb4_0900_as_cs NOT NULL   COMMENT 'Retrace
+Extension';
+
+CREATE  TABLE devel.fractal_point ( 
+	fractal              BINARY(3)   NOT NULL    ,
+	point_type           CHAR(10)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	price                DOUBLE   NOT NULL    ,
+	create_time          DATETIME   NOT NULL    ,
+	CONSTRAINT pk_fractal_point PRIMARY KEY ( fractal, point_type ),
+	CONSTRAINT fk_p_point_type FOREIGN KEY ( point_type ) REFERENCES devel.point_type( point_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_point_fractal FOREIGN KEY ( fractal ) REFERENCES devel.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_fp_point_type ON devel.fractal_point ( point_type );
+
+CREATE  TABLE devel.instrument ( 
+	instrument           BINARY(3)   NOT NULL    PRIMARY KEY,
+	broker_api           BINARY(1)   NOT NULL    ,
+	base_currency        BINARY(3)   NOT NULL    ,
+	quote_currency       BINARY(3)   NOT NULL    ,
+	state                BINARY(3)   NOT NULL    ,
+	create_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
+	CONSTRAINT ak_instrument UNIQUE ( broker_api, base_currency, quote_currency ) ,
+	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_i_broker_api FOREIGN KEY ( broker_api ) REFERENCES devel.broker_api( broker_api ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_i_quote_currency ON devel.instrument ( quote_currency );
+
+CREATE INDEX fk_i_base_currency ON devel.instrument ( base_currency );
+
+CREATE INDEX fk_i_state ON devel.instrument ( state );
+
+CREATE  TABLE devel.instrument_detail ( 
+	instrument           BINARY(3)   NOT NULL    PRIMARY KEY,
+	instrument_type      BINARY(3)   NOT NULL    ,
+	contract_type        BINARY(3)   NOT NULL    ,
+	contract_value       DECIMAL(17,5)   NOT NULL    ,
+	max_leverage         SMALLINT UNSIGNED  NOT NULL    ,
+	min_size             DECIMAL(5,3)   NOT NULL    ,
+	lot_size             DECIMAL(5,3)   NOT NULL    ,
+	tick_size            DOUBLE   NOT NULL    ,
+	max_limit_size       DECIMAL(13,2)   NOT NULL    ,
+	max_market_size      DECIMAL(13,2)   NOT NULL    ,
+	list_time            DATETIME(3)   NOT NULL    ,
+	expiry_time          DATETIME(3)   NOT NULL    ,
+	update_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
+	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES devel.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES devel.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_id_instrument_type ON devel.instrument_detail ( instrument_type );
+
+CREATE INDEX fk_id_contract_type ON devel.instrument_detail ( contract_type );
+
+CREATE  TABLE devel.role ( 
+	role                 BINARY(3)   NOT NULL    PRIMARY KEY,
+	role_group           BINARY(3)   NOT NULL    ,
+	title                VARCHAR(30)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	description          VARCHAR(50)   NOT NULL    ,
+	auth_rank            SMALLINT UNSIGNED  NOT NULL DEFAULT (10)   ,
+	CONSTRAINT ak_role UNIQUE ( role_group, title ) ,
+	CONSTRAINT fk_rg_group FOREIGN KEY ( role_group ) REFERENCES devel.role_group( role_group ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE  TABLE devel.role_privilege ( 
+	role                 BINARY(3)   NOT NULL    ,
+	privilege            BINARY(3)   NOT NULL    ,
+	task                 BINARY(3)   NOT NULL    ,
+	state                BINARY(3)   NOT NULL    ,
+	CONSTRAINT pk_role_privilege PRIMARY KEY ( role, privilege, task ),
+	CONSTRAINT fk_rp_privilege FOREIGN KEY ( privilege ) REFERENCES devel.privilege( privilege ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_rp_task FOREIGN KEY ( task ) REFERENCES devel.task( task ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_rp_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_rp_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_rp_privilege ON devel.role_privilege ( privilege );
+
+CREATE INDEX fk_rp_task ON devel.role_privilege ( task );
+
+CREATE INDEX fk_rp_state ON devel.role_privilege ( state );
+
+CREATE  TABLE devel.user ( 
+	user               BINARY(3)   NOT NULL    PRIMARY KEY,
+	state                BINARY(3)   NOT NULL    ,
+	role                 BINARY(3)   NOT NULL    ,
+	email                VARCHAR(80)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	username             VARCHAR(30)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
+	password             BINARY(32)   NOT NULL    ,
+	hash                 BINARY(16)   NOT NULL    ,
+	image_url            VARCHAR(60)   NOT NULL    ,
+	create_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
+	update_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
+	logon_time           DATETIME(3)       ,
+	CONSTRAINT ak_user UNIQUE ( username, email ) ,
+	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
+
+CREATE INDEX fk_u_state ON devel.user ( state );
+
+CREATE INDEX fk_u_role ON devel.user ( role );
+
 CREATE  TABLE devel.account ( 
 	account              BINARY(3)   NOT NULL    PRIMARY KEY,
-	broker_api           BINARY(3)   NOT NULL    ,
 	alias                VARCHAR(100)   NOT NULL    ,
+	broker_api           BINARY(1)   NOT NULL    ,
 	state                BINARY(3)   NOT NULL    ,
 	margin_mode          VARCHAR(10)   NOT NULL    ,
 	hedging              BOOLEAN   NOT NULL DEFAULT ('1')   ,
+	auth_rank            SMALLINT UNSIGNED  NOT NULL    ,
 	total_equity         DECIMAL(15,3)   NOT NULL DEFAULT (0)   ,
 	isolated_equity      DECIMAL(15,3)   NOT NULL DEFAULT (0)   ,
 	create_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
@@ -385,89 +518,47 @@ CREATE  TABLE devel.account_detail (
 
 CREATE INDEX fk_ad_currency ON devel.account_detail ( currency );
 
-CREATE  TABLE devel.fractal_fibonacci ( 
-	fractal              BINARY(3)   NOT NULL    ,
-	fractal_type         CHAR(10)  COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	fibonacci            BINARY(3)   NOT NULL    ,
-	fractal_state        CHAR(10)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	price                DOUBLE   NOT NULL    ,
-	CONSTRAINT pk_fractal_fibonacci PRIMARY KEY ( fractal, fractal_type, fibonacci ),
-	CONSTRAINT fk_ff_fibonacci FOREIGN KEY ( fibonacci ) REFERENCES devel.fibonacci( fibonacci ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ff_fractal FOREIGN KEY ( fractal ) REFERENCES devel.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ff_fractal_state FOREIGN KEY ( fractal_state ) REFERENCES devel.fractal_state( fractal_state ) ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE  TABLE devel.broker_api_config ( 
+	broker_api           BINARY(1)   NOT NULL    ,
+	config_param         VARCHAR(64)   NOT NULL    ,
+	param_value          VARCHAR(24)       ,
+	priority             TINYINT UNSIGNED      ,
+	create_time          DATETIME(3)       ,
+	update_time          DATETIME(3)  ON UPDATE CURRENT_TIMESTAMP(3)     ,
+	CONSTRAINT pk_broker_api_config PRIMARY KEY ( broker_api, config_param ),
+	CONSTRAINT fk_bac_config_param FOREIGN KEY ( config_param ) REFERENCES devel.config_param( config_param ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_bac_broker_api FOREIGN KEY ( broker_api ) REFERENCES devel.broker_api( broker_api ) ON DELETE NO ACTION ON UPDATE NO ACTION
+ ) engine=InnoDB;
+
+CREATE INDEX fk_bac_config_param ON devel.broker_api_config ( config_param );
+
+CREATE  TABLE devel.candle ( 
+	instrument           BINARY(3)   NOT NULL    ,
+	period               BINARY(3)   NOT NULL    ,
+	timestamp            BIGINT   NOT NULL    ,
+	open                 DOUBLE   NOT NULL    ,
+	high                 DOUBLE   NOT NULL    ,
+	low                  DOUBLE   NOT NULL    ,
+	close                DOUBLE   NOT NULL    ,
+	volume               INT   NOT NULL    ,
+	vol_currency         DECIMAL(24,12)   NOT NULL    ,
+	vol_currency_quote   DECIMAL(24,12)   NOT NULL    ,
+	completed            BOOLEAN   NOT NULL    ,
+	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, timestamp ),
+	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
 
-ALTER TABLE devel.fractal_fibonacci ADD CONSTRAINT ck_ff_fractal_type CHECK ( fractal_type in (_utf8mb4'extension',_utf8mb4'retrace') );
-
-CREATE INDEX fk_ff_fibonacci ON devel.fractal_fibonacci ( fibonacci );
-
-CREATE INDEX fk_ff_fractal_state ON devel.fractal_fibonacci ( fractal_state );
-
-ALTER TABLE devel.fractal_fibonacci MODIFY fractal_type CHAR(10)  COLLATE utf8mb4_0900_as_cs NOT NULL   COMMENT 'Retrace
-Extension';
-
-CREATE  TABLE devel.fractal_point ( 
-	fractal              BINARY(3)   NOT NULL    ,
-	point_type           CHAR(10)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	price                DOUBLE   NOT NULL    ,
-	create_time          DATETIME   NOT NULL    ,
-	CONSTRAINT pk_fractal_point PRIMARY KEY ( fractal, point_type ),
-	CONSTRAINT fk_p_point_type FOREIGN KEY ( point_type ) REFERENCES devel.point_type( point_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_point_fractal FOREIGN KEY ( fractal ) REFERENCES devel.fractal( fractal ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_fp_point_type ON devel.fractal_point ( point_type );
-
-CREATE  TABLE devel.instrument ( 
-	instrument           BINARY(3)   NOT NULL    PRIMARY KEY,
-	account              BINARY(3)   NOT NULL    ,
-	base_currency        BINARY(3)   NOT NULL    ,
-	quote_currency       BINARY(3)   NOT NULL    ,
-	state                BINARY(3)   NOT NULL    ,
-	create_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
-	CONSTRAINT ak_instrument UNIQUE ( account, base_currency, quote_currency ) ,
-	CONSTRAINT fk_i_base_currency FOREIGN KEY ( base_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_quote_currency FOREIGN KEY ( quote_currency ) REFERENCES devel.currency( currency ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_i_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_i_quote_currency ON devel.instrument ( quote_currency );
-
-CREATE INDEX fk_i_base_currency ON devel.instrument ( base_currency );
-
-CREATE INDEX fk_i_state ON devel.instrument ( state );
-
-CREATE  TABLE devel.instrument_detail ( 
-	instrument           BINARY(3)   NOT NULL    PRIMARY KEY,
-	instrument_type      BINARY(3)   NOT NULL    ,
-	contract_type        BINARY(3)   NOT NULL    ,
-	contract_value       DECIMAL(17,5)   NOT NULL    ,
-	max_leverage         SMALLINT UNSIGNED  NOT NULL    ,
-	min_size             DECIMAL(5,3)   NOT NULL    ,
-	lot_size             DECIMAL(5,3)   NOT NULL    ,
-	tick_size            DOUBLE   NOT NULL    ,
-	max_limit_size       DECIMAL(13,2)   NOT NULL    ,
-	max_market_size      DECIMAL(13,2)   NOT NULL    ,
-	list_time            DATETIME(3)   NOT NULL    ,
-	expiry_time          DATETIME(3)   NOT NULL    ,
-	update_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
-	CONSTRAINT fk_id_contract_type FOREIGN KEY ( contract_type ) REFERENCES devel.contract_type( contract_type ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_id_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_id_instrument_type FOREIGN KEY ( instrument_type ) REFERENCES devel.instrument_type( instrument_type ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_id_instrument_type ON devel.instrument_detail ( instrument_type );
-
-CREATE INDEX fk_id_contract_type ON devel.instrument_detail ( contract_type );
+CREATE INDEX fk_c_period ON devel.candle ( period );
 
 CREATE  TABLE devel.instrument_position ( 
 	instrument_position  BINARY(6)   NOT NULL    PRIMARY KEY,
+	account              BINARY(3)   NOT NULL    ,
 	instrument           BINARY(3)   NOT NULL    ,
 	position             CHAR(5)   NOT NULL    ,
 	state                BINARY(3)   NOT NULL    ,
-	leverage             SMALLINT UNSIGNED  NOT NULL DEFAULT (0)   ,
 	period               BINARY(3)       ,
+	leverage             SMALLINT UNSIGNED  NOT NULL DEFAULT (0)   ,
 	sma                  SMALLINT UNSIGNED  NOT NULL DEFAULT (0)   ,
 	lot_scale            DECIMAL(5,2)   NOT NULL DEFAULT (0)   ,
 	martingale           DECIMAL(5,2)   NOT NULL DEFAULT (_utf8mb4'0.00')   ,
@@ -475,11 +566,12 @@ CREATE  TABLE devel.instrument_position (
 	strict_targets       BOOLEAN   NOT NULL DEFAULT (false)   ,
 	update_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
 	close_time           DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
-	CONSTRAINT ak_instrument_position UNIQUE ( instrument, position ) ,
+	CONSTRAINT ak_instrument_position UNIQUE ( account, instrument, position ) ,
 	CONSTRAINT fk_ipos_position FOREIGN KEY ( position ) REFERENCES devel.position( position ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ipos_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
 	CONSTRAINT fk_ipos_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_ipos_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
+	CONSTRAINT fk_ipos_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION,
+	CONSTRAINT fk_ipos_account FOREIGN KEY ( account ) REFERENCES devel.account( account ) ON DELETE NO ACTION ON UPDATE NO ACTION
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE INDEX fk_ipos_state ON devel.instrument_position ( state );
@@ -623,34 +715,6 @@ CREATE  TABLE devel.response_log (
 
 CREATE INDEX fk_rl_process_master ON devel.response_log ( process_master );
 
-CREATE  TABLE devel.role ( 
-	role                 BINARY(3)   NOT NULL    PRIMARY KEY,
-	role_group           BINARY(3)   NOT NULL    ,
-	title                VARCHAR(30)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	description          VARCHAR(50)   NOT NULL    ,
-	auth_rank            SMALLINT UNSIGNED  NOT NULL DEFAULT (10)   ,
-	CONSTRAINT ak_role UNIQUE ( role_group, title ) ,
-	CONSTRAINT fk_rg_group FOREIGN KEY ( role_group ) REFERENCES devel.role_group( role_group ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE  TABLE devel.role_privilege ( 
-	role                 BINARY(3)   NOT NULL    ,
-	privilege            BINARY(3)   NOT NULL    ,
-	task                 BINARY(3)   NOT NULL    ,
-	state                BINARY(3)   NOT NULL    ,
-	CONSTRAINT pk_role_privilege PRIMARY KEY ( role, privilege, task ),
-	CONSTRAINT fk_rp_privilege FOREIGN KEY ( privilege ) REFERENCES devel.privilege( privilege ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_rp_task FOREIGN KEY ( task ) REFERENCES devel.task( task ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_rp_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_rp_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_rp_privilege ON devel.role_privilege ( privilege );
-
-CREATE INDEX fk_rp_task ON devel.role_privilege ( task );
-
-CREATE INDEX fk_rp_state ON devel.role_privilege ( state );
-
 CREATE  TABLE devel.stop_request ( 
 	stop_request         BINARY(5)   NOT NULL    PRIMARY KEY,
 	instrument_position  BINARY(6)   NOT NULL    ,
@@ -678,27 +742,6 @@ CREATE INDEX ie_sr_update_time ON devel.stop_request ( stop_request, update_time
 
 CREATE INDEX fk_sr_margin_mode ON devel.stop_request ( margin_mode );
 
-CREATE  TABLE devel.user ( 
-	user               BINARY(3)   NOT NULL    PRIMARY KEY,
-	state                BINARY(3)   NOT NULL    ,
-	role                 BINARY(3)   NOT NULL    ,
-	email                VARCHAR(80)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	username             VARCHAR(30)  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs NOT NULL    ,
-	password             BINARY(32)   NOT NULL    ,
-	hash                 BINARY(16)   NOT NULL    ,
-	image_url            VARCHAR(60)   NOT NULL    ,
-	create_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
-	update_time          DATETIME(3)   NOT NULL DEFAULT (now(3))   ,
-	logon_time           DATETIME(3)       ,
-	CONSTRAINT ak_user UNIQUE ( username, email ) ,
-	CONSTRAINT fk_u_state FOREIGN KEY ( state ) REFERENCES devel.state( state ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_u_role FOREIGN KEY ( role ) REFERENCES devel.role( role ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_u_state ON devel.user ( state );
-
-CREATE INDEX fk_u_role ON devel.user ( role );
-
 CREATE  TABLE devel.user_account ( 
 	user               BINARY(3)   NOT NULL    ,
 	account              BINARY(3)   NOT NULL    ,
@@ -717,25 +760,6 @@ CREATE INDEX fk_ua_account ON devel.user_account ( account );
 CREATE INDEX fk_ua_role ON devel.user_account ( role );
 
 CREATE INDEX fk_ua_state ON devel.user_account ( state );
-
-CREATE  TABLE devel.candle ( 
-	instrument           BINARY(3)   NOT NULL    ,
-	period               BINARY(3)   NOT NULL    ,
-	timestamp            BIGINT   NOT NULL    ,
-	open                 DOUBLE   NOT NULL    ,
-	high                 DOUBLE   NOT NULL    ,
-	low                  DOUBLE   NOT NULL    ,
-	close                DOUBLE   NOT NULL    ,
-	volume               INT   NOT NULL    ,
-	vol_currency         DECIMAL(24,12)   NOT NULL    ,
-	vol_currency_quote   DECIMAL(24,12)   NOT NULL    ,
-	completed            BOOLEAN   NOT NULL    ,
-	CONSTRAINT pk_candle PRIMARY KEY ( instrument, period, timestamp ),
-	CONSTRAINT fk_c_instrument FOREIGN KEY ( instrument ) REFERENCES devel.instrument( instrument ) ON DELETE NO ACTION ON UPDATE NO ACTION,
-	CONSTRAINT fk_c_period FOREIGN KEY ( period ) REFERENCES devel.period( period ) ON DELETE NO ACTION ON UPDATE NO ACTION
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs;
-
-CREATE INDEX fk_c_period ON devel.candle ( period );
 
 CREATE  TABLE devel.stop_price ( 
 	stop_request         BINARY(5)   NOT NULL    ,
@@ -770,24 +794,23 @@ select
 	a.alias AS alias,
 	a.state AS state,
 	s.status AS status,
-	ba.broker AS broker,
-	ba.broker_api AS broker_api,
-	ba.ident AS ident,
-	ba.environment AS environment,
-	ba.description AS description,
-	a.margin_mode AS margin_mode,
-	a.hedging AS hedging,
+	b.broker AS broker,
 	b.name AS broker_name,
 	b.image_url AS broker_image_url,
 	b.website_url AS broker_website_url,
-	a.total_equity AS total_equity,
-	a.isolated_equity AS isolated_equity,
-	ba.rest_api_url AS rest_api_url,
-	ba.private_wss_url AS private_wss_url,
-	ba.public_wss_url AS public_wss_url,
+	ba.broker_api AS broker_api,
+	ba.environment AS environment,
+	ba.description AS description,
+	ba.version AS version,
+	ba.activation_time AS activation_time,
+	ba.deprecation_time AS deprecation_time,
+	a.margin_mode AS margin_mode,
+	a.hedging AS hedging,
 	c.currency AS currency,
 	c.symbol AS account_currency,
 	c.image_url AS currency_image_url,
+	a.total_equity AS total_equity,
+	a.isolated_equity AS isolated_equity,
 	ad.balance AS balance,
 	ad.currency_equity AS currency_equity,
 	ad.currency_isolated_equity AS currency_isolated_equity,
@@ -819,7 +842,7 @@ join devel.state s on
 
 CREATE VIEW devel.vw_api_requests AS
 select
-	i.account AS account,
+	ipos.account AS account,
 	conv(hex(o.order_id), 16, 10) AS orderId,
 	if((rs.status = 'Queued'), 'Queued', ifnull(os.status, rs.status)) AS status,
 	concat(b.symbol, '-', q.symbol) AS instId,
@@ -878,7 +901,6 @@ join devel.state rs on
 CREATE VIEW devel.vw_api_stop_requests AS with Instruments as (
 select
 	i.instrument AS instrument,
-	i.account AS account,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits
 from
@@ -892,7 +914,7 @@ join devel.currency q on
 StopPrice as (
 select
 	ipos.instrument_position AS instrument_position,
-	i.account AS account,
+	ipos.account AS account,
 	i.symbol AS symbol,
 	sr.stop_request AS stop_request,
 	max((case when (st.source_ref = 'tp') then replace(format(sp.trigger_price, i.digits, 'en_US'), ',', '') end)) AS tp_trigger_price,
@@ -911,7 +933,7 @@ join devel.stop_type st on
 	((st.stop_type = sp.stop_type)))
 group by
 	ipos.instrument_position,
-	i.account,
+	ipos.account,
 	sr.stop_request),
 StopOrderKeys as (
 select
@@ -958,7 +980,7 @@ join devel.state s on
 
 CREATE VIEW devel.vw_audit_requests AS
 select
-	i.account AS account,
+	ipos.account AS account,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
 	ipos.position AS position,
@@ -1013,15 +1035,15 @@ where
 	auth.privilege,
 	t.task) in (
 	select
-		r.role,
-		auth.privilege,
-		t.task
+		rp.role,
+		rp.privilege,
+		rp.task
 	from
-		devel.role_privilege) is false;
+		devel.role_privilege rp) is false;
 
 CREATE VIEW devel.vw_audit_states AS
 select
-	i.account AS account,
+	ipos.account AS account,
 	r.request AS request,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
@@ -1055,7 +1077,7 @@ join devel.state ns on
 
 CREATE VIEW devel.vw_candles AS
 select
-	i.account AS account,
+	i.broker_api AS broker_api,
 	i.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
 	b.currency AS base_currency,
@@ -1099,7 +1121,7 @@ from
 
 CREATE VIEW devel.vw_instrument_candles AS
 select
-	i.account AS account,
+	i.broker_api AS broker_api,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -1107,17 +1129,19 @@ select
 	p.timeframe AS timeframe,
 	p.timeframe_minutes AS timeframe_minutes,
 	c.timestamp AS timestamp,
-	cast(ac.param_value as unsigned) AS candle_max_fetch
+	cast(coalesce(bac.param_value, cp.default_param_value) as unsigned) AS candle_max_fetch
 from
-	((((((devel.instrument_position ipos
+	(((((((devel.instrument_position ipos
 join devel.instrument i on
 	((i.instrument = ipos.instrument)))
 join devel.currency b on
 	((b.currency = i.base_currency)))
 join devel.currency q on
 	((q.currency = i.quote_currency)))
-join devel.account_config ac on
-	(((ac.account = i.account) and (ac.config_param = 'candleMaxFetch'))))
+join devel.config_param cp on
+	((cp.config_param = 'candleMaxFetch')))
+left join devel.broker_api_config bac on
+	(((bac.broker_api = i.broker_api) and (bac.config_param = cp.config_param))))
 join (
 	select
 		c.instrument AS instrument,
@@ -1145,7 +1169,6 @@ select
 	qc.symbol AS quote_symbol,
 	ipos.position AS position,
 	ba.broker_api AS broker_api,
-	ba.ident AS ident,
 	ba.environment AS environment,
 	a.hedging AS hedging,
 	coalesce(ipos.state, disabled.state) AS state,
@@ -1158,11 +1181,11 @@ select
 	p.timeframe AS timeframe,
 	p.timeframe_minutes AS timeframe_minutes,
 	a.margin_mode AS margin_mode,
-	coalesce(nullif(ipos.leverage, 0), cast(devel.dleverage.param_value as unsigned)) AS leverage,
+	coalesce(nullif(ipos.leverage, 0), cast(coalesce(Lev.param_value, dLev.default_param_value) as unsigned)) AS leverage,
 	id.max_leverage AS max_leverage,
 	coalesce(ipos.lot_scale, 0) AS lot_scale,
 	coalesce(ipos.martingale, 0) AS martingale,
-	coalesce(nullif(ipos.sma, 0), cast(devel.dsma.param_value as unsigned)) AS sma,
+	coalesce(nullif(ipos.sma, 0), cast(coalesce(Sma.param_value, dSma.default_param_value) as unsigned)) AS sma,
 	coalesce(ipos.strict_stops, 0) AS strict_stops,
 	coalesce(ipos.strict_targets, 0) AS strict_targets,
 	coalesce(length(substring_index(id.tick_size, '.',-(1))), 0) AS digits,
@@ -1173,17 +1196,21 @@ select
 	ipos.close_time AS close_time,
 	ipos.update_time AS update_time
 from
-	((((((((((((((devel.account a
+	((((((((((((((((devel.instrument_position ipos
 join devel.instrument i on
-	((i.account = a.account)))
-join devel.instrument_position ipos on
-	((ipos.instrument = i.instrument)))
-join devel.vw_account_config dsma on
-	(((devel.dsma.account = i.account) and (devel.dsma.config_param = 'defaultSma'))))
-join devel.vw_account_config dleverage on
-	(((devel.dleverage.account = i.account) and (devel.dleverage.config_param = 'defaultLeverage'))))
+	((i.instrument = ipos.instrument)))
+join devel.account a on
+	((a.account = ipos.account)))
+join devel.config_param dSma on
+	((dSma.config_param = 'defaultSma')))
+left join devel.broker_api_config Sma on
+	(((Sma.config_param = dSma.config_param) and (Sma.broker_api = i.broker_api))))
+join devel.config_param dLev on
+	((dLev.config_param = 'defaultLeverage')))
+left join devel.broker_api_config Lev on
+	(((Lev.config_param = dLev.config_param) and (Lev.broker_api = i.broker_api))))
 join devel.broker_api ba on
-	((ba.broker_api = a.broker_api)))
+	((ba.broker_api = i.broker_api)))
 join devel.instrument_detail id on
 	((id.instrument = i.instrument)))
 join devel.currency bc on
@@ -1233,24 +1260,18 @@ left join (
 
 CREATE VIEW devel.vw_instruments AS
 select
-	a.account AS account,
-	a.alias AS account_alias,
 	b.broker AS broker,
 	b.name AS broker_name,
-	ua.alias AS user_alias,
 	i.instrument AS instrument,
 	concat(bc.symbol, '-', qc.symbol) AS symbol,
 	bc.currency AS base_currency,
 	bc.symbol AS base_symbol,
 	qc.currency AS quote_currency,
 	qc.symbol AS quote_symbol,
-	ba.ident AS ident,
 	ba.environment AS environment,
 	it.source_ref AS instrument_type,
 	ct.source_ref AS contract_type,
 	id.contract_value AS contract_value,
-	a.hedging AS hedging,
-	a.margin_mode AS margin_mode,
 	id.max_leverage AS max_leverage,
 	id.min_size AS min_size,
 	id.max_limit_size AS max_limit_size,
@@ -1265,15 +1286,11 @@ select
 	id.update_time AS update_time,
 	i.create_time AS create_time
 from
-	((((((((((devel.instrument i
-join devel.account a on
-	((a.account = i.account)))
+	((((((((devel.instrument i
 join devel.broker_api ba on
-	((ba.broker_api = a.broker_api)))
+	((ba.broker_api = i.broker_api)))
 join devel.broker b on
 	((b.broker = ba.broker)))
-join devel.user_account ua on
-	((ua.account = i.account)))
 join devel.currency bc on
 	((bc.currency = i.base_currency)))
 join devel.currency qc on
@@ -1390,7 +1407,7 @@ CREATE VIEW devel.vw_orders AS
 select
 	r.request AS request,
 	o.order_id AS order_id,
-	i.account AS account,
+	ipos.account AS account,
 	ipos.instrument AS instrument,
 	ipos.instrument_position AS instrument_position,
 	concat(b.symbol, '-', q.symbol) AS symbol,
@@ -1483,7 +1500,7 @@ left join devel.order_category cat on
 
 CREATE VIEW devel.vw_positions AS
 select
-	i.account AS account,
+	ipos.account AS account,
 	p.positions AS positions,
 	ipos.instrument_position AS instrument_position,
 	ipos.instrument AS instrument,
@@ -1606,7 +1623,7 @@ from
 group by
 	so.client_order_id)
 select
-	i.account AS account,
+	ipos.account AS account,
 	sr.stop_request AS stop_request,
 	so.tpsl_id AS tpsl_id,
 	so.client_order_id AS client_order_id,
@@ -1674,11 +1691,10 @@ select
 	ifnull(ua.alias, a.alias) AS alias,
 	ba.broker_api AS ba_broker_api,
 	ba.environment AS environment,
-	ba.ident AS ident,
 	ua.user AS user,
 	u.username AS username,
 	u.email AS user_email,
-	ba.auth_rank AS auth_rank,
+	a.auth_rank AS auth_rank,
 	uar.title AS auth_role,
 	(case
 		when ((us.status = 'Enabled')
@@ -1874,6 +1890,7 @@ order by
 	audit.symbol,
 	audit.timeframe,
 	audit.hour desc;
+
 CREATE TRIGGER devel.trig_audit_request AFTER UPDATE ON request FOR EACH ROW BEGIN
 	IF (OLD.state != NEW.state) THEN
        INSERT INTO devel.audit_request VALUES (NEW.request, OLD.state, NEW.state, NEW.update_time);
